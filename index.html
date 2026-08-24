@@ -172,6 +172,9 @@
             <div class="nav-link nav-child" data-section="certificacion" onclick="showSection('certificacion')">
                 <i class="fas fa-tree"></i> <span>Certificación</span>
             </div>
+            <div class="nav-link nav-child" data-section="viviendas" onclick="showSection('viviendas')">
+                <i class="fas fa-home"></i> <span>Viviendas</span>
+            </div>
             <div class="nav-link nav-child" data-section="edan" onclick="showSection('edan')">
                 <i class="fas fa-house-damage"></i> <span>EDAN</span>
             </div>
@@ -479,7 +482,7 @@
         </div>
     </div>
     
-    <!-- CERTIFICACIÓN DE ÁRBOLES COMPLETA -->
+    <!-- CERTIFICACIÓN DE ÁRBOLES -->
     <div id="section-certificacion" class="section">
         <div class="card">
             <div class="card-header">
@@ -493,7 +496,7 @@
                     Complete todos los campos.
                 </div>
 
-                <!-- ===== DATOS DEL SOLICITANTE ===== -->
+                <!-- DATOS DEL SOLICITANTE -->
                 <div class="card mb-2" style="background:#f8f9fa;">
                     <div class="card-header">
                         <i class="fas fa-user"></i> Datos del Solicitante
@@ -522,7 +525,7 @@
                     </div>
                 </div>
 
-                <!-- ===== DATOS DEL INSPECTOR ===== -->
+                <!-- DATOS DEL INSPECTOR -->
                 <div class="card mb-2" style="background:#e9ecef;">
                     <div class="card-header">
                         <i class="fas fa-user-check"></i> Datos del Inspector (Actuante)
@@ -543,7 +546,7 @@
                     </div>
                 </div>
 
-                <!-- ===== DATOS DEL ÁRBOL ===== -->
+                <!-- DATOS DEL ÁRBOL -->
                 <div class="card mb-2">
                     <div class="card-header">
                         <i class="fas fa-tree"></i> Datos del Árbol
@@ -593,7 +596,7 @@
                     </div>
                 </div>
 
-                <!-- ===== UBICACIÓN UTM ===== -->
+                <!-- UBICACIÓN UTM -->
                 <div class="card mb-2">
                     <div class="card-header">
                         <i class="fas fa-map-marker-alt"></i> Ubicación UTM
@@ -616,7 +619,7 @@
                     </div>
                 </div>
 
-                <!-- ===== OBSERVACIONES ===== -->
+                <!-- OBSERVACIONES -->
                 <div class="row mt-2">
                     <div class="col-12 mb-2">
                         <label class="form-label">📝 Observaciones</label>
@@ -624,7 +627,7 @@
                     </div>
                 </div>
 
-                <!-- ===== FOTOS ===== -->
+                <!-- FOTOS -->
                 <div class="row mt-2">
                     <div class="col-md-6 mb-2">
                         <label class="form-label">📸 Foto 1</label>
@@ -639,7 +642,7 @@
                     </div>
                 </div>
 
-                <!-- ===== FIRMA DIGITAL ===== -->
+                <!-- FIRMA -->
                 <div class="row mt-2">
                     <div class="col-12 mb-2">
                         <label class="form-label">✍️ Firma del Inspector</label>
@@ -655,7 +658,7 @@
                     </div>
                 </div>
 
-                <!-- ===== BOTONES ===== -->
+                <!-- BOTONES -->
                 <div class="row mt-3">
                     <div class="col-12">
                         <button class="btn btn-success" onclick="guardarCertificacionArbol()">
@@ -670,12 +673,345 @@
             </div>
         </div>
 
-        <!-- ===== LISTA DE CERTIFICACIONES ===== -->
+        <!-- LISTA DE CERTIFICACIONES -->
         <div class="card mt-3">
             <div class="card-header">
                 <i class="fas fa-list"></i> Certificaciones Registradas
             </div>
             <div class="card-body" id="listaCertificaciones"></div>
+        </div>
+    </div>
+    
+    <!-- VIVIENDAS -->
+    <div id="section-viviendas" class="section">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-home"></i> Inspección de Viviendas
+                <span class="badge badge-info ms-2">📋 Registro Oficial</span>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Inspección de viviendas:</strong> Registro oficial para evaluación de daños en viviendas.
+                    Complete todos los campos y adjunte las fotos de soporte.
+                </div>
+
+                <!-- DATOS GENERALES -->
+                <div class="card mb-2" style="background:#f8f9fa;">
+                    <div class="card-header">
+                        <i class="fas fa-file-alt"></i> Datos Generales
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">📋 N° Inspección</label>
+                                <input type="text" id="ivNumero" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label">📅 Fecha</label>
+                                <input type="date" id="ivFecha" class="form-control">
+                            </div>
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label">🕐 Hora</label>
+                                <input type="time" id="ivHora" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DATOS DEL RESPONSABLE (PROPIETARIO) -->
+                <div class="card mb-2" style="background:#f8f9fa;">
+                    <div class="card-header">
+                        <i class="fas fa-user"></i> Datos del Responsable (Propietario)
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">👤 Responsable</label>
+                                <input type="text" id="ivResponsable" class="form-control" placeholder="Nombre completo">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📄 C.I.</label>
+                                <input type="text" id="ivResponsableCI" class="form-control" placeholder="V-12345678">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📞 Teléfono</label>
+                                <input type="text" id="ivResponsableTelefono" class="form-control" placeholder="0414-1234567">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UBICACIÓN -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-map-marker-alt"></i> Ubicación
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📍 Dirección</label>
+                                <input type="text" id="ivDireccion" class="form-control" placeholder="Caserío, calle, sector">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">🏛️ Municipio</label>
+                                <select id="ivMunicipio" class="form-select">
+                                    <option value="Papelón">Papelón</option>
+                                    <option value="Caño Delgadito">Caño Delgadito</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">🏛️ Estado</label>
+                                <input type="text" id="ivEstado" class="form-control" value="Portuguesa" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARACTERÍSTICAS DE LA ESTRUCTURA -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-building"></i> Características de la Estructura
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🏗️ Tipología</label>
+                                <select id="ivTipologia" class="form-select">
+                                    <option value="informal_artesanal">Informal/Artesanal (Tipo B)</option>
+                                    <option value="formal">Formal (Tipo A)</option>
+                                    <option value="mixta">Mixta</option>
+                                    <option value="otra">Otra</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🧱 Paredes</label>
+                                <select id="ivParedes" class="form-select">
+                                    <option value="bahareque">Bahareque</option>
+                                    <option value="bloque">Bloque</option>
+                                    <option value="madera">Madera</option>
+                                    <option value="zinc">Zinc</option>
+                                    <option value="adobe">Adobe</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🏠 Cubierta</label>
+                                <select id="ivCubierta" class="form-select">
+                                    <option value="zinc">Láminas de Zinc</option>
+                                    <option value="tejas">Tejas</option>
+                                    <option value="concreto">Concreto</option>
+                                    <option value="madera">Madera</option>
+                                    <option value="paja">Paja</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🟫 Piso</label>
+                                <select id="ivPiso" class="form-select">
+                                    <option value="tierra">Tierra</option>
+                                    <option value="cemento">Cemento</option>
+                                    <option value="ceramica">Cerámica</option>
+                                    <option value="madera">Madera</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-2">
+                                <label class="form-label">📋 Descripción de daños</label>
+                                <textarea id="ivDescripcionDanos" class="form-control" rows="3" placeholder="Describa los daños visibles en la estructura..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COORDENADAS UTM -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-globe"></i> Coordenadas UTM
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">📍 UTM Este</label>
+                                <input type="text" id="ivUtmE" class="form-control" placeholder="Ej: 453601">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">📍 UTM Norte</label>
+                                <input type="text" id="ivUtmN" class="form-control" placeholder="Ej: 968767">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🗺️ Zona</label>
+                                <input type="text" id="ivUtmZona" class="form-control" placeholder="Ej: 19P">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CLASIFICACIÓN DEL RIESGO -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-exclamation-triangle"></i> Clasificación del Riesgo
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">⚠️ Nivel de Riesgo</label>
+                                <select id="ivRiesgo" class="form-select">
+                                    <option value="bajo">🟢 Bajo</option>
+                                    <option value="medio">🟡 Medio</option>
+                                    <option value="alto">🟠 Alto</option>
+                                    <option value="muy_alto">🔴 Muy Alto</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📊 Total Personas</label>
+                                <input type="number" id="ivTotalPersonas" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAMILIAS BENEFICIADAS -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-users"></i> Familias Beneficiadas
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">👤 Jefe de Familia</label>
+                                <input type="text" id="ivJefeFamilia" class="form-control" placeholder="Nombre completo">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📄 C.I. Jefe de Familia</label>
+                                <input type="text" id="ivJefeFamiliaCI" class="form-control" placeholder="V-12345678">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">👨 Adultos (M)</label>
+                                <input type="number" id="ivAdultosM" class="form-control" value="0" min="0" onchange="calcularTotalPersonasVivienda()">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">👩 Adultos (F)</label>
+                                <input type="number" id="ivAdultosF" class="form-control" value="0" min="0" onchange="calcularTotalPersonasVivienda()">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">🧑 Adolescentes (M)</label>
+                                <input type="number" id="ivAdolescentesM" class="form-control" value="0" min="0" onchange="calcularTotalPersonasVivienda()">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">👧 Adolescentes (F)</label>
+                                <input type="number" id="ivAdolescentesF" class="form-control" value="0" min="0" onchange="calcularTotalPersonasVivienda()">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">👦 Niños (M)</label>
+                                <input type="number" id="ivNinosM" class="form-control" value="0" min="0" onchange="calcularTotalPersonasVivienda()">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">👧 Niños (F)</label>
+                                <input type="number" id="ivNinosF" class="form-control" value="0" min="0" onchange="calcularTotalPersonasVivienda()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECOMENDACIONES -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">📝 Recomendaciones</label>
+                        <textarea id="ivRecomendaciones" class="form-control" rows="3" placeholder="Recomendaciones para los afectados..."></textarea>
+                    </div>
+                </div>
+
+                <!-- DATOS DEL INSPECTOR -->
+                <div class="card mb-2" style="background:#e9ecef;">
+                    <div class="card-header">
+                        <i class="fas fa-user-check"></i> Datos del Inspector
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">👤 Inspector</label>
+                                <select id="ivInspector" class="form-select" onchange="cargarDatosInspectorVivienda()">
+                                    <option value="">— Seleccione el Inspector —</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📋 Jerarquía</label>
+                                <input type="text" id="ivInspectorJerarquia" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FOTOS -->
+                <div class="row mt-2">
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">📸 Foto 1</label>
+                        <input type="file" id="ivFoto1" class="form-control" accept="image/*" capture="environment">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">📸 Foto 2</label>
+                        <input type="file" id="ivFoto2" class="form-control" accept="image/*" capture="environment">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">📸 Foto 3</label>
+                        <input type="file" id="ivFoto3" class="form-control" accept="image/*" capture="environment">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">📸 Foto 4</label>
+                        <input type="file" id="ivFoto4" class="form-control" accept="image/*" capture="environment">
+                    </div>
+                    <div class="col-12 mb-2">
+                        <div id="ivFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
+                    </div>
+                </div>
+
+                <!-- IMAGEN SATELITAL -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">🛰️ Imagen Satelital (Ubicación)</label>
+                        <input type="file" id="ivSatelital" class="form-control" accept="image/*">
+                        <div id="ivSatelitalPreview" style="margin-top:10px"></div>
+                    </div>
+                </div>
+
+                <!-- FIRMA -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">✍️ Firma del Inspector</label>
+                        <canvas id="ivFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaVivienda()">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="capturarFirmaVivienda()">
+                                <i class="fas fa-save"></i> Guardar Firma
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-success" onclick="guardarInspeccionVivienda()">
+                            <i class="fas fa-save"></i> Registrar Inspección
+                        </button>
+                        <button class="btn btn-primary" onclick="generarPDFVivienda()">
+                            <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
+                    </div>
+                </div>
+                <div id="ivMensaje" class="mt-2"></div>
+            </div>
+        </div>
+
+        <!-- LISTA DE INSPECCIONES -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="fas fa-list"></i> Inspecciones Registradas
+            </div>
+            <div class="card-body" id="listaViviendas"></div>
         </div>
     </div>
     
@@ -938,6 +1274,7 @@ function actualizarMenuPorRol(rol) {
         solicitudes: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
         edan: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
         certificacion: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
+        viviendas: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
         alertas: ['comandante', 'segundo_comandante', 'jefe_servicio'],
         partes: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
         cierres: ['comandante', 'segundo_comandante'],
@@ -974,6 +1311,7 @@ function toggleSubmenu(submenuId) {
 function actualizarSubmenus(seccion) {
     const submenuMap = {
         'certificacion': 'submenu-riesgo',
+        'viviendas': 'submenu-riesgo',
         'edan': 'submenu-riesgo',
         'solicitudes': 'submenu-riesgo',
         'alertas': 'submenu-riesgo',
@@ -1033,6 +1371,7 @@ function showSection(section) {
         solicitudes: 'Solicitudes',
         edan: 'EDAN',
         certificacion: 'Certificación de Árboles',
+        viviendas: 'Inspección de Viviendas',
         alertas: 'Alertas Tempranas',
         partes: 'Partes de Servicio',
         cierres: 'Cierres',
@@ -1047,6 +1386,7 @@ function showSection(section) {
     if (section === 'solicitudes') cargarSolicitudes();
     if (section === 'edan') cargarEdan();
     if (section === 'certificacion') { cargarSolicitante(); cargarInspector(); cargarCertificaciones(); }
+    if (section === 'viviendas') { cargarInspectoresVivienda(); cargarViviendas(); }
     if (section === 'alertas') cargarAlertas();
     if (section === 'partes') cargarPartes();
     if (section === 'cierres') cargarHistorialCierres();
@@ -1067,6 +1407,7 @@ function cargarDatos() {
     cargarSolicitudes();
     cargarEdan();
     cargarCertificaciones();
+    cargarViviendas();
     cargarAlertas();
     cargarPartes();
     cargarHistorialCierres();
@@ -1536,7 +1877,7 @@ function cargarEdan() {
 }
 
 // ============================================
-// CERTIFICACIÓN DE ÁRBOLES (COMPLETA)
+// CERTIFICACIÓN DE ÁRBOLES
 // ============================================
 
 let certificaciones = [];
@@ -1985,6 +2326,529 @@ function generarPDFCertificacion() {
 }
 
 // ============================================
+// INSPECCIÓN DE VIVIENDAS
+// ============================================
+
+let inspeccionesVivienda = [];
+let firmaGuardadaVivienda = null;
+let canvasVivienda, ctxVivienda, isDrawingVivienda = false;
+
+function cargarInspectoresVivienda() {
+    const select = document.getElementById('ivInspector');
+    if (!select) return;
+    
+    db.collection('personal')
+        .orderBy('apellido', 'asc')
+        .get()
+        .then(snap => {
+            select.innerHTML = '<option value="">— Seleccione el Inspector —</option>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const nombre = `${data.apellido}, ${data.nombre}`;
+                select.innerHTML += `<option value="${doc.id}" 
+                    data-jerarquia="${data.jerarquia || ''}"
+                    data-nombre="${data.nombre}" 
+                    data-apellido="${data.apellido}">${nombre}</option>`;
+            });
+        })
+        .catch(() => {});
+}
+
+function cargarDatosInspectorVivienda() {
+    const select = document.getElementById('ivInspector');
+    const selected = select.options[select.selectedIndex];
+    
+    if (selected && selected.value) {
+        document.getElementById('ivInspectorJerarquia').value = selected.dataset.jerarquia || '';
+        window._inspectorViviendaNombre = selected.dataset.nombre || '';
+        window._inspectorViviendaApellido = selected.dataset.apellido || '';
+        window._inspectorViviendaJerarquia = selected.dataset.jerarquia || '';
+    } else {
+        document.getElementById('ivInspectorJerarquia').value = '';
+        window._inspectorViviendaNombre = '';
+        window._inspectorViviendaApellido = '';
+        window._inspectorViviendaJerarquia = '';
+    }
+}
+
+function calcularTotalPersonasVivienda() {
+    const total = 
+        (parseInt(document.getElementById('ivAdultosM').value) || 0) +
+        (parseInt(document.getElementById('ivAdultosF').value) || 0) +
+        (parseInt(document.getElementById('ivAdolescentesM').value) || 0) +
+        (parseInt(document.getElementById('ivAdolescentesF').value) || 0) +
+        (parseInt(document.getElementById('ivNinosM').value) || 0) +
+        (parseInt(document.getElementById('ivNinosF').value) || 0);
+    
+    document.getElementById('ivTotalPersonas').value = total;
+}
+
+function generarNumeroInspeccion() {
+    const fecha = new Date();
+    const año = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const count = inspeccionesVivienda.length + 1;
+    return `${año}${mes}${dia}-${String(count).padStart(3, '0')}`;
+}
+
+function iniciarFirmaVivienda() {
+    canvasVivienda = document.getElementById('ivFirmaCanvas');
+    if (!canvasVivienda) return;
+    ctxVivienda = canvasVivienda.getContext('2d');
+    canvasVivienda.width = canvasVivienda.offsetWidth || 300;
+    canvasVivienda.height = canvasVivienda.offsetHeight || 150;
+    ctxVivienda.lineWidth = 3;
+    ctxVivienda.strokeStyle = '#0b2a4a';
+    ctxVivienda.lineCap = 'round';
+    ctxVivienda.lineJoin = 'round';
+    
+    canvasVivienda.addEventListener('mousedown', empezarDibujoVivienda);
+    canvasVivienda.addEventListener('mousemove', dibujarVivienda);
+    canvasVivienda.addEventListener('mouseup', terminarDibujoVivienda);
+    canvasVivienda.addEventListener('mouseleave', terminarDibujoVivienda);
+    canvasVivienda.addEventListener('touchstart', empezarDibujoTouchVivienda);
+    canvasVivienda.addEventListener('touchmove', dibujarTouchVivienda);
+    canvasVivienda.addEventListener('touchend', terminarDibujoVivienda);
+}
+
+function empezarDibujoVivienda(e) {
+    isDrawingVivienda = true;
+    const rect = canvasVivienda.getBoundingClientRect();
+    ctxVivienda.beginPath();
+    ctxVivienda.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function dibujarVivienda(e) {
+    if (!isDrawingVivienda) return;
+    const rect = canvasVivienda.getBoundingClientRect();
+    ctxVivienda.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctxVivienda.stroke();
+}
+
+function empezarDibujoTouchVivienda(e) {
+    e.preventDefault();
+    isDrawingVivienda = true;
+    const rect = canvasVivienda.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctxVivienda.beginPath();
+    ctxVivienda.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+}
+
+function dibujarTouchVivienda(e) {
+    e.preventDefault();
+    if (!isDrawingVivienda) return;
+    const rect = canvasVivienda.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctxVivienda.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    ctxVivienda.stroke();
+}
+
+function terminarDibujoVivienda(e) {
+    isDrawingVivienda = false;
+}
+
+function limpiarFirmaVivienda() {
+    if (!ctxVivienda || !canvasVivienda) return;
+    ctxVivienda.clearRect(0, 0, canvasVivienda.width, canvasVivienda.height);
+    firmaGuardadaVivienda = null;
+    mostrarToast('✍️ Firma limpiada', 'info');
+}
+
+function capturarFirmaVivienda() {
+    if (!canvasVivienda) return;
+    firmaGuardadaVivienda = canvasVivienda.toDataURL('image/png');
+    mostrarToast('✅ Firma guardada correctamente', 'success');
+}
+
+function leerFotoVivienda(file, previewId) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById(previewId);
+        if (!preview) return;
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.width = '120px';
+        img.style.height = '90px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '8px';
+        img.style.border = '2px solid #ccc';
+        preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+}
+
+function leerFotoBase64(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            resolve(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function guardarInspeccionVivienda() {
+    const responsable = document.getElementById('ivResponsable').value.trim();
+    const inspectorId = document.getElementById('ivInspector').value;
+    const direccion = document.getElementById('ivDireccion').value.trim();
+    const jefeFamilia = document.getElementById('ivJefeFamilia').value.trim();
+    
+    if (!responsable) {
+        mostrarToast('⚠️ El nombre del Responsable es obligatorio', 'warning');
+        return;
+    }
+    
+    if (!inspectorId) {
+        mostrarToast('⚠️ Seleccione el Inspector', 'warning');
+        return;
+    }
+    
+    if (!direccion) {
+        mostrarToast('⚠️ La dirección es obligatoria', 'warning');
+        return;
+    }
+    
+    if (!jefeFamilia) {
+        mostrarToast('⚠️ El Jefe de Familia es obligatorio', 'warning');
+        return;
+    }
+    
+    const data = {
+        numero: generarNumeroInspeccion(),
+        fecha: document.getElementById('ivFecha').value,
+        hora: document.getElementById('ivHora').value,
+        responsable: {
+            nombre: responsable,
+            cedula: document.getElementById('ivResponsableCI').value.trim(),
+            telefono: document.getElementById('ivResponsableTelefono').value.trim()
+        },
+        ubicacion: {
+            direccion: direccion,
+            municipio: document.getElementById('ivMunicipio').value,
+            estado: document.getElementById('ivEstado').value
+        },
+        estructura: {
+            tipologia: document.getElementById('ivTipologia').value,
+            paredes: document.getElementById('ivParedes').value,
+            cubierta: document.getElementById('ivCubierta').value,
+            piso: document.getElementById('ivPiso').value,
+            descripcionDanos: document.getElementById('ivDescripcionDanos').value.trim()
+        },
+        utm: {
+            este: document.getElementById('ivUtmE').value.trim(),
+            norte: document.getElementById('ivUtmN').value.trim(),
+            zona: document.getElementById('ivUtmZona').value.trim()
+        },
+        riesgo: document.getElementById('ivRiesgo').value,
+        familias: {
+            jefe: jefeFamilia,
+            jefeCI: document.getElementById('ivJefeFamiliaCI').value.trim(),
+            adultosM: parseInt(document.getElementById('ivAdultosM').value) || 0,
+            adultosF: parseInt(document.getElementById('ivAdultosF').value) || 0,
+            adolescentesM: parseInt(document.getElementById('ivAdolescentesM').value) || 0,
+            adolescentesF: parseInt(document.getElementById('ivAdolescentesF').value) || 0,
+            ninosM: parseInt(document.getElementById('ivNinosM').value) || 0,
+            ninosF: parseInt(document.getElementById('ivNinosF').value) || 0,
+            total: parseInt(document.getElementById('ivTotalPersonas').value) || 0
+        },
+        recomendaciones: document.getElementById('ivRecomendaciones').value.trim(),
+        inspector: {
+            id: inspectorId,
+            nombre: window._inspectorViviendaNombre || '',
+            apellido: window._inspectorViviendaApellido || '',
+            jerarquia: window._inspectorViviendaJerarquia || ''
+        },
+        firma: firmaGuardadaVivienda,
+        fechaRegistro: new Date().toISOString(),
+        oficial: auth.currentUser?.email || 'Sistema',
+        fotos: [],
+        satelital: null
+    };
+
+    const fotoInputs = ['ivFoto1', 'ivFoto2', 'ivFoto3', 'ivFoto4'];
+    const fotosPromises = fotoInputs.map(id => {
+        const input = document.getElementById(id);
+        if (input.files && input.files[0]) {
+            return leerFotoBase64(input.files[0]);
+        }
+        return Promise.resolve(null);
+    });
+    
+    const satelitalInput = document.getElementById('ivSatelital');
+    let satelitalPromise = Promise.resolve(null);
+    if (satelitalInput.files && satelitalInput.files[0]) {
+        satelitalPromise = leerFotoBase64(satelitalInput.files[0]);
+    }
+
+    Promise.all([...fotosPromises, satelitalPromise])
+        .then(results => {
+            data.fotos = results.slice(0, 4).filter(r => r !== null);
+            data.satelital = results[4] || null;
+            
+            inspeccionesVivienda.push(data);
+            guardarViviendasLocales();
+            
+            if (navigator.onLine) {
+                db.collection('viviendas').add(data)
+                    .then(() => {
+                        mostrarToast('✅ Inspección guardada en la nube', 'success');
+                    })
+                    .catch(() => {
+                        mostrarToast('⚠️ Guardado localmente (sin conexión)', 'warning');
+                    });
+            } else {
+                mostrarToast('📱 Guardado localmente (sin internet)', 'info');
+            }
+            
+            limpiarFormularioVivienda();
+            cargarViviendas();
+        })
+        .catch(error => {
+            console.error('Error procesando fotos:', error);
+            mostrarToast('❌ Error al procesar las fotos', 'danger');
+        });
+}
+
+function limpiarFormularioVivienda() {
+    document.getElementById('ivResponsable').value = '';
+    document.getElementById('ivResponsableCI').value = '';
+    document.getElementById('ivResponsableTelefono').value = '';
+    document.getElementById('ivDireccion').value = '';
+    document.getElementById('ivDescripcionDanos').value = '';
+    document.getElementById('ivUtmE').value = '';
+    document.getElementById('ivUtmN').value = '';
+    document.getElementById('ivUtmZona').value = '';
+    document.getElementById('ivJefeFamilia').value = '';
+    document.getElementById('ivJefeFamiliaCI').value = '';
+    document.getElementById('ivAdultosM').value = 0;
+    document.getElementById('ivAdultosF').value = 0;
+    document.getElementById('ivAdolescentesM').value = 0;
+    document.getElementById('ivAdolescentesF').value = 0;
+    document.getElementById('ivNinosM').value = 0;
+    document.getElementById('ivNinosF').value = 0;
+    document.getElementById('ivTotalPersonas').value = 0;
+    document.getElementById('ivRecomendaciones').value = '';
+    document.getElementById('ivInspector').value = '';
+    document.getElementById('ivInspectorJerarquia').value = '';
+    document.getElementById('ivFoto1').value = '';
+    document.getElementById('ivFoto2').value = '';
+    document.getElementById('ivFoto3').value = '';
+    document.getElementById('ivFoto4').value = '';
+    document.getElementById('ivSatelital').value = '';
+    document.getElementById('ivFotosPreview').innerHTML = '';
+    document.getElementById('ivSatelitalPreview').innerHTML = '';
+    limpiarFirmaVivienda();
+    document.getElementById('ivNumero').value = generarNumeroInspeccion();
+}
+
+function guardarViviendasLocales() {
+    try {
+        localStorage.setItem('viviendas', JSON.stringify(inspeccionesVivienda));
+    } catch (e) {
+        console.error('Error guardando viviendas:', e);
+    }
+}
+
+function cargarViviendas() {
+    try {
+        const saved = localStorage.getItem('viviendas');
+        if (saved) {
+            inspeccionesVivienda = JSON.parse(saved);
+        }
+    } catch (e) {
+        console.error('Error cargando viviendas:', e);
+    }
+    renderizarViviendas();
+}
+
+function renderizarViviendas() {
+    const container = document.getElementById('listaViviendas');
+    if (!container) return;
+
+    if (inspeccionesVivienda.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay inspecciones registradas</p>';
+        return;
+    }
+
+    let html = '<div class="table-responsive"><table class="table table-sm">';
+    html += '<thead><tr><th>N°</th><th>Fecha</th><th>Dirección</th><th>Responsable</th><th>Riesgo</th><th>Acciones</th></tr></thead><tbody>';
+
+    inspeccionesVivienda.slice().reverse().forEach((inspeccion, index) => {
+        const riesgoColor = inspeccion.riesgo === 'muy_alto' ? 'danger' : inspeccion.riesgo === 'alto' ? 'warning' : inspeccion.riesgo === 'medio' ? 'info' : 'success';
+        const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
+        
+        html += `<tr>
+            <td><strong>${inspeccion.numero || 'N/A'}</strong></td>
+            <td>${inspeccion.fecha || 'N/A'}</td>
+            <td>${inspeccion.ubicacion?.direccion || 'N/A'}</td>
+            <td>${inspeccion.responsable?.nombre || 'N/A'}</td>
+            <td><span class="badge bg-${riesgoColor}">${riesgoTexto[inspeccion.riesgo] || inspeccion.riesgo}</span></td>
+            <td>
+                <button class="btn btn-sm btn-primary" onclick="verVivienda(${index})">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarVivienda(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function verVivienda(index) {
+    const inspeccion = inspeccionesVivienda[index];
+    if (!inspeccion) return;
+    const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
+    alert(`📋 INSPECCIÓN DE VIVIENDA\n\n` +
+          `📋 N°: ${inspeccion.numero || 'N/A'}\n` +
+          `📅 Fecha: ${inspeccion.fecha || 'N/A'}\n` +
+          `👤 Responsable: ${inspeccion.responsable?.nombre || 'N/A'}\n` +
+          `📍 Dirección: ${inspeccion.ubicacion?.direccion || 'N/A'}\n` +
+          `⚠️ Riesgo: ${riesgoTexto[inspeccion.riesgo] || inspeccion.riesgo}\n` +
+          `👤 Jefe de Familia: ${inspeccion.familias?.jefe || 'N/A'}\n` +
+          `👨‍👩‍👧‍👦 Total Personas: ${inspeccion.familias?.total || 0}\n` +
+          `👤 Inspector: ${inspeccion.inspector?.nombre || 'N/A'} ${inspeccion.inspector?.apellido || ''}`);
+}
+
+function eliminarVivienda(index) {
+    if (!confirm('¿Eliminar esta inspección?')) return;
+    inspeccionesVivienda.splice(index, 1);
+    guardarViviendasLocales();
+    renderizarViviendas();
+    mostrarToast('✅ Inspección eliminada', 'success');
+}
+
+function generarPDFVivienda() {
+    if (inspeccionesVivienda.length === 0) {
+        mostrarToast('⚠️ No hay inspecciones para generar PDF', 'warning');
+        return;
+    }
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        const ultima = inspeccionesVivienda[inspeccionesVivienda.length - 1];
+
+        doc.setFontSize(16);
+        doc.text('INSPECCIÓN DE VIVIENDA', 105, 15, { align: 'center' });
+        doc.setFontSize(9);
+        doc.text('Protección Civil - Municipio Papelón', 105, 22, { align: 'center' });
+
+        doc.setFontSize(8);
+        const marcoLegal = `Marco Legal: La Dirección General del Instituto de Protección Civil y Administración de Desastres del Estado Portuguesa (INPRADEP), a través de la Coordinación de Gestión Integral de Riesgo (G.I.R), y en uso de las atribuciones conferidas en el Artículo 55 de la Constitución de la República Bolivariana de Venezuela, en concordancia con el decreto de fuerza de Ley N° 1.557, Artículo 3 Numeral 2 de la Ley de Protección Civil y Administración de Desastres, Artículo 22 Numeral 4 y Artículo 29 de la Ley de Gestión Integral de Riesgo Socio-naturales y Tecnológicas, CERTIFICA, mediante la presente, la realización de una inspección el día ${ultima.fecha || 'N/A'} a las ${ultima.hora || 'N/A'} HLV.`;
+        const splitMarcoLegal = doc.splitTextToSize(marcoLegal, 180);
+        doc.text(splitMarcoLegal, 15, 32);
+
+        let y = 52;
+        doc.setFontSize(10);
+        doc.text(`DIRECCIÓN: ${ultima.ubicacion?.direccion || 'N/A'}`, 15, y);
+        y += 6;
+        doc.text(`MUNICIPIO: ${ultima.ubicacion?.municipio || 'N/A'}    ESTADO: ${ultima.ubicacion?.estado || 'N/A'}`, 15, y);
+        y += 6;
+        doc.text(`RESPONSABLE: ${ultima.responsable?.nombre || 'N/A'}    C.I: ${ultima.responsable?.cedula || 'N/A'}    TLF: ${ultima.responsable?.telefono || 'N/A'}`, 15, y);
+        y += 8;
+
+        doc.setFontSize(10);
+        doc.text('CARACTERÍSTICAS DE LA ESTRUCTURA:', 15, y);
+        y += 5;
+        doc.setFontSize(9);
+        const tipologiaTexto = {
+            'informal_artesanal': 'Informal/Artesanal (Tipo B)',
+            'formal': 'Formal (Tipo A)',
+            'mixta': 'Mixta',
+            'otra': 'Otra'
+        };
+        const paredesTexto = {
+            'bahareque': 'Bahareque',
+            'bloque': 'Bloque',
+            'madera': 'Madera',
+            'zinc': 'Zinc',
+            'adobe': 'Adobe',
+            'otro': 'Otro'
+        };
+        const cubiertaTexto = {
+            'zinc': 'Láminas de Zinc',
+            'tejas': 'Tejas',
+            'concreto': 'Concreto',
+            'madera': 'Madera',
+            'paja': 'Paja',
+            'otro': 'Otro'
+        };
+        const pisoTexto = {
+            'tierra': 'Tierra',
+            'cemento': 'Cemento',
+            'ceramica': 'Cerámica',
+            'madera': 'Madera',
+            'otro': 'Otro'
+        };
+        doc.text(`Tipología: ${tipologiaTexto[ultima.estructura?.tipologia] || ultima.estructura?.tipologia || 'N/A'}`, 15, y);
+        y += 5;
+        doc.text(`Paredes: ${paredesTexto[ultima.estructura?.paredes] || ultima.estructura?.paredes || 'N/A'}`, 15, y);
+        y += 5;
+        doc.text(`Cubierta: ${cubiertaTexto[ultima.estructura?.cubierta] || ultima.estructura?.cubierta || 'N/A'}`, 15, y);
+        y += 5;
+        doc.text(`Piso: ${pisoTexto[ultima.estructura?.piso] || ultima.estructura?.piso || 'N/A'}`, 15, y);
+        y += 5;
+        if (ultima.estructura?.descripcionDanos) {
+            const splitDanos = doc.splitTextToSize(ultima.estructura.descripcionDanos, 180);
+            doc.text(splitDanos, 15, y);
+            y += splitDanos.length * 5;
+        }
+
+        y += 3;
+        doc.text(`COORDENADAS UTM: ${ultima.utm?.este || 'N/A'}E ${ultima.utm?.norte || 'N/A'}N ${ultima.utm?.zona || 'N/A'}`, 15, y);
+        y += 6;
+
+        const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
+        doc.text(`CLASIFICACIÓN DEL RIESGO: ${riesgoTexto[ultima.riesgo] || ultima.riesgo || 'N/A'}`, 15, y);
+        y += 6;
+
+        doc.text(`FAMILIAS BENEFICIADAS: 01`, 15, y);
+        y += 5;
+        doc.text(`Jefe de Familia: ${ultima.familias?.jefe || 'N/A'}    C.I: ${ultima.familias?.jefeCI || 'N/A'}`, 15, y);
+        y += 5;
+        doc.text(`Adultos: M: ${ultima.familias?.adultosM || 0} / F: ${ultima.familias?.adultosF || 0}`, 15, y);
+        y += 5;
+        doc.text(`Adolescentes: M: ${ultima.familias?.adolescentesM || 0} / F: ${ultima.familias?.adolescentesF || 0}`, 15, y);
+        y += 5;
+        doc.text(`Niños: M: ${ultima.familias?.ninosM || 0} / F: ${ultima.familias?.ninosF || 0}`, 15, y);
+        y += 5;
+        doc.text(`TOTAL PERSONAS BENEFICIADAS: ${ultima.familias?.total || 0}`, 15, y);
+        y += 6;
+
+        if (ultima.recomendaciones) {
+            doc.text('RECOMENDACIONES:', 15, y);
+            y += 5;
+            const splitRec = doc.splitTextToSize(ultima.recomendaciones, 180);
+            doc.text(splitRec, 15, y);
+            y += splitRec.length * 5 + 3;
+        }
+
+        doc.text(`INSPECTOR: ${ultima.inspector?.nombre || 'N/A'} ${ultima.inspector?.apellido || ''}`, 15, y);
+        y += 5;
+        doc.text(`JERARQUÍA: ${ultima.inspector?.jerarquia || 'N/A'}`, 15, y);
+        y += 8;
+
+        doc.text('_________________________', 50, y);
+        doc.text('Firma del Inspector', 50, y + 6);
+        doc.text('_________________________', 130, y);
+        doc.text('Sello de la Institución', 130, y + 6);
+
+        doc.save(`inspeccion_vivienda_${ultima.numero || 'N/A'}.pdf`);
+        mostrarToast('✅ PDF generado correctamente', 'success');
+
+    } catch (error) {
+        console.error('Error generando PDF:', error);
+        mostrarToast('❌ Error al generar PDF', 'danger');
+    }
+}
+
+// ============================================
 // ALERTAS TEMPRANAS
 // ============================================
 
@@ -2234,6 +3098,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('parteFecha').value = fecha;
     document.getElementById('sFecha').value = new Date().toISOString().slice(0, 16);
     document.getElementById('cierreMes').value = new Date().toISOString().slice(0, 7);
+    document.getElementById('ivNumero').value = generarNumeroInspeccion();
     cargarDatos();
     setInterval(verificarAlertas72h, 300000);
 });
