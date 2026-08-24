@@ -81,6 +81,12 @@
         .table td { padding:5px 8px; border-bottom:1px solid #eee; }
         .alerta-72h { background: #fff3cd; border-left: 4px solid #ffc107; padding: 8px 12px; margin: 5px 0; border-radius: 4px; font-size: 12px; }
         .alerta-72h strong { color: #856404; }
+        /* Estilos para EDAN */
+        .edan-tabla th { font-size: 10px; padding: 2px 4px; text-align: center; }
+        .edan-tabla td { padding: 2px 4px; vertical-align: middle; }
+        .edan-tabla input, .edan-tabla select { font-size: 11px; padding: 2px 4px; min-width: 40px; }
+        .edan-tabla input[type="number"] { width: 45px; }
+        .edan-tabla .form-check-input { margin: 0; }
         @media (max-width:768px) {
             .sidebar { width:var(--sidebar-width-mobile); padding:8px 0; }
             .sidebar .brand h3 { font-size:14px; }
@@ -451,33 +457,179 @@
         </div>
     </div>
     
-    <!-- EDAN -->
+    <!-- EDAN MEJORADO -->
     <div id="section-edan" class="section">
         <div class="card">
-            <div class="card-header"><i class="fas fa-house-damage"></i> EDAN</div>
+            <div class="card-header">
+                <i class="fas fa-house-damage"></i> EDAN - Evaluación de Daños y Análisis de Necesidades
+                <span class="badge badge-info ms-2">📋 10 Familias por Planilla</span>
+            </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-2"><input type="text" id="edanJefe" class="form-control" placeholder="Jefe de familia"></div>
-                    <div class="col-md-6 mb-2"><input type="text" id="edanCedula" class="form-control" placeholder="Cédula"></div>
-                    <div class="col-md-4 mb-2"><input type="number" id="edanIntegrantes" class="form-control" placeholder="N° integrantes"></div>
-                    <div class="col-md-4 mb-2"><input type="text" id="edanDireccion" class="form-control" placeholder="Dirección"></div>
-                    <div class="col-md-4 mb-2">
-                        <select id="edanEstado" class="form-select">
-                            <option value="habitable">🟢 Habitable</option>
-                            <option value="daño_leve">🟡 Daño Leve</option>
-                            <option value="daño_moderado">🟠 Daño Moderado</option>
-                            <option value="daño_fuerte">🔴 Daño Fuerte</option>
-                            <option value="inhabitable">⛔ Inhabitable</option>
-                            <option value="destruida">💀 Destruida</option>
-                        </select>
-                    </div>
-                    <div class="col-12 mb-2"><textarea id="edanNecesidades" class="form-control" rows="2" placeholder="Necesidades"></textarea></div>
-                    <div class="col-12"><button class="btn btn-primary" onclick="registrarEdan()"><i class="fas fa-save"></i> Registrar</button></div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>EDAN:</strong> Registro oficial para evaluación de daños y análisis de necesidades.
+                    Complete los datos generales y hasta 10 familias por planilla.
                 </div>
+
+                <!-- DATOS GENERALES -->
+                <div class="card mb-2" style="background:#f8f9fa;">
+                    <div class="card-header">
+                        <i class="fas fa-file-alt"></i> Datos Generales
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">📅 Fecha</label>
+                                <input type="date" id="edanFecha" class="form-control">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">🕐 Hora</label>
+                                <input type="time" id="edanHora" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">👤 Elaborado por</label>
+                                <select id="edanOficial" class="form-select">
+                                    <option value="">— Seleccione —</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🌪️ Evento</label>
+                                <input type="text" id="edanEvento" class="form-control" placeholder="Ej: Inundación, Lluvias, etc.">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">🏛️ Municipio</label>
+                                <select id="edanMunicipio" class="form-select">
+                                    <option value="Papelón">Papelón</option>
+                                    <option value="Caño Delgadito">Caño Delgadito</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">🏘️ Población</label>
+                                <input type="text" id="edanPoblacion" class="form-control" placeholder="Ej: El Centro">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📍 Sector</label>
+                                <input type="text" id="edanSector" class="form-control" placeholder="Ej: Barrio Las Flores">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📍 Calle</label>
+                                <input type="text" id="edanCalle" class="form-control" placeholder="Ej: Calle 5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLA DE FAMILIAS -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-users"></i> Familias Afectadas
+                        <span class="badge bg-secondary ms-2" id="edanFamiliasCount">0 / 10</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered" id="edanTabla">
+                                <thead>
+                                    <tr>
+                                        <th style="width:30px;">N°</th>
+                                        <th style="min-width:100px;">Nombre y Apellido</th>
+                                        <th style="min-width:90px;">N° C.I.</th>
+                                        <th colspan="2" style="text-align:center;">Adultos</th>
+                                        <th colspan="2" style="text-align:center;">Adultos Mayores</th>
+                                        <th colspan="2" style="text-align:center;">Adolescentes</th>
+                                        <th colspan="2" style="text-align:center;">Niños</th>
+                                        <th colspan="2" style="text-align:center;">Lactantes</th>
+                                        <th style="min-width:60px;">Tipo V</th>
+                                        <th style="min-width:45px;">Hab</th>
+                                        <th style="min-width:45px;">Dest</th>
+                                        <th style="min-width:60px;">Alim</th>
+                                        <th style="min-width:60px;">Colch</th>
+                                        <th style="min-width:60px;">Otros</th>
+                                        <th style="min-width:90px;">Especifique</th>
+                                        <th style="width:30px;"></th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th style="text-align:center;font-size:9px;">M</th>
+                                        <th style="text-align:center;font-size:9px;">F</th>
+                                        <th style="text-align:center;font-size:9px;">M</th>
+                                        <th style="text-align:center;font-size:9px;">F</th>
+                                        <th style="text-align:center;font-size:9px;">M</th>
+                                        <th style="text-align:center;font-size:9px;">F</th>
+                                        <th style="text-align:center;font-size:9px;">M</th>
+                                        <th style="text-align:center;font-size:9px;">F</th>
+                                        <th style="text-align:center;font-size:9px;">M</th>
+                                        <th style="text-align:center;font-size:9px;">F</th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="edanCuerpo">
+                                </tbody>
+                                <tfoot id="edanPie">
+                                </tfoot>
+                            </table>
+                        </div>
+                        <button class="btn btn-sm btn-primary mt-2" onclick="edanAgregarFamilia()">
+                            <i class="fas fa-plus"></i> Agregar Familia
+                        </button>
+                        <button class="btn btn-sm btn-danger mt-2" onclick="edanLimpiarFamilias()">
+                            <i class="fas fa-trash"></i> Limpiar Familias
+                        </button>
+                    </div>
+                </div>
+
+                <!-- OBSERVACIONES -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">📝 Observaciones</label>
+                        <textarea id="edanObservacion" class="form-control" rows="2" placeholder="Observaciones generales..."></textarea>
+                    </div>
+                </div>
+
+                <!-- FIRMA -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">✍️ Firma del Oficial</label>
+                        <canvas id="edanFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaEdan()">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="capturarFirmaEdan()">
+                                <i class="fas fa-save"></i> Guardar Firma
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-success" onclick="guardarEDAN()">
+                            <i class="fas fa-save"></i> Registrar EDAN
+                        </button>
+                        <button class="btn btn-primary" onclick="generarPDFEDAN()">
+                            <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
+                    </div>
+                </div>
+                <div id="edanMensaje" class="mt-2"></div>
             </div>
         </div>
+
+        <!-- LISTA DE EDAN -->
         <div class="card mt-3">
-            <div class="card-header"><i class="fas fa-list"></i> EDAN Registrados</div>
+            <div class="card-header">
+                <i class="fas fa-list"></i> EDAN Registrados
+            </div>
             <div class="card-body" id="listaEdan"></div>
         </div>
     </div>
@@ -719,7 +871,7 @@
                     </div>
                 </div>
 
-                <!-- DATOS DEL RESPONSABLE (PROPIETARIO) -->
+                <!-- DATOS DEL RESPONSABLE -->
                 <div class="card mb-2" style="background:#f8f9fa;">
                     <div class="card-header">
                         <i class="fas fa-user"></i> Datos del Responsable (Propietario)
@@ -1384,7 +1536,7 @@ function showSection(section) {
     if (section === 'vehiculos') cargarVehiculos();
     if (section === 'servicio') cargarServicioMejorado();
     if (section === 'solicitudes') cargarSolicitudes();
-    if (section === 'edan') cargarEdan();
+    if (section === 'edan') { initEDAN(); cargarEDAN(); }
     if (section === 'certificacion') { cargarSolicitante(); cargarInspector(); cargarCertificaciones(); }
     if (section === 'viviendas') { cargarInspectoresVivienda(); cargarViviendas(); }
     if (section === 'alertas') cargarAlertas();
@@ -1405,7 +1557,7 @@ function cargarDatos() {
     cargarVehiculos();
     cargarServicioMejorado();
     cargarSolicitudes();
-    cargarEdan();
+    initEDAN();
     cargarCertificaciones();
     cargarViviendas();
     cargarAlertas();
@@ -1833,47 +1985,6 @@ function cancelarSolicitud(id) {
         fechaCancelacion: new Date().toISOString()
     }).then(() => { mostrarToast('✅ Solicitud cancelada', 'success'); cargarSolicitudes(); })
         .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
-}
-
-// ============================================
-// EDAN
-// ============================================
-
-function registrarEdan() {
-    const jefe = document.getElementById('edanJefe').value.trim();
-    const direccion = document.getElementById('edanDireccion').value.trim();
-    if (!jefe || !direccion) {
-        mostrarToast('⚠️ Jefe y dirección son obligatorios', 'warning');
-        return;
-    }
-    const data = {
-        jefe, direccion,
-        cedula: document.getElementById('edanCedula').value.trim(),
-        integrantes: parseInt(document.getElementById('edanIntegrantes').value) || 1,
-        estado: document.getElementById('edanEstado').value,
-        necesidades: document.getElementById('edanNecesidades').value.trim(),
-        fecha: new Date().toISOString(),
-        oficial: auth.currentUser?.email || 'Sistema'
-    };
-    db.collection('edan').add(data)
-        .then(() => { mostrarToast('✅ EDAN registrado', 'success'); cargarEdan(); })
-        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
-}
-
-function cargarEdan() {
-    db.collection('edan').orderBy('fecha', 'desc').limit(20).get()
-        .then(snap => {
-            const container = document.getElementById('listaEdan');
-            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay registros EDAN</p>'; return; }
-            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fecha</th><th>Jefe</th><th>Integrantes</th><th>Estado</th></tr></thead><tbody>';
-            snap.forEach(doc => {
-                const data = doc.data();
-                const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString() : 'N/A';
-                html += `<tr><td>${fecha}</td><td>${data.jefe}</td><td>${data.integrantes || 1}</td><td>${data.estado.replace('_', ' ')}</td></tr>`;
-            });
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
-        }).catch(() => {});
 }
 
 // ============================================
@@ -2326,7 +2437,574 @@ function generarPDFCertificacion() {
 }
 
 // ============================================
-// INSPECCIÓN DE VIVIENDAS
+// EDAN - EVALUACIÓN DE DAÑOS Y ANÁLISIS DE NECESIDADES
+// ============================================
+
+let edanFamilias = [];
+let edanFirma = null;
+let edanCanvas, edanCtx, edanIsDrawing = false;
+
+function initEDAN() {
+    const select = document.getElementById('edanOficial');
+    if (select) {
+        db.collection('personal')
+            .orderBy('apellido', 'asc')
+            .get()
+            .then(snap => {
+                select.innerHTML = '<option value="">— Seleccione —</option>';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const nombre = `${data.apellido}, ${data.nombre}`;
+                    select.innerHTML += `<option value="${doc.id}">${nombre} - ${data.jerarquia || ''}</option>`;
+                });
+            })
+            .catch(() => {});
+    }
+    
+    const ahora = new Date();
+    const fecha = document.getElementById('edanFecha');
+    const hora = document.getElementById('edanHora');
+    if (fecha) fecha.value = ahora.toISOString().split('T')[0];
+    if (hora) hora.value = ahora.toTimeString().slice(0, 5);
+    
+    iniciarFirmaEdan();
+    cargarEDAN();
+    edanGenerarFilas();
+}
+
+function edanGenerarFilas() {
+    const tbody = document.getElementById('edanCuerpo');
+    const tfoot = document.getElementById('edanPie');
+    if (!tbody) return;
+    
+    let html = '';
+    const totalFilas = Math.min(edanFamilias.length, 10);
+    
+    for (let i = 0; i < totalFilas; i++) {
+        const f = edanFamilias[i];
+        html += `<tr>
+            <td style="text-align:center;">${i + 1}</td>
+            <td><input type="text" class="form-control form-control-sm edan-input" data-index="${i}" data-field="responsable" value="${f.responsable || ''}" placeholder="Nombre"></td>
+            <td><input type="text" class="form-control form-control-sm edan-input" data-index="${i}" data-field="cedula" value="${f.cedula || ''}" placeholder="C.I."></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="adultos_m" value="${f.adultos?.m || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="adultos_f" value="${f.adultos?.f || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="mayores_m" value="${f.adultosMayores?.m || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="mayores_f" value="${f.adultosMayores?.f || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="adolescentes_m" value="${f.adolescentes?.m || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="adolescentes_f" value="${f.adolescentes?.f || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="ninos_m" value="${f.ninos?.m || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="ninos_f" value="${f.ninos?.f || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="lactantes_m" value="${f.lactantes?.m || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="lactantes_f" value="${f.lactantes?.f || 0}" min="0" step="1"></td>
+            <td>
+                <select class="form-select form-select-sm edan-input" data-index="${i}" data-field="tipoVivienda">
+                    <option value="A" ${f.tipoVivienda === 'A' ? 'selected' : ''}>A</option>
+                    <option value="B" ${f.tipoVivienda === 'B' ? 'selected' : ''}>B</option>
+                    <option value="C" ${f.tipoVivienda === 'C' ? 'selected' : ''}>C</option>
+                </select>
+            </td>
+            <td style="text-align:center;"><input type="checkbox" class="form-check-input edan-check" data-index="${i}" data-field="habitable" ${f.habitable ? 'checked' : ''}></td>
+            <td style="text-align:center;"><input type="checkbox" class="form-check-input edan-check" data-index="${i}" data-field="destruida" ${f.destruida ? 'checked' : ''}></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="alimentos" value="${f.alimentos || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="colchon" value="${f.colchon || 0}" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="otros" value="${f.otros || 0}" min="0" step="1"></td>
+            <td><input type="text" class="form-control form-control-sm edan-input" data-index="${i}" data-field="otrosDesc" value="${f.otrosDesc || ''}" placeholder="Especifique"></td>
+            <td style="text-align:center;"><button class="btn btn-sm btn-danger" onclick="edanEliminarFamilia(${i})"><i class="fas fa-trash"></i></button></td>
+        </tr>`;
+    }
+    
+    // Si hay menos de 10, agregar filas vacías
+    for (let i = totalFilas; i < 10; i++) {
+        html += `<tr>
+            <td style="text-align:center;">${i + 1}</td>
+            <td><input type="text" class="form-control form-control-sm edan-input" data-index="${i}" data-field="responsable" placeholder="Nombre"></td>
+            <td><input type="text" class="form-control form-control-sm edan-input" data-index="${i}" data-field="cedula" placeholder="C.I."></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="adultos_m" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="adultos_f" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="mayores_m" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="mayores_f" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="adolescentes_m" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="adolescentes_f" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="ninos_m" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="ninos_f" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="lactantes_m" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="lactantes_f" value="0" min="0" step="1"></td>
+            <td>
+                <select class="form-select form-select-sm edan-input" data-index="${i}" data-field="tipoVivienda">
+                    <option value="A">A</option>
+                    <option value="B" selected>B</option>
+                    <option value="C">C</option>
+                </select>
+            </td>
+            <td style="text-align:center;"><input type="checkbox" class="form-check-input edan-check" data-index="${i}" data-field="habitable"></td>
+            <td style="text-align:center;"><input type="checkbox" class="form-check-input edan-check" data-index="${i}" data-field="destruida"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="alimentos" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="colchon" value="0" min="0" step="1"></td>
+            <td><input type="number" class="form-control form-control-sm edan-input edan-num" data-index="${i}" data-field="otros" value="0" min="0" step="1"></td>
+            <td><input type="text" class="form-control form-control-sm edan-input" data-index="${i}" data-field="otrosDesc" placeholder="Especifique"></td>
+            <td></td>
+        </tr>`;
+    }
+    
+    tbody.innerHTML = html;
+    document.getElementById('edanFamiliasCount').textContent = `${edanFamilias.length} / 10`;
+    edanCalcularTotales();
+    
+    document.querySelectorAll('.edan-input').forEach(input => {
+        input.addEventListener('change', edanGuardarCambios);
+    });
+    document.querySelectorAll('.edan-check').forEach(input => {
+        input.addEventListener('change', edanGuardarCambios);
+    });
+}
+
+function edanGuardarCambios() {
+    const totalFilas = Math.min(edanFamilias.length, 10);
+    
+    for (let i = 0; i < totalFilas; i++) {
+        const f = edanFamilias[i] || {};
+        f.responsable = document.querySelector(`.edan-input[data-index="${i}"][data-field="responsable"]`)?.value || '';
+        f.cedula = document.querySelector(`.edan-input[data-index="${i}"][data-field="cedula"]`)?.value || '';
+        f.adultos = {
+            m: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="adultos_m"]`)?.value) || 0,
+            f: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="adultos_f"]`)?.value) || 0
+        };
+        f.adultosMayores = {
+            m: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="mayores_m"]`)?.value) || 0,
+            f: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="mayores_f"]`)?.value) || 0
+        };
+        f.adolescentes = {
+            m: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="adolescentes_m"]`)?.value) || 0,
+            f: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="adolescentes_f"]`)?.value) || 0
+        };
+        f.ninos = {
+            m: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="ninos_m"]`)?.value) || 0,
+            f: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="ninos_f"]`)?.value) || 0
+        };
+        f.lactantes = {
+            m: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="lactantes_m"]`)?.value) || 0,
+            f: parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="lactantes_f"]`)?.value) || 0
+        };
+        f.tipoVivienda = document.querySelector(`.edan-input[data-index="${i}"][data-field="tipoVivienda"]`)?.value || 'B';
+        f.habitable = document.querySelector(`.edan-check[data-index="${i}"][data-field="habitable"]`)?.checked || false;
+        f.destruida = document.querySelector(`.edan-check[data-index="${i}"][data-field="destruida"]`)?.checked || false;
+        f.alimentos = parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="alimentos"]`)?.value) || 0;
+        f.colchon = parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="colchon"]`)?.value) || 0;
+        f.otros = parseInt(document.querySelector(`.edan-input[data-index="${i}"][data-field="otros"]`)?.value) || 0;
+        f.otrosDesc = document.querySelector(`.edan-input[data-index="${i}"][data-field="otrosDesc"]`)?.value || '';
+        
+        edanFamilias[i] = f;
+    }
+    
+    edanCalcularTotales();
+}
+
+function edanCalcularTotales() {
+    const totales = {
+        familias: edanFamilias.length,
+        adultos: { m: 0, f: 0 },
+        adultosMayores: { m: 0, f: 0 },
+        adolescentes: { m: 0, f: 0 },
+        ninos: { m: 0, f: 0 },
+        lactantes: { m: 0, f: 0 },
+        alimentos: 0,
+        colchon: 0,
+        otros: 0
+    };
+    
+    edanFamilias.forEach(f => {
+        totales.adultos.m += f.adultos?.m || 0;
+        totales.adultos.f += f.adultos?.f || 0;
+        totales.adultosMayores.m += f.adultosMayores?.m || 0;
+        totales.adultosMayores.f += f.adultosMayores?.f || 0;
+        totales.adolescentes.m += f.adolescentes?.m || 0;
+        totales.adolescentes.f += f.adolescentes?.f || 0;
+        totales.ninos.m += f.ninos?.m || 0;
+        totales.ninos.f += f.ninos?.f || 0;
+        totales.lactantes.m += f.lactantes?.m || 0;
+        totales.lactantes.f += f.lactantes?.f || 0;
+        totales.alimentos += f.alimentos || 0;
+        totales.colchon += f.colchon || 0;
+        totales.otros += f.otros || 0;
+    });
+    
+    const tfoot = document.getElementById('edanPie');
+    if (tfoot) {
+        tfoot.innerHTML = `<tr class="table-primary">
+            <td colspan="3"><strong>TOTALES</strong></td>
+            <td><strong>${totales.adultos.m}</strong></td>
+            <td><strong>${totales.adultos.f}</strong></td>
+            <td><strong>${totales.adultosMayores.m}</strong></td>
+            <td><strong>${totales.adultosMayores.f}</strong></td>
+            <td><strong>${totales.adolescentes.m}</strong></td>
+            <td><strong>${totales.adolescentes.f}</strong></td>
+            <td><strong>${totales.ninos.m}</strong></td>
+            <td><strong>${totales.ninos.f}</strong></td>
+            <td><strong>${totales.lactantes.m}</strong></td>
+            <td><strong>${totales.lactantes.f}</strong></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><strong>${totales.alimentos}</strong></td>
+            <td><strong>${totales.colchon}</strong></td>
+            <td><strong>${totales.otros}</strong></td>
+            <td></td>
+            <td></td>
+        </tr>`;
+    }
+}
+
+function edanAgregarFamilia() {
+    if (edanFamilias.length >= 10) {
+        mostrarToast('⚠️ Máximo 10 familias por planilla', 'warning');
+        return;
+    }
+    
+    edanFamilias.push({
+        responsable: '',
+        cedula: '',
+        adultos: { m: 0, f: 0 },
+        adultosMayores: { m: 0, f: 0 },
+        adolescentes: { m: 0, f: 0 },
+        ninos: { m: 0, f: 0 },
+        lactantes: { m: 0, f: 0 },
+        tipoVivienda: 'B',
+        habitable: false,
+        destruida: false,
+        alimentos: 0,
+        colchon: 0,
+        otros: 0,
+        otrosDesc: ''
+    });
+    
+    edanGenerarFilas();
+}
+
+function edanEliminarFamilia(index) {
+    if (edanFamilias.length <= 1) {
+        mostrarToast('⚠️ Debe haber al menos 1 familia', 'warning');
+        return;
+    }
+    edanFamilias.splice(index, 1);
+    edanGenerarFilas();
+}
+
+function edanLimpiarFamilias() {
+    if (!confirm('¿Eliminar todas las familias?')) return;
+    edanFamilias = [];
+    edanGenerarFilas();
+}
+
+function iniciarFirmaEdan() {
+    edanCanvas = document.getElementById('edanFirmaCanvas');
+    if (!edanCanvas) return;
+    edanCtx = edanCanvas.getContext('2d');
+    edanCanvas.width = edanCanvas.offsetWidth || 300;
+    edanCanvas.height = edanCanvas.offsetHeight || 150;
+    edanCtx.lineWidth = 3;
+    edanCtx.strokeStyle = '#0b2a4a';
+    edanCtx.lineCap = 'round';
+    edanCtx.lineJoin = 'round';
+    
+    edanCanvas.addEventListener('mousedown', (e) => {
+        edanIsDrawing = true;
+        const rect = edanCanvas.getBoundingClientRect();
+        edanCtx.beginPath();
+        edanCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    });
+    edanCanvas.addEventListener('mousemove', (e) => {
+        if (!edanIsDrawing) return;
+        const rect = edanCanvas.getBoundingClientRect();
+        edanCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        edanCtx.stroke();
+    });
+    edanCanvas.addEventListener('mouseup', () => { edanIsDrawing = false; });
+    edanCanvas.addEventListener('mouseleave', () => { edanIsDrawing = false; });
+    edanCanvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        edanIsDrawing = true;
+        const rect = edanCanvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        edanCtx.beginPath();
+        edanCtx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    });
+    edanCanvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!edanIsDrawing) return;
+        const rect = edanCanvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        edanCtx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        edanCtx.stroke();
+    });
+    edanCanvas.addEventListener('touchend', () => { edanIsDrawing = false; });
+}
+
+function limpiarFirmaEdan() {
+    if (!edanCtx || !edanCanvas) return;
+    edanCtx.clearRect(0, 0, edanCanvas.width, edanCanvas.height);
+    edanFirma = null;
+    mostrarToast('✍️ Firma limpiada', 'info');
+}
+
+function capturarFirmaEdan() {
+    if (!edanCanvas) return;
+    edanFirma = edanCanvas.toDataURL('image/png');
+    mostrarToast('✅ Firma guardada correctamente', 'success');
+}
+
+function guardarEDAN() {
+    edanGuardarCambios();
+    
+    const oficial = document.getElementById('edanOficial').value;
+    const evento = document.getElementById('edanEvento').value.trim();
+    const poblacion = document.getElementById('edanPoblacion').value.trim();
+    
+    if (!oficial) {
+        mostrarToast('⚠️ Seleccione el oficial que elabora', 'warning');
+        return;
+    }
+    
+    if (!evento) {
+        mostrarToast('⚠️ Indique el evento', 'warning');
+        return;
+    }
+    
+    if (!poblacion) {
+        mostrarToast('⚠️ Indique la población', 'warning');
+        return;
+    }
+    
+    if (edanFamilias.length === 0) {
+        mostrarToast('⚠️ Agregue al menos 1 familia', 'warning');
+        return;
+    }
+    
+    const incompletas = edanFamilias.filter(f => !f.responsable);
+    if (incompletas.length > 0) {
+        mostrarToast(`⚠️ ${incompletas.length} familia(s) sin responsable`, 'warning');
+        return;
+    }
+    
+    const totales = {
+        familias: edanFamilias.length,
+        adultos: { m: 0, f: 0 },
+        adultosMayores: { m: 0, f: 0 },
+        adolescentes: { m: 0, f: 0 },
+        ninos: { m: 0, f: 0 },
+        lactantes: { m: 0, f: 0 },
+        alimentos: 0,
+        colchon: 0,
+        otros: 0
+    };
+    
+    edanFamilias.forEach(f => {
+        totales.adultos.m += f.adultos?.m || 0;
+        totales.adultos.f += f.adultos?.f || 0;
+        totales.adultosMayores.m += f.adultosMayores?.m || 0;
+        totales.adultosMayores.f += f.adultosMayores?.f || 0;
+        totales.adolescentes.m += f.adolescentes?.m || 0;
+        totales.adolescentes.f += f.adolescentes?.f || 0;
+        totales.ninos.m += f.ninos?.m || 0;
+        totales.ninos.f += f.ninos?.f || 0;
+        totales.lactantes.m += f.lactantes?.m || 0;
+        totales.lactantes.f += f.lactantes?.f || 0;
+        totales.alimentos += f.alimentos || 0;
+        totales.colchon += f.colchon || 0;
+        totales.otros += f.otros || 0;
+    });
+    
+    const data = {
+        fecha: document.getElementById('edanFecha').value,
+        hora: document.getElementById('edanHora').value,
+        oficial: document.getElementById('edanOficial').value,
+        oficialNombre: document.getElementById('edanOficial').options[document.getElementById('edanOficial').selectedIndex]?.text || '',
+        evento: evento,
+        municipio: document.getElementById('edanMunicipio').value,
+        poblacion: poblacion,
+        sector: document.getElementById('edanSector').value.trim(),
+        calle: document.getElementById('edanCalle').value.trim(),
+        observacion: document.getElementById('edanObservacion').value.trim(),
+        familias: edanFamilias,
+        totales: totales,
+        firma: edanFirma,
+        fechaRegistro: new Date().toISOString()
+    };
+    
+    db.collection('edan').add(data)
+        .then(() => {
+            mostrarToast('✅ EDAN registrado correctamente', 'success');
+            edanFamilias = [];
+            edanGenerarFilas();
+            limpiarFirmaEdan();
+            document.getElementById('edanEvento').value = '';
+            document.getElementById('edanPoblacion').value = '';
+            document.getElementById('edanSector').value = '';
+            document.getElementById('edanCalle').value = '';
+            document.getElementById('edanObservacion').value = '';
+            cargarEDAN();
+        })
+        .catch(error => {
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
+}
+
+function cargarEDAN() {
+    db.collection('edan')
+        .orderBy('fechaRegistro', 'desc')
+        .limit(20)
+        .get()
+        .then(snap => {
+            const container = document.getElementById('listaEdan');
+            if (snap.empty) {
+                container.innerHTML = '<p class="text-muted">No hay registros EDAN</p>';
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-sm">';
+            html += '<thead><tr><th>Fecha</th><th>Evento</th><th>Oficial</th><th>Familias</th><th>Total Personas</th></tr></thead><tbody>';
+            
+            snap.forEach(doc => {
+                const data = doc.data();
+                const fecha = data.fecha || 'N/A';
+                let totalPersonas = 0;
+                if (data.totales) {
+                    totalPersonas = (data.totales.adultos?.m || 0) + (data.totales.adultos?.f || 0) +
+                                   (data.totales.adultosMayores?.m || 0) + (data.totales.adultosMayores?.f || 0) +
+                                   (data.totales.adolescentes?.m || 0) + (data.totales.adolescentes?.f || 0) +
+                                   (data.totales.ninos?.m || 0) + (data.totales.ninos?.f || 0) +
+                                   (data.totales.lactantes?.m || 0) + (data.totales.lactantes?.f || 0);
+                }
+                
+                html += `<tr>
+                    <td>${fecha}</td>
+                    <td>${data.evento || 'N/A'}</td>
+                    <td>${data.oficialNombre || 'N/A'}</td>
+                    <td>${data.familias?.length || 0}</td>
+                    <td>${totalPersonas}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        })
+        .catch(() => {});
+}
+
+function generarPDFEDAN() {
+    edanGuardarCambios();
+    
+    if (edanFamilias.length === 0) {
+        mostrarToast('⚠️ No hay datos para generar PDF', 'warning');
+        return;
+    }
+    
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        doc.setFontSize(16);
+        doc.text('RECOLECCIÓN DE INFORMACIÓN', 105, 15, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text('Municipio Papelón - Estado Portuguesa', 105, 22, { align: 'center' });
+        
+        let y = 30;
+        doc.setFontSize(9);
+        doc.text(`FECHA: ${document.getElementById('edanFecha').value || 'N/A'}`, 20, y);
+        doc.text(`HORA: ${document.getElementById('edanHora').value || 'N/A'}`, 120, y);
+        y += 6;
+        doc.text(`ELABORADO POR: ${document.getElementById('edanOficial').options[document.getElementById('edanOficial').selectedIndex]?.text || 'N/A'}`, 20, y);
+        y += 6;
+        doc.text(`EVENTO: ${document.getElementById('edanEvento').value || 'N/A'}`, 20, y);
+        y += 6;
+        doc.text(`MUNICIPIO: ${document.getElementById('edanMunicipio').value || 'N/A'}`, 20, y);
+        doc.text(`POBLACIÓN: ${document.getElementById('edanPoblacion').value || 'N/A'}`, 100, y);
+        y += 6;
+        doc.text(`SECTOR: ${document.getElementById('edanSector').value || 'N/A'}`, 20, y);
+        doc.text(`CALLE: ${document.getElementById('edanCalle').value || 'N/A'}`, 100, y);
+        y += 8;
+        
+        const headers = [['N°', 'Nombre y Apellido', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Hab', 'Dest', 'Alim', 'Colch', 'Otros', 'Especifique']];
+        
+        const rows = edanFamilias.map((f, i) => [
+            (i+1).toString(),
+            f.responsable || '',
+            f.cedula || '',
+            (f.adultos?.m || 0).toString(),
+            (f.adultos?.f || 0).toString(),
+            (f.adultosMayores?.m || 0).toString(),
+            (f.adultosMayores?.f || 0).toString(),
+            (f.adolescentes?.m || 0).toString(),
+            (f.adolescentes?.f || 0).toString(),
+            (f.ninos?.m || 0).toString(),
+            (f.ninos?.f || 0).toString(),
+            (f.lactantes?.m || 0).toString(),
+            (f.lactantes?.f || 0).toString(),
+            f.tipoVivienda || 'B',
+            f.habitable ? 'Sí' : 'No',
+            f.destruida ? 'Sí' : 'No',
+            (f.alimentos || 0).toString(),
+            (f.colchon || 0).toString(),
+            (f.otros || 0).toString(),
+            f.otrosDesc || ''
+        ]);
+        
+        doc.autoTable({
+            head: [headers[0]],
+            body: rows,
+            startY: y,
+            styles: { fontSize: 6 },
+            headStyles: { fillColor: [11, 42, 74], fontSize: 6 },
+            columnStyles: {
+                0: { cellWidth: 8 },
+                1: { cellWidth: 25 },
+                2: { cellWidth: 18 },
+                3: { cellWidth: 8 },
+                4: { cellWidth: 8 },
+                5: { cellWidth: 8 },
+                6: { cellWidth: 8 },
+                7: { cellWidth: 8 },
+                8: { cellWidth: 8 },
+                9: { cellWidth: 8 },
+                10: { cellWidth: 8 },
+                11: { cellWidth: 8 },
+                12: { cellWidth: 8 },
+                13: { cellWidth: 8 },
+                14: { cellWidth: 8 },
+                15: { cellWidth: 8 },
+                16: { cellWidth: 8 },
+                17: { cellWidth: 8 },
+                18: { cellWidth: 8 },
+                19: { cellWidth: 18 }
+            },
+            pageBreak: 'auto'
+        });
+        
+        let finalY = doc.lastAutoTable.finalY + 10;
+        
+        doc.setFontSize(9);
+        doc.text('OBSERVACIÓN:', 20, finalY);
+        finalY += 5;
+        const obs = document.getElementById('edanObservacion').value || '';
+        const splitObs = doc.splitTextToSize(obs, 170);
+        doc.text(splitObs, 20, finalY);
+        finalY += splitObs.length * 5 + 5;
+        
+        doc.text('_________________________', 50, finalY + 10);
+        doc.text('Firma del Oficial', 50, finalY + 18);
+        doc.text('_________________________', 130, finalY + 10);
+        doc.text('Sello de la Institución', 130, finalY + 18);
+        
+        doc.save(`EDAN_${document.getElementById('edanFecha').value || 'N/A'}.pdf`);
+        mostrarToast('✅ PDF generado correctamente', 'success');
+        
+    } catch (error) {
+        console.error('Error generando PDF:', error);
+        mostrarToast('❌ Error al generar PDF', 'danger');
+    }
+}
+
+// ============================================
+// VIVIENDAS
 // ============================================
 
 let inspeccionesVivienda = [];
