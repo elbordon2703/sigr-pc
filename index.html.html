@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="es">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b2a4a">
+    <link rel="manifest" href="manifest.json">
+    <title>SIGR-PC</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --primary: #0b2a4a; --secondary: #1677c8; --success: #19864b; --danger: #dc3545; --warning: #ffc107; --sidebar-width: 220px; --sidebar-width-mobile: 60px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .login-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: var(--primary); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; }
+        .login-card { background:white; padding:30px 25px; border-radius:16px; max-width:400px; width:100%; box-shadow:0 10px 40px rgba(0,0,0,0.3); }
+        .login-card h2 { font-size:22px; color:var(--primary); }
+        .sidebar { min-height:100vh; background:var(--primary); color:white; padding:15px 0; position:fixed; top:0; left:0; width:var(--sidebar-width); z-index:1000; overflow-y:auto; overflow-x:hidden; transition:all 0.3s ease; }
+        .sidebar .brand { text-align:center; padding:15px 10px; border-bottom:1px solid rgba(255,255,255,0.1); }
+        .sidebar .brand h3 { font-size:18px; margin:0; white-space:nowrap; }
+        .sidebar .brand small { font-size:10px; opacity:0.7; display:block; }
+        .sidebar .nav-link { color:rgba(255,255,255,0.8); padding:10px 16px; border-radius:8px; margin:3px 10px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:10px; font-size:13px; white-space:nowrap; }
+        .sidebar .nav-link:hover { background:rgba(255,255,255,0.1); color:white; }
+        .sidebar .nav-link.active { background:var(--secondary); color:white; }
+        .sidebar .nav-link i { width:22px; text-align:center; font-size:16px; flex-shrink:0; }
+        .sidebar .nav-link span { flex:1; }
+        .nav-parent { cursor:pointer; }
+        .nav-parent .fa-chevron-down { transition:transform 0.3s ease; font-size:12px; }
+        .nav-parent .fa-chevron-down.open { transform:rotate(180deg); }
+        .submenu { display:none; padding-left:20px; overflow:hidden; }
+        .submenu.open { display:block; }
+        .nav-child { padding-left:40px !important; font-size:12px !important; background:rgba(255,255,255,0.05); border-radius:0 !important; margin:0 !important; }
+        .nav-child:hover { background:rgba(255,255,255,0.1); }
+        .nav-child.active { background:var(--secondary); color:white; }
+        .content { margin-left:var(--sidebar-width); padding:15px 20px; max-width:100%; overflow-x:hidden; transition:all 0.3s ease; min-height:100vh; }
+        .section { display:none; width:100%; max-width:100%; overflow-x:hidden; }
+        .section.active { display:block; }
+        .card { background:#fff; border-radius:10px; padding:12px 14px; margin:8px 0; box-shadow:0 1px 4px rgba(0,0,0,0.08); width:100%; max-width:100%; overflow:hidden; }
+        .card-header { font-weight:600; font-size:14px; padding:6px 0 10px 0; border-bottom:1px solid #eee; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .card-body { padding:10px 0; overflow-x:auto; }
+        .card-title { font-size:24px; margin:0; }
+        .row { display:flex; flex-wrap:wrap; margin:0 -5px; width:100%; max-width:100%; }
+        .row > [class*="col-"] { padding:0 5px; flex:1 1 auto; max-width:100%; }
+        .col-12 { flex:0 0 100%; max-width:100%; }
+        .col-6 { flex:0 0 50%; max-width:50%; }
+        .col-4 { flex:0 0 33.33%; max-width:33.33%; }
+        .col-3 { flex:0 0 25%; max-width:25%; }
+        .col-md-6 { flex:0 0 50%; max-width:50%; }
+        .col-md-4 { flex:0 0 33.33%; max-width:33.33%; }
+        .col-md-3 { flex:0 0 25%; max-width:25%; }
+        label { font-size:12px; font-weight:600; display:block; margin-bottom:2px; color:#333; }
+        input, select, textarea { width:100%; padding:7px 10px; border:1px solid #ccd4dd; border-radius:6px; font-size:14px; background:#fff; max-width:100%; box-sizing:border-box; }
+        input:focus, select:focus, textarea:focus { outline:none; border-color:var(--secondary); box-shadow:0 0 0 2px rgba(22,119,200,0.2); }
+        textarea { min-height:60px; resize:vertical; font-family:inherit; }
+        .btn { border:none; border-radius:6px; padding:8px 14px; font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+        .btn:hover { opacity:0.85; transform:translateY(-1px); }
+        .btn-primary { background:var(--secondary); color:#fff; }
+        .btn-success { background:var(--success); color:#fff; }
+        .btn-danger { background:var(--danger); color:#fff; }
+        .btn-warning { background:var(--warning); color:#000; }
+        .btn-secondary { background:#6c757d; color:#fff; }
+        .btn-sm { padding:4px 8px; font-size:11px; }
+        .badge { padding:3px 8px; border-radius:12px; font-size:11px; font-weight:600; display:inline-block; }
+        .badge-success { background:#d4edda; color:#155724; }
+        .badge-danger { background:#f8d7da; color:#721c24; }
+        .badge-warning { background:#fff3cd; color:#856404; }
+        .badge-info { background:#cce5ff; color:#004085; }
+        .toast-container { position:fixed; bottom:20px; right:20px; z-index:9999; max-width:90%; }
+        .toast { padding:10px 16px; border-radius:8px; color:#fff; font-size:13px; box-shadow:0 3px 12px rgba(0,0,0,0.2); max-width:100%; word-wrap:break-word; }
+        .toast-success { background:var(--success); }
+        .toast-danger { background:var(--danger); }
+        .toast-warning { background:var(--warning); color:#000; }
+        .toast-info { background:var(--secondary); }
+        .table-responsive { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        .table { width:100%; border-collapse:collapse; font-size:13px; min-width:300px; }
+        .table th { background:#f0f2f5; text-align:left; padding:6px 8px; font-weight:600; border-bottom:2px solid #dee2e6; }
+        .table td { padding:5px 8px; border-bottom:1px solid #eee; }
+        .alerta-72h { background: #fff3cd; border-left: 4px solid #ffc107; padding: 8px 12px; margin: 5px 0; border-radius: 4px; font-size: 12px; }
+        .alerta-72h strong { color: #856404; }
+        @media (max-width:768px) {
+            .sidebar { width:var(--sidebar-width-mobile); padding:8px 0; }
+            .sidebar .brand h3 { font-size:14px; }
+            .sidebar .brand small { display:none; }
+            .sidebar .nav-link { padding:8px 0; margin:2px 4px; font-size:12px; justify-content:center; }
+            .sidebar .nav-link i { font-size:18px; width:auto; }
+            .sidebar .nav-link span { display:none; }
+            .submenu { padding-left:0; }
+            .nav-child { padding-left:0 !important; font-size:11px !important; text-align:center; }
+            .content { margin-left:var(--sidebar-width-mobile); padding:10px 8px; }
+            .card { padding:10px 12px; margin:6px 0; }
+            .card-header { font-size:13px; }
+            .card-title { font-size:20px; }
+            .col-6 { flex:0 0 50%; max-width:50%; }
+            .col-4 { flex:0 0 100%; max-width:100%; }
+            .col-3 { flex:0 0 50%; max-width:50%; }
+            .col-md-6 { flex:0 0 100%; max-width:100%; }
+            .col-md-4 { flex:0 0 100%; max-width:100%; }
+            .col-md-3 { flex:0 0 50%; max-width:50%; }
+            input, select, textarea { font-size:16px; padding:6px 8px; }
+            .btn { font-size:12px; padding:6px 12px; }
+            .login-card { padding:20px 18px; margin:0 10px; }
+            .table { font-size:12px; min-width:280px; }
+            .toast-container { bottom:10px; right:10px; left:10px; max-width:100%; }
+            .toast { font-size:12px; padding:8px 12px; }
+            h2 { font-size:18px; }
+            h4 { font-size:15px; }
+        }
+        @media (max-width:480px) {
+            .sidebar { width:50px; }
+            .sidebar .nav-link { padding:6px 0; margin:1px 2px; }
+            .sidebar .nav-link i { font-size:16px; }
+            .content { margin-left:50px; padding:8px 5px; }
+            .card { padding:8px 10px; margin:4px 0; border-radius:8px; }
+            .col-6 { flex:0 0 50%; max-width:50%; }
+            .col-3 { flex:0 0 50%; max-width:50%; }
+            .col-md-3 { flex:0 0 50%; max-width:50%; }
+            .login-card { padding:16px 14px; border-radius:10px; }
+            .btn { font-size:11px; padding:5px 10px; }
+            .table { font-size:11px; min-width:250px; }
+            h2 { font-size:16px; }
+            .card-title { font-size:18px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+        <div style="text-align:center;margin-bottom:20px;">
+            <i class="fas fa-shield-alt" style="font-size:48px;color:#0b2a4a;"></i>
+            <h2>SIGR-PC</h2>
+            <p><strong>Municipio Papelón</strong></p>
+        </div>
+        <div id="loginForm">
+            <div class="mb-3">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="comandantepc@gmail.com">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Contraseña</label>
+                <input type="password" id="loginPassword" class="form-control" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary w-100" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+            </button>
+            <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
+        </div>
+    </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="brand">
+        <h3><i class="fas fa-shield-alt"></i> SIGR</h3>
+        <small>PC V2.0</small>
+        <div id="userRolBadge" style="font-size:10px;margin-top:5px;background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px;display:inline-block;"></div>
+    </div>
+    <nav class="nav flex-column">
+        <div class="nav-link active" data-section="dashboard" onclick="showSection('dashboard')">
+            <i class="fas fa-home"></i> <span>Dashboard</span>
+        </div>
+        <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-riesgo')">
+            <i class="fas fa-shield-alt"></i> <span>Gestión de Riesgo</span>
+            <i class="fas fa-chevron-down ms-auto" id="icon-riesgo"></i>
+        </div>
+        <div class="submenu" id="submenu-riesgo">
+            <div class="nav-link nav-child" data-section="certificacion" onclick="showSection('certificacion')">
+                <i class="fas fa-tree"></i> <span>Certificación</span>
+            </div>
+            <div class="nav-link nav-child" data-section="edan" onclick="showSection('edan')">
+                <i class="fas fa-house-damage"></i> <span>EDAN</span>
+            </div>
+            <div class="nav-link nav-child" data-section="solicitudes" onclick="showSection('solicitudes')">
+                <i class="fas fa-tasks"></i> <span>Solicitudes</span>
+            </div>
+            <div class="nav-link nav-child" data-section="alertas" onclick="showSection('alertas')">
+                <i class="fas fa-bell"></i> <span>Alertas</span>
+            </div>
+        </div>
+        <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-operaciones')">
+            <i class="fas fa-clock"></i> <span>Operaciones</span>
+            <i class="fas fa-chevron-down ms-auto" id="icon-operaciones"></i>
+        </div>
+        <div class="submenu" id="submenu-operaciones">
+            <div class="nav-link nav-child" data-section="servicio" onclick="showSection('servicio')">
+                <i class="fas fa-play"></i> <span>Apertura de Servicio</span>
+            </div>
+            <div class="nav-link nav-child" data-section="partes" onclick="showSection('partes')">
+                <i class="fas fa-file-alt"></i> <span>Partes</span>
+            </div>
+            <div class="nav-link nav-child" data-section="cierres" onclick="showSection('cierres')">
+                <i class="fas fa-calendar-check"></i> <span>Cierres</span>
+            </div>
+        </div>
+        <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-recursos')">
+            <i class="fas fa-users"></i> <span>Recursos</span>
+            <i class="fas fa-chevron-down ms-auto" id="icon-recursos"></i>
+        </div>
+        <div class="submenu" id="submenu-recursos">
+            <div class="nav-link nav-child" data-section="personal" onclick="showSection('personal')">
+                <i class="fas fa-user-plus"></i> <span>Personal</span>
+            </div>
+            <div class="nav-link nav-child" data-section="grupos" onclick="showSection('grupos')">
+                <i class="fas fa-users-cog"></i> <span>Grupos</span>
+            </div>
+            <div class="nav-link nav-child" data-section="vehiculos" onclick="showSection('vehiculos')">
+                <i class="fas fa-truck"></i> <span>Vehículos</span>
+            </div>
+        </div>
+        <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-admin')">
+            <i class="fas fa-cog"></i> <span>Administración</span>
+            <i class="fas fa-chevron-down ms-auto" id="icon-admin"></i>
+        </div>
+        <div class="submenu" id="submenu-admin">
+            <div class="nav-link nav-child" data-section="usuarios" onclick="showSection('usuarios')">
+                <i class="fas fa-user-cog"></i> <span>Usuarios</span>
+            </div>
+        </div>
+        <div class="nav-link" style="border-top:1px solid rgba(255,255,255,0.1);margin-top:20px;" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> <span>Salir</span>
+        </div>
+    </nav>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 id="pageTitle">Dashboard</h4>
+            <small id="userInfo" class="text-muted"></small>
+        </div>
+        <div>
+            <span id="statusBadge" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:bold;background:#d4edda;color:#155724;">
+                <i class="fas fa-circle" style="font-size:8px;"></i> Conectado
+            </span>
+            <span id="alerta72hBadge" style="display:none;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:bold;background:#fff3cd;color:#856404;margin-left:5px;">
+                ⚠️ Alertas 72h
+            </span>
+        </div>
+    </div>
+    
+    <!-- DASHBOARD -->
+    <div id="section-dashboard" class="section active">
+        <div class="row">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card"><div class="card-body"><h6 class="card-subtitle text-muted">Personal</h6><h2 class="card-title" id="totalPersonal">0</h2></div></div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card"><div class="card-body"><h6 class="card-subtitle text-muted">Solicitudes</h6><h2 class="card-title" id="totalSolicitudes">0</h2></div></div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card"><div class="card-body"><h6 class="card-subtitle text-muted">EDAN</h6><h2 class="card-title" id="totalEdan">0</h2></div></div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card"><div class="card-body"><h6 class="card-subtitle text-muted">Alertas</h6><h2 class="card-title" id="totalAlertas">0</h2></div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-clock"></i> Servicio Activo</div>
+            <div class="card-body" id="servicioActivo"><p class="text-muted">No hay servicio activo</p></div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-exclamation-triangle"></i> Solicitudes sin atender (72h)</div>
+            <div class="card-body" id="alertas72h"><p class="text-muted">No hay solicitudes pendientes</p></div>
+        </div>
+    </div>
+    
+    <!-- PERSONAL -->
+    <div id="section-personal" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-user-plus"></i> Registrar Personal</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2"><input type="text" id="pApellido" class="form-control" placeholder="Apellido"></div>
+                    <div class="col-md-3 mb-2"><input type="text" id="pNombre" class="form-control" placeholder="Nombre"></div>
+                    <div class="col-md-3 mb-2"><input type="text" id="pCedula" class="form-control" placeholder="Cédula"></div>
+                    <div class="col-md-3 mb-2">
+                        <select id="pJerarquia" class="form-select">
+                            <option value="">Jerarquía</option>
+                            <option>OPC I</option><option>OPC II</option><option>OPC III</option>
+                            <option>OSPC I</option><option>OSPC II</option><option>OSPC III</option>
+                            <option>OCPC I</option><option>OCPC II</option><option>OCPC GENERAL</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-2"><input type="tel" id="pTelefono" class="form-control" placeholder="Teléfono"></div>
+                    <div class="col-md-4 mb-2"><input type="email" id="pEmail" class="form-control" placeholder="Email"></div>
+                    <div class="col-md-4 mb-2">
+                        <select id="pGrupos" class="form-select" multiple>
+                            <option value="Grupo A">Grupo A</option>
+                            <option value="Grupo B">Grupo B</option>
+                            <option value="Grupo C">Grupo C</option>
+                            <option value="Grupo D">Grupo D</option>
+                        </select>
+                        <small class="text-muted">Ctrl+Click para múltiple</small>
+                    </div>
+                    <div class="col-12"><button class="btn btn-primary" onclick="registrarPersonal()"><i class="fas fa-save"></i> Registrar</button></div>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-list"></i> Lista de Personal</div>
+            <div class="card-body" id="listaPersonal"></div>
+        </div>
+    </div>
+    
+    <!-- GRUPOS -->
+    <div id="section-grupos" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-users-cog"></i> Grupos</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Grupo</label>
+                        <select id="gSelect" class="form-select" onchange="cargarGrupo()">
+                            <option value="Grupo A">Grupo A</option>
+                            <option value="Grupo B">Grupo B</option>
+                            <option value="Grupo C">Grupo C</option>
+                            <option value="Grupo D">Grupo D</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Jefe de Servicio</label>
+                        <select id="gJefe" class="form-select" onchange="actualizarJefe()">
+                            <option value="">Seleccionar Jefe</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3"><h6>Integrantes</h6><div id="gIntegrantes"></div></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- VEHÍCULOS -->
+    <div id="section-vehiculos" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-truck"></i> Gestión de Vehículos</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2"><input type="text" id="vPlaca" class="form-control" placeholder="Placa"></div>
+                    <div class="col-md-3 mb-2">
+                        <select id="vTipo" class="form-select">
+                            <option value="moto">🏍️ Moto</option>
+                            <option value="camioneta">🚐 Camioneta</option>
+                            <option value="ambulancia">🚑 Ambulancia</option>
+                            <option value="camion">🚛 Camión</option>
+                            <option value="sedan">🚗 Sedán</option>
+                            <option value="otro">🚙 Otro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2"><input type="text" id="vModelo" class="form-control" placeholder="Modelo"></div>
+                    <div class="col-md-3 mb-2"><input type="text" id="vAño" class="form-control" placeholder="Año"></div>
+                    <div class="col-md-6 mb-2">
+                        <select id="vEstado" class="form-select">
+                            <option value="disponible">✅ Disponible</option>
+                            <option value="en_servicio">🔄 En Servicio</option>
+                            <option value="mantenimiento">🔧 Mantenimiento</option>
+                            <option value="averiado">❌ Averiado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2"><input type="number" id="vKilometraje" class="form-control" placeholder="Kilometraje (km)" step="0.1"></div>
+                    <div class="col-12"><button class="btn btn-primary" onclick="registrarVehiculo()"><i class="fas fa-save"></i> Registrar Vehículo</button></div>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-list"></i> Flota de Vehículos</div>
+            <div class="card-body" id="listaVehiculos"></div>
+        </div>
+    </div>
+    
+    <!-- SERVICIO -->
+    <div id="section-servicio" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-clock"></i> Apertura de Servicio</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">📋 Grupo que recibe</label>
+                        <select id="sGrupo" class="form-select" onchange="cargarIntegrantesServicio()">
+                            <option value="">Seleccionar Grupo</option>
+                            <option value="Grupo A">Grupo A</option>
+                            <option value="Grupo B">Grupo B</option>
+                            <option value="Grupo C">Grupo C</option>
+                            <option value="Grupo D">Grupo D</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">📅 Fecha/Hora</label>
+                        <input type="datetime-local" id="sFecha" class="form-control">
+                    </div>
+                </div>
+                <div class="card mt-2">
+                    <div class="card-header"><i class="fas fa-users"></i> Integrantes del Grupo</div>
+                    <div class="card-body" id="integrantesServicio"><p class="text-muted">Seleccione un grupo para ver los integrantes.</p></div>
+                </div>
+                <div class="card mt-2">
+                    <div class="card-header"><i class="fas fa-tasks"></i> Asignación de Responsabilidades</div>
+                    <div class="card-body">
+                        <div id="responsabilidadesContainer"><p class="text-muted">Seleccione un grupo para asignar responsabilidades.</p></div>
+                        <button class="btn btn-sm btn-success mt-2" onclick="agregarResponsabilidad()"><i class="fas fa-plus"></i> Agregar Responsabilidad</button>
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-3" onclick="abrirServicioMejorado()"><i class="fas fa-play"></i> Abrir Servicio</button>
+                <hr>
+                <h6>Servicio Actual</h6>
+                <div id="sActual"></div>
+                <button class="btn btn-danger mt-2" onclick="cerrarServicio()"><i class="fas fa-stop"></i> Cerrar Servicio</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SOLICITUDES -->
+    <div id="section-solicitudes" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-tasks"></i> Solicitudes</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-2"><input type="text" id="solSolicitante" class="form-control" placeholder="Solicitante"></div>
+                    <div class="col-md-4 mb-2"><input type="tel" id="solTelefono" class="form-control" placeholder="Teléfono"></div>
+                    <div class="col-md-4 mb-2"><input type="text" id="solDireccion" class="form-control" placeholder="Dirección"></div>
+                    <div class="col-md-6 mb-2">
+                        <select id="solTipo" class="form-select">
+                            <option value="emergencia">🔴 Emergencia</option>
+                            <option value="inspeccion">🔍 Inspección</option>
+                            <option value="asesoria">📋 Asesoría</option>
+                            <option value="otro">📌 Otro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <select id="solPrioridad" class="form-select">
+                            <option value="alta">🔴 Alta</option>
+                            <option value="media">🟡 Media</option>
+                            <option value="baja">🟢 Baja</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-2"><textarea id="solDescripcion" class="form-control" rows="2" placeholder="Descripción"></textarea></div>
+                    <div class="col-12"><button class="btn btn-primary" onclick="crearSolicitud()"><i class="fas fa-save"></i> Registrar Solicitud</button></div>
+                </div>
+                <hr>
+                <h6>Solicitudes Activas</h6>
+                <div id="listaSolicitudes"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- EDAN -->
+    <div id="section-edan" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-house-damage"></i> EDAN</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2"><input type="text" id="edanJefe" class="form-control" placeholder="Jefe de familia"></div>
+                    <div class="col-md-6 mb-2"><input type="text" id="edanCedula" class="form-control" placeholder="Cédula"></div>
+                    <div class="col-md-4 mb-2"><input type="number" id="edanIntegrantes" class="form-control" placeholder="N° integrantes"></div>
+                    <div class="col-md-4 mb-2"><input type="text" id="edanDireccion" class="form-control" placeholder="Dirección"></div>
+                    <div class="col-md-4 mb-2">
+                        <select id="edanEstado" class="form-select">
+                            <option value="habitable">🟢 Habitable</option>
+                            <option value="daño_leve">🟡 Daño Leve</option>
+                            <option value="daño_moderado">🟠 Daño Moderado</option>
+                            <option value="daño_fuerte">🔴 Daño Fuerte</option>
+                            <option value="inhabitable">⛔ Inhabitable</option>
+                            <option value="destruida">💀 Destruida</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-2"><textarea id="edanNecesidades" class="form-control" rows="2" placeholder="Necesidades"></textarea></div>
+                    <div class="col-12"><button class="btn btn-primary" onclick="registrarEdan()"><i class="fas fa-save"></i> Registrar</button></div>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-list"></i> EDAN Registrados</div>
+            <div class="card-body" id="listaEdan"></div>
+        </div>
+    </div>
+    
+    <!-- CERTIFICACIÓN DE ÁRBOLES COMPLETA -->
+    <div id="section-certificacion" class="section">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-tree"></i> Certificación de Árboles
+                <span class="badge badge-info ms-2">📋 Registro Oficial</span>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Certificación de árboles:</strong> Registro oficial para evaluación de riesgo arbóreo.
+                    Complete todos los campos.
+                </div>
+
+                <!-- ===== DATOS DEL SOLICITANTE ===== -->
+                <div class="card mb-2" style="background:#f8f9fa;">
+                    <div class="card-header">
+                        <i class="fas fa-user"></i> Datos del Solicitante
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📌 Solicitante</label>
+                                <select id="caSolicitante" class="form-select" onchange="cargarDatosSolicitante()">
+                                    <option value="">— Seleccione el Solicitante —</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📄 Cédula</label>
+                                <input type="text" id="caSolicitanteCedula" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📞 Teléfono</label>
+                                <input type="text" id="caSolicitanteTelefono" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📍 Dirección</label>
+                                <input type="text" id="caDireccion" class="form-control" placeholder="Calle, sector, comunidad">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== DATOS DEL INSPECTOR ===== -->
+                <div class="card mb-2" style="background:#e9ecef;">
+                    <div class="card-header">
+                        <i class="fas fa-user-check"></i> Datos del Inspector (Actuante)
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">👤 Inspector</label>
+                                <select id="caInspector" class="form-select" onchange="cargarDatosInspector()">
+                                    <option value="">— Seleccione el Inspector —</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📋 Jerarquía</label>
+                                <input type="text" id="caInspectorJerarquia" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== DATOS DEL ÁRBOL ===== -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-tree"></i> Datos del Árbol
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">🌳 Especie</label>
+                                <input type="text" id="caEspecie" class="form-control" placeholder="Nombre común o científico">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📏 Altura (m)</label>
+                                <input type="number" id="caAltura" class="form-control" step="0.1">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📐 Diámetro (m)</label>
+                                <input type="number" id="caDiametro" class="form-control" step="0.1">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📏 Inclinación (°)</label>
+                                <input type="number" id="caInclinacion" class="form-control" step="0.1">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">🏠 Dist. vivienda (m)</label>
+                                <input type="number" id="caDistancia" class="form-control" step="0.1">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">⚠️ Nivel de Riesgo</label>
+                                <select id="caRiesgo" class="form-select">
+                                    <option value="bajo">🟢 Bajo</option>
+                                    <option value="medio">🟡 Medio</option>
+                                    <option value="alto">🟠 Alto</option>
+                                    <option value="muy_alto">🔴 Muy Alto</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">✅ Estado del Árbol</label>
+                                <select id="caEstado" class="form-select">
+                                    <option value="sano">🌿 Sano</option>
+                                    <option value="dañado">🌳 Dañado</option>
+                                    <option value="seco">🍂 Seco</option>
+                                    <option value="caido">💀 Caído</option>
+                                    <option value="peligroso">⚠️ Peligroso</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== UBICACIÓN UTM ===== -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-map-marker-alt"></i> Ubicación UTM
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">📍 UTM Este</label>
+                                <input type="text" id="caUtmE" class="form-control" placeholder="Ej: 123456">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">📍 UTM Norte</label>
+                                <input type="text" id="caUtmN" class="form-control" placeholder="Ej: 987654">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🗺️ Zona</label>
+                                <input type="text" id="caUtmZona" class="form-control" placeholder="Ej: 19">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== OBSERVACIONES ===== -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">📝 Observaciones</label>
+                        <textarea id="caObservaciones" class="form-control" rows="2" placeholder="Condiciones del árbol, daños visibles, recomendaciones..."></textarea>
+                    </div>
+                </div>
+
+                <!-- ===== FOTOS ===== -->
+                <div class="row mt-2">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">📸 Foto 1</label>
+                        <input type="file" id="caFoto1" class="form-control" accept="image/*" capture="environment">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">📸 Foto 2</label>
+                        <input type="file" id="caFoto2" class="form-control" accept="image/*" capture="environment">
+                    </div>
+                    <div class="col-12 mb-2">
+                        <div id="caFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
+                    </div>
+                </div>
+
+                <!-- ===== FIRMA DIGITAL ===== -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">✍️ Firma del Inspector</label>
+                        <canvas id="caFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirma()">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="capturarFirma()">
+                                <i class="fas fa-save"></i> Guardar Firma
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== BOTONES ===== -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-success" onclick="guardarCertificacionArbol()">
+                            <i class="fas fa-save"></i> Registrar Certificación
+                        </button>
+                        <button class="btn btn-primary" onclick="generarPDFCertificacion()">
+                            <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
+                    </div>
+                </div>
+                <div id="caMensaje" class="mt-2"></div>
+            </div>
+        </div>
+
+        <!-- ===== LISTA DE CERTIFICACIONES ===== -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="fas fa-list"></i> Certificaciones Registradas
+            </div>
+            <div class="card-body" id="listaCertificaciones"></div>
+        </div>
+    </div>
+    
+    <!-- ALERTAS -->
+    <div id="section-alertas" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-bell"></i> Alertas Tempranas</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <select id="alTipo" class="form-select">
+                            <option value="hidrologica">🌊 Hidrológica</option>
+                            <option value="meteorologica">🌤️ Meteorológica</option>
+                            <option value="sanitaria">🏥 Sanitaria</option>
+                            <option value="incendio">🔥 Incendio</option>
+                            <option value="otro">📌 Otro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <select id="alPrioridad" class="form-select">
+                            <option value="alta">🔴 Alta</option>
+                            <option value="media">🟡 Media</option>
+                            <option value="baja">🟢 Baja</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-2"><input type="text" id="alUbicacion" class="form-control" placeholder="📍 Ubicación"></div>
+                    <div class="col-12 mb-2"><textarea id="alDescripcion" class="form-control" rows="2" placeholder="📝 Descripción de la alerta"></textarea></div>
+                    <div class="col-12"><button class="btn btn-warning" onclick="crearAlerta()"><i class="fas fa-bell"></i> Crear Alerta</button></div>
+                </div>
+                <hr>
+                <h6>Alertas Activas</h6>
+                <div id="listaAlertas"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CIERRES -->
+    <div id="section-cierres" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-calendar-check"></i> Cierre de Actividades</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">📋 Tipo de cierre</label>
+                        <select id="cierreTipo" class="form-select">
+                            <option value="mensual">📅 Mensual</option>
+                            <option value="anual">📆 Anual</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">📅 Período</label>
+                        <input type="month" id="cierreMes" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-success" onclick="generarCierre()"><i class="fas fa-file-pdf"></i> Generar Cierre</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-history"></i> Historial de Cierres</div>
+            <div class="card-body" id="historialCierres"><p class="text-muted">No hay cierres registrados.</p></div>
+        </div>
+    </div>
+    
+    <!-- PARTES -->
+    <div id="section-partes" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-file-alt"></i> Parte de Servicio</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <select id="parteTipo" class="form-select">
+                            <option value="matutino">🌅 Parte Matutino (09:00)</option>
+                            <option value="vespertino">🌙 Parte Vespertino (21:00)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2"><input type="date" id="parteFecha" class="form-control"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Actividades</label>
+                    <div id="parteActividades"></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-2"><input type="text" id="paDescripcion" class="form-control" placeholder="Descripción"></div>
+                        <div class="col-md-6 mb-2"><input type="text" id="paResponsable" class="form-control" placeholder="Responsable"></div>
+                        <div class="col-12"><button class="btn btn-sm btn-success" onclick="agregarActividadParte()"><i class="fas fa-plus"></i> Agregar</button></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Novedades</label>
+                    <textarea id="parteNovedades" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Observaciones</label>
+                    <textarea id="parteObservaciones" class="form-control" rows="2"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="registrarParte()"><i class="fas fa-save"></i> Registrar Parte</button>
+                <button class="btn btn-success ms-2" onclick="enviarParteWhatsApp()"><i class="fab fa-whatsapp"></i> Enviar por WhatsApp</button>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-history"></i> Historial</div>
+            <div class="card-body" id="historialPartes"></div>
+        </div>
+    </div>
+    
+    <!-- USUARIOS -->
+    <div id="section-usuarios" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-user-plus"></i> Gestionar Usuarios</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2"><input type="text" id="uNombre" class="form-control" placeholder="Nombre"></div>
+                    <div class="col-md-3 mb-2"><input type="text" id="uApellido" class="form-control" placeholder="Apellido"></div>
+                    <div class="col-md-3 mb-2"><input type="email" id="uEmail" class="form-control" placeholder="Correo"></div>
+                    <div class="col-md-3 mb-2">
+                        <select id="uRol" class="form-select">
+                            <option value="comandante">👑 1er Comandante</option>
+                            <option value="segundo_comandante">👤 2do Comandante</option>
+                            <option value="jefe_servicio">🛡️ Jefe de Servicio</option>
+                            <option value="oficial">👮 Oficial</option>
+                        </select>
+                    </div>
+                    <div class="col-12"><button class="btn btn-success" onclick="crearUsuario()"><i class="fas fa-user-plus"></i> Crear Usuario</button></div>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-list"></i> Usuarios del Sistema</div>
+            <div class="card-body" id="listaUsuarios"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container">
+    <div id="toast" class="toast align-items-center text-white border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="toastBody"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.classList.remove('show')"></button>
+        </div>
+    </div>
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+// ============================================
+// CONFIGURACIÓN DE FIREBASE
+// ============================================
+const firebaseConfig = {
+    apiKey: "AIzaSyAeNrW0ioimnKysCmHDuujBXvAJwxZr_fA",
+    authDomain: "sigr-pc.firebaseapp.com",
+    projectId: "sigr-pc",
+    storageBucket: "sigr-pc.appspot.com",
+    messagingSenderId: "195683731733",
+    appId: "1:195683731733:web:ab76b626b974773ea9411c"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ============================================
+// AUTENTICACIÓN
+// ============================================
+
+let usuarioActual = { email: null, uid: null, rol: null, nombre: null, apellido: null };
+
+function login() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorDiv = document.getElementById('loginError');
+    errorDiv.classList.add('d-none');
+    
+    if (!email || !password) {
+        errorDiv.textContent = '⚠️ Ingresa correo y contraseña';
+        errorDiv.classList.remove('d-none');
+        return;
+    }
+    
+    auth.signInWithEmailAndPassword(email, password)
+        .then(async (userCredential) => {
+            await cargarUsuarioActual();
+            document.getElementById('loginOverlay').style.display = 'none';
+            mostrarToast('✅ Sesión iniciada', 'success');
+            cargarDatos();
+        })
+        .catch(error => {
+            errorDiv.textContent = '❌ ' + error.message;
+            errorDiv.classList.remove('d-none');
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
+}
+
+function logout() {
+    auth.signOut();
+    document.getElementById('loginOverlay').style.display = 'flex';
+    mostrarToast('Sesión cerrada', 'info');
+}
+
+async function obtenerUsuarioPorEmail(email) {
+    try {
+        const snapshot = await db.collection('usuarios').where('email', '==', email).limit(1).get();
+        if (!snapshot.empty) {
+            const doc = snapshot.docs[0];
+            return { id: doc.id, ...doc.data() };
+        }
+        return null;
+    } catch (error) {
+        console.error('Error obteniendo usuario:', error);
+        return null;
+    }
+}
+
+async function cargarUsuarioActual() {
+    const user = auth.currentUser;
+    if (!user) return null;
+    const usuario = await obtenerUsuarioPorEmail(user.email);
+    if (usuario) {
+        usuarioActual = {
+            email: user.email,
+            uid: user.uid,
+            rol: usuario.rol || 'oficial',
+            nombre: usuario.nombre || '',
+            apellido: usuario.apellido || ''
+        };
+        actualizarMenuPorRol(usuarioActual.rol);
+        mostrarInfoUsuario();
+        return usuarioActual;
+    }
+    return null;
+}
+
+function mostrarInfoUsuario() {
+    const userInfo = document.getElementById('userInfo');
+    const rolBadge = document.getElementById('userRolBadge');
+    if (userInfo && usuarioActual.nombre) {
+        const rolTexto = {
+            'comandante': '👑 1er Comandante',
+            'segundo_comandante': '👤 2do Comandante',
+            'jefe_servicio': '🛡️ Jefe de Servicio',
+            'oficial': '👮 Oficial'
+        };
+        userInfo.textContent = `${usuarioActual.nombre} ${usuarioActual.apellido} - ${rolTexto[usuarioActual.rol] || usuarioActual.rol}`;
+        if (rolBadge) rolBadge.textContent = rolTexto[usuarioActual.rol] || usuarioActual.rol;
+    }
+}
+
+function actualizarMenuPorRol(rol) {
+    const menuItems = {
+        dashboard: true,
+        personal: ['comandante', 'segundo_comandante', 'jefe_servicio'],
+        grupos: ['comandante', 'segundo_comandante', 'jefe_servicio'],
+        vehiculos: ['comandante', 'segundo_comandante', 'jefe_servicio'],
+        servicio: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
+        solicitudes: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
+        edan: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
+        certificacion: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
+        alertas: ['comandante', 'segundo_comandante', 'jefe_servicio'],
+        partes: ['comandante', 'segundo_comandante', 'jefe_servicio', 'oficial'],
+        cierres: ['comandante', 'segundo_comandante'],
+        usuarios: ['comandante']
+    };
+    
+    document.querySelectorAll('.sidebar .nav-link[data-section]').forEach(el => {
+        const section = el.dataset.section;
+        const rolesPermitidos = menuItems[section];
+        if (!rolesPermitidos) { el.style.display = 'none'; return; }
+        if (Array.isArray(rolesPermitidos)) {
+            el.style.display = rolesPermitidos.includes(rol) ? 'flex' : 'none';
+        } else if (rolesPermitidos === true) {
+            el.style.display = 'flex';
+        } else {
+            el.style.display = 'none';
+        }
+    });
+}
+
+// ============================================
+// SUBMENÚS
+// ============================================
+
+function toggleSubmenu(submenuId) {
+    const submenu = document.getElementById(submenuId);
+    const icon = document.getElementById('icon-' + submenuId.replace('submenu-', ''));
+    if (submenu) {
+        submenu.classList.toggle('open');
+        if (icon) icon.classList.toggle('open');
+    }
+}
+
+function actualizarSubmenus(seccion) {
+    const submenuMap = {
+        'certificacion': 'submenu-riesgo',
+        'edan': 'submenu-riesgo',
+        'solicitudes': 'submenu-riesgo',
+        'alertas': 'submenu-riesgo',
+        'servicio': 'submenu-operaciones',
+        'partes': 'submenu-operaciones',
+        'cierres': 'submenu-operaciones',
+        'personal': 'submenu-recursos',
+        'grupos': 'submenu-recursos',
+        'vehiculos': 'submenu-recursos',
+        'usuarios': 'submenu-admin'
+    };
+    const submenuId = submenuMap[seccion];
+    if (submenuId) {
+        const submenu = document.getElementById(submenuId);
+        const icon = document.getElementById('icon-' + submenuId.replace('submenu-', ''));
+        if (submenu) submenu.classList.add('open');
+        if (icon) icon.classList.add('open');
+    }
+}
+
+// ============================================
+// TOAST
+// ============================================
+
+function mostrarToast(mensaje, tipo = 'success') {
+    const toast = document.getElementById('toast');
+    const body = document.getElementById('toastBody');
+    body.textContent = mensaje;
+    const colors = { success: 'bg-success', danger: 'bg-danger', warning: 'bg-warning text-dark', info: 'bg-info' };
+    toast.className = 'toast align-items-center text-white border-0 ' + (colors[tipo] || colors.success);
+    const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+    bsToast.show();
+}
+
+// ============================================
+// NAVEGACIÓN
+// ============================================
+
+function showSection(section) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById('section-' + section);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.sidebar .nav-link').forEach(el => {
+        el.classList.remove('active');
+        if (el.dataset.section === section) el.classList.add('active');
+    });
+    document.querySelectorAll('.submenu').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.fa-chevron-down').forEach(el => el.classList.remove('open'));
+    actualizarSubmenus(section);
+    
+    const titles = {
+        dashboard: 'Dashboard',
+        personal: 'Personal',
+        grupos: 'Grupos',
+        vehiculos: 'Vehículos',
+        servicio: 'Apertura de Servicio',
+        solicitudes: 'Solicitudes',
+        edan: 'EDAN',
+        certificacion: 'Certificación de Árboles',
+        alertas: 'Alertas Tempranas',
+        partes: 'Partes de Servicio',
+        cierres: 'Cierres',
+        usuarios: 'Usuarios'
+    };
+    document.getElementById('pageTitle').textContent = titles[section] || section;
+    
+    if (section === 'personal') cargarPersonal();
+    if (section === 'grupos') cargarGrupos();
+    if (section === 'vehiculos') cargarVehiculos();
+    if (section === 'servicio') cargarServicioMejorado();
+    if (section === 'solicitudes') cargarSolicitudes();
+    if (section === 'edan') cargarEdan();
+    if (section === 'certificacion') { cargarSolicitante(); cargarInspector(); cargarCertificaciones(); }
+    if (section === 'alertas') cargarAlertas();
+    if (section === 'partes') cargarPartes();
+    if (section === 'cierres') cargarHistorialCierres();
+    if (section === 'usuarios') cargarUsuarios();
+    if (section === 'dashboard') cargarDashboard();
+}
+
+// ============================================
+// CARGAR DATOS
+// ============================================
+
+function cargarDatos() {
+    cargarDashboard();
+    cargarPersonal();
+    cargarGrupos();
+    cargarVehiculos();
+    cargarServicioMejorado();
+    cargarSolicitudes();
+    cargarEdan();
+    cargarCertificaciones();
+    cargarAlertas();
+    cargarPartes();
+    cargarHistorialCierres();
+    cargarUsuarios();
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+
+function cargarDashboard() {
+    db.collection('personal').get().then(snap => {
+        document.getElementById('totalPersonal').textContent = snap.size;
+    }).catch(() => {});
+    db.collection('solicitudes').get().then(snap => {
+        document.getElementById('totalSolicitudes').textContent = snap.size;
+    }).catch(() => {});
+    db.collection('edan').get().then(snap => {
+        document.getElementById('totalEdan').textContent = snap.size;
+    }).catch(() => {});
+    db.collection('alertas').where('estado', '==', 'activa').get().then(snap => {
+        document.getElementById('totalAlertas').textContent = snap.size;
+    }).catch(() => {});
+    
+    db.collection('servicio').where('estado', '==', 'activo').orderBy('fechaApertura', 'desc').limit(1).get()
+        .then(snap => {
+            const div = document.getElementById('servicioActivo');
+            if (!snap.empty) {
+                const data = snap.docs[0].data();
+                div.innerHTML = `<div class="alert alert-success"><strong>${data.grupo}</strong> - Jefe: ${data.jefe || 'No definido'}</div>`;
+            } else {
+                div.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
+            }
+        }).catch(() => {});
+    
+    verificarAlertas72h();
+}
+
+function verificarAlertas72h() {
+    const hoy = new Date();
+    const hace72h = new Date(hoy.getTime() - 72 * 60 * 60 * 1000);
+    
+    db.collection('solicitudes')
+        .where('estado', 'in', ['recibida', 'en_proceso'])
+        .orderBy('fecha', 'desc')
+        .get()
+        .then(snap => {
+            const container = document.getElementById('alertas72h');
+            const badge = document.getElementById('alerta72hBadge');
+            let hayAlertas = false;
+            let html = '';
+            
+            snap.forEach(doc => {
+                const data = doc.data();
+                const fecha = data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha);
+                if (fecha < hace72h) {
+                    hayAlertas = true;
+                    html += `<div class="alerta-72h"><strong>⚠️ ${data.solicitante}</strong> - ${data.descripcion?.substring(0, 50)}...<br><small>${fecha.toLocaleDateString()}</small></div>`;
+                }
+            });
+            
+            if (hayAlertas) {
+                container.innerHTML = html;
+                if (badge) badge.style.display = 'inline-block';
+            } else {
+                container.innerHTML = '<p class="text-muted">No hay solicitudes pendientes con más de 72h</p>';
+                if (badge) badge.style.display = 'none';
+            }
+        }).catch(() => {});
+}
+
+// ============================================
+// PERSONAL
+// ============================================
+
+function registrarPersonal() {
+    const apellido = document.getElementById('pApellido').value.trim();
+    const nombre = document.getElementById('pNombre').value.trim();
+    if (!apellido || !nombre) {
+        mostrarToast('⚠️ Nombre y apellido son obligatorios', 'warning');
+        return;
+    }
+    const data = {
+        apellido, nombre,
+        cedula: document.getElementById('pCedula').value.trim(),
+        jerarquia: document.getElementById('pJerarquia').value,
+        telefono: document.getElementById('pTelefono').value.trim(),
+        email: document.getElementById('pEmail').value.trim(),
+        grupos: Array.from(document.getElementById('pGrupos').selectedOptions).map(opt => opt.value),
+        estado: 'activo',
+        fechaRegistro: new Date().toISOString()
+    };
+    db.collection('personal').add(data)
+        .then(() => { mostrarToast('✅ Personal registrado', 'success'); cargarPersonal(); })
+        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+function cargarPersonal() {
+    db.collection('personal').orderBy('fechaRegistro', 'desc').get()
+        .then(snap => {
+            const container = document.getElementById('listaPersonal');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay personal registrado</p>'; return; }
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>#</th><th>Nombre</th><th>Jerarquía</th><th>Grupos</th></tr></thead><tbody>';
+            let i = 1;
+            snap.forEach(doc => {
+                const data = doc.data();
+                html += `<tr><td>${i++}</td><td><strong>${data.apellido}, ${data.nombre}</strong></td><td>${data.jerarquia || '-'}</td><td>${data.grupos ? data.grupos.join(', ') : '-'}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+// ============================================
+// GRUPOS
+// ============================================
+
+function cargarGrupos() {
+    db.collection('personal').get()
+        .then(snap => {
+            const jefeSelect = document.getElementById('gJefe');
+            jefeSelect.innerHTML = '<option value="">Seleccionar Jefe</option>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                jefeSelect.innerHTML += `<option value="${doc.id}">${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</option>`;
+            });
+            cargarIntegrantes();
+        }).catch(() => {});
+}
+
+function cargarIntegrantes() {
+    const grupo = document.getElementById('gSelect').value;
+    db.collection('personal').where('grupos', 'array-contains', grupo).get()
+        .then(snap => {
+            const container = document.getElementById('gIntegrantes');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay integrantes en este grupo</p>'; return; }
+            let html = '<ul class="list-group">';
+            snap.forEach(doc => {
+                const data = doc.data();
+                html += `<li class="list-group-item">${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</li>`;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+function actualizarJefe() {
+    mostrarToast('Jefe actualizado', 'success');
+}
+
+// ============================================
+// VEHÍCULOS
+// ============================================
+
+function registrarVehiculo() {
+    const placa = document.getElementById('vPlaca').value.trim();
+    const modelo = document.getElementById('vModelo').value.trim();
+    if (!placa || !modelo) {
+        mostrarToast('⚠️ Placa y modelo son obligatorios', 'warning');
+        return;
+    }
+    const data = {
+        placa, modelo,
+        tipo: document.getElementById('vTipo').value,
+        año: document.getElementById('vAño').value.trim(),
+        estado: document.getElementById('vEstado').value,
+        kilometraje: parseFloat(document.getElementById('vKilometraje').value) || 0,
+        fechaRegistro: new Date().toISOString(),
+        registradoPor: auth.currentUser?.email || 'Sistema'
+    };
+    db.collection('vehiculos').add(data)
+        .then(() => { mostrarToast('✅ Vehículo registrado', 'success'); cargarVehiculos(); })
+        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+function cargarVehiculos() {
+    db.collection('vehiculos').orderBy('fechaRegistro', 'desc').get()
+        .then(snap => {
+            const container = document.getElementById('listaVehiculos');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay vehículos registrados</p>'; return; }
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Placa</th><th>Tipo</th><th>Modelo</th><th>Estado</th><th>Kilometraje</th></tr></thead><tbody>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const estadoColor = { 'disponible': 'success', 'en_servicio': 'info', 'mantenimiento': 'warning', 'averiado': 'danger' };
+                const estadoTexto = { 'disponible': '✅ Disponible', 'en_servicio': '🔄 En Servicio', 'mantenimiento': '🔧 Mantenimiento', 'averiado': '❌ Averiado' };
+                html += `<tr><td><strong>${data.placa}</strong></td><td>${data.tipo}</td><td>${data.modelo}</td><td><span class="badge bg-${estadoColor[data.estado] || 'secondary'}">${estadoTexto[data.estado] || data.estado}</span></td><td>${data.kilometraje} km</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+// ============================================
+// SERVICIO MEJORADO
+// ============================================
+
+let responsabilidadesTemporales = [];
+
+function cargarIntegrantesServicio() {
+    const grupo = document.getElementById('sGrupo').value;
+    const container = document.getElementById('integrantesServicio');
+    const respContainer = document.getElementById('responsabilidadesContainer');
+    if (!grupo) {
+        container.innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
+        respContainer.innerHTML = '<p class="text-muted">Seleccione un grupo para asignar responsabilidades.</p>';
+        return;
+    }
+    db.collection('personal').where('grupos', 'array-contains', grupo).get()
+        .then(snap => {
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay integrantes en este grupo.</p>'; return; }
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Nombre</th><th>Jerarquía</th><th>Responsabilidades</th></tr></thead><tbody>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const nombre = `${data.apellido}, ${data.nombre}`;
+                const id = doc.id;
+                const respAsignadas = responsabilidadesTemporales.filter(r => r.oficialId === id).map(r => r.responsabilidad).join(', ') || 'Sin asignar';
+                html += `<tr><td><strong>${nombre}</strong></td><td>${data.jerarquia || '-'}</td><td>${respAsignadas}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+            cargarSelectorResponsabilidades(snap);
+        }).catch(() => {});
+}
+
+function cargarSelectorResponsabilidades(snap) {
+    const container = document.getElementById('responsabilidadesContainer');
+    if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay oficiales para asignar responsabilidades.</p>'; return; }
+    let html = '<div class="row">';
+    html += '<div class="col-md-6 mb-2"><label class="form-label">👤 Oficial</label><select id="respOficial" class="form-select">';
+    snap.forEach(doc => {
+        const data = doc.data();
+        html += `<option value="${doc.id}">${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</option>`;
+    });
+    html += '</select></div>';
+    html += '<div class="col-md-6 mb-2"><label class="form-label">📋 Responsabilidad</label><select id="respFuncion" class="form-select">';
+    const funciones = [
+        ['coordinacion', '👔 Coordinación General'],
+        ['inspeccion', '🔍 Inspecciones'],
+        ['edan', '📋 EDAN'],
+        ['monitoreo', '📡 Monitoreo'],
+        ['logistica', '📦 Logística'],
+        ['comunicaciones', '📢 Comunicaciones'],
+        ['vehiculos', '🚗 Vehículos'],
+        ['apoyo', '🤝 Apoyo'],
+        ['seguridad', '🛡️ Seguridad'],
+        ['otro', '📌 Otro']
+    ];
+    funciones.forEach(([valor, texto]) => {
+        html += `<option value="${valor}">${texto}</option>`;
+    });
+    html += '</select></div></div>';
+    
+    html += '<div class="mt-2"><h6>Responsabilidades asignadas:</h6><div id="listaResponsabilidadesAsignadas">';
+    if (responsabilidadesTemporales.length === 0) {
+        html += '<p class="text-muted">No hay responsabilidades asignadas.</p>';
+    } else {
+        html += '<ul class="list-group">';
+        responsabilidadesTemporales.forEach((r, i) => {
+            const nombreOficial = snap.docs.find(d => d.id === r.oficialId)?.data()?.apellido || 'Desconocido';
+            html += `<li class="list-group-item d-flex justify-content-between">${nombreOficial}: ${r.responsabilidad}<button class="btn btn-sm btn-danger" onclick="eliminarResponsabilidad(${i})"><i class="fas fa-trash"></i></button></li>`;
+        });
+        html += '</ul>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function agregarResponsabilidad() {
+    const oficialId = document.getElementById('respOficial')?.value;
+    const funcion = document.getElementById('respFuncion')?.value;
+    if (!oficialId) { mostrarToast('⚠️ No hay oficiales disponibles', 'warning'); return; }
+    if (!funcion) { mostrarToast('⚠️ Seleccione una función', 'warning'); return; }
+    const funcionTexto = {
+        'coordinacion': '👔 Coordinación General',
+        'inspeccion': '🔍 Inspecciones',
+        'edan': '📋 EDAN',
+        'monitoreo': '📡 Monitoreo',
+        'logistica': '📦 Logística',
+        'comunicaciones': '📢 Comunicaciones',
+        'vehiculos': '🚗 Vehículos',
+        'apoyo': '🤝 Apoyo',
+        'seguridad': '🛡️ Seguridad',
+        'otro': '📌 Otro'
+    };
+    responsabilidadesTemporales.push({ oficialId, responsabilidad: funcionTexto[funcion] || funcion, funcion });
+    mostrarToast('✅ Responsabilidad asignada', 'success');
+    cargarIntegrantesServicio();
+}
+
+function eliminarResponsabilidad(index) {
+    responsabilidadesTemporales.splice(index, 1);
+    cargarIntegrantesServicio();
+    mostrarToast('✅ Responsabilidad eliminada', 'success');
+}
+
+function abrirServicioMejorado() {
+    const grupo = document.getElementById('sGrupo').value;
+    const fecha = document.getElementById('sFecha').value;
+    if (!grupo) { mostrarToast('⚠️ Seleccione un grupo', 'warning'); return; }
+    if (!fecha) { mostrarToast('⚠️ Seleccione fecha y hora', 'warning'); return; }
+    if (responsabilidadesTemporales.length === 0) {
+        if (!confirm('⚠️ No hay responsabilidades asignadas. ¿Continuar?')) return;
+    }
+    const grouped = {};
+    responsabilidadesTemporales.forEach(item => {
+        if (!grouped[item.oficialId]) grouped[item.oficialId] = { oficialId: item.oficialId, responsabilidades: [] };
+        grouped[item.oficialId].responsabilidades.push(item.responsabilidad);
+    });
+    const data = {
+        grupo, fechaApertura: new Date(fecha).toISOString(),
+        estado: 'activo', jefe: auth.currentUser?.email || 'Sistema',
+        responsabilidades: Object.values(grouped),
+        creadoPor: auth.currentUser?.email || 'Sistema'
+    };
+    db.collection('servicio').add(data)
+        .then(() => { mostrarToast('✅ Servicio abierto con responsabilidades', 'success'); responsabilidadesTemporales = []; cargarServicioMejorado(); })
+        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+function cargarServicioMejorado() {
+    db.collection('servicio').where('estado', '==', 'activo').orderBy('fechaApertura', 'desc').limit(1).get()
+        .then(snap => {
+            const container = document.getElementById('sActual');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay servicio activo</p>'; return; }
+            const data = snap.docs[0].data();
+            const fecha = data.fechaApertura ? new Date(data.fechaApertura).toLocaleString() : 'N/A';
+            let html = `<div class="alert alert-info"><strong>📋 ${data.grupo}</strong><br>📅 ${fecha}<br>👤 Jefe: ${data.jefe || 'No definido'}<br>`;
+            if (data.responsabilidades && data.responsabilidades.length > 0) {
+                html += '<hr><strong>Responsabilidades:</strong><br>';
+                data.responsabilidades.forEach(r => {
+                    db.collection('personal').doc(r.oficialId).get().then(doc => {
+                        if (doc.exists) {
+                            const p = doc.data();
+                            const nombre = `${p.apellido}, ${p.nombre}`;
+                            const respList = r.responsabilidades.join(', ');
+                            const display = document.getElementById('responsabilidadesDisplay');
+                            if (display) display.innerHTML += `<div class="list">${nombre}: ${respList}</div>`;
+                        }
+                    });
+                });
+                html += '<div id="responsabilidadesDisplay"></div>';
+            } else {
+                html += '<p class="text-muted">Sin responsabilidades asignadas</p>';
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+function cerrarServicio() {
+    if (!confirm('¿Cerrar servicio actual?')) return;
+    db.collection('servicio').where('estado', '==', 'activo').get()
+        .then(snap => {
+            snap.forEach(doc => {
+                db.collection('servicio').doc(doc.id).update({ estado: 'cerrado', fechaCierre: new Date().toISOString() });
+            });
+            mostrarToast('✅ Servicio cerrado', 'success');
+            cargarServicioMejorado();
+        }).catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+// ============================================
+// SOLICITUDES
+// ============================================
+
+function crearSolicitud() {
+    const solicitante = document.getElementById('solSolicitante').value.trim();
+    const descripcion = document.getElementById('solDescripcion').value.trim();
+    if (!solicitante || !descripcion) {
+        mostrarToast('⚠️ Complete los campos', 'warning');
+        return;
+    }
+    const data = {
+        solicitante, descripcion,
+        telefono: document.getElementById('solTelefono').value.trim(),
+        direccion: document.getElementById('solDireccion').value.trim(),
+        tipo: document.getElementById('solTipo').value,
+        prioridad: document.getElementById('solPrioridad').value,
+        estado: 'recibida',
+        fecha: new Date().toISOString(),
+        seguimiento: [{ fecha: new Date().toISOString(), accion: 'Recibida', usuario: auth.currentUser?.email || 'Sistema' }]
+    };
+    db.collection('solicitudes').add(data)
+        .then(() => { mostrarToast('✅ Solicitud registrada', 'success'); cargarSolicitudes(); })
+        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+function cargarSolicitudes() {
+    db.collection('solicitudes').where('estado', 'in', ['recibida', 'en_proceso']).orderBy('fecha', 'desc').get()
+        .then(snap => {
+            const container = document.getElementById('listaSolicitudes');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay solicitudes activas</p>'; return; }
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Solicitante</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const prioridadColor = data.prioridad === 'alta' ? 'danger' : data.prioridad === 'media' ? 'warning' : 'info';
+                html += `<tr><td><strong>${data.solicitante}</strong></td><td>${data.tipo || '—'}</td><td><span class="badge bg-${prioridadColor}">${data.prioridad}</span></td><td><span class="badge ${data.estado === 'recibida' ? 'badge-warning' : 'badge-info'}">${data.estado}</span></td>
+                <td><button class="btn btn-sm btn-success" onclick="atenderSolicitud('${doc.id}')"><i class="fas fa-check"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="cancelarSolicitud('${doc.id}')"><i class="fas fa-times"></i></button></td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+function atenderSolicitud(id) {
+    db.collection('solicitudes').doc(id).update({
+        estado: 'completada',
+        fechaAtencion: new Date().toISOString(),
+        seguimiento: firebase.firestore.FieldValue.arrayUnion({
+            fecha: new Date().toISOString(),
+            accion: 'Atendida',
+            usuario: auth.currentUser?.email || 'Sistema'
+        })
+    }).then(() => { mostrarToast('✅ Solicitud atendida', 'success'); cargarSolicitudes(); verificarAlertas72h(); })
+        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+function cancelarSolicitud(id) {
+    if (!confirm('¿Cancelar esta solicitud?')) return;
+    db.collection('solicitudes').doc(id).update({
+        estado: 'cancelada',
+        fechaCancelacion: new Date().toISOString()
+    }).then(() => { mostrarToast('✅ Solicitud cancelada', 'success'); cargarSolicitudes(); })
+        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+// ============================================
+// EDAN
+// ============================================
+
+function registrarEdan() {
+    const jefe = document.getElementById('edanJefe').value.trim();
+    const direccion = document.getElementById('edanDireccion').value.trim();
+    if (!jefe || !direccion) {
+        mostrarToast('⚠️ Jefe y dirección son obligatorios', 'warning');
+        return;
+    }
+    const data = {
+        jefe, direccion,
+        cedula: document.getElementById('edanCedula').value.trim(),
+        integrantes: parseInt(document.getElementById('edanIntegrantes').value) || 1,
+        estado: document.getElementById('edanEstado').value,
+        necesidades: document.getElementById('edanNecesidades').value.trim(),
+        fecha: new Date().toISOString(),
+        oficial: auth.currentUser?.email || 'Sistema'
+    };
+    db.collection('edan').add(data)
+        .then(() => { mostrarToast('✅ EDAN registrado', 'success'); cargarEdan(); })
+        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+function cargarEdan() {
+    db.collection('edan').orderBy('fecha', 'desc').limit(20).get()
+        .then(snap => {
+            const container = document.getElementById('listaEdan');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay registros EDAN</p>'; return; }
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fecha</th><th>Jefe</th><th>Integrantes</th><th>Estado</th></tr></thead><tbody>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString() : 'N/A';
+                html += `<tr><td>${fecha}</td><td>${data.jefe}</td><td>${data.integrantes || 1}</td><td>${data.estado.replace('_', ' ')}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+// ============================================
+// CERTIFICACIÓN DE ÁRBOLES (COMPLETA)
+// ============================================
+
+let certificaciones = [];
+let firmaGuardada = null;
+let canvas, ctx, isDrawing = false;
+
+function cargarSolicitante() {
+    const select = document.getElementById('caSolicitante');
+    if (!select) return;
+    
+    db.collection('personal')
+        .orderBy('apellido', 'asc')
+        .get()
+        .then(snap => {
+            select.innerHTML = '<option value="">— Seleccione el Solicitante —</option>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const nombre = `${data.apellido}, ${data.nombre}`;
+                select.innerHTML += `<option value="${doc.id}" 
+                    data-cedula="${data.cedula || ''}" 
+                    data-telefono="${data.telefono || ''}"
+                    data-nombre="${data.nombre}" 
+                    data-apellido="${data.apellido}">${nombre}</option>`;
+            });
+        })
+        .catch(() => {});
+}
+
+function cargarDatosSolicitante() {
+    const select = document.getElementById('caSolicitante');
+    const selected = select.options[select.selectedIndex];
+    
+    if (selected && selected.value) {
+        document.getElementById('caSolicitanteCedula').value = selected.dataset.cedula || '';
+        document.getElementById('caSolicitanteTelefono').value = selected.dataset.telefono || '';
+        window._solicitanteNombre = selected.dataset.nombre || '';
+        window._solicitanteApellido = selected.dataset.apellido || '';
+    } else {
+        document.getElementById('caSolicitanteCedula').value = '';
+        document.getElementById('caSolicitanteTelefono').value = '';
+        window._solicitanteNombre = '';
+        window._solicitanteApellido = '';
+    }
+}
+
+function cargarInspector() {
+    const select = document.getElementById('caInspector');
+    if (!select) return;
+    
+    db.collection('personal')
+        .orderBy('apellido', 'asc')
+        .get()
+        .then(snap => {
+            select.innerHTML = '<option value="">— Seleccione el Inspector —</option>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const nombre = `${data.apellido}, ${data.nombre}`;
+                select.innerHTML += `<option value="${doc.id}" 
+                    data-jerarquia="${data.jerarquia || ''}"
+                    data-nombre="${data.nombre}" 
+                    data-apellido="${data.apellido}">${nombre}</option>`;
+            });
+        })
+        .catch(() => {});
+}
+
+function cargarDatosInspector() {
+    const select = document.getElementById('caInspector');
+    const selected = select.options[select.selectedIndex];
+    
+    if (selected && selected.value) {
+        document.getElementById('caInspectorJerarquia').value = selected.dataset.jerarquia || '';
+        window._inspectorNombre = selected.dataset.nombre || '';
+        window._inspectorApellido = selected.dataset.apellido || '';
+    } else {
+        document.getElementById('caInspectorJerarquia').value = '';
+        window._inspectorNombre = '';
+        window._inspectorApellido = '';
+    }
+}
+
+function iniciarFirma() {
+    canvas = document.getElementById('caFirmaCanvas');
+    if (!canvas) return;
+    ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth || 300;
+    canvas.height = canvas.offsetHeight || 150;
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#0b2a4a';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    canvas.addEventListener('mousedown', empezarDibujo);
+    canvas.addEventListener('mousemove', dibujar);
+    canvas.addEventListener('mouseup', terminarDibujo);
+    canvas.addEventListener('mouseleave', terminarDibujo);
+    canvas.addEventListener('touchstart', empezarDibujoTouch);
+    canvas.addEventListener('touchmove', dibujarTouch);
+    canvas.addEventListener('touchend', terminarDibujo);
+}
+
+function empezarDibujo(e) {
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function dibujar(e) {
+    if (!isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+}
+
+function empezarDibujoTouch(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+}
+
+function dibujarTouch(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    ctx.stroke();
+}
+
+function terminarDibujo(e) {
+    isDrawing = false;
+}
+
+function limpiarFirma() {
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    firmaGuardada = null;
+    mostrarToast('✍️ Firma limpiada', 'info');
+}
+
+function capturarFirma() {
+    if (!canvas) return;
+    firmaGuardada = canvas.toDataURL('image/png');
+    mostrarToast('✅ Firma guardada correctamente', 'success');
+}
+
+function leerFotoCertificacion(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('caFotosPreview');
+        if (!preview) return;
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.width = '120px';
+        img.style.height = '90px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '8px';
+        img.style.border = '2px solid #ccc';
+        preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+}
+
+function guardarCertificacionArbol() {
+    const solicitanteId = document.getElementById('caSolicitante').value;
+    const inspectorId = document.getElementById('caInspector').value;
+    
+    const direccion = document.getElementById('caDireccion').value.trim();
+    const especie = document.getElementById('caEspecie').value.trim();
+    
+    if (!solicitanteId) {
+        mostrarToast('⚠️ Seleccione el Solicitante', 'warning');
+        return;
+    }
+    
+    if (!inspectorId) {
+        mostrarToast('⚠️ Seleccione el Inspector', 'warning');
+        return;
+    }
+    
+    if (!direccion || !especie) {
+        mostrarToast('⚠️ Dirección y especie son obligatorios', 'warning');
+        return;
+    }
+    
+    const data = {
+        solicitante: {
+            id: solicitanteId,
+            nombre: window._solicitanteNombre || '',
+            apellido: window._solicitanteApellido || '',
+            cedula: document.getElementById('caSolicitanteCedula').value,
+            telefono: document.getElementById('caSolicitanteTelefono').value
+        },
+        inspector: {
+            id: inspectorId,
+            nombre: window._inspectorNombre || '',
+            apellido: window._inspectorApellido || '',
+            jerarquia: document.getElementById('caInspectorJerarquia').value
+        },
+        arbol: {
+            direccion: direccion,
+            especie: especie,
+            altura: parseFloat(document.getElementById('caAltura').value) || 0,
+            diametro: parseFloat(document.getElementById('caDiametro').value) || 0,
+            inclinacion: parseFloat(document.getElementById('caInclinacion').value) || 0,
+            distancia: parseFloat(document.getElementById('caDistancia').value) || 0,
+            riesgo: document.getElementById('caRiesgo').value,
+            estado: document.getElementById('caEstado').value
+        },
+        utm: {
+            este: document.getElementById('caUtmE').value.trim(),
+            norte: document.getElementById('caUtmN').value.trim(),
+            zona: document.getElementById('caUtmZona').value.trim()
+        },
+        observaciones: document.getElementById('caObservaciones').value.trim(),
+        firma: firmaGuardada,
+        fecha: new Date().toISOString(),
+        oficial: auth.currentUser?.email || 'Sistema',
+        fotos: []
+    };
+
+    const foto1 = document.getElementById('caFoto1');
+    const foto2 = document.getElementById('caFoto2');
+    const totalFotos = (foto1.files && foto1.files[0] ? 1 : 0) + (foto2.files && foto2.files[0] ? 1 : 0);
+
+    if (totalFotos === 0) {
+        guardarCertificacionFinal(data);
+        return;
+    }
+
+    function leerFoto(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                resolve(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function procesarFotos() {
+        if (foto1.files && foto1.files[0]) {
+            data.fotos.push(await leerFoto(foto1.files[0]));
+        }
+        if (foto2.files && foto2.files[0]) {
+            data.fotos.push(await leerFoto(foto2.files[0]));
+        }
+        guardarCertificacionFinal(data);
+    }
+    procesarFotos();
+}
+
+function guardarCertificacionFinal(data) {
+    certificaciones.push(data);
+    guardarCertificacionesLocales();
+
+    if (navigator.onLine) {
+        db.collection('certificaciones').add(data)
+            .then(() => {
+                mostrarToast('✅ Certificación guardada en la nube', 'success');
+            })
+            .catch(() => {
+                mostrarToast('⚠️ Guardado localmente (sin conexión)', 'warning');
+            });
+    } else {
+        mostrarToast('📱 Guardado localmente (sin internet)', 'info');
+    }
+
+    document.getElementById('caSolicitante').value = '';
+    document.getElementById('caSolicitanteCedula').value = '';
+    document.getElementById('caSolicitanteTelefono').value = '';
+    document.getElementById('caInspector').value = '';
+    document.getElementById('caInspectorJerarquia').value = '';
+    document.getElementById('caDireccion').value = '';
+    document.getElementById('caEspecie').value = '';
+    document.getElementById('caAltura').value = '';
+    document.getElementById('caDiametro').value = '';
+    document.getElementById('caInclinacion').value = '';
+    document.getElementById('caDistancia').value = '';
+    document.getElementById('caObservaciones').value = '';
+    document.getElementById('caUtmE').value = '';
+    document.getElementById('caUtmN').value = '';
+    document.getElementById('caUtmZona').value = '';
+    document.getElementById('caFoto1').value = '';
+    document.getElementById('caFoto2').value = '';
+    document.getElementById('caFotosPreview').innerHTML = '';
+    limpiarFirma();
+    cargarCertificaciones();
+}
+
+function guardarCertificacionesLocales() {
+    try {
+        localStorage.setItem('certificaciones', JSON.stringify(certificaciones));
+    } catch (e) {
+        console.error('Error guardando certificaciones:', e);
+    }
+}
+
+function cargarCertificaciones() {
+    try {
+        const saved = localStorage.getItem('certificaciones');
+        if (saved) {
+            certificaciones = JSON.parse(saved);
+        }
+    } catch (e) {
+        console.error('Error cargando certificaciones:', e);
+    }
+    renderizarCertificaciones();
+}
+
+function renderizarCertificaciones() {
+    const container = document.getElementById('listaCertificaciones');
+    if (!container) return;
+
+    if (certificaciones.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay certificaciones registradas</p>';
+        return;
+    }
+
+    let html = '<div class="table-responsive"><table class="table table-sm">';
+    html += '<thead><tr><th>Fecha</th><th>Solicitante</th><th>Inspector</th><th>Dirección</th><th>Especie</th><th>Riesgo</th><th>Acciones</th></tr></thead><tbody>';
+
+    certificaciones.slice().reverse().forEach((cert, index) => {
+        const fecha = cert.fecha ? new Date(cert.fecha).toLocaleDateString() : 'N/A';
+        const solicitante = cert.solicitante ? `${cert.solicitante.apellido}, ${cert.solicitante.nombre}` : 'N/A';
+        const inspector = cert.inspector ? `${cert.inspector.apellido}, ${cert.inspector.nombre}` : 'N/A';
+        const riesgoColor = cert.arbol?.riesgo === 'muy_alto' ? 'danger' : cert.arbol?.riesgo === 'alto' ? 'warning' : cert.arbol?.riesgo === 'medio' ? 'info' : 'success';
+
+        html += `<tr>
+            <td>${fecha}</td>
+            <td>${solicitante}</td>
+            <td>${inspector}</td>
+            <td>${cert.arbol?.direccion || ''}</td>
+            <td>${cert.arbol?.especie || ''}</td>
+            <td><span class="badge bg-${riesgoColor}">${cert.arbol?.riesgo || 'N/A'}</span></td>
+            <td>
+                <button class="btn btn-sm btn-primary" onclick="verCertificacion(${index})">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarCertificacion(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function verCertificacion(index) {
+    const cert = certificaciones[index];
+    if (!cert) return;
+    const solicitante = cert.solicitante ? `${cert.solicitante.nombre} ${cert.solicitante.apellido}` : 'N/A';
+    const inspector = cert.inspector ? `${cert.inspector.nombre} ${cert.inspector.apellido}` : 'N/A';
+    alert(`📋 CERTIFICACIÓN DE ÁRBOL\n\n` +
+          `📌 Solicitante: ${solicitante}\n` +
+          `📄 Cédula: ${cert.solicitante?.cedula || 'N/A'}\n` +
+          `📞 Teléfono: ${cert.solicitante?.telefono || 'N/A'}\n` +
+          `👤 Inspector: ${inspector}\n` +
+          `📋 Jerarquía: ${cert.inspector?.jerarquia || 'N/A'}\n` +
+          `📍 Dirección: ${cert.arbol?.direccion || 'N/A'}\n` +
+          `🌳 Especie: ${cert.arbol?.especie || 'N/A'}\n` +
+          `📏 Altura: ${cert.arbol?.altura || 0}m\n` +
+          `📐 Diámetro: ${cert.arbol?.diametro || 0}m\n` +
+          `📏 Inclinación: ${cert.arbol?.inclinacion || 0}°\n` +
+          `🏠 Dist. vivienda: ${cert.arbol?.distancia || 0}m\n` +
+          `⚠️ Riesgo: ${cert.arbol?.riesgo || 'N/A'}\n` +
+          `📝 Observaciones: ${cert.observaciones || 'N/A'}`);
+}
+
+function eliminarCertificacion(index) {
+    if (!confirm('¿Eliminar esta certificación?')) return;
+    certificaciones.splice(index, 1);
+    guardarCertificacionesLocales();
+    renderizarCertificaciones();
+    mostrarToast('✅ Certificación eliminada', 'success');
+}
+
+function generarPDFCertificacion() {
+    if (certificaciones.length === 0) {
+        mostrarToast('⚠️ No hay certificaciones para generar PDF', 'warning');
+        return;
+    }
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        doc.setFontSize(18);
+        doc.text('CERTIFICACIÓN DE ÁRBOLES', 105, 20, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text('Protección Civil - Municipio Papelón', 105, 28, { align: 'center' });
+        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 105, 34, { align: 'center' });
+
+        const rows = certificaciones.map(cert => [
+            cert.arbol?.direccion || '',
+            cert.arbol?.especie || '',
+            cert.arbol?.altura || '',
+            cert.arbol?.diametro || '',
+            cert.arbol?.inclinacion || '',
+            cert.arbol?.riesgo || '',
+            cert.fecha ? new Date(cert.fecha).toLocaleDateString() : ''
+        ]);
+
+        doc.autoTable({
+            head: [['Dirección', 'Especie', 'Altura', 'Diámetro', 'Inclinación', 'Riesgo', 'Fecha']],
+            body: rows,
+            startY: 40,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [11, 42, 74] }
+        });
+
+        const finalY = doc.lastAutoTable.finalY + 15;
+
+        const ultima = certificaciones[certificaciones.length - 1];
+        if (ultima.solicitante) {
+            doc.setFontSize(10);
+            doc.text(`Solicitante: ${ultima.solicitante.nombre} ${ultima.solicitante.apellido}`, 20, finalY);
+            doc.text(`Cédula: ${ultima.solicitante.cedula || 'N/A'}`, 20, finalY + 6);
+            doc.text(`Teléfono: ${ultima.solicitante.telefono || 'N/A'}`, 20, finalY + 12);
+        }
+        
+        if (ultima.inspector) {
+            doc.text(`Inspector: ${ultima.inspector.nombre} ${ultima.inspector.apellido}`, 120, finalY);
+            doc.text(`Jerarquía: ${ultima.inspector.jerarquia || 'N/A'}`, 120, finalY + 6);
+        }
+
+        doc.text('_________________________', 50, finalY + 25);
+        doc.text('Firma del Inspector', 50, finalY + 33);
+        doc.text('_________________________', 130, finalY + 25);
+        doc.text('Sello de la Institución', 130, finalY + 33);
+
+        doc.save('certificacion_arboles.pdf');
+        mostrarToast('✅ PDF generado correctamente', 'success');
+
+    } catch (error) {
+        console.error('Error generando PDF:', error);
+        mostrarToast('❌ Error al generar PDF', 'danger');
+    }
+}
+
+// ============================================
+// ALERTAS TEMPRANAS
+// ============================================
+
+function crearAlerta() {
+    const ubicacion = document.getElementById('alUbicacion').value.trim();
+    const descripcion = document.getElementById('alDescripcion').value.trim();
+    if (!ubicacion || !descripcion) {
+        mostrarToast('⚠️ Ubicación y descripción son obligatorios', 'warning');
+        return;
+    }
+    const data = {
+        tipo: document.getElementById('alTipo').value,
+        prioridad: document.getElementById('alPrioridad').value,
+        ubicacion, descripcion,
+        estado: 'activa',
+        fecha: new Date().toISOString(),
+        creadoPor: auth.currentUser?.email || 'Sistema'
+    };
+    db.collection('alertas').add(data)
+        .then(() => { mostrarToast('✅ Alerta creada', 'success'); cargarAlertas(); })
+        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+function cargarAlertas() {
+    db.collection('alertas').where('estado', '==', 'activa').orderBy('fecha', 'desc').get()
+        .then(snap => {
+            const container = document.getElementById('listaAlertas');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay alertas activas</p>'; return; }
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Tipo</th><th>Prioridad</th><th>Ubicación</th><th>Estado</th></tr></thead><tbody>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const prioridadColor = data.prioridad === 'alta' ? 'danger' : data.prioridad === 'media' ? 'warning' : 'info';
+                html += `<tr><td>${data.tipo}</td><td><span class="badge bg-${prioridadColor}">${data.prioridad}</span></td><td>${data.ubicacion}</td><td><span class="badge badge-warning">Activa</span></td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+// ============================================
+// CIERRES
+// ============================================
+
+function generarCierre() {
+    const tipo = document.getElementById('cierreTipo').value;
+    const mesInput = document.getElementById('cierreMes').value;
+    if (!mesInput) { mostrarToast('⚠️ Seleccione el período', 'warning'); return; }
+    const [year, month] = mesInput.split('-');
+    const periodo = tipo === 'anual' ? year : `${year}-${month}`;
+    mostrarToast('📊 Generando cierre...', 'info');
+    Promise.all([
+        db.collection('personal').get(),
+        db.collection('solicitudes').get(),
+        db.collection('edan').get(),
+        db.collection('certificaciones').get(),
+        db.collection('alertas').get(),
+        db.collection('vehiculos').get()
+    ]).then(([personal, solicitudes, edan, certificaciones, alertas, vehiculos]) => {
+        const resumen = {
+            tipo, periodo,
+            fechaGeneracion: new Date().toISOString(),
+            generadoPor: auth.currentUser?.email || 'Sistema',
+            personal: personal.size,
+            solicitudes: solicitudes.size,
+            edan: edan.size,
+            certificaciones: certificaciones.size,
+            alertas: alertas.size,
+            vehiculos: vehiculos.size
+        };
+        return db.collection('cierres').add(resumen);
+    }).then(() => {
+        mostrarToast('✅ Cierre generado correctamente', 'success');
+        cargarHistorialCierres();
+    }).catch(error => {
+        mostrarToast('❌ Error: ' + error.message, 'danger');
+    });
+}
+
+function cargarHistorialCierres() {
+    db.collection('cierres').orderBy('fechaGeneracion', 'desc').limit(10).get()
+        .then(snap => {
+            const container = document.getElementById('historialCierres');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay cierres registrados.</p>'; return; }
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fecha</th><th>Tipo</th><th>Período</th><th>Generado por</th></tr></thead><tbody>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const fecha = data.fechaGeneracion ? new Date(data.fechaGeneracion).toLocaleDateString() : 'N/A';
+                html += `<tr><td>${fecha}</td><td>${data.tipo === 'anual' ? '📆 Anual' : '📅 Mensual'}</td><td>${data.periodo}</td><td>${data.generadoPor}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+// ============================================
+// PARTES
+// ============================================
+
+let actividadesParte = [];
+
+function agregarActividadParte() {
+    const descripcion = document.getElementById('paDescripcion').value.trim();
+    if (!descripcion) { mostrarToast('⚠️ Describa la actividad', 'warning'); return; }
+    const responsable = document.getElementById('paResponsable').value.trim();
+    actividadesParte.push({ descripcion, responsable });
+    document.getElementById('paDescripcion').value = '';
+    document.getElementById('paResponsable').value = '';
+    renderizarActividadesParte();
+}
+
+function renderizarActividadesParte() {
+    const container = document.getElementById('parteActividades');
+    if (actividadesParte.length === 0) { container.innerHTML = '<p class="text-muted">No hay actividades</p>'; return; }
+    let html = '<ul class="list-group">';
+    actividadesParte.forEach((a, i) => {
+        html += `<li class="list-group-item d-flex justify-content-between">${a.descripcion}${a.responsable ? ' — ' + a.responsable : ''}<button class="btn btn-sm btn-danger" onclick="eliminarActividadParte(${i})"><i class="fas fa-trash"></i></button></li>`;
+    });
+    html += '</ul>';
+    container.innerHTML = html;
+}
+
+function eliminarActividadParte(index) {
+    actividadesParte.splice(index, 1);
+    renderizarActividadesParte();
+}
+
+function registrarParte() {
+    const fecha = document.getElementById('parteFecha').value;
+    const novedades = document.getElementById('parteNovedades').value.trim();
+    const observaciones = document.getElementById('parteObservaciones').value.trim();
+    if (!fecha) { mostrarToast('⚠️ Seleccione fecha', 'warning'); return; }
+    if (actividadesParte.length === 0 && !novedades) { mostrarToast('⚠️ Agregue actividad o novedad', 'warning'); return; }
+    const data = {
+        tipo: document.getElementById('parteTipo').value,
+        fecha: new Date(fecha).toISOString(),
+        actividades: actividadesParte,
+        novedades,
+        observaciones,
+        fechaRegistro: new Date().toISOString(),
+        creadoPor: auth.currentUser?.email || 'Sistema'
+    };
+    db.collection('partes').add(data)
+        .then(() => {
+            mostrarToast('✅ Parte registrado', 'success');
+            actividadesParte = [];
+            renderizarActividadesParte();
+            document.getElementById('parteNovedades').value = '';
+            document.getElementById('parteObservaciones').value = '';
+            cargarPartes();
+        }).catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+function cargarPartes() {
+    db.collection('partes').orderBy('fecha', 'desc').limit(10).get()
+        .then(snap => {
+            const container = document.getElementById('historialPartes');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay partes</p>'; return; }
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fecha</th><th>Tipo</th><th>Actividades</th></tr></thead><tbody>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString() : 'N/A';
+                html += `<tr><td>${fecha}</td><td>${data.tipo === 'matutino' ? '🌅 Matutino' : '🌙 Vespertino'}</td><td>${data.actividades ? data.actividades.length : 0} actividades</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+function enviarParteWhatsApp() {
+    const fecha = document.getElementById('parteFecha').value;
+    const tipo = document.getElementById('parteTipo').value;
+    const novedades = document.getElementById('parteNovedades').value.trim();
+    const observaciones = document.getElementById('parteObservaciones').value.trim();
+    let mensaje = `📋 *PARTE DE SERVICIO*\n`;
+    mensaje += `📅 Fecha: ${fecha}\n`;
+    mensaje += `🕐 Tipo: ${tipo === 'matutino' ? 'Matutino (09:00)' : 'Vespertino (21:00)'}\n`;
+    if (actividadesParte.length > 0) {
+        mensaje += `\n📌 *Actividades:*\n`;
+        actividadesParte.forEach((a, i) => {
+            mensaje += `${i+1}. ${a.descripcion}${a.responsable ? ` (${a.responsable})` : ''}\n`;
+        });
+    }
+    if (novedades) mensaje += `\n📢 *Novedades:*\n${novedades}\n`;
+    if (observaciones) mensaje += `\n📝 *Observaciones:*\n${observaciones}\n`;
+    mensaje += `\n---\n📱 *SIGR-PC - Protección Civil Papelón*`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+}
+
+// ============================================
+// USUARIOS (Solo Comandante)
+// ============================================
+
+function crearUsuario() {
+    if (usuarioActual.rol !== 'comandante') {
+        mostrarToast('❌ Solo el 1er Comandante puede crear usuarios', 'danger');
+        return;
+    }
+    const email = document.getElementById('uEmail').value.trim();
+    const nombre = document.getElementById('uNombre').value.trim();
+    const apellido = document.getElementById('uApellido').value.trim();
+    const rol = document.getElementById('uRol').value;
+    if (!email || !nombre || !apellido) {
+        mostrarToast('⚠️ Complete todos los campos', 'warning');
+        return;
+    }
+    db.collection('usuarios').where('email', '==', email).get()
+        .then(snap => {
+            if (!snap.empty) { mostrarToast('⚠️ El usuario ya existe', 'warning'); return; }
+            return db.collection('usuarios').add({
+                email, nombre, apellido, rol,
+                activo: true,
+                fechaCreacion: new Date().toISOString(),
+                creadoPor: auth.currentUser?.email || 'Sistema'
+            });
+        })
+        .then(() => {
+            mostrarToast(`✅ Usuario ${nombre} ${apellido} creado como ${rol}`, 'success');
+            cargarUsuarios();
+        })
+        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+}
+
+function cargarUsuarios() {
+    if (usuarioActual.rol !== 'comandante') return;
+    db.collection('usuarios').orderBy('fechaCreacion', 'desc').get()
+        .then(snap => {
+            const container = document.getElementById('listaUsuarios');
+            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay usuarios registrados</p>'; return; }
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th></tr></thead><tbody>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const rolTexto = { 'comandante': '👑 1er Comandante', 'segundo_comandante': '👤 2do Comandante', 'jefe_servicio': '🛡️ Jefe de Servicio', 'oficial': '👮 Oficial' };
+                html += `<tr><td>${data.nombre} ${data.apellido}</td><td>${data.email}</td><td>${rolTexto[data.rol] || data.rol}</td><td><span class="badge ${data.activo ? 'badge-success' : 'badge-danger'}">${data.activo ? 'Activo' : 'Inactivo'}</span></td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }).catch(() => {});
+}
+
+// ============================================
+// INICIALIZACIÓN
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    const fecha = new Date().toISOString().split('T')[0];
+    document.getElementById('parteFecha').value = fecha;
+    document.getElementById('sFecha').value = new Date().toISOString().slice(0, 16);
+    document.getElementById('cierreMes').value = new Date().toISOString().slice(0, 7);
+    cargarDatos();
+    setInterval(verificarAlertas72h, 300000);
+});
+
+console.log('🚀 SIGR-PC V2.0 cargado correctamente');
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
