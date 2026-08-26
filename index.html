@@ -1762,58 +1762,85 @@ function cargarPersonal() {
 // GRUPOS
 // ============================================
 
+// ============================================
+// GRUPOS
+// ============================================
+
 function cargarGrupos() {
     // Cargar jefes guardados
     db.collection('grupos').get()
         .then(snap => {
+            const jefeSelect = document.getElementById('gJefe');
+            const jefesGuardados = {};
+            
             snap.forEach(doc => {
                 const data = doc.data();
                 if (data.jefe) {
-                    // Marcar el jefe en el select
-                    const jefeSelect = document.getElementById('gJefe');
-                    const option = jefeSelect.querySelector(`option[value="${data.jefe}"]`);
-                    if (option) option.selected = true;
+                    jefesGuardados[doc.id] = data.jefe;
                 }
             });
+            
+            // Cargar personal para el select de jefes
+            db.collection('personal').get()
+                .then(snapPersonal => {
+                    jefeSelect.innerHTML = '<option value="">Seleccionar Jefe</option>';
+                    snapPersonal.forEach(doc => {
+                        const data = doc.data();
+                        const selected = jefesGuardados[doc.id] ? 'selected' : '';
+                        jefeSelect.innerHTML += `<option value="${doc.id}" ${selected}>${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</option>`;
+                    });
+                    
+                    // Cargar integrantes del grupo actual
+                    cargarIntegrantes();
+                })
+                .catch(error => {
+                    console.error('Error cargando personal:', error);
+                });
         })
-        .catch(() => {});
-    
-    db.collection('personal').get()
-        .then(snap => {
-            const jefeSelect = document.getElementById('gJefe');
-            jefeSelect.innerHTML = '<option value="">Seleccionar Jefe</option>';
-            snap.forEach(doc => {
-                const data = doc.data();
-                jefeSelect.innerHTML += `<option value="${doc.id}">${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</option>`;
-            });
-            cargarIntegrantes();
-        }).catch(() => {});
+        .catch(error => {
+            console.error('Error cargando grupos:', error);
+        });
 }
 
 function cargarIntegrantes() {
     const grupo = document.getElementById('gSelect').value;
+    const container = document.getElementById('gIntegrantes');
+    
+    // Mostrar mensaje de carga
+    container.innerHTML = '<p class="text-muted">Cargando integrantes...</p>';
+    
     if (!grupo) {
-        document.getElementById('gIntegrantes').innerHTML = '<p class="text-muted">Seleccione un grupo</p>';
+        container.innerHTML = '<p class="text-muted">Seleccione un grupo</p>';
         return;
     }
     
-    db.collection('personal').where('grupos', 'array-contains', grupo).get()
+    console.log('📋 Cargando integrantes del grupo:', grupo);
+    
+    db.collection('personal')
+        .where('grupos', 'array-contains', grupo)
+        .get()
         .then(snap => {
-            const container = document.getElementById('gIntegrantes');
+            console.log('👥 Integrantes encontrados:', snap.size);
+            
             if (snap.empty) {
                 container.innerHTML = '<p class="text-muted">No hay integrantes en este grupo</p>';
                 return;
             }
+            
             let html = '<ul class="list-group">';
             snap.forEach(doc => {
                 const data = doc.data();
-                // Verificar si es Jefe de Servicio
+                // Verificar si es Jefe de Servicio (guardado en grupos)
                 const isChief = data.grupos && data.grupos.includes('jefe') ? '⭐ ' : '';
                 html += `<li class="list-group-item">${isChief}${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</li>`;
             });
             html += '</ul>';
             container.innerHTML = html;
-        }).catch(() => {});
+        })
+        .catch(error => {
+            console.error('❌ Error cargando integrantes:', error);
+            container.innerHTML = '<p class="text-danger">Error al cargar integrantes</p>';
+        });
 }
 
 // ===== ACTUALIZAR JEFE DE SERVICIO =====
@@ -1845,6 +1872,7 @@ function actualizarJefe() {
             }, { merge: true })
             .then(() => {
                 mostrarToast(`✅ ${nombre} es ahora el Jefe de Servicio de ${grupo}`, 'success');
+                // Recargar integrantes para mostrar el jefe
                 cargarIntegrantes();
             })
             .catch(error => {
@@ -1855,7 +1883,6 @@ function actualizarJefe() {
             mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
-
 // ============================================
 // VEHÍCULOS
 // ============================================
