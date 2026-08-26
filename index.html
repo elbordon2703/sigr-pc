@@ -464,19 +464,18 @@
             </div>
         </div>
     </div>
-    
-    <!-- EDAN - VERSIÓN MEJORADA -->
+    <!-- EDAN - VERSIÓN COMPLETA CON FOTOS -->
 <div id="section-edan" class="section">
     <div class="card">
         <div class="card-header">
             <i class="fas fa-house-damage"></i> EDAN - Evaluación de Daños y Análisis de Necesidades
-            <span class="badge badge-info ms-2">📋 Registro de Familias</span>
+            <span class="badge badge-info ms-2">📋 Registro Oficial</span>
         </div>
         <div class="card-body">
             <div class="alert alert-info">
                 <i class="fas fa-info-circle"></i> 
                 <strong>EDAN:</strong> Complete los datos generales y agregue las familias afectadas.
-                Cada familia se guarda individualmente. Puede agregar todas las que necesite.
+                Cada familia se guarda individualmente con sus fotos y datos de la vivienda.
             </div>
 
             <!-- ===== DATOS GENERALES ===== -->
@@ -534,6 +533,7 @@
                     <span class="badge bg-light text-dark ms-2" id="edanFamiliaCount">Familia #1</span>
                 </div>
                 <div class="card-body">
+                    <!-- Datos del responsable -->
                     <div class="row">
                         <div class="col-md-4 mb-2">
                             <label class="form-label">👤 Nombre y Apellido del Responsable</label>
@@ -551,6 +551,20 @@
                                 <option value="C">C - Tablas y/o Zinc</option>
                             </select>
                         </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">🧱 Material de Construcción</label>
+                            <select id="edanMaterial" class="form-select">
+                                <option value="">— Seleccione —</option>
+                                <option value="bahareque">Bahareque</option>
+                                <option value="bloque">Bloque/Ladrillo</option>
+                                <option value="madera">Madera</option>
+                                <option value="zinc">Zinc</option>
+                                <option value="adobe">Adobe</option>
+                                <option value="guafa">Guafa</option>
+                                <option value="mixto">Mixto</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
                         <div class="col-md-2 mb-2">
                             <label class="form-label">🏠 Habitable</label>
                             <select id="edanHabitable" class="form-select">
@@ -564,6 +578,14 @@
                                 <option value="si">Sí</option>
                                 <option value="no" selected>No</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <!-- Condición de la vivienda -->
+                    <div class="row mt-2">
+                        <div class="col-12 mb-2">
+                            <label class="form-label">📋 Condición de la Vivienda</label>
+                            <textarea id="edanCondicion" class="form-control" rows="2" placeholder="Describa la condición actual de la vivienda..."></textarea>
                         </div>
                     </div>
 
@@ -614,18 +636,22 @@
                         </div>
                     </div>
 
-                    <!-- Necesidades -->
+                    <!-- Necesidades y Pérdidas -->
                     <div class="row mt-2">
                         <div class="col-12">
-                            <h6 class="text-muted">📦 Necesidades</h6>
+                            <h6 class="text-muted">📦 Necesidades y Pérdidas</h6>
                         </div>
-                        <div class="col-md-3 mb-2">
+                        <div class="col-md-2 mb-2">
                             <label class="form-label">🍽️ Alimentos</label>
                             <input type="number" id="edanAlimentos" class="form-control" value="0" min="0">
                         </div>
-                        <div class="col-md-3 mb-2">
+                        <div class="col-md-2 mb-2">
                             <label class="form-label">🛏️ Colchones</label>
                             <input type="number" id="edanColchones" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">📺 Electrodomésticos</label>
+                            <input type="number" id="edanElectrodomesticos" class="form-control" value="0" min="0">
                         </div>
                         <div class="col-md-3 mb-2">
                             <label class="form-label">📦 Otros</label>
@@ -634,6 +660,25 @@
                         <div class="col-md-3 mb-2">
                             <label class="form-label">📝 Especifique Otros</label>
                             <input type="text" id="edanOtrosDesc" class="form-control" placeholder="Ej: Medicinas, Ropa">
+                        </div>
+                    </div>
+
+                    <!-- FOTOS -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <h6 class="text-muted">📸 Evidencia Fotográfica</h6>
+                            <small class="text-muted">Adjunte 2 fotos de la vivienda y daños</small>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📸 Foto 1</label>
+                            <input type="file" id="edanFoto1" class="form-control" accept="image/*" capture="environment">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📸 Foto 2</label>
+                            <input type="file" id="edanFoto2" class="form-control" accept="image/*" capture="environment">
+                        </div>
+                        <div class="col-12 mb-2">
+                            <div id="edanFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
                         </div>
                     </div>
 
@@ -2645,6 +2690,54 @@ function initEDAN() {
     iniciarFirmaEdan();
     cargarEDAN();
     edanActualizarLista();
+    
+    // Eventos para fotos
+    const foto1 = document.getElementById('edanFoto1');
+    const foto2 = document.getElementById('edanFoto2');
+    if (foto1) {
+        foto1.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                leerFotoEDAN(this.files[0], 'edanFotosPreview');
+            }
+        });
+    }
+    if (foto2) {
+        foto2.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                leerFotoEDAN(this.files[0], 'edanFotosPreview');
+            }
+        });
+    }
+}
+
+// ===== LECTURA DE FOTOS =====
+function leerFotoEDAN(file, previewId) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById(previewId);
+        if (!preview) return;
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.width = '120px';
+        img.style.height = '90px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '8px';
+        img.style.border = '2px solid #ccc';
+        img.style.margin = '5px';
+        preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+}
+
+function leerFotoBase64(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            resolve(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 // ===== AGREGAR FAMILIA =====
@@ -2658,58 +2751,80 @@ function edanAgregarFamilia() {
         return;
     }
     
-    const familia = {
-        id: edanContadorFamilias + 1,
-        responsable: responsable,
-        cedula: cedula || 'N/A',
-        adultos: {
-            m: parseInt(document.getElementById('edanAdultosM').value) || 0,
-            f: parseInt(document.getElementById('edanAdultosF').value) || 0
-        },
-        adultosMayores: {
-            m: parseInt(document.getElementById('edanMayoresM').value) || 0,
-            f: parseInt(document.getElementById('edanMayoresF').value) || 0
-        },
-        adolescentes: {
-            m: parseInt(document.getElementById('edanAdolescentesM').value) || 0,
-            f: parseInt(document.getElementById('edanAdolescentesF').value) || 0
-        },
-        ninos: {
-            m: parseInt(document.getElementById('edanNinosM').value) || 0,
-            f: parseInt(document.getElementById('edanNinosF').value) || 0
-        },
-        lactantes: {
-            m: parseInt(document.getElementById('edanLactantesM').value) || 0,
-            f: parseInt(document.getElementById('edanLactantesF').value) || 0
-        },
-        tipoVivienda: document.getElementById('edanTipoVivienda').value,
-        habitable: document.getElementById('edanHabitable').value === 'si',
-        destruida: document.getElementById('edanDestruida').value === 'si',
-        alimentos: parseInt(document.getElementById('edanAlimentos').value) || 0,
-        colchon: parseInt(document.getElementById('edanColchones').value) || 0,
-        otros: parseInt(document.getElementById('edanOtros').value) || 0,
-        otrosDesc: document.getElementById('edanOtrosDesc').value.trim()
-    };
+    const foto1 = document.getElementById('edanFoto1');
+    const foto2 = document.getElementById('edanFoto2');
+    const fotosPromises = [];
     
-    const totalPersonas = 
-        familia.adultos.m + familia.adultos.f +
-        familia.adultosMayores.m + familia.adultosMayores.f +
-        familia.adolescentes.m + familia.adolescentes.f +
-        familia.ninos.m + familia.ninos.f +
-        familia.lactantes.m + familia.lactantes.f;
-    
-    if (totalPersonas === 0) {
-        mostrarToast('⚠️ La familia debe tener al menos 1 integrante', 'warning');
-        return;
+    if (foto1.files && foto1.files[0]) {
+        fotosPromises.push(leerFotoBase64(foto1.files[0]));
+    } else {
+        fotosPromises.push(Promise.resolve(null));
     }
     
-    familia.totalPersonas = totalPersonas;
+    if (foto2.files && foto2.files[0]) {
+        fotosPromises.push(leerFotoBase64(foto2.files[0]));
+    } else {
+        fotosPromises.push(Promise.resolve(null));
+    }
     
-    edanFamilias.push(familia);
-    edanContadorFamilias++;
-    edanLimpiarFormulario();
-    edanActualizarLista();
-    mostrarToast(`✅ Familia ${familia.responsable} agregada (${totalPersonas} personas)`, 'success');
+    Promise.all(fotosPromises).then(fotos => {
+        const familia = {
+            id: edanContadorFamilias + 1,
+            responsable: responsable,
+            cedula: cedula || 'N/A',
+            adultos: {
+                m: parseInt(document.getElementById('edanAdultosM').value) || 0,
+                f: parseInt(document.getElementById('edanAdultosF').value) || 0
+            },
+            adultosMayores: {
+                m: parseInt(document.getElementById('edanMayoresM').value) || 0,
+                f: parseInt(document.getElementById('edanMayoresF').value) || 0
+            },
+            adolescentes: {
+                m: parseInt(document.getElementById('edanAdolescentesM').value) || 0,
+                f: parseInt(document.getElementById('edanAdolescentesF').value) || 0
+            },
+            ninos: {
+                m: parseInt(document.getElementById('edanNinosM').value) || 0,
+                f: parseInt(document.getElementById('edanNinosF').value) || 0
+            },
+            lactantes: {
+                m: parseInt(document.getElementById('edanLactantesM').value) || 0,
+                f: parseInt(document.getElementById('edanLactantesF').value) || 0
+            },
+            tipoVivienda: document.getElementById('edanTipoVivienda').value,
+            material: document.getElementById('edanMaterial').value,
+            condicion: document.getElementById('edanCondicion').value.trim(),
+            habitable: document.getElementById('edanHabitable').value === 'si',
+            destruida: document.getElementById('edanDestruida').value === 'si',
+            alimentos: parseInt(document.getElementById('edanAlimentos').value) || 0,
+            colchon: parseInt(document.getElementById('edanColchones').value) || 0,
+            electrodomesticos: parseInt(document.getElementById('edanElectrodomesticos').value) || 0,
+            otros: parseInt(document.getElementById('edanOtros').value) || 0,
+            otrosDesc: document.getElementById('edanOtrosDesc').value.trim(),
+            fotos: fotos.filter(f => f !== null)
+        };
+        
+        const totalPersonas = 
+            familia.adultos.m + familia.adultos.f +
+            familia.adultosMayores.m + familia.adultosMayores.f +
+            familia.adolescentes.m + familia.adolescentes.f +
+            familia.ninos.m + familia.ninos.f +
+            familia.lactantes.m + familia.lactantes.f;
+        
+        if (totalPersonas === 0) {
+            mostrarToast('⚠️ La familia debe tener al menos 1 integrante', 'warning');
+            return;
+        }
+        
+        familia.totalPersonas = totalPersonas;
+        
+        edanFamilias.push(familia);
+        edanContadorFamilias++;
+        edanLimpiarFormulario();
+        edanActualizarLista();
+        mostrarToast(`✅ Familia ${familia.responsable} agregada (${totalPersonas} personas)`, 'success');
+    });
 }
 
 // ===== LIMPIAR FORMULARIO =====
@@ -2728,8 +2843,14 @@ function edanLimpiarFormulario() {
     document.getElementById('edanLactantesF').value = 0;
     document.getElementById('edanAlimentos').value = 0;
     document.getElementById('edanColchones').value = 0;
+    document.getElementById('edanElectrodomesticos').value = 0;
     document.getElementById('edanOtros').value = 0;
     document.getElementById('edanOtrosDesc').value = '';
+    document.getElementById('edanMaterial').value = '';
+    document.getElementById('edanCondicion').value = '';
+    document.getElementById('edanFoto1').value = '';
+    document.getElementById('edanFoto2').value = '';
+    document.getElementById('edanFotosPreview').innerHTML = '';
     document.getElementById('edanResponsable').focus();
 }
 
@@ -2759,6 +2880,7 @@ function edanActualizarLista() {
             <th style="text-align:center;">Lactantes<br><small>M/F</small></th>
             <th style="text-align:center;">Total</th>
             <th style="text-align:center;">Tipo V</th>
+            <th style="text-align:center;">Material</th>
             <th style="text-align:center;">Hab</th>
             <th style="text-align:center;">Dest</th>
             <th style="text-align:center;">Acción</th>
@@ -2779,6 +2901,7 @@ function edanActualizarLista() {
         const tipoTexto = { 'A': 'A', 'B': 'B', 'C': 'C' };
         const habTexto = f.habitable ? '✅' : '❌';
         const destTexto = f.destruida ? '✅' : '❌';
+        const materialTexto = f.material || 'N/A';
         
         html += `<tr>
             <td>${f.id || index + 1}</td>
@@ -2791,6 +2914,7 @@ function edanActualizarLista() {
             <td style="text-align:center;">${f.lactantes.m}/${f.lactantes.f}</td>
             <td style="text-align:center;"><strong>${totalFam}</strong></td>
             <td style="text-align:center;">${tipoTexto[f.tipoVivienda] || 'B'}</td>
+            <td style="font-size:10px;">${materialTexto}</td>
             <td style="text-align:center;">${habTexto}</td>
             <td style="text-align:center;">${destTexto}</td>
             <td style="text-align:center;">
@@ -2824,6 +2948,7 @@ function edanActualizarLista() {
                 <strong>Necesidades totales:</strong> 
                 🍽️ Alimentos: ${necesidades.alimentos} | 
                 🛏️ Colchones: ${necesidades.colchon} | 
+                📺 Electrodomésticos: ${necesidades.electrodomesticos} | 
                 📦 Otros: ${necesidades.otros}
                 ${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}
             </small>
@@ -2894,6 +3019,7 @@ function edanCalcularNecesidades() {
     const necesidades = {
         alimentos: 0,
         colchon: 0,
+        electrodomesticos: 0,
         otros: 0,
         otrosDesc: []
     };
@@ -2901,6 +3027,7 @@ function edanCalcularNecesidades() {
     edanFamilias.forEach(f => {
         necesidades.alimentos += f.alimentos || 0;
         necesidades.colchon += f.colchon || 0;
+        necesidades.electrodomesticos += f.electrodomesticos || 0;
         necesidades.otros += f.otros || 0;
         if (f.otrosDesc) necesidades.otrosDesc.push(f.otrosDesc);
     });
@@ -3109,11 +3236,13 @@ function generarPDFEDAN() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
+        // Encabezado
         doc.setFontSize(16);
         doc.text('RECOLECCIÓN DE INFORMACIÓN', 105, 15, { align: 'center' });
         doc.setFontSize(10);
         doc.text('Municipio Papelón - Estado Portuguesa', 105, 22, { align: 'center' });
         
+        // Datos Generales
         let y = 30;
         doc.setFontSize(9);
         doc.text(`FECHA: ${document.getElementById('edanFecha').value || 'N/A'}`, 20, y);
@@ -3130,7 +3259,8 @@ function generarPDFEDAN() {
         doc.text(`CALLE: ${document.getElementById('edanCalle').value || 'N/A'}`, 100, y);
         y += 8;
         
-        const headers = [['N°', 'Nombre y Apellido', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Hab', 'Dest', 'Alim', 'Colch', 'Otros', 'Especifique']];
+        // Tabla de Familias
+        const headers = [['N°', 'Nombre y Apellido', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Material', 'Hab', 'Dest']];
         
         const rows = edanFamilias.map((f, i) => [
             (i+1).toString(),
@@ -3147,12 +3277,9 @@ function generarPDFEDAN() {
             (f.lactantes?.m || 0).toString(),
             (f.lactantes?.f || 0).toString(),
             f.tipoVivienda || 'B',
+            f.material || 'N/A',
             f.habitable ? 'Sí' : 'No',
-            f.destruida ? 'Sí' : 'No',
-            (f.alimentos || 0).toString(),
-            (f.colchon || 0).toString(),
-            (f.otros || 0).toString(),
-            f.otrosDesc || ''
+            f.destruida ? 'Sí' : 'No'
         ]);
         
         doc.autoTable({
@@ -3176,26 +3303,51 @@ function generarPDFEDAN() {
                 11: { cellWidth: 8 },
                 12: { cellWidth: 8 },
                 13: { cellWidth: 8 },
-                14: { cellWidth: 8 },
+                14: { cellWidth: 12 },
                 15: { cellWidth: 8 },
-                16: { cellWidth: 8 },
-                17: { cellWidth: 8 },
-                18: { cellWidth: 8 },
-                19: { cellWidth: 18 }
+                16: { cellWidth: 8 }
             },
             pageBreak: 'auto'
         });
         
         let finalY = doc.lastAutoTable.finalY + 10;
         
-        doc.setFontSize(9);
-        doc.text('OBSERVACIÓN:', 20, finalY);
-        finalY += 5;
-        const obs = document.getElementById('edanObservacion').value || '';
-        const splitObs = doc.splitTextToSize(obs, 170);
-        doc.text(splitObs, 20, finalY);
-        finalY += splitObs.length * 5 + 5;
+        // Condición de la vivienda (si solo hay una familia, mostrar su condición)
+        if (edanFamilias.length === 1) {
+            const f = edanFamilias[0];
+            if (f.condicion) {
+                doc.setFontSize(9);
+                doc.text('CONDICIÓN DE LA VIVIENDA:', 20, finalY);
+                finalY += 5;
+                const splitCond = doc.splitTextToSize(f.condicion, 170);
+                doc.text(splitCond, 20, finalY);
+                finalY += splitCond.length * 5 + 5;
+            }
+        }
         
+        // Necesidades totales
+        const necesidades = edanCalcularNecesidades();
+        doc.setFontSize(9);
+        doc.text('NECESIDADES Y PÉRDIDAS TOTALES:', 20, finalY);
+        finalY += 5;
+        doc.text(`🍽️ Alimentos: ${necesidades.alimentos}`, 20, finalY);
+        doc.text(`🛏️ Colchones: ${necesidades.colchon}`, 70, finalY);
+        doc.text(`📺 Electrodomésticos: ${necesidades.electrodomesticos}`, 130, finalY);
+        finalY += 5;
+        doc.text(`📦 Otros: ${necesidades.otros}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}`, 20, finalY);
+        finalY += 8;
+        
+        // Observaciones
+        const obs = document.getElementById('edanObservacion').value || '';
+        if (obs) {
+            doc.text('OBSERVACIONES:', 20, finalY);
+            finalY += 5;
+            const splitObs = doc.splitTextToSize(obs, 170);
+            doc.text(splitObs, 20, finalY);
+            finalY += splitObs.length * 5 + 5;
+        }
+        
+        // Firmas
         doc.text('_________________________', 50, finalY + 10);
         doc.text('Firma del Oficial', 50, finalY + 18);
         doc.text('_________________________', 130, finalY + 10);
