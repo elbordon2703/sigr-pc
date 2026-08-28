@@ -3292,12 +3292,45 @@ function cargarEDAN() {
 
 // ===== GENERAR PDF EDAN =====
 async function generarPDFEDAN() {
-    // Verificar si hay familias en la lista temporal
-    if (edanFamilias.length === 0) {
-        mostrarToast('⚠️ No hay datos para generar PDF', 'warning');
+    // Si hay familias en la lista temporal, usarlas
+    if (edanFamilias.length > 0) {
+        generarPDFDesdeDatos(edanFamilias);
         return;
     }
     
+    // Si no hay familias temporales, buscar en Firestore
+    mostrarToast('📊 Buscando EDAN guardados...', 'info');
+    
+    try {
+        const snap = await db.collection('edan')
+            .orderBy('fechaRegistro', 'desc')
+            .limit(1)
+            .get();
+        
+        if (snap.empty) {
+            mostrarToast('⚠️ No hay EDAN guardados para generar PDF', 'warning');
+            return;
+        }
+        
+        const doc = snap.docs[0];
+        const data = doc.data();
+        
+        if (!data.familias || data.familias.length === 0) {
+            mostrarToast('⚠️ El EDAN no tiene familias registradas', 'warning');
+            return;
+        }
+        
+        // Generar PDF con los datos guardados
+        generarPDFDesdeDatos(data.familias, data);
+        
+    } catch (error) {
+        console.error('Error generando PDF:', error);
+        mostrarToast('❌ Error al generar PDF', 'danger');
+    }
+}
+
+// ===== GENERAR PDF DESDE DATOS =====
+async function generarPDFDesdeDatos(familias, datosGenerales) {
     try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
@@ -3308,24 +3341,42 @@ async function generarPDFEDAN() {
         // ===== DATOS GENERALES =====
         let y = 42;
         doc.setFontSize(9);
-        doc.text(`FECHA: ${document.getElementById('edanFecha').value || 'N/A'}`, 20, y);
-        doc.text(`HORA: ${document.getElementById('edanHora').value || 'N/A'}`, 120, y);
-        y += 6;
-        doc.text(`ELABORADO POR: ${document.getElementById('edanOficial').options[document.getElementById('edanOficial').selectedIndex]?.text || 'N/A'}`, 20, y);
-        y += 6;
-        doc.text(`EVENTO: ${document.getElementById('edanEvento').value || 'N/A'}`, 20, y);
-        y += 6;
-        doc.text(`MUNICIPIO: ${document.getElementById('edanMunicipio').value || 'N/A'}`, 20, y);
-        doc.text(`POBLACIÓN: ${document.getElementById('edanPoblacion').value || 'N/A'}`, 100, y);
-        y += 6;
-        doc.text(`SECTOR: ${document.getElementById('edanSector').value || 'N/A'}`, 20, y);
-        doc.text(`CALLE: ${document.getElementById('edanCalle').value || 'N/A'}`, 100, y);
-        y += 8;
         
-        // ===== TABLA DE FAMILIAS (usando edanFamilias) =====
+        if (datosGenerales) {
+            doc.text(`FECHA: ${datosGenerales.fecha || 'N/A'}`, 20, y);
+            doc.text(`HORA: ${datosGenerales.hora || 'N/A'}`, 120, y);
+            y += 6;
+            doc.text(`ELABORADO POR: ${datosGenerales.oficialNombre || 'N/A'}`, 20, y);
+            y += 6;
+            doc.text(`EVENTO: ${datosGenerales.evento || 'N/A'}`, 20, y);
+            y += 6;
+            doc.text(`MUNICIPIO: ${datosGenerales.municipio || 'N/A'}`, 20, y);
+            doc.text(`POBLACIÓN: ${datosGenerales.poblacion || 'N/A'}`, 100, y);
+            y += 6;
+            doc.text(`SECTOR: ${datosGenerales.sector || 'N/A'}`, 20, y);
+            doc.text(`CALLE: ${datosGenerales.calle || 'N/A'}`, 100, y);
+            y += 8;
+        } else {
+            // Usar datos del formulario actual
+            doc.text(`FECHA: ${document.getElementById('edanFecha').value || 'N/A'}`, 20, y);
+            doc.text(`HORA: ${document.getElementById('edanHora').value || 'N/A'}`, 120, y);
+            y += 6;
+            doc.text(`ELABORADO POR: ${document.getElementById('edanOficial').options[document.getElementById('edanOficial').selectedIndex]?.text || 'N/A'}`, 20, y);
+            y += 6;
+            doc.text(`EVENTO: ${document.getElementById('edanEvento').value || 'N/A'}`, 20, y);
+            y += 6;
+            doc.text(`MUNICIPIO: ${document.getElementById('edanMunicipio').value || 'N/A'}`, 20, y);
+            doc.text(`POBLACIÓN: ${document.getElementById('edanPoblacion').value || 'N/A'}`, 100, y);
+            y += 6;
+            doc.text(`SECTOR: ${document.getElementById('edanSector').value || 'N/A'}`, 20, y);
+            doc.text(`CALLE: ${document.getElementById('edanCalle').value || 'N/A'}`, 100, y);
+            y += 8;
+        }
+        
+        // ===== TABLA DE FAMILIAS =====
         const headers = [['N°', 'Nombre y Apellido', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Material', 'Hab', 'Dest']];
         
-        const rows = edanFamilias.map((f, i) => [
+        const rows = familias.map((f, i) => [
             (i+1).toString(),
             f.responsable || '',
             f.cedula || '',
@@ -3376,8 +3427,8 @@ async function generarPDFEDAN() {
         let finalY = doc.lastAutoTable.finalY + 10;
         
         // ===== CONDICIÓN DE LA VIVIENDA =====
-        if (edanFamilias.length === 1) {
-            const f = edanFamilias[0];
+        if (familias.length === 1) {
+            const f = familias[0];
             if (f.condicion) {
                 doc.setFontSize(9);
                 doc.text('CONDICIÓN DE LA VIVIENDA:', 20, finalY);
@@ -3389,7 +3440,16 @@ async function generarPDFEDAN() {
         }
         
         // ===== NECESIDADES TOTALES =====
-        const necesidades = edanCalcularNecesidades();
+        const necesidades = { alimentos: 0, colchon: 0, electrodomesticos: 0, otros: 0, otrosDesc: [] };
+        familias.forEach(f => {
+            necesidades.alimentos += f.alimentos || 0;
+            necesidades.colchon += f.colchon || 0;
+            necesidades.electrodomesticos += f.electrodomesticos || 0;
+            necesidades.otros += f.otros || 0;
+            if (f.otrosDesc) necesidades.otrosDesc.push(f.otrosDesc);
+        });
+        necesidades.otrosDesc = [...new Set(necesidades.otrosDesc)].join(', ');
+        
         doc.setFontSize(9);
         doc.text('NECESIDADES Y PÉRDIDAS TOTALES:', 20, finalY);
         finalY += 5;
@@ -3401,7 +3461,7 @@ async function generarPDFEDAN() {
         finalY += 8;
         
         // ===== OBSERVACIONES =====
-        const obs = document.getElementById('edanObservacion').value || '';
+        const obs = (datosGenerales?.observacion || document.getElementById('edanObservacion')?.value || '');
         if (obs) {
             doc.text('OBSERVACIONES:', 20, finalY);
             finalY += 5;
@@ -3419,7 +3479,7 @@ async function generarPDFEDAN() {
         // ===== PIE DE PÁGINA =====
         agregarPiePagina(doc, doc.internal.pageSize.height - 15);
         
-        doc.save(`EDAN_${document.getElementById('edanFecha').value || 'N/A'}.pdf`);
+        doc.save(`EDAN_${(datosGenerales?.fecha || document.getElementById('edanFecha')?.value || 'N/A')}.pdf`);
         mostrarToast('✅ PDF generado correctamente', 'success');
         
     } catch (error) {
@@ -3427,7 +3487,6 @@ async function generarPDFEDAN() {
         mostrarToast('❌ Error al generar PDF', 'danger');
     }
 }
-
 // ============================================
 // VIVIENDAS
 // ============================================
