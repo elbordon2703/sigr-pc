@@ -139,7 +139,7 @@
     <div class="login-card">
        <div style="text-align:center;margin-bottom:20px;">
     <!-- LOGO DE PROTECCIÓN CIVIL -->
-    <img src="https://elbordon2703.github.io/sigr-pc/LOGO PC.png" 
+    <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
          alt="Logo Protección Civil" 
          style="width:80px;height:auto;display:block;margin:0 auto 10px;"
          onerror="this.style.display='none'">
@@ -474,6 +474,7 @@
             </div>
         </div>
     </div>
+    
     <!-- EDAN - VERSIÓN COMPLETA CON FOTOS -->
 <div id="section-edan" class="section">
     <div class="card">
@@ -1817,10 +1818,6 @@ function cargarPersonal() {
 // GRUPOS
 // ============================================
 
-// ============================================
-// GRUPOS
-// ============================================
-
 function cargarGrupos() {
     // Cargar jefes guardados
     db.collection('grupos').get()
@@ -1938,6 +1935,7 @@ function actualizarJefe() {
             mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
+
 // ============================================
 // VEHÍCULOS
 // ============================================
@@ -2601,8 +2599,7 @@ function eliminarCertificacion(index) {
     mostrarToast('✅ Certificación eliminada', 'success');
 }
 
-// ===== GENERAR PDF CERTIFICACIÓN =====
-async function generarPDFCertificacion() {
+function generarPDFCertificacion() {
     if (certificaciones.length === 0) {
         mostrarToast('⚠️ No hay certificaciones para generar PDF', 'warning');
         return;
@@ -2612,10 +2609,12 @@ async function generarPDFCertificacion() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
 
-        // ===== ENCABEZADO CON LOGOS =====
-        await agregarEncabezadoConLogos(doc, 'CERTIFICACIÓN DE ÁRBOLES', 'Protección Civil - Municipio Papelón');
+        doc.setFontSize(18);
+        doc.text('CERTIFICACIÓN DE ÁRBOLES', 105, 20, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text('Protección Civil - Municipio Papelón', 105, 28, { align: 'center' });
+        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 105, 34, { align: 'center' });
 
-        // ===== TABLA =====
         const rows = certificaciones.map(cert => [
             cert.arbol?.direccion || '',
             cert.arbol?.especie || '',
@@ -2629,14 +2628,13 @@ async function generarPDFCertificacion() {
         doc.autoTable({
             head: [['Dirección', 'Especie', 'Altura', 'Diámetro', 'Inclinación', 'Riesgo', 'Fecha']],
             body: rows,
-            startY: 42,
+            startY: 40,
             styles: { fontSize: 8 },
             headStyles: { fillColor: [11, 42, 74] }
         });
 
         const finalY = doc.lastAutoTable.finalY + 15;
 
-        // ===== DATOS DEL INSPECTOR =====
         const ultima = certificaciones[certificaciones.length - 1];
         if (ultima.solicitante) {
             doc.setFontSize(10);
@@ -2650,15 +2648,10 @@ async function generarPDFCertificacion() {
             doc.text(`Jerarquía: ${ultima.inspector.jerarquia || 'N/A'}`, 120, finalY + 6);
         }
 
-        // ===== FIRMAS =====
-        const firmaY = finalY + 25;
-        doc.text('_________________________', 50, firmaY);
-        doc.text('Firma del Inspector', 50, firmaY + 8);
-        doc.text('_________________________', 130, firmaY);
-        doc.text('Sello de la Institución', 130, firmaY + 8);
-        
-        // ===== PIE DE PÁGINA =====
-        agregarPiePagina(doc, doc.internal.pageSize.height - 15);
+        doc.text('_________________________', 50, finalY + 25);
+        doc.text('Firma del Inspector', 50, finalY + 33);
+        doc.text('_________________________', 130, finalY + 25);
+        doc.text('Sello de la Institución', 130, finalY + 33);
 
         doc.save('certificacion_arboles.pdf');
         mostrarToast('✅ PDF generado correctamente', 'success');
@@ -2741,15 +2734,6 @@ function initEDAN() {
     
     console.log('✅ EDAN inicializado correctamente');
 }
-    
-      }
-    if (foto2) {
-        foto2.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                leerFotoEDAN(this.files[0], 'edanFotosPreview');
-            }
-        });
-    }
 
 // ===== LECTURA DE FOTOS =====
 function leerFotoEDAN(file, previewId) {
@@ -3390,7 +3374,7 @@ async function generarPDFEDAN() {
         
         let finalY = doc.lastAutoTable.finalY + 10;
         
-        // ===== CONDICIÓN DE LA VIVIENDA (si hay 1 sola familia) =====
+        // ===== CONDICIÓN DE LA VIVIENDA =====
         if (edanFamilias.length === 1) {
             const f = edanFamilias[0];
             if (f.condicion) {
@@ -3442,6 +3426,7 @@ async function generarPDFEDAN() {
         mostrarToast('❌ Error al generar PDF', 'danger');
     }
 }
+
 // ============================================
 // VIVIENDAS
 // ============================================
@@ -3840,7 +3825,6 @@ function eliminarVivienda(index) {
     mostrarToast('✅ Inspección eliminada', 'success');
 }
 
-// ===== GENERAR PDF VIVIENDA =====
 async function generarPDFVivienda() {
     if (inspeccionesVivienda.length === 0) {
         mostrarToast('⚠️ No hay inspecciones para generar PDF', 'warning');
@@ -4218,22 +4202,6 @@ function cargarUsuarios() {
 }
 
 // ============================================
-// INICIALIZACIÓN
-// ============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    const fecha = new Date().toISOString().split('T')[0];
-    document.getElementById('parteFecha').value = fecha;
-    document.getElementById('sFecha').value = new Date().toISOString().slice(0, 16);
-    document.getElementById('cierreMes').value = new Date().toISOString().slice(0, 7);
-    document.getElementById('ivNumero').value = generarNumeroInspeccion();
-    cargarDatos();
-    setInterval(verificarAlertas72h, 300000);
-});
-
-console.log('🚀 SIGR-PC V2.0 cargado correctamente');
-
-// ============================================
 // FUNCIONES DE LOGOS PARA PDF
 // ============================================
 
@@ -4315,6 +4283,22 @@ async function agregarEncabezadoConLogos(doc, titulo, subtitulo) {
     
     return doc;
 }
+
+// ============================================
+// INICIALIZACIÓN
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    const fecha = new Date().toISOString().split('T')[0];
+    document.getElementById('parteFecha').value = fecha;
+    document.getElementById('sFecha').value = new Date().toISOString().slice(0, 16);
+    document.getElementById('cierreMes').value = new Date().toISOString().slice(0, 7);
+    document.getElementById('ivNumero').value = generarNumeroInspeccion();
+    cargarDatos();
+    setInterval(verificarAlertas72h, 300000);
+});
+
+console.log('🚀 SIGR-PC V2.0 cargado correctamente');
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
