@@ -137,11 +137,17 @@
 <!-- LOGIN -->
 <div id="loginOverlay" class="login-overlay">
     <div class="login-card">
-        <div style="text-align:center;margin-bottom:20px;">
-            <i class="fas fa-shield-alt" style="font-size:48px;color:#0b2a4a;"></i>
-            <h2>SIGR-PC</h2>
-            <p><strong>Municipio Papelón</strong></p>
-        </div>
+       <div style="text-align:center;margin-bottom:20px;">
+    <!-- LOGO DE PROTECCIÓN CIVIL -->
+    <img src="https://elbordon2703.github.io/sigr-pc/LOGO PC.png" 
+         alt="Logo Protección Civil" 
+         style="width:80px;height:auto;display:block;margin:0 auto 10px;"
+         onerror="this.style.display='none'">
+    <!-- Si el logo no carga, se muestra el icono -->
+    <i class="fas fa-shield-alt" style="font-size:48px;color:#0b2a4a;"></i>
+    <h2>SIGR-PC</h2>
+    <p><strong>Municipio Papelón</strong></p>
+</div>
         <div id="loginForm">
             <div class="mb-3">
                 <label class="form-label">Correo electrónico</label>
@@ -161,12 +167,16 @@
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-    <div class="brand">
-        <h3><i class="fas fa-shield-alt"></i> SIGR</h3>
-        <small>PC V2.0</small>
-        <div id="userRolBadge" style="font-size:10px;margin-top:5px;background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px;display:inline-block;"></div>
-    </div>
-    <nav class="nav flex-column">
+   <div class="brand">
+    <!-- LOGO EN LA BARRA LATERAL -->
+    <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
+         alt="Logo" 
+         style="width:50px;height:auto;display:block;margin:0 auto 8px;border-radius:50%;background:white;padding:5px;"
+         onerror="this.style.display='none'">
+    <h3><i class="fas fa-shield-alt"></i> SIGR</h3>
+    <small>PC V2.0</small>
+    <div id="userRolBadge" style="font-size:10px;margin-top:5px;background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px;display:inline-block;"></div>
+</div>    <nav class="nav flex-column">
         <div class="nav-link active" data-section="dashboard" onclick="showSection('dashboard')">
             <i class="fas fa-home"></i> <span>Dashboard</span>
         </div>
@@ -4140,6 +4150,88 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('🚀 SIGR-PC V2.0 cargado correctamente');
+// ============================================
+// FUNCIONES DE LOGOS PARA PDF
+// ============================================
+
+function agregarLogoPC(doc) {
+    return new Promise((resolve) => {
+        try {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.src = 'https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png';
+            img.onload = function() {
+                try {
+                    doc.addImage(img, 'PNG', 15, 8, 25, 12);
+                    resolve(true);
+                } catch (e) {
+                    resolve(false);
+                }
+            };
+            img.onerror = function() {
+                resolve(false);
+            };
+            setTimeout(() => resolve(false), 3000);
+        } catch (e) {
+            resolve(false);
+        }
+    });
+}
+
+function agregarLogoGobernacion(doc) {
+    return new Promise((resolve) => {
+        try {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.src = 'https://elbordon2703.github.io/sigr-pc/LOGO%20GOBERNACION.png';
+            img.onload = function() {
+                try {
+                    doc.addImage(img, 'PNG', 160, 8, 30, 12);
+                    resolve(true);
+                } catch (e) {
+                    resolve(false);
+                }
+            };
+            img.onerror = function() {
+                resolve(false);
+            };
+            setTimeout(() => resolve(false), 3000);
+        } catch (e) {
+            resolve(false);
+        }
+    });
+}
+
+function agregarPiePagina(doc, y) {
+    try {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = 'https://elbordon2703.github.io/sigr-pc/PIE%20DE%20PAGIAN2.png';
+        img.onload = function() {
+            try {
+                doc.addImage(img, 'PNG', 10, y, 190, 20);
+            } catch (e) {}
+        };
+        img.onerror = function() {
+            doc.setFontSize(8);
+            doc.text('Protección Civil - Municipio Papelón', 105, y + 10, { align: 'center' });
+        };
+    } catch (e) {}
+}
+
+async function agregarEncabezadoConLogos(doc, titulo, subtitulo) {
+    await agregarLogoPC(doc);
+    await agregarLogoGobernacion(doc);
+    
+    doc.setFontSize(16);
+    doc.text(titulo, 105, 25, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(subtitulo || 'Protección Civil - Municipio Papelón', 105, 33, { align: 'center' });
+    doc.setFontSize(8);
+    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 105, 39, { align: 'center' });
+    
+    return doc;
+}
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
