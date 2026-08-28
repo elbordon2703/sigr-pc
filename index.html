@@ -2675,7 +2675,11 @@ let edanContadorFamilias = 0;
 
 // ===== INICIALIZAR EDAN =====
 function initEDAN() {
+    console.log('📋 Inicializando EDAN...');
+    
+    // Cargar oficiales en el selector
     const select = document.getElementById('edanOficial');
+    
     if (select) {
         db.collection('personal')
             .orderBy('apellido', 'asc')
@@ -2688,8 +2692,50 @@ function initEDAN() {
                     select.innerHTML += `<option value="${doc.id}">${nombre} - ${data.jerarquia || ''}</option>`;
                 });
             })
-            .catch(() => {});
+            .catch(error => {
+                console.error('Error cargando oficiales:', error);
+            });
     }
+    
+    // Inicializar fecha y hora
+    const ahora = new Date();
+    const fecha = document.getElementById('edanFecha');
+    const hora = document.getElementById('edanHora');
+    
+    if (fecha) fecha.value = ahora.toISOString().split('T')[0];
+    if (hora) hora.value = ahora.toTimeString().slice(0, 5);
+    
+    // Inicializar firma
+    iniciarFirmaEdan();
+    
+    // Cargar EDAN guardados
+    cargarEDAN();
+    
+    // Mostrar lista de familias
+    edanActualizarLista();
+    
+    // Eventos para fotos
+    const foto1 = document.getElementById('edanFoto1');
+    const foto2 = document.getElementById('edanFoto2');
+    
+    if (foto1) {
+        foto1.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                leerFotoEDAN(this.files[0], 'edanFotosPreview');
+            }
+        });
+    }
+    
+    if (foto2) {
+        foto2.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                leerFotoEDAN(this.files[0], 'edanFotosPreview');
+            }
+        });
+    }
+    
+    console.log('✅ EDAN inicializado correctamente');
+}
     
     const ahora = new Date();
     const fecha = document.getElementById('edanFecha');
@@ -2722,32 +2768,72 @@ function initEDAN() {
 
 // ===== LECTURA DE FOTOS =====
 function leerFotoEDAN(file, previewId) {
-    if (!file) return;
+    if (!file) {
+        console.log('⚠️ No hay archivo seleccionado');
+        return;
+    }
+    
+    console.log('📸 Leyendo foto:', file.name);
+    
     const reader = new FileReader();
     reader.onload = function(e) {
+        console.log('✅ Foto cargada correctamente');
         const preview = document.getElementById(previewId);
-        if (!preview) return;
+        if (!preview) {
+            console.log('❌ No se encontró el contenedor:', previewId);
+            return;
+        }
+        
+        // Crear contenedor para la imagen
+        const div = document.createElement('div');
+        div.style.display = 'inline-block';
+        div.style.margin = '5px';
+        div.style.position = 'relative';
+        
+        // Crear imagen
         const img = document.createElement('img');
         img.src = e.target.result;
         img.style.width = '120px';
         img.style.height = '90px';
         img.style.objectFit = 'cover';
         img.style.borderRadius = '8px';
-        img.style.border = '2px solid #ccc';
-        img.style.margin = '5px';
-        preview.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-}
-
-function leerFotoBase64(file) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            resolve(e.target.result);
+        img.style.border = '2px solid #1677c8';
+        img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+        
+        // Crear botón de eliminar
+        const btnEliminar = document.createElement('button');
+        btnEliminar.innerHTML = '✕';
+        btnEliminar.style.position = 'absolute';
+        btnEliminar.style.top = '-8px';
+        btnEliminar.style.right = '-8px';
+        btnEliminar.style.width = '24px';
+        btnEliminar.style.height = '24px';
+        btnEliminar.style.borderRadius = '50%';
+        btnEliminar.style.border = 'none';
+        btnEliminar.style.background = '#dc3545';
+        btnEliminar.style.color = 'white';
+        btnEliminar.style.fontSize = '12px';
+        btnEliminar.style.cursor = 'pointer';
+        btnEliminar.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+        btnEliminar.onclick = function() {
+            div.remove();
+            // Limpiar el input correspondiente
+            const inputId = previewId === 'edanFotosPreview' ? 'edanFoto1' : 'edanFoto2';
+            const input = document.getElementById(inputId);
+            if (input) input.value = '';
         };
-        reader.readAsDataURL(file);
-    });
+        
+        div.appendChild(img);
+        div.appendChild(btnEliminar);
+        preview.appendChild(div);
+    };
+    
+    reader.onerror = function() {
+        console.log('❌ Error al leer la foto');
+        mostrarToast('❌ Error al cargar la foto', 'danger');
+    };
+    
+    reader.readAsDataURL(file);
 }
 
 // ===== AGREGAR FAMILIA =====
