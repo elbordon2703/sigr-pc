@@ -2737,26 +2737,7 @@ function initEDAN() {
     console.log('✅ EDAN inicializado correctamente');
 }
     
-    const ahora = new Date();
-    const fecha = document.getElementById('edanFecha');
-    const hora = document.getElementById('edanHora');
-    if (fecha) fecha.value = ahora.toISOString().split('T')[0];
-    if (hora) hora.value = ahora.toTimeString().slice(0, 5);
-    
-    iniciarFirmaEdan();
-    cargarEDAN();
-    edanActualizarLista();
-    
-    // Eventos para fotos
-    const foto1 = document.getElementById('edanFoto1');
-    const foto2 = document.getElementById('edanFoto2');
-    if (foto1) {
-        foto1.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                leerFotoEDAN(this.files[0], 'edanFotosPreview');
-            }
-        });
-    }
+      }
     if (foto2) {
         foto2.addEventListener('change', function() {
             if (this.files && this.files[0]) {
@@ -2764,7 +2745,6 @@ function initEDAN() {
             }
         });
     }
-}
 
 // ===== LECTURA DE FOTOS =====
 function leerFotoEDAN(file, previewId) {
