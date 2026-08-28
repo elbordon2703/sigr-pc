@@ -2601,7 +2601,8 @@ function eliminarCertificacion(index) {
     mostrarToast('✅ Certificación eliminada', 'success');
 }
 
-function generarPDFCertificacion() {
+// ===== GENERAR PDF CERTIFICACIÓN =====
+async function generarPDFCertificacion() {
     if (certificaciones.length === 0) {
         mostrarToast('⚠️ No hay certificaciones para generar PDF', 'warning');
         return;
@@ -2611,12 +2612,10 @@ function generarPDFCertificacion() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
 
-        doc.setFontSize(18);
-        doc.text('CERTIFICACIÓN DE ÁRBOLES', 105, 20, { align: 'center' });
-        doc.setFontSize(10);
-        doc.text('Protección Civil - Municipio Papelón', 105, 28, { align: 'center' });
-        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 105, 34, { align: 'center' });
+        // ===== ENCABEZADO CON LOGOS =====
+        await agregarEncabezadoConLogos(doc, 'CERTIFICACIÓN DE ÁRBOLES', 'Protección Civil - Municipio Papelón');
 
+        // ===== TABLA =====
         const rows = certificaciones.map(cert => [
             cert.arbol?.direccion || '',
             cert.arbol?.especie || '',
@@ -2630,13 +2629,14 @@ function generarPDFCertificacion() {
         doc.autoTable({
             head: [['Dirección', 'Especie', 'Altura', 'Diámetro', 'Inclinación', 'Riesgo', 'Fecha']],
             body: rows,
-            startY: 40,
+            startY: 42,
             styles: { fontSize: 8 },
             headStyles: { fillColor: [11, 42, 74] }
         });
 
         const finalY = doc.lastAutoTable.finalY + 15;
 
+        // ===== DATOS DEL INSPECTOR =====
         const ultima = certificaciones[certificaciones.length - 1];
         if (ultima.solicitante) {
             doc.setFontSize(10);
@@ -2650,10 +2650,15 @@ function generarPDFCertificacion() {
             doc.text(`Jerarquía: ${ultima.inspector.jerarquia || 'N/A'}`, 120, finalY + 6);
         }
 
-        doc.text('_________________________', 50, finalY + 25);
-        doc.text('Firma del Inspector', 50, finalY + 33);
-        doc.text('_________________________', 130, finalY + 25);
-        doc.text('Sello de la Institución', 130, finalY + 33);
+        // ===== FIRMAS =====
+        const firmaY = finalY + 25;
+        doc.text('_________________________', 50, firmaY);
+        doc.text('Firma del Inspector', 50, firmaY + 8);
+        doc.text('_________________________', 130, firmaY);
+        doc.text('Sello de la Institución', 130, firmaY + 8);
+        
+        // ===== PIE DE PÁGINA =====
+        agregarPiePagina(doc, doc.internal.pageSize.height - 15);
 
         doc.save('certificacion_arboles.pdf');
         mostrarToast('✅ PDF generado correctamente', 'success');
@@ -3302,7 +3307,7 @@ function cargarEDAN() {
 }
 
 // ===== GENERAR PDF EDAN =====
-function generarPDFEDAN() {
+async function generarPDFEDAN() {
     if (edanFamilias.length === 0) {
         mostrarToast('⚠️ No hay datos para generar PDF', 'warning');
         return;
@@ -3312,14 +3317,11 @@ function generarPDFEDAN() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Encabezado
-        doc.setFontSize(16);
-        doc.text('RECOLECCIÓN DE INFORMACIÓN', 105, 15, { align: 'center' });
-        doc.setFontSize(10);
-        doc.text('Municipio Papelón - Estado Portuguesa', 105, 22, { align: 'center' });
+        // ===== ENCABEZADO CON LOGOS =====
+        await agregarEncabezadoConLogos(doc, 'RECOLECCIÓN DE INFORMACIÓN', 'Municipio Papelón - Estado Portuguesa');
         
-        // Datos Generales
-        let y = 30;
+        // ===== DATOS GENERALES =====
+        let y = 42;
         doc.setFontSize(9);
         doc.text(`FECHA: ${document.getElementById('edanFecha').value || 'N/A'}`, 20, y);
         doc.text(`HORA: ${document.getElementById('edanHora').value || 'N/A'}`, 120, y);
@@ -3335,7 +3337,7 @@ function generarPDFEDAN() {
         doc.text(`CALLE: ${document.getElementById('edanCalle').value || 'N/A'}`, 100, y);
         y += 8;
         
-        // Tabla de Familias
+        // ===== TABLA DE FAMILIAS =====
         const headers = [['N°', 'Nombre y Apellido', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Material', 'Hab', 'Dest']];
         
         const rows = edanFamilias.map((f, i) => [
@@ -3388,7 +3390,7 @@ function generarPDFEDAN() {
         
         let finalY = doc.lastAutoTable.finalY + 10;
         
-        // Condición de la vivienda (si solo hay una familia, mostrar su condición)
+        // ===== CONDICIÓN DE LA VIVIENDA (si hay 1 sola familia) =====
         if (edanFamilias.length === 1) {
             const f = edanFamilias[0];
             if (f.condicion) {
@@ -3401,7 +3403,7 @@ function generarPDFEDAN() {
             }
         }
         
-        // Necesidades totales
+        // ===== NECESIDADES TOTALES =====
         const necesidades = edanCalcularNecesidades();
         doc.setFontSize(9);
         doc.text('NECESIDADES Y PÉRDIDAS TOTALES:', 20, finalY);
@@ -3413,7 +3415,7 @@ function generarPDFEDAN() {
         doc.text(`📦 Otros: ${necesidades.otros}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}`, 20, finalY);
         finalY += 8;
         
-        // Observaciones
+        // ===== OBSERVACIONES =====
         const obs = document.getElementById('edanObservacion').value || '';
         if (obs) {
             doc.text('OBSERVACIONES:', 20, finalY);
@@ -3423,11 +3425,14 @@ function generarPDFEDAN() {
             finalY += splitObs.length * 5 + 5;
         }
         
-        // Firmas
+        // ===== FIRMAS =====
         doc.text('_________________________', 50, finalY + 10);
         doc.text('Firma del Oficial', 50, finalY + 18);
         doc.text('_________________________', 130, finalY + 10);
         doc.text('Sello de la Institución', 130, finalY + 18);
+        
+        // ===== PIE DE PÁGINA =====
+        agregarPiePagina(doc, doc.internal.pageSize.height - 15);
         
         doc.save(`EDAN_${document.getElementById('edanFecha').value || 'N/A'}.pdf`);
         mostrarToast('✅ PDF generado correctamente', 'success');
@@ -3835,7 +3840,8 @@ function eliminarVivienda(index) {
     mostrarToast('✅ Inspección eliminada', 'success');
 }
 
-function generarPDFVivienda() {
+// ===== GENERAR PDF VIVIENDA =====
+async function generarPDFVivienda() {
     if (inspeccionesVivienda.length === 0) {
         mostrarToast('⚠️ No hay inspecciones para generar PDF', 'warning');
         return;
@@ -3846,17 +3852,18 @@ function generarPDFVivienda() {
         const doc = new jsPDF('p', 'mm', 'a4');
         const ultima = inspeccionesVivienda[inspeccionesVivienda.length - 1];
 
-        doc.setFontSize(16);
-        doc.text('INSPECCIÓN DE VIVIENDA', 105, 15, { align: 'center' });
-        doc.setFontSize(9);
-        doc.text('Protección Civil - Municipio Papelón', 105, 22, { align: 'center' });
+        // ===== ENCABEZADO CON LOGOS =====
+        await agregarEncabezadoConLogos(doc, 'INSPECCIÓN DE VIVIENDA', 'Protección Civil - Municipio Papelón');
 
+        // ===== MARCO LEGAL =====
+        let y = 42;
         doc.setFontSize(8);
         const marcoLegal = `Marco Legal: La Dirección General del Instituto de Protección Civil y Administración de Desastres del Estado Portuguesa (INPRADEP), a través de la Coordinación de Gestión Integral de Riesgo (G.I.R), y en uso de las atribuciones conferidas en el Artículo 55 de la Constitución de la República Bolivariana de Venezuela, en concordancia con el decreto de fuerza de Ley N° 1.557, Artículo 3 Numeral 2 de la Ley de Protección Civil y Administración de Desastres, Artículo 22 Numeral 4 y Artículo 29 de la Ley de Gestión Integral de Riesgo Socio-naturales y Tecnológicas, CERTIFICA, mediante la presente, la realización de una inspección el día ${ultima.fecha || 'N/A'} a las ${ultima.hora || 'N/A'} HLV.`;
         const splitMarcoLegal = doc.splitTextToSize(marcoLegal, 180);
-        doc.text(splitMarcoLegal, 15, 32);
+        doc.text(splitMarcoLegal, 15, y);
+        y += splitMarcoLegal.length * 5 + 5;
 
-        let y = 52;
+        // ===== DATOS PRINCIPALES =====
         doc.setFontSize(10);
         doc.text(`DIRECCIÓN: ${ultima.ubicacion?.direccion || 'N/A'}`, 15, y);
         y += 6;
@@ -3865,6 +3872,7 @@ function generarPDFVivienda() {
         doc.text(`RESPONSABLE: ${ultima.responsable?.nombre || 'N/A'}    C.I: ${ultima.responsable?.cedula || 'N/A'}    TLF: ${ultima.responsable?.telefono || 'N/A'}`, 15, y);
         y += 8;
 
+        // ===== CARACTERÍSTICAS DE LA ESTRUCTURA =====
         doc.setFontSize(10);
         doc.text('CARACTERÍSTICAS DE LA ESTRUCTURA:', 15, y);
         y += 5;
@@ -3916,10 +3924,12 @@ function generarPDFVivienda() {
         doc.text(`COORDENADAS UTM: ${ultima.utm?.este || 'N/A'}E ${ultima.utm?.norte || 'N/A'}N ${ultima.utm?.zona || 'N/A'}`, 15, y);
         y += 6;
 
+        // ===== RIESGO =====
         const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
         doc.text(`CLASIFICACIÓN DEL RIESGO: ${riesgoTexto[ultima.riesgo] || ultima.riesgo || 'N/A'}`, 15, y);
         y += 6;
 
+        // ===== FAMILIAS =====
         doc.text(`FAMILIAS BENEFICIADAS: 01`, 15, y);
         y += 5;
         doc.text(`Jefe de Familia: ${ultima.familias?.jefe || 'N/A'}    C.I: ${ultima.familias?.jefeCI || 'N/A'}`, 15, y);
@@ -3933,6 +3943,7 @@ function generarPDFVivienda() {
         doc.text(`TOTAL PERSONAS BENEFICIADAS: ${ultima.familias?.total || 0}`, 15, y);
         y += 6;
 
+        // ===== RECOMENDACIONES =====
         if (ultima.recomendaciones) {
             doc.text('RECOMENDACIONES:', 15, y);
             y += 5;
@@ -3941,15 +3952,20 @@ function generarPDFVivienda() {
             y += splitRec.length * 5 + 3;
         }
 
+        // ===== INSPECTOR =====
         doc.text(`INSPECTOR: ${ultima.inspector?.nombre || 'N/A'} ${ultima.inspector?.apellido || ''}`, 15, y);
         y += 5;
         doc.text(`JERARQUÍA: ${ultima.inspector?.jerarquia || 'N/A'}`, 15, y);
         y += 8;
 
+        // ===== FIRMAS =====
         doc.text('_________________________', 50, y);
         doc.text('Firma del Inspector', 50, y + 6);
         doc.text('_________________________', 130, y);
         doc.text('Sello de la Institución', 130, y + 6);
+        
+        // ===== PIE DE PÁGINA =====
+        agregarPiePagina(doc, doc.internal.pageSize.height - 15);
 
         doc.save(`inspeccion_vivienda_${ultima.numero || 'N/A'}.pdf`);
         mostrarToast('✅ PDF generado correctamente', 'success');
