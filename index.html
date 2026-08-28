@@ -3342,36 +3342,66 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         let y = 42;
         doc.setFontSize(9);
         
-        if (datosGenerales) {
-            doc.text(`FECHA: ${datosGenerales.fecha || 'N/A'}`, 20, y);
-            doc.text(`HORA: ${datosGenerales.hora || 'N/A'}`, 120, y);
-            y += 6;
-            doc.text(`ELABORADO POR: ${datosGenerales.oficialNombre || 'N/A'}`, 20, y);
-            y += 6;
-            doc.text(`EVENTO: ${datosGenerales.evento || 'N/A'}`, 20, y);
-            y += 6;
-            doc.text(`MUNICIPIO: ${datosGenerales.municipio || 'N/A'}`, 20, y);
-            doc.text(`POBLACIÓN: ${datosGenerales.poblacion || 'N/A'}`, 100, y);
-            y += 6;
-            doc.text(`SECTOR: ${datosGenerales.sector || 'N/A'}`, 20, y);
-            doc.text(`CALLE: ${datosGenerales.calle || 'N/A'}`, 100, y);
-            y += 8;
+        // Obtener nombre del oficial correctamente formateado
+        let oficialNombre = 'N/A';
+        if (datosGenerales?.oficialNombre) {
+            // Formato: "Apellido, Nombre - Jerarquía" → "Jerarquía. APELLIDO NOMBRE"
+            const partes = datosGenerales.oficialNombre.split(' - ');
+            if (partes.length === 2) {
+                const nombreCompleto = partes[0]; // "Barrios, Sigfrido"
+                const jerarquia = partes[1]; // "OCPC I"
+                const nombreArr = nombreCompleto.split(', ');
+                if (nombreArr.length === 2) {
+                    oficialNombre = `${jerarquia}. ${nombreArr[0].toUpperCase()} ${nombreArr[1].toUpperCase()}`;
+                } else {
+                    oficialNombre = `${jerarquia}. ${nombreCompleto.toUpperCase()}`;
+                }
+            } else {
+                oficialNombre = datosGenerales.oficialNombre.toUpperCase();
+            }
         } else {
             // Usar datos del formulario actual
-            doc.text(`FECHA: ${document.getElementById('edanFecha').value || 'N/A'}`, 20, y);
-            doc.text(`HORA: ${document.getElementById('edanHora').value || 'N/A'}`, 120, y);
-            y += 6;
-            doc.text(`ELABORADO POR: ${document.getElementById('edanOficial').options[document.getElementById('edanOficial').selectedIndex]?.text || 'N/A'}`, 20, y);
-            y += 6;
-            doc.text(`EVENTO: ${document.getElementById('edanEvento').value || 'N/A'}`, 20, y);
-            y += 6;
-            doc.text(`MUNICIPIO: ${document.getElementById('edanMunicipio').value || 'N/A'}`, 20, y);
-            doc.text(`POBLACIÓN: ${document.getElementById('edanPoblacion').value || 'N/A'}`, 100, y);
-            y += 6;
-            doc.text(`SECTOR: ${document.getElementById('edanSector').value || 'N/A'}`, 20, y);
-            doc.text(`CALLE: ${document.getElementById('edanCalle').value || 'N/A'}`, 100, y);
-            y += 8;
+            const select = document.getElementById('edanOficial');
+            if (select && select.selectedIndex > 0) {
+                const texto = select.options[select.selectedIndex]?.text || '';
+                const partes = texto.split(' - ');
+                if (partes.length === 2) {
+                    const nombreCompleto = partes[0];
+                    const jerarquia = partes[1];
+                    const nombreArr = nombreCompleto.split(', ');
+                    if (nombreArr.length === 2) {
+                        oficialNombre = `${jerarquia}. ${nombreArr[0].toUpperCase()} ${nombreArr[1].toUpperCase()}`;
+                    } else {
+                        oficialNombre = `${jerarquia}. ${nombreCompleto.toUpperCase()}`;
+                    }
+                } else {
+                    oficialNombre = texto.toUpperCase();
+                }
+            }
         }
+        
+        // Fecha y hora
+        const fecha = datosGenerales?.fecha || document.getElementById('edanFecha')?.value || 'N/A';
+        const hora = datosGenerales?.hora || document.getElementById('edanHora')?.value || 'N/A';
+        const evento = datosGenerales?.evento || document.getElementById('edanEvento')?.value || 'N/A';
+        const municipio = datosGenerales?.municipio || document.getElementById('edanMunicipio')?.value || 'N/A';
+        const poblacion = datosGenerales?.poblacion || document.getElementById('edanPoblacion')?.value || 'N/A';
+        const sector = datosGenerales?.sector || document.getElementById('edanSector')?.value || 'N/A';
+        const calle = datosGenerales?.calle || document.getElementById('edanCalle')?.value || 'N/A';
+        
+        doc.text(`FECHA: ${fecha}`, 20, y);
+        doc.text(`HORA: ${hora}`, 120, y);
+        y += 6;
+        doc.text(`ELABORADO POR: ${oficialNombre}`, 20, y);
+        y += 6;
+        doc.text(`EVENTO: ${evento}`, 20, y);
+        y += 6;
+        doc.text(`MUNICIPIO: ${municipio}`, 20, y);
+        doc.text(`POBLACIÓN: ${poblacion}`, 100, y);
+        y += 6;
+        doc.text(`SECTOR: ${sector}`, 20, y);
+        doc.text(`CALLE: ${calle}`, 100, y);
+        y += 8;
         
         // ===== TABLA DE FAMILIAS =====
         const headers = [['N°', 'Nombre y Apellido', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Material', 'Hab', 'Dest']];
@@ -3451,13 +3481,13 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         necesidades.otrosDesc = [...new Set(necesidades.otrosDesc)].join(', ');
         
         doc.setFontSize(9);
-        doc.text('NECESIDADES Y PÉRDIDAS TOTALES:', 20, finalY);
+        doc.text('NECESIDADES Y PERDIDAS TOTALES:', 20, finalY);
         finalY += 5;
-        doc.text(`🍽️ Alimentos: ${necesidades.alimentos}`, 20, finalY);
-        doc.text(`🛏️ Colchones: ${necesidades.colchon}`, 70, finalY);
-        doc.text(`📺 Electrodomésticos: ${necesidades.electrodomesticos}`, 130, finalY);
+        doc.text(`Alimentos: ${necesidades.alimentos}`, 25, finalY);
+        doc.text(`Colchones: ${necesidades.colchon}`, 75, finalY);
+        doc.text(`Electrodomesticos: ${necesidades.electrodomesticos}`, 130, finalY);
         finalY += 5;
-        doc.text(`📦 Otros: ${necesidades.otros}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}`, 20, finalY);
+        doc.text(`Otros: ${necesidades.otros}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}`, 25, finalY);
         finalY += 8;
         
         // ===== OBSERVACIONES =====
@@ -3479,15 +3509,14 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         // ===== PIE DE PÁGINA =====
         agregarPiePagina(doc, doc.internal.pageSize.height - 15);
         
-        doc.save(`EDAN_${(datosGenerales?.fecha || document.getElementById('edanFecha')?.value || 'N/A')}.pdf`);
+        doc.save(`EDAN_${fecha}.pdf`);
         mostrarToast('✅ PDF generado correctamente', 'success');
         
     } catch (error) {
         console.error('Error generando PDF:', error);
         mostrarToast('❌ Error al generar PDF', 'danger');
     }
-}
-// ============================================
+}// ============================================
 // VIVIENDAS
 // ============================================
 
