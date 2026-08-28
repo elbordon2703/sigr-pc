@@ -3292,6 +3292,7 @@ function cargarEDAN() {
 
 // ===== GENERAR PDF EDAN =====
 async function generarPDFEDAN() {
+    // Verificar si hay familias en la lista temporal
     if (edanFamilias.length === 0) {
         mostrarToast('⚠️ No hay datos para generar PDF', 'warning');
         return;
@@ -3321,7 +3322,7 @@ async function generarPDFEDAN() {
         doc.text(`CALLE: ${document.getElementById('edanCalle').value || 'N/A'}`, 100, y);
         y += 8;
         
-        // ===== TABLA DE FAMILIAS =====
+        // ===== TABLA DE FAMILIAS (usando edanFamilias) =====
         const headers = [['N°', 'Nombre y Apellido', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Material', 'Hab', 'Dest']];
         
         const rows = edanFamilias.map((f, i) => [
