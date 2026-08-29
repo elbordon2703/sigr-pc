@@ -2816,6 +2816,27 @@ function edanAgregarFamilia() {
         return;
     }
     
+    // Leer valores numéricos correctamente
+    const adultoM = parseInt(document.getElementById('edanAdultosM').value) || 0;
+    const adultoF = parseInt(document.getElementById('edanAdultosF').value) || 0;
+    const mayorM = parseInt(document.getElementById('edanMayoresM').value) || 0;
+    const mayorF = parseInt(document.getElementById('edanMayoresF').value) || 0;
+    const adolM = parseInt(document.getElementById('edanAdolescentesM').value) || 0;
+    const adolF = parseInt(document.getElementById('edanAdolescentesF').value) || 0;
+    const ninoM = parseInt(document.getElementById('edanNinosM').value) || 0;
+    const ninoF = parseInt(document.getElementById('edanNinosF').value) || 0;
+    const lactM = parseInt(document.getElementById('edanLactantesM').value) || 0;
+    const lactF = parseInt(document.getElementById('edanLactantesF').value) || 0;
+    
+    // Calcular total de personas
+    const totalPersonas = adultoM + adultoF + mayorM + mayorF + adolM + adolF + ninoM + ninoF + lactM + lactF;
+    
+    if (totalPersonas === 0) {
+        mostrarToast('⚠️ La familia debe tener al menos 1 integrante', 'warning');
+        return;
+    }
+    
+    // Leer fotos (si existen)
     const foto1 = document.getElementById('edanFoto1');
     const foto2 = document.getElementById('edanFoto2');
     const fotosPromises = [];
@@ -2837,26 +2858,11 @@ function edanAgregarFamilia() {
             id: edanContadorFamilias + 1,
             responsable: responsable,
             cedula: cedula || 'N/A',
-            adultos: {
-                m: parseInt(document.getElementById('edanAdultosM').value) || 0,
-                f: parseInt(document.getElementById('edanAdultosF').value) || 0
-            },
-            adultosMayores: {
-                m: parseInt(document.getElementById('edanMayoresM').value) || 0,
-                f: parseInt(document.getElementById('edanMayoresF').value) || 0
-            },
-            adolescentes: {
-                m: parseInt(document.getElementById('edanAdolescentesM').value) || 0,
-                f: parseInt(document.getElementById('edanAdolescentesF').value) || 0
-            },
-            ninos: {
-                m: parseInt(document.getElementById('edanNinosM').value) || 0,
-                f: parseInt(document.getElementById('edanNinosF').value) || 0
-            },
-            lactantes: {
-                m: parseInt(document.getElementById('edanLactantesM').value) || 0,
-                f: parseInt(document.getElementById('edanLactantesF').value) || 0
-            },
+            adultos: { m: adultoM, f: adultoF },
+            adultosMayores: { m: mayorM, f: mayorF },
+            adolescentes: { m: adolM, f: adolF },
+            ninos: { m: ninoM, f: ninoF },
+            lactantes: { m: lactM, f: lactF },
             tipoVivienda: document.getElementById('edanTipoVivienda').value,
             material: document.getElementById('edanMaterial').value,
             condicion: document.getElementById('edanCondicion').value.trim(),
@@ -2867,22 +2873,9 @@ function edanAgregarFamilia() {
             electrodomesticos: parseInt(document.getElementById('edanElectrodomesticos').value) || 0,
             otros: parseInt(document.getElementById('edanOtros').value) || 0,
             otrosDesc: document.getElementById('edanOtrosDesc').value.trim(),
-            fotos: fotos.filter(f => f !== null)
+            fotos: fotos.filter(f => f !== null),
+            totalPersonas: totalPersonas
         };
-        
-        const totalPersonas = 
-            familia.adultos.m + familia.adultos.f +
-            familia.adultosMayores.m + familia.adultosMayores.f +
-            familia.adolescentes.m + familia.adolescentes.f +
-            familia.ninos.m + familia.ninos.f +
-            familia.lactantes.m + familia.lactantes.f;
-        
-        if (totalPersonas === 0) {
-            mostrarToast('⚠️ La familia debe tener al menos 1 integrante', 'warning');
-            return;
-        }
-        
-        familia.totalPersonas = totalPersonas;
         
         edanFamilias.push(familia);
         edanContadorFamilias++;
@@ -2891,7 +2884,6 @@ function edanAgregarFamilia() {
         mostrarToast(`✅ Familia ${familia.responsable} agregada (${totalPersonas} personas)`, 'success');
     });
 }
-
 // ===== LIMPIAR FORMULARIO =====
 function edanLimpiarFormulario() {
     document.getElementById('edanResponsable').value = '';
@@ -3506,7 +3498,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         doc.text('_________________________', 130, finalY + 10);
         doc.text('Sello de la Institución', 130, finalY + 18);
         
-        // ===== PIE DE PÁGINA =====
+            // ===== PIE DE PÁGINA =====
         agregarPiePagina(doc, doc.internal.pageSize.height - 15);
         
         doc.save(`EDAN_${fecha}.pdf`);
@@ -3516,7 +3508,8 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         console.error('Error generando PDF:', error);
         mostrarToast('❌ Error al generar PDF', 'danger');
     }
-}// ============================================
+}
+// ============================================
 // VIVIENDAS
 // ============================================
 
