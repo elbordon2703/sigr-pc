@@ -472,305 +472,329 @@
         </div>
     </div>
     
-    <!-- EDAN - VERSIÓN COMPLETA -->
-    <div id="section-edan" class="section">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-house-damage"></i> EDAN - Evaluación de Daños y Análisis de Necesidades
-                <span class="badge badge-info ms-2">📋 Registro Oficial</span>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> 
-                    <strong>EDAN:</strong> Complete los datos generales y agregue las familias afectadas.
-                    Cada familia se guarda individualmente con sus fotos y datos de la vivienda.
-                </div>
-
-                <!-- DATOS GENERALES -->
-                <div class="card mb-2" style="background:#f8f9fa;">
-                    <div class="card-header">
-                        <i class="fas fa-file-alt"></i> Datos Generales
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">📅 Fecha</label>
-                                <input type="date" id="edanFecha" class="form-control">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">🕐 Hora</label>
-                                <input type="time" id="edanHora" class="form-control">
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">👤 Elaborado por</label>
-                                <select id="edanOficial" class="form-select">
-                                    <option value="">— Seleccione —</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">🌪️ Evento</label>
-                                <input type="text" id="edanEvento" class="form-control" placeholder="Ej: Inundación, Lluvias, etc.">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">🏛️ Municipio</label>
-                                <select id="edanMunicipio" class="form-select">
-                                    <option value="Papelón">Papelón</option>
-                                    <option value="Caño Delgadito">Caño Delgadito</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">🏘️ Población</label>
-                                <input type="text" id="edanPoblacion" class="form-control" placeholder="Ej: El Centro">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">📍 Sector</label>
-                                <input type="text" id="edanSector" class="form-control" placeholder="Ej: Barrio Las Flores">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">📍 Calle</label>
-                                <input type="text" id="edanCalle" class="form-control" placeholder="Ej: Calle 5">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FORMULARIO PARA AGREGAR FAMILIA -->
-                <div class="card mb-2" style="border:2px solid #1677c8;">
-                    <div class="card-header bg-primary text-white">
-                        <i class="fas fa-user-plus"></i> Agregar Familia
-                        <span class="badge bg-light text-dark ms-2" id="edanFamiliaCount">Familia #1</span>
-                    </div>
-                    <div class="card-body">
-                        <!-- Datos del responsable -->
-                        <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">👤 Nombre y Apellido del Responsable</label>
-                                <input type="text" id="edanResponsable" class="form-control" placeholder="Nombre completo">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">📄 N° C.I.</label>
-                                <input type="text" id="edanCedula" class="form-control" placeholder="V-12345678">
-                            </div>
-                            <div class="col-md-5 mb-2">
-                                <label class="form-label">🏠 Tipo de Vivienda</label>
-                                <select id="edanTipoVivienda" class="form-select">
-                                    <option value="A">A - Bloque, ladrillo y cemento</option>
-                                    <option value="B" selected>B - Adobe</option>
-                                    <option value="C">C - Tablas y/o Zinc</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">🧱 Material de Construcción</label>
-                                <select id="edanMaterial" class="form-select">
-                                    <option value="">— Seleccione —</option>
-                                    <option value="bahareque">Bahareque</option>
-                                    <option value="bloque">Bloque/Ladrillo</option>
-                                    <option value="madera">Madera</option>
-                                    <option value="zinc">Zinc</option>
-                                    <option value="adobe">Adobe</option>
-                                    <option value="guafa">Guafa</option>
-                                    <option value="mixto">Mixto</option>
-                                    <option value="otro">Otro</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">🏠 Habitable</label>
-                                <select id="edanHabitable" class="form-select">
-                                    <option value="si">Sí</option>
-                                    <option value="no" selected>No</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">💀 Destruida</label>
-                                <select id="edanDestruida" class="form-select">
-                                    <option value="si">Sí</option>
-                                    <option value="no" selected>No</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Condición de la vivienda -->
-                        <div class="row mt-2">
-                            <div class="col-12 mb-2">
-                                <label class="form-label">📋 Condición de la Vivienda</label>
-                                <textarea id="edanCondicion" class="form-control" rows="2" placeholder="Describa la condición actual de la vivienda..."></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Desglose de Integrantes -->
-                        <div class="row mt-2">
-                            <div class="col-12">
-                                <h6 class="text-muted">📊 Integrantes de la Familia</h6>
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">👨 Adultos (M)</label>
-                                <input type="number" id="edanAdultosM" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">👩 Adultos (F)</label>
-                                <input type="number" id="edanAdultosF" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">👴 Adultos Mayores (M)</label>
-                                <input type="number" id="edanMayoresM" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">👵 Adultos Mayores (F)</label>
-                                <input type="number" id="edanMayoresF" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">🧑 Adolescentes (M)</label>
-                                <input type="number" id="edanAdolescentesM" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">👧 Adolescentes (F)</label>
-                                <input type="number" id="edanAdolescentesF" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">👦 Niños (M)</label>
-                                <input type="number" id="edanNinosM" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">👧 Niños (F)</label>
-                                <input type="number" id="edanNinosF" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">🍼 Lactantes (M)</label>
-                                <input type="number" id="edanLactantesM" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">🍼 Lactantes (F)</label>
-                                <input type="number" id="edanLactantesF" class="form-control" value="0" min="0">
-                            </div>
-                        </div>
-
-                        <!-- Necesidades y Pérdidas -->
-                        <div class="row mt-2">
-                            <div class="col-12">
-                                <h6 class="text-muted">📦 Necesidades y Pérdidas</h6>
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">🍽️ Alimentos</label>
-                                <input type="number" id="edanAlimentos" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">🛏️ Colchones</label>
-                                <input type="number" id="edanColchones" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">📺 Electrodomésticos</label>
-                                <input type="number" id="edanElectrodomesticos" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">📦 Otros</label>
-                                <input type="number" id="edanOtros" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">📝 Especifique Otros</label>
-                                <input type="text" id="edanOtrosDesc" class="form-control" placeholder="Ej: Medicinas, Ropa">
-                            </div>
-                        </div>
-
-                        <!-- FOTOS -->
-                        <div class="row mt-2">
-                            <div class="col-12">
-                                <h6 class="text-muted">📸 Evidencia Fotográfica</h6>
-                                <small class="text-muted">Adjunte 2 fotos de la vivienda y daños</small>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">📸 Foto 1</label>
-                                <input type="file" id="edanFoto1" class="form-control" accept="image/*" capture="environment">
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">📸 Foto 2</label>
-                                <input type="file" id="edanFoto2" class="form-control" accept="image/*" capture="environment">
-                            </div>
-                            <div class="col-12 mb-2">
-                                <div id="edanFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
-                            </div>
-                        </div>
-
-                        <!-- Botones de acción -->
-                        <div class="row mt-3">
-                            <div class="col-12">
-                                <button class="btn btn-success" onclick="edanAgregarFamilia()">
-                                    <i class="fas fa-plus"></i> Agregar Familia
-                                </button>
-                                <button class="btn btn-warning" onclick="edanLimpiarFormulario()">
-                                    <i class="fas fa-undo"></i> Limpiar Formulario
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LISTA DE FAMILIAS AGREGADAS -->
-                <div class="card mb-2">
-                    <div class="card-header">
-                        <i class="fas fa-list"></i> Familias Registradas
-                        <span class="badge bg-secondary ms-2" id="edanTotalFamilias">0 familias</span>
-                        <span class="badge bg-info ms-2" id="edanTotalPersonas">0 personas</span>
-                    </div>
-                    <div class="card-body" id="edanListaFamilias">
-                        <p class="text-muted">No hay familias registradas. Agregue la primera familia.</p>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-danger btn-sm" onclick="edanEliminarTodasFamilias()">
-                            <i class="fas fa-trash"></i> Eliminar Todas
-                        </button>
-                    </div>
-                </div>
-
-                <!-- OBSERVACIONES -->
-                <div class="row mt-2">
-                    <div class="col-12 mb-2">
-                        <label class="form-label">📝 Observaciones</label>
-                        <textarea id="edanObservacion" class="form-control" rows="2" placeholder="Observaciones generales..."></textarea>
-                    </div>
-                </div>
-
-                <!-- FIRMA -->
-                <div class="row mt-2">
-                    <div class="col-12 mb-2">
-                        <label class="form-label">✍️ Firma del Oficial</label>
-                        <canvas id="edanFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
-                        <div class="mt-2">
-                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaEdan()">
-                                <i class="fas fa-eraser"></i> Limpiar
-                            </button>
-                            <button class="btn btn-sm btn-primary" onclick="capturarFirmaEdan()">
-                                <i class="fas fa-save"></i> Guardar Firma
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BOTONES FINALES -->
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <button class="btn btn-success" onclick="guardarEDAN()">
-                            <i class="fas fa-save"></i> Registrar EDAN
-                        </button>
-                        <button class="btn btn-primary" onclick="generarPDFEDAN()">
-                            <i class="fas fa-file-pdf"></i> Generar PDF
-                        </button>
-                        <button class="btn btn-secondary" onclick="edanLimpiarTodo()">
-                            <i class="fas fa-eraser"></i> Limpiar Todo
-                        </button>
-                    </div>
-                </div>
-                <div id="edanMensaje" class="mt-2"></div>
-            </div>
+  <!-- EDAN - VERSIÓN COMPLETA CON UTM -->
+<div id="section-edan" class="section">
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-house-damage"></i> EDAN - Evaluación de Daños y Análisis de Necesidades
+            <span class="badge badge-info ms-2">📋 Registro Oficial</span>
         </div>
-
-        <!-- LISTA DE EDAN GUARDADOS -->
-        <div class="card mt-3">
-            <div class="card-header">
-                <i class="fas fa-history"></i> EDAN Registrados
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 
+                <strong>EDAN:</strong> Complete los datos generales y agregue las familias afectadas.
+                Cada familia se guarda individualmente con sus fotos y datos de la vivienda.
             </div>
-            <div class="card-body" id="listaEdan"></div>
+
+            <!-- DATOS GENERALES -->
+            <div class="card mb-2" style="background:#f8f9fa;">
+                <div class="card-header">
+                    <i class="fas fa-file-alt"></i> Datos Generales
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">📅 Fecha</label>
+                            <input type="date" id="edanFecha" class="form-control">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">🕐 Hora</label>
+                            <input type="time" id="edanHora" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">👤 Elaborado por</label>
+                            <select id="edanOficial" class="form-select">
+                                <option value="">— Seleccione —</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">🌪️ Evento</label>
+                            <input type="text" id="edanEvento" class="form-control" placeholder="Ej: Inundación, Lluvias, etc.">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">🏛️ Municipio</label>
+                            <select id="edanMunicipio" class="form-select">
+                                <option value="Papelón">Papelón</option>
+                                <option value="Caño Delgadito">Caño Delgadito</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">🏘️ Población</label>
+                            <input type="text" id="edanPoblacion" class="form-control" placeholder="Ej: El Centro">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">📍 Sector</label>
+                            <input type="text" id="edanSector" class="form-control" placeholder="Ej: Barrio Las Flores">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">📍 Calle</label>
+                            <input type="text" id="edanCalle" class="form-control" placeholder="Ej: Calle 5">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COORDENADAS UTM -->
+            <div class="card mb-2" style="background:#f8f9fa;">
+                <div class="card-header">
+                    <i class="fas fa-map-marker-alt"></i> Coordenadas UTM
+                    <span class="badge badge-info ms-2">📍 Obligatorio</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">📍 UTM Este</label>
+                            <input type="text" id="edanUtmEste" class="form-control" placeholder="Ej: 453601">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">📍 UTM Norte</label>
+                            <input type="text" id="edanUtmNorte" class="form-control" placeholder="Ej: 968767">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">🗺️ Zona UTM</label>
+                            <input type="text" id="edanUtmZona" class="form-control" placeholder="Ej: 19P" value="19P">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMULARIO PARA AGREGAR FAMILIA -->
+            <div class="card mb-2" style="border:2px solid #1677c8;">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-user-plus"></i> Agregar Familia
+                    <span class="badge bg-light text-dark ms-2" id="edanFamiliaCount">Familia #1</span>
+                </div>
+                <div class="card-body">
+                    <!-- Datos del responsable -->
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">👤 Nombre y Apellido del Responsable</label>
+                            <input type="text" id="edanResponsable" class="form-control" placeholder="Nombre completo">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">📄 N° C.I.</label>
+                            <input type="text" id="edanCedula" class="form-control" placeholder="V-12345678">
+                        </div>
+                        <div class="col-md-5 mb-2">
+                            <label class="form-label">🏠 Tipo de Vivienda</label>
+                            <select id="edanTipoVivienda" class="form-select">
+                                <option value="A">A - Bloque, ladrillo y cemento</option>
+                                <option value="B" selected>B - Adobe</option>
+                                <option value="C">C - Tablas y/o Zinc</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">🧱 Material de Construcción</label>
+                            <select id="edanMaterial" class="form-select">
+                                <option value="">— Seleccione —</option>
+                                <option value="bahareque">Bahareque</option>
+                                <option value="bloque">Bloque/Ladrillo</option>
+                                <option value="madera">Madera</option>
+                                <option value="zinc">Zinc</option>
+                                <option value="adobe">Adobe</option>
+                                <option value="guafa">Guafa</option>
+                                <option value="mixto">Mixto</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">🏠 Habitable</label>
+                            <select id="edanHabitable" class="form-select">
+                                <option value="si">Sí</option>
+                                <option value="no" selected>No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">💀 Destruida</label>
+                            <select id="edanDestruida" class="form-select">
+                                <option value="si">Sí</option>
+                                <option value="no" selected>No</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Condición de la vivienda -->
+                    <div class="row mt-2">
+                        <div class="col-12 mb-2">
+                            <label class="form-label">📋 Condición de la Vivienda</label>
+                            <textarea id="edanCondicion" class="form-control" rows="2" placeholder="Describa la condición actual de la vivienda..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Desglose de Integrantes -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <h6 class="text-muted">📊 Integrantes de la Familia</h6>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">👨 Adultos (M)</label>
+                            <input type="number" id="edanAdultosM" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">👩 Adultos (F)</label>
+                            <input type="number" id="edanAdultosF" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">👴 Adultos Mayores (M)</label>
+                            <input type="number" id="edanMayoresM" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">👵 Adultos Mayores (F)</label>
+                            <input type="number" id="edanMayoresF" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">🧑 Adolescentes (M)</label>
+                            <input type="number" id="edanAdolescentesM" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">👧 Adolescentes (F)</label>
+                            <input type="number" id="edanAdolescentesF" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">👦 Niños (M)</label>
+                            <input type="number" id="edanNinosM" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">👧 Niños (F)</label>
+                            <input type="number" id="edanNinosF" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">🍼 Lactantes (M)</label>
+                            <input type="number" id="edanLactantesM" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">🍼 Lactantes (F)</label>
+                            <input type="number" id="edanLactantesF" class="form-control" value="0" min="0">
+                        </div>
+                    </div>
+
+                    <!-- Necesidades y Pérdidas -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <h6 class="text-muted">📦 Necesidades y Pérdidas</h6>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">🍽️ Alimentos</label>
+                            <input type="number" id="edanAlimentos" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">🛏️ Colchones</label>
+                            <input type="number" id="edanColchones" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">📺 Electrodomésticos</label>
+                            <input type="number" id="edanElectrodomesticos" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">📦 Otros</label>
+                            <input type="number" id="edanOtros" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">📝 Especifique Otros</label>
+                            <input type="text" id="edanOtrosDesc" class="form-control" placeholder="Ej: Medicinas, Ropa">
+                        </div>
+                    </div>
+
+                    <!-- FOTOS -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <h6 class="text-muted">📸 Evidencia Fotográfica</h6>
+                            <small class="text-muted">Adjunte 2 fotos de la vivienda y daños</small>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📸 Foto 1</label>
+                            <input type="file" id="edanFoto1" class="form-control" accept="image/*" capture="environment">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📸 Foto 2</label>
+                            <input type="file" id="edanFoto2" class="form-control" accept="image/*" capture="environment">
+                        </div>
+                        <div class="col-12 mb-2">
+                            <div id="edanFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button class="btn btn-success" onclick="edanAgregarFamilia()">
+                                <i class="fas fa-plus"></i> Agregar Familia
+                            </button>
+                            <button class="btn btn-warning" onclick="edanLimpiarFormulario()">
+                                <i class="fas fa-undo"></i> Limpiar Formulario
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LISTA DE FAMILIAS AGREGADAS -->
+            <div class="card mb-2">
+                <div class="card-header">
+                    <i class="fas fa-list"></i> Familias Registradas
+                    <span class="badge bg-secondary ms-2" id="edanTotalFamilias">0 familias</span>
+                    <span class="badge bg-info ms-2" id="edanTotalPersonas">0 personas</span>
+                </div>
+                <div class="card-body" id="edanListaFamilias">
+                    <p class="text-muted">No hay familias registradas. Agregue la primera familia.</p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-danger btn-sm" onclick="edanEliminarTodasFamilias()">
+                        <i class="fas fa-trash"></i> Eliminar Todas
+                    </button>
+                </div>
+            </div>
+
+            <!-- OBSERVACIONES -->
+            <div class="row mt-2">
+                <div class="col-12 mb-2">
+                    <label class="form-label">📝 Observaciones</label>
+                    <textarea id="edanObservacion" class="form-control" rows="2" placeholder="Observaciones generales..."></textarea>
+                </div>
+            </div>
+
+            <!-- FIRMA -->
+            <div class="row mt-2">
+                <div class="col-12 mb-2">
+                    <label class="form-label">✍️ Firma del Oficial</label>
+                    <canvas id="edanFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaEdan()">
+                            <i class="fas fa-eraser"></i> Limpiar
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="capturarFirmaEdan()">
+                            <i class="fas fa-save"></i> Guardar Firma
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES FINALES -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <button class="btn btn-success" onclick="guardarEDAN()">
+                        <i class="fas fa-save"></i> Registrar EDAN
+                    </button>
+                    <button class="btn btn-primary" onclick="generarPDFEDAN()">
+                        <i class="fas fa-file-pdf"></i> Generar PDF
+                    </button>
+                    <button class="btn btn-secondary" onclick="edanLimpiarTodo()">
+                        <i class="fas fa-eraser"></i> Limpiar Todo
+                    </button>
+                </div>
+            </div>
+            <div id="edanMensaje" class="mt-2"></div>
         </div>
     </div>
+
+    <!-- LISTA DE EDAN GUARDADOS -->
+    <div class="card mt-3">
+        <div class="card-header">
+            <i class="fas fa-history"></i> EDAN Registrados
+        </div>
+        <div class="card-body" id="listaEdan"></div>
+    </div>
+</div>
     
     <!-- CERTIFICACIÓN DE ÁRBOLES -->
     <div id="section-certificacion" class="section">
