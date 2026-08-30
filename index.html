@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,6 +10,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         :root { --primary: #0b2a4a; --secondary: #1677c8; --success: #19864b; --danger: #dc3545; --warning: #ffc107; --sidebar-width: 220px; --sidebar-width-mobile: 60px; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -81,11 +85,11 @@
         .table td { padding:5px 8px; border-bottom:1px solid #eee; }
         .alerta-72h { background: #fff3cd; border-left: 4px solid #ffc107; padding: 8px 12px; margin: 5px 0; border-radius: 4px; font-size: 12px; }
         .alerta-72h strong { color: #856404; }
-        .edan-tabla th { font-size: 10px; padding: 2px 4px; text-align: center; }
-        .edan-tabla td { padding: 2px 4px; vertical-align: middle; }
-        .edan-tabla input, .edan-tabla select { font-size: 11px; padding: 2px 4px; min-width: 40px; }
-        .edan-tabla input[type="number"] { width: 45px; }
-        .edan-tabla .form-check-input { margin: 0; }
+        #edanListaFamilias table { font-size: 11px; }
+        #edanListaFamilias table th { font-size: 10px; padding: 3px 4px; text-align: center; }
+        #edanListaFamilias table td { padding: 3px 4px; text-align: center; font-size: 11px; }
+        .firma-preview { max-width: 100%; max-height: 120px; border: 1px solid #ddd; border-radius: 8px; padding: 5px; background: white; }
+        .sello-preview { max-width: 100%; max-height: 120px; border: 1px solid #ddd; border-radius: 8px; padding: 5px; background: white; }
         @media (max-width:768px) {
             .sidebar { width:var(--sidebar-width-mobile); padding:8px 0; }
             .sidebar .brand h3 { font-size:14px; }
@@ -113,6 +117,9 @@
             .toast { font-size:12px; padding:8px 12px; }
             h2 { font-size:18px; }
             h4 { font-size:15px; }
+            #edanListaFamilias table { font-size: 9px; }
+            #edanListaFamilias table th { font-size: 8px; padding: 2px 2px; }
+            #edanListaFamilias table td { font-size: 9px; padding: 2px 2px; }
         }
         @media (max-width:480px) {
             .sidebar { width:50px; }
@@ -314,6 +321,11 @@
                         </select>
                         <small class="text-muted">Ctrl+Click para múltiple</small>
                     </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">✍️ Firma del Oficial (imagen)</label>
+                        <input type="file" id="pFirma" class="form-control" accept="image/*">
+                        <div id="pFirmaPreview" style="margin-top:8px;"></div>
+                    </div>
                     <div class="col-12"><button class="btn btn-primary" onclick="registrarPersonal()"><i class="fas fa-save"></i> Registrar</button></div>
                 </div>
             </div>
@@ -472,7 +484,7 @@
         </div>
     </div>
     
-    <!-- EDAN - VERSIÓN COMPLETA -->
+    <!-- EDAN -->
     <div id="section-edan" class="section">
         <div class="card">
             <div class="card-header">
@@ -488,9 +500,7 @@
 
                 <!-- DATOS GENERALES -->
                 <div class="card mb-2" style="background:#f8f9fa;">
-                    <div class="card-header">
-                        <i class="fas fa-file-alt"></i> Datos Generales
-                    </div>
+                    <div class="card-header"><i class="fas fa-file-alt"></i> Datos Generales</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-2 mb-2">
@@ -530,6 +540,18 @@
                                 <label class="form-label">📍 Calle</label>
                                 <input type="text" id="edanCalle" class="form-control" placeholder="Ej: Calle 5">
                             </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">📍 UTM Este</label>
+                                <input type="text" id="edanUtmE" class="form-control" placeholder="Ej: 453601">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">📍 UTM Norte</label>
+                                <input type="text" id="edanUtmN" class="form-control" placeholder="Ej: 968767">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🗺️ Zona</label>
+                                <input type="text" id="edanUtmZona" class="form-control" placeholder="Ej: 19P">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -541,7 +563,6 @@
                         <span class="badge bg-light text-dark ms-2" id="edanFamiliaCount">Familia #1</span>
                     </div>
                     <div class="card-body">
-                        <!-- Datos del responsable -->
                         <div class="row">
                             <div class="col-md-4 mb-2">
                                 <label class="form-label">👤 Nombre y Apellido del Responsable</label>
@@ -589,7 +610,6 @@
                             </div>
                         </div>
 
-                        <!-- Condición de la vivienda -->
                         <div class="row mt-2">
                             <div class="col-12 mb-2">
                                 <label class="form-label">📋 Condición de la Vivienda</label>
@@ -597,58 +617,56 @@
                             </div>
                         </div>
 
-                        <!-- Desglose de Integrantes -->
                         <div class="row mt-2">
-                            <div class="col-12">
-                                <h6 class="text-muted">📊 Integrantes de la Familia</h6>
-                            </div>
+                            <div class="col-12"><h6 class="text-muted">📊 Integrantes de la Familia</h6></div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">👨 Adultos (M)</label>
-                                <input type="number" id="edanAdultosM" class="form-control" value="0" min="0">
+                                <input type="number" id="edanAdultosM" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">👩 Adultos (F)</label>
-                                <input type="number" id="edanAdultosF" class="form-control" value="0" min="0">
+                                <input type="number" id="edanAdultosF" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">👴 Adultos Mayores (M)</label>
-                                <input type="number" id="edanMayoresM" class="form-control" value="0" min="0">
+                                <input type="number" id="edanMayoresM" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">👵 Adultos Mayores (F)</label>
-                                <input type="number" id="edanMayoresF" class="form-control" value="0" min="0">
+                                <input type="number" id="edanMayoresF" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">🧑 Adolescentes (M)</label>
-                                <input type="number" id="edanAdolescentesM" class="form-control" value="0" min="0">
+                                <input type="number" id="edanAdolescentesM" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">👧 Adolescentes (F)</label>
-                                <input type="number" id="edanAdolescentesF" class="form-control" value="0" min="0">
+                                <input type="number" id="edanAdolescentesF" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">👦 Niños (M)</label>
-                                <input type="number" id="edanNinosM" class="form-control" value="0" min="0">
+                                <input type="number" id="edanNinosM" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">👧 Niños (F)</label>
-                                <input type="number" id="edanNinosF" class="form-control" value="0" min="0">
+                                <input type="number" id="edanNinosF" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">🍼 Lactantes (M)</label>
-                                <input type="number" id="edanLactantesM" class="form-control" value="0" min="0">
+                                <input type="number" id="edanLactantesM" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">🍼 Lactantes (F)</label>
-                                <input type="number" id="edanLactantesF" class="form-control" value="0" min="0">
+                                <input type="number" id="edanLactantesF" class="form-control" value="0" min="0" onchange="edanCalcularTotalesPreview()">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label"><strong>Total Personas</strong></label>
+                                <input type="number" id="edanTotalPersonasPreview" class="form-control" readonly style="font-weight:bold;background:#e9ecef;">
                             </div>
                         </div>
 
-                        <!-- Necesidades y Pérdidas -->
                         <div class="row mt-2">
-                            <div class="col-12">
-                                <h6 class="text-muted">📦 Necesidades y Pérdidas</h6>
-                            </div>
+                            <div class="col-12"><h6 class="text-muted">📦 Necesidades y Pérdidas</h6></div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">🍽️ Alimentos</label>
                                 <input type="number" id="edanAlimentos" class="form-control" value="0" min="0">
@@ -671,7 +689,6 @@
                             </div>
                         </div>
 
-                        <!-- FOTOS -->
                         <div class="row mt-2">
                             <div class="col-12">
                                 <h6 class="text-muted">📸 Evidencia Fotográfica</h6>
@@ -690,7 +707,6 @@
                             </div>
                         </div>
 
-                        <!-- Botones de acción -->
                         <div class="row mt-3">
                             <div class="col-12">
                                 <button class="btn btn-success" onclick="edanAgregarFamilia()">
@@ -704,7 +720,7 @@
                     </div>
                 </div>
 
-                <!-- LISTA DE FAMILIAS AGREGADAS -->
+                <!-- LISTA DE FAMILIAS -->
                 <div class="card mb-2">
                     <div class="card-header">
                         <i class="fas fa-list"></i> Familias Registradas
@@ -729,18 +745,20 @@
                     </div>
                 </div>
 
-                <!-- FIRMA -->
+                <!-- FIRMA Y SELLO -->
                 <div class="row mt-2">
-                    <div class="col-12 mb-2">
+                    <div class="col-md-6">
                         <label class="form-label">✍️ Firma del Oficial</label>
-                        <canvas id="edanFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
-                        <div class="mt-2">
-                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaEdan()">
-                                <i class="fas fa-eraser"></i> Limpiar
-                            </button>
-                            <button class="btn btn-sm btn-primary" onclick="capturarFirmaEdan()">
-                                <i class="fas fa-save"></i> Guardar Firma
-                            </button>
+                        <div id="edanFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
+                            <p class="text-muted" id="edanFirmaPlaceholder">Seleccione un oficial para cargar su firma</p>
+                            <img id="edanFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">🖨️ Sello de la Institución</label>
+                        <div id="edanSelloPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
+                            <p class="text-muted" id="edanSelloPlaceholder">Cargando sello...</p>
+                            <img id="edanSelloImg" style="max-width:100%;max-height:150px;display:none;" />
                         </div>
                     </div>
                 </div>
@@ -765,9 +783,7 @@
 
         <!-- LISTA DE EDAN GUARDADOS -->
         <div class="card mt-3">
-            <div class="card-header">
-                <i class="fas fa-history"></i> EDAN Registrados
-            </div>
+            <div class="card-header"><i class="fas fa-history"></i> EDAN Registrados</div>
             <div class="card-body" id="listaEdan"></div>
         </div>
     </div>
@@ -775,22 +791,14 @@
     <!-- CERTIFICACIÓN DE ÁRBOLES -->
     <div id="section-certificacion" class="section">
         <div class="card">
-            <div class="card-header">
-                <i class="fas fa-tree"></i> Certificación de Árboles
-                <span class="badge badge-info ms-2">📋 Registro Oficial</span>
-            </div>
+            <div class="card-header"><i class="fas fa-tree"></i> Certificación de Árboles</div>
             <div class="card-body">
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i> 
                     <strong>Certificación de árboles:</strong> Registro oficial para evaluación de riesgo arbóreo.
-                    Complete todos los campos.
                 </div>
-
-                <!-- DATOS DEL SOLICITANTE -->
                 <div class="card mb-2" style="background:#f8f9fa;">
-                    <div class="card-header">
-                        <i class="fas fa-user"></i> Datos del Solicitante
-                    </div>
+                    <div class="card-header"><i class="fas fa-user"></i> Datos del Solicitante</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-2">
@@ -814,12 +822,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- DATOS DEL INSPECTOR -->
                 <div class="card mb-2" style="background:#e9ecef;">
-                    <div class="card-header">
-                        <i class="fas fa-user-check"></i> Datos del Inspector (Actuante)
-                    </div>
+                    <div class="card-header"><i class="fas fa-user-check"></i> Datos del Inspector</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-2">
@@ -835,12 +839,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- DATOS DEL ÁRBOL -->
                 <div class="card mb-2">
-                    <div class="card-header">
-                        <i class="fas fa-tree"></i> Datos del Árbol
-                    </div>
+                    <div class="card-header"><i class="fas fa-tree"></i> Datos del Árbol</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-2">
@@ -885,12 +885,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- UBICACIÓN UTM -->
                 <div class="card mb-2">
-                    <div class="card-header">
-                        <i class="fas fa-map-marker-alt"></i> Ubicación UTM
-                    </div>
+                    <div class="card-header"><i class="fas fa-map-marker-alt"></i> Ubicación UTM</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-2">
@@ -908,16 +904,12 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- OBSERVACIONES -->
                 <div class="row mt-2">
                     <div class="col-12 mb-2">
                         <label class="form-label">📝 Observaciones</label>
                         <textarea id="caObservaciones" class="form-control" rows="2" placeholder="Condiciones del árbol, daños visibles, recomendaciones..."></textarea>
                     </div>
                 </div>
-
-                <!-- FOTOS -->
                 <div class="row mt-2">
                     <div class="col-md-6 mb-2">
                         <label class="form-label">📸 Foto 1</label>
@@ -931,43 +923,27 @@
                         <div id="caFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
                     </div>
                 </div>
-
-                <!-- FIRMA -->
                 <div class="row mt-2">
                     <div class="col-12 mb-2">
                         <label class="form-label">✍️ Firma del Inspector</label>
                         <canvas id="caFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
                         <div class="mt-2">
-                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirma()">
-                                <i class="fas fa-eraser"></i> Limpiar
-                            </button>
-                            <button class="btn btn-sm btn-primary" onclick="capturarFirma()">
-                                <i class="fas fa-save"></i> Guardar Firma
-                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirma()"><i class="fas fa-eraser"></i> Limpiar</button>
+                            <button class="btn btn-sm btn-primary" onclick="capturarFirma()"><i class="fas fa-save"></i> Guardar Firma</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- BOTONES -->
                 <div class="row mt-3">
                     <div class="col-12">
-                        <button class="btn btn-success" onclick="guardarCertificacionArbol()">
-                            <i class="fas fa-save"></i> Registrar Certificación
-                        </button>
-                        <button class="btn btn-primary" onclick="generarPDFCertificacion()">
-                            <i class="fas fa-file-pdf"></i> Generar PDF
-                        </button>
+                        <button class="btn btn-success" onclick="guardarCertificacionArbol()"><i class="fas fa-save"></i> Registrar Certificación</button>
+                        <button class="btn btn-primary" onclick="generarPDFCertificacion()"><i class="fas fa-file-pdf"></i> Generar PDF</button>
                     </div>
                 </div>
                 <div id="caMensaje" class="mt-2"></div>
             </div>
         </div>
-
-        <!-- LISTA DE CERTIFICACIONES -->
         <div class="card mt-3">
-            <div class="card-header">
-                <i class="fas fa-list"></i> Certificaciones Registradas
-            </div>
+            <div class="card-header"><i class="fas fa-list"></i> Certificaciones Registradas</div>
             <div class="card-body" id="listaCertificaciones"></div>
         </div>
     </div>
@@ -975,22 +951,14 @@
     <!-- VIVIENDAS -->
     <div id="section-viviendas" class="section">
         <div class="card">
-            <div class="card-header">
-                <i class="fas fa-home"></i> Inspección de Viviendas
-                <span class="badge badge-info ms-2">📋 Registro Oficial</span>
-            </div>
+            <div class="card-header"><i class="fas fa-home"></i> Inspección de Viviendas</div>
             <div class="card-body">
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i> 
                     <strong>Inspección de viviendas:</strong> Registro oficial para evaluación de daños en viviendas.
-                    Complete todos los campos y adjunte las fotos de soporte.
                 </div>
-
-                <!-- DATOS GENERALES -->
                 <div class="card mb-2" style="background:#f8f9fa;">
-                    <div class="card-header">
-                        <i class="fas fa-file-alt"></i> Datos Generales
-                    </div>
+                    <div class="card-header"><i class="fas fa-file-alt"></i> Datos Generales</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-2 mb-2">
@@ -1008,12 +976,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- DATOS DEL RESPONSABLE -->
                 <div class="card mb-2" style="background:#f8f9fa;">
-                    <div class="card-header">
-                        <i class="fas fa-user"></i> Datos del Responsable (Propietario)
-                    </div>
+                    <div class="card-header"><i class="fas fa-user"></i> Datos del Responsable</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-2">
@@ -1031,12 +995,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- UBICACIÓN -->
                 <div class="card mb-2">
-                    <div class="card-header">
-                        <i class="fas fa-map-marker-alt"></i> Ubicación
-                    </div>
+                    <div class="card-header"><i class="fas fa-map-marker-alt"></i> Ubicación</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-2">
@@ -1057,12 +1017,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- CARACTERÍSTICAS DE LA ESTRUCTURA -->
                 <div class="card mb-2">
-                    <div class="card-header">
-                        <i class="fas fa-building"></i> Características de la Estructura
-                    </div>
+                    <div class="card-header"><i class="fas fa-building"></i> Características de la Estructura</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-2">
@@ -1113,12 +1069,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- COORDENADAS UTM -->
                 <div class="card mb-2">
-                    <div class="card-header">
-                        <i class="fas fa-globe"></i> Coordenadas UTM
-                    </div>
+                    <div class="card-header"><i class="fas fa-globe"></i> Coordenadas UTM</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-2">
@@ -1136,12 +1088,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- CLASIFICACIÓN DEL RIESGO -->
                 <div class="card mb-2">
-                    <div class="card-header">
-                        <i class="fas fa-exclamation-triangle"></i> Clasificación del Riesgo
-                    </div>
+                    <div class="card-header"><i class="fas fa-exclamation-triangle"></i> Clasificación del Riesgo</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-2">
@@ -1160,12 +1108,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- FAMILIAS BENEFICIADAS -->
                 <div class="card mb-2">
-                    <div class="card-header">
-                        <i class="fas fa-users"></i> Familias Beneficiadas
-                    </div>
+                    <div class="card-header"><i class="fas fa-users"></i> Familias Beneficiadas</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-2">
@@ -1203,20 +1147,14 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- RECOMENDACIONES -->
                 <div class="row mt-2">
                     <div class="col-12 mb-2">
                         <label class="form-label">📝 Recomendaciones</label>
                         <textarea id="ivRecomendaciones" class="form-control" rows="3" placeholder="Recomendaciones para los afectados..."></textarea>
                     </div>
                 </div>
-
-                <!-- DATOS DEL INSPECTOR -->
                 <div class="card mb-2" style="background:#e9ecef;">
-                    <div class="card-header">
-                        <i class="fas fa-user-check"></i> Datos del Inspector
-                    </div>
+                    <div class="card-header"><i class="fas fa-user-check"></i> Datos del Inspector</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-2">
@@ -1232,8 +1170,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- FOTOS -->
                 <div class="row mt-2">
                     <div class="col-md-3 mb-2">
                         <label class="form-label">📸 Foto 1</label>
@@ -1255,8 +1191,6 @@
                         <div id="ivFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
                     </div>
                 </div>
-
-                <!-- IMAGEN SATELITAL -->
                 <div class="row mt-2">
                     <div class="col-12 mb-2">
                         <label class="form-label">🛰️ Imagen Satelital (Ubicación)</label>
@@ -1264,43 +1198,27 @@
                         <div id="ivSatelitalPreview" style="margin-top:10px"></div>
                     </div>
                 </div>
-
-                <!-- FIRMA -->
                 <div class="row mt-2">
                     <div class="col-12 mb-2">
                         <label class="form-label">✍️ Firma del Inspector</label>
                         <canvas id="ivFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
                         <div class="mt-2">
-                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaVivienda()">
-                                <i class="fas fa-eraser"></i> Limpiar
-                            </button>
-                            <button class="btn btn-sm btn-primary" onclick="capturarFirmaVivienda()">
-                                <i class="fas fa-save"></i> Guardar Firma
-                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaVivienda()"><i class="fas fa-eraser"></i> Limpiar</button>
+                            <button class="btn btn-sm btn-primary" onclick="capturarFirmaVivienda()"><i class="fas fa-save"></i> Guardar Firma</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- BOTONES -->
                 <div class="row mt-3">
                     <div class="col-12">
-                        <button class="btn btn-success" onclick="guardarInspeccionVivienda()">
-                            <i class="fas fa-save"></i> Registrar Inspección
-                        </button>
-                        <button class="btn btn-primary" onclick="generarPDFVivienda()">
-                            <i class="fas fa-file-pdf"></i> Generar PDF
-                        </button>
+                        <button class="btn btn-success" onclick="guardarInspeccionVivienda()"><i class="fas fa-save"></i> Registrar Inspección</button>
+                        <button class="btn btn-primary" onclick="generarPDFVivienda()"><i class="fas fa-file-pdf"></i> Generar PDF</button>
                     </div>
                 </div>
                 <div id="ivMensaje" class="mt-2"></div>
             </div>
         </div>
-
-        <!-- LISTA DE INSPECCIONES -->
         <div class="card mt-3">
-            <div class="card-header">
-                <i class="fas fa-list"></i> Inspecciones Registradas
-            </div>
+            <div class="card-header"><i class="fas fa-list"></i> Inspecciones Registradas</div>
             <div class="card-body" id="listaViviendas"></div>
         </div>
     </div>
@@ -1446,14 +1364,9 @@
     </div>
 </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
 <script>
 // ============================================
-// CONFIGURACIÓN DE FIREBASE
+// FIREBASE CONFIG
 // ============================================
 const firebaseConfig = {
     apiKey: "AIzaSyAeNrW0ioimnKysCmHDuujBXvAJwxZr_fA",
@@ -1469,11 +1382,23 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // ============================================
+// VARIABLES GLOBALES
+// ============================================
+let usuarioActual = { email: null, uid: null, rol: null, nombre: null, apellido: null };
+let edanFamilias = [];
+let edanContadorFamilias = 0;
+let edanFirmaSeleccionada = null;
+let edanSello = null;
+let certificaciones = [];
+let inspeccionesVivienda = [];
+let actividadesParte = [];
+let responsabilidadesTemporales = [];
+let firmaGuardada = null;
+let firmaGuardadaVivienda = null;
+
+// ============================================
 // AUTENTICACIÓN
 // ============================================
-
-let usuarioActual = { email: null, uid: null, rol: null, nombre: null, apellido: null };
-
 function login() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
@@ -1487,7 +1412,7 @@ function login() {
     }
     
     auth.signInWithEmailAndPassword(email, password)
-        .then(async (userCredential) => {
+        .then(async () => {
             await cargarUsuarioActual();
             document.getElementById('loginOverlay').style.display = 'none';
             mostrarToast('✅ Sesión iniciada', 'success');
@@ -1586,9 +1511,21 @@ function actualizarMenuPorRol(rol) {
 }
 
 // ============================================
-// SUBMENÚS
+// TOAST
 // ============================================
+function mostrarToast(mensaje, tipo = 'success') {
+    const toast = document.getElementById('toast');
+    const body = document.getElementById('toastBody');
+    body.textContent = mensaje;
+    const colors = { success: 'bg-success', danger: 'bg-danger', warning: 'bg-warning text-dark', info: 'bg-info' };
+    toast.className = 'toast align-items-center text-white border-0 ' + (colors[tipo] || colors.success);
+    const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+    bsToast.show();
+}
 
+// ============================================
+// NAVEGACIÓN
+// ============================================
 function toggleSubmenu(submenuId) {
     const submenu = document.getElementById(submenuId);
     const icon = document.getElementById('icon-' + submenuId.replace('submenu-', ''));
@@ -1598,7 +1535,17 @@ function toggleSubmenu(submenuId) {
     }
 }
 
-function actualizarSubmenus(seccion) {
+function showSection(section) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById('section-' + section);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.sidebar .nav-link').forEach(el => {
+        el.classList.remove('active');
+        if (el.dataset.section === section) el.classList.add('active');
+    });
+    document.querySelectorAll('.submenu').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.fa-chevron-down').forEach(el => el.classList.remove('open'));
+    
     const submenuMap = {
         'certificacion': 'submenu-riesgo',
         'viviendas': 'submenu-riesgo',
@@ -1613,44 +1560,13 @@ function actualizarSubmenus(seccion) {
         'vehiculos': 'submenu-recursos',
         'usuarios': 'submenu-admin'
     };
-    const submenuId = submenuMap[seccion];
+    const submenuId = submenuMap[section];
     if (submenuId) {
         const submenu = document.getElementById(submenuId);
         const icon = document.getElementById('icon-' + submenuId.replace('submenu-', ''));
         if (submenu) submenu.classList.add('open');
         if (icon) icon.classList.add('open');
     }
-}
-
-// ============================================
-// TOAST
-// ============================================
-
-function mostrarToast(mensaje, tipo = 'success') {
-    const toast = document.getElementById('toast');
-    const body = document.getElementById('toastBody');
-    body.textContent = mensaje;
-    const colors = { success: 'bg-success', danger: 'bg-danger', warning: 'bg-warning text-dark', info: 'bg-info' };
-    toast.className = 'toast align-items-center text-white border-0 ' + (colors[tipo] || colors.success);
-    const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
-    bsToast.show();
-}
-
-// ============================================
-// NAVEGACIÓN
-// ============================================
-
-function showSection(section) {
-    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-    const target = document.getElementById('section-' + section);
-    if (target) target.classList.add('active');
-    document.querySelectorAll('.sidebar .nav-link').forEach(el => {
-        el.classList.remove('active');
-        if (el.dataset.section === section) el.classList.add('active');
-    });
-    document.querySelectorAll('.submenu').forEach(el => el.classList.remove('open'));
-    document.querySelectorAll('.fa-chevron-down').forEach(el => el.classList.remove('open'));
-    actualizarSubmenus(section);
     
     const titles = {
         dashboard: 'Dashboard',
@@ -1684,10 +1600,6 @@ function showSection(section) {
     if (section === 'dashboard') cargarDashboard();
 }
 
-// ============================================
-// CARGAR DATOS
-// ============================================
-
 function cargarDatos() {
     cargarDashboard();
     cargarPersonal();
@@ -1707,7 +1619,6 @@ function cargarDatos() {
 // ============================================
 // DASHBOARD
 // ============================================
-
 function cargarDashboard() {
     db.collection('personal').get().then(snap => {
         document.getElementById('totalPersonal').textContent = snap.size;
@@ -1772,7 +1683,6 @@ function verificarAlertas72h() {
 // ============================================
 // PERSONAL
 // ============================================
-
 function registrarPersonal() {
     const apellido = document.getElementById('pApellido').value.trim();
     const nombre = document.getElementById('pNombre').value.trim();
@@ -1780,19 +1690,29 @@ function registrarPersonal() {
         mostrarToast('⚠️ Nombre y apellido son obligatorios', 'warning');
         return;
     }
-    const data = {
-        apellido, nombre,
-        cedula: document.getElementById('pCedula').value.trim(),
-        jerarquia: document.getElementById('pJerarquia').value,
-        telefono: document.getElementById('pTelefono').value.trim(),
-        email: document.getElementById('pEmail').value.trim(),
-        grupos: Array.from(document.getElementById('pGrupos').selectedOptions).map(opt => opt.value),
-        estado: 'activo',
-        fechaRegistro: new Date().toISOString()
-    };
-    db.collection('personal').add(data)
-        .then(() => { mostrarToast('✅ Personal registrado', 'success'); cargarPersonal(); })
-        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+    
+    const firmaInput = document.getElementById('pFirma');
+    let firmaPromise = Promise.resolve(null);
+    if (firmaInput.files && firmaInput.files[0]) {
+        firmaPromise = leerFotoBase64(firmaInput.files[0]);
+    }
+    
+    firmaPromise.then(firmaData => {
+        const data = {
+            apellido, nombre,
+            cedula: document.getElementById('pCedula').value.trim(),
+            jerarquia: document.getElementById('pJerarquia').value,
+            telefono: document.getElementById('pTelefono').value.trim(),
+            email: document.getElementById('pEmail').value.trim(),
+            grupos: Array.from(document.getElementById('pGrupos').selectedOptions).map(opt => opt.value),
+            firma: firmaData,
+            estado: 'activo',
+            fechaRegistro: new Date().toISOString()
+        };
+        db.collection('personal').add(data)
+            .then(() => { mostrarToast('✅ Personal registrado', 'success'); cargarPersonal(); })
+            .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+    });
 }
 
 function cargarPersonal() {
@@ -1800,11 +1720,12 @@ function cargarPersonal() {
         .then(snap => {
             const container = document.getElementById('listaPersonal');
             if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay personal registrado</p>'; return; }
-            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>#</th><th>Nombre</th><th>Jerarquía</th><th>Grupos</th></tr></thead><tbody>';
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>#</th><th>Nombre</th><th>Jerarquía</th><th>Grupos</th><th>Firma</th></tr></thead><tbody>';
             let i = 1;
             snap.forEach(doc => {
                 const data = doc.data();
-                html += `<tr><td>${i++}</td><td><strong>${data.apellido}, ${data.nombre}</strong></td><td>${data.jerarquia || '-'}</td><td>${data.grupos ? data.grupos.join(', ') : '-'}</td></tr>`;
+                const tieneFirma = data.firma ? '✅' : '❌';
+                html += `<tr><td>${i++}</td><td><strong>${data.apellido}, ${data.nombre}</strong></td><td>${data.jerarquia || '-'}</td><td>${data.grupos ? data.grupos.join(', ') : '-'}</td><td>${tieneFirma}</td></tr>`;
             });
             html += '</tbody></table></div>';
             container.innerHTML = html;
@@ -1814,13 +1735,11 @@ function cargarPersonal() {
 // ============================================
 // GRUPOS
 // ============================================
-
 function cargarGrupos() {
     db.collection('grupos').get()
         .then(snap => {
             const jefeSelect = document.getElementById('gJefe');
             const jefesGuardados = {};
-            
             snap.forEach(doc => {
                 const data = doc.data();
                 if (data.jefe) {
@@ -1836,22 +1755,16 @@ function cargarGrupos() {
                         const selected = jefesGuardados[doc.id] ? 'selected' : '';
                         jefeSelect.innerHTML += `<option value="${doc.id}" ${selected}>${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</option>`;
                     });
-                    
                     cargarIntegrantes();
                 })
-                .catch(error => {
-                    console.error('Error cargando personal:', error);
-                });
+                .catch(() => {});
         })
-        .catch(error => {
-            console.error('Error cargando grupos:', error);
-        });
+        .catch(() => {});
 }
 
 function cargarIntegrantes() {
     const grupo = document.getElementById('gSelect').value;
     const container = document.getElementById('gIntegrantes');
-    
     container.innerHTML = '<p class="text-muted">Cargando integrantes...</p>';
     
     if (!grupo) {
@@ -1867,7 +1780,6 @@ function cargarIntegrantes() {
                 container.innerHTML = '<p class="text-muted">No hay integrantes en este grupo</p>';
                 return;
             }
-            
             let html = '<ul class="list-group">';
             snap.forEach(doc => {
                 const data = doc.data();
@@ -1876,31 +1788,24 @@ function cargarIntegrantes() {
             html += '</ul>';
             container.innerHTML = html;
         })
-        .catch(error => {
-            console.error('Error cargando integrantes:', error);
-            container.innerHTML = '<p class="text-danger">Error al cargar integrantes</p>';
-        });
+        .catch(() => {});
 }
 
 function actualizarJefe() {
     const grupo = document.getElementById('gSelect').value;
     const jefeId = document.getElementById('gJefe').value;
-    
     if (!grupo || !jefeId) {
         mostrarToast('⚠️ Seleccione un grupo y un jefe', 'warning');
         return;
     }
-    
     db.collection('personal').doc(jefeId).get()
         .then(doc => {
             if (!doc.exists) {
                 mostrarToast('❌ Personal no encontrado', 'danger');
                 return;
             }
-            
             const data = doc.data();
             const nombre = `${data.apellido}, ${data.nombre}`;
-            
             db.collection('grupos').doc(grupo).set({
                 jefe: jefeId,
                 jefeNombre: nombre,
@@ -1910,19 +1815,14 @@ function actualizarJefe() {
                 mostrarToast(`✅ ${nombre} es ahora el Jefe de Servicio de ${grupo}`, 'success');
                 cargarIntegrantes();
             })
-            .catch(error => {
-                mostrarToast('❌ Error: ' + error.message, 'danger');
-            });
+            .catch(() => {});
         })
-        .catch(error => {
-            mostrarToast('❌ Error: ' + error.message, 'danger');
-        });
+        .catch(() => {});
 }
 
 // ============================================
 // VEHÍCULOS
 // ============================================
-
 function registrarVehiculo() {
     const placa = document.getElementById('vPlaca').value.trim();
     const modelo = document.getElementById('vModelo').value.trim();
@@ -1962,11 +1862,8 @@ function cargarVehiculos() {
 }
 
 // ============================================
-// SERVICIO MEJORADO
+// SERVICIO
 // ============================================
-
-let responsabilidadesTemporales = [];
-
 function cargarIntegrantesServicio() {
     const grupo = document.getElementById('sGrupo').value;
     const container = document.getElementById('integrantesServicio');
@@ -2133,7 +2030,6 @@ function cerrarServicio() {
 // ============================================
 // SOLICITUDES
 // ============================================
-
 function crearSolicitud() {
     const solicitante = document.getElementById('solSolicitante').value.trim();
     const descripcion = document.getElementById('solDescripcion').value.trim();
@@ -2199,7 +2095,6 @@ function cancelarSolicitud(id) {
 // ============================================
 // FUNCIONES DE LOGOS Y PIE DE PÁGINA PARA PDF
 // ============================================
-
 function agregarLogoPC(doc) {
     return new Promise((resolve) => {
         try {
@@ -2214,9 +2109,7 @@ function agregarLogoPC(doc) {
                     resolve(false);
                 }
             };
-            img.onerror = function() {
-                resolve(false);
-            };
+            img.onerror = function() { resolve(false); };
             setTimeout(() => resolve(false), 3000);
         } catch (e) {
             resolve(false);
@@ -2238,9 +2131,7 @@ function agregarLogoGobernacion(doc) {
                     resolve(false);
                 }
             };
-            img.onerror = function() {
-                resolve(false);
-            };
+            img.onerror = function() { resolve(false); };
             setTimeout(() => resolve(false), 3000);
         } catch (e) {
             resolve(false);
@@ -2250,28 +2141,32 @@ function agregarLogoGobernacion(doc) {
 
 function agregarPiePagina(doc, y) {
     try {
-        // Primero agregar el texto siempre (fallback)
-        doc.setFontSize(7);
-        doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
-        doc.text('SIGR-PC - Sistema de Gestión Integral de Riesgos', 105, y + 14, { align: 'center' });
-        
-        // Intentar cargar la imagen del pie de página
         const img = new Image();
         img.crossOrigin = 'Anonymous';
         img.src = 'https://elbordon2703.github.io/sigr-pc/PIE%20DE%20PAGIAN2.png';
+        
         img.onload = function() {
             try {
-                doc.addImage(img, 'PNG', 10, y - 2, 190, 15);
+                doc.addImage(img, 'PNG', 10, y - 2, 190, 20);
             } catch (e) {
-                // Si falla, ya tenemos el texto
+                doc.setFontSize(7);
+                doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
+                doc.text('SIGR-PC - Sistema de Gestión Integral de Riesgos', 105, y + 14, { align: 'center' });
             }
         };
+        
         img.onerror = function() {
-            // Si la imagen no carga, ya tenemos el texto
+            doc.setFontSize(7);
+            doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
+            doc.text('SIGR-PC - Sistema de Gestión Integral de Riesgos', 105, y + 14, { align: 'center' });
         };
-        setTimeout(() => {}, 1000);
+        
+        setTimeout(() => {
+            doc.setFontSize(7);
+            doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
+            doc.text('SIGR-PC - Sistema de Gestión Integral de Riesgos', 105, y + 14, { align: 'center' });
+        }, 3000);
     } catch (error) {
-        // Fallback: mostrar texto
         doc.setFontSize(7);
         doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
         doc.text('SIGR-PC - Sistema de Gestión Integral de Riesgos', 105, y + 14, { align: 'center' });
@@ -2288,473 +2183,18 @@ async function agregarEncabezadoConLogos(doc, titulo, subtitulo) {
     doc.text(subtitulo || 'Protección Civil - Municipio Papelón', 105, 33, { align: 'center' });
     doc.setFontSize(8);
     doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 105, 39, { align: 'center' });
-    
     return doc;
 }
 
 // ============================================
-// CERTIFICACIÓN DE ÁRBOLES
+// EDAN - COMPLETO
 // ============================================
-
-let certificaciones = [];
-let firmaGuardada = null;
-let canvas, ctx, isDrawing = false;
-
-function cargarSolicitante() {
-    const select = document.getElementById('caSolicitante');
-    if (!select) return;
-    
-    db.collection('personal')
-        .orderBy('apellido', 'asc')
-        .get()
-        .then(snap => {
-            select.innerHTML = '<option value="">— Seleccione el Solicitante —</option>';
-            snap.forEach(doc => {
-                const data = doc.data();
-                const nombre = `${data.apellido}, ${data.nombre}`;
-                select.innerHTML += `<option value="${doc.id}" 
-                    data-cedula="${data.cedula || ''}" 
-                    data-telefono="${data.telefono || ''}"
-                    data-nombre="${data.nombre}" 
-                    data-apellido="${data.apellido}">${nombre}</option>`;
-            });
-        })
-        .catch(() => {});
-}
-
-function cargarDatosSolicitante() {
-    const select = document.getElementById('caSolicitante');
-    const selected = select.options[select.selectedIndex];
-    
-    if (selected && selected.value) {
-        document.getElementById('caSolicitanteCedula').value = selected.dataset.cedula || '';
-        document.getElementById('caSolicitanteTelefono').value = selected.dataset.telefono || '';
-        window._solicitanteNombre = selected.dataset.nombre || '';
-        window._solicitanteApellido = selected.dataset.apellido || '';
-    } else {
-        document.getElementById('caSolicitanteCedula').value = '';
-        document.getElementById('caSolicitanteTelefono').value = '';
-        window._solicitanteNombre = '';
-        window._solicitanteApellido = '';
-    }
-}
-
-function cargarInspector() {
-    const select = document.getElementById('caInspector');
-    if (!select) return;
-    
-    db.collection('personal')
-        .orderBy('apellido', 'asc')
-        .get()
-        .then(snap => {
-            select.innerHTML = '<option value="">— Seleccione el Inspector —</option>';
-            snap.forEach(doc => {
-                const data = doc.data();
-                const nombre = `${data.apellido}, ${data.nombre}`;
-                select.innerHTML += `<option value="${doc.id}" 
-                    data-jerarquia="${data.jerarquia || ''}"
-                    data-nombre="${data.nombre}" 
-                    data-apellido="${data.apellido}">${nombre}</option>`;
-            });
-        })
-        .catch(() => {});
-}
-
-function cargarDatosInspector() {
-    const select = document.getElementById('caInspector');
-    const selected = select.options[select.selectedIndex];
-    
-    if (selected && selected.value) {
-        document.getElementById('caInspectorJerarquia').value = selected.dataset.jerarquia || '';
-        window._inspectorNombre = selected.dataset.nombre || '';
-        window._inspectorApellido = selected.dataset.apellido || '';
-    } else {
-        document.getElementById('caInspectorJerarquia').value = '';
-        window._inspectorNombre = '';
-        window._inspectorApellido = '';
-    }
-}
-
-function iniciarFirma() {
-    canvas = document.getElementById('caFirmaCanvas');
-    if (!canvas) return;
-    ctx = canvas.getContext('2d');
-    canvas.width = canvas.offsetWidth || 300;
-    canvas.height = canvas.offsetHeight || 150;
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#0b2a4a';
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    
-    canvas.addEventListener('mousedown', empezarDibujo);
-    canvas.addEventListener('mousemove', dibujar);
-    canvas.addEventListener('mouseup', terminarDibujo);
-    canvas.addEventListener('mouseleave', terminarDibujo);
-    canvas.addEventListener('touchstart', empezarDibujoTouch);
-    canvas.addEventListener('touchmove', dibujarTouch);
-    canvas.addEventListener('touchend', terminarDibujo);
-}
-
-function empezarDibujo(e) {
-    isDrawing = true;
-    const rect = canvas.getBoundingClientRect();
-    ctx.beginPath();
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-}
-
-function dibujar(e) {
-    if (!isDrawing) return;
-    const rect = canvas.getBoundingClientRect();
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-    ctx.stroke();
-}
-
-function empezarDibujoTouch(e) {
-    e.preventDefault();
-    isDrawing = true;
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    ctx.beginPath();
-    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
-}
-
-function dibujarTouch(e) {
-    e.preventDefault();
-    if (!isDrawing) return;
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-    ctx.stroke();
-}
-
-function terminarDibujo(e) {
-    isDrawing = false;
-}
-
-function limpiarFirma() {
-    if (!ctx || !canvas) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    firmaGuardada = null;
-    mostrarToast('✍️ Firma limpiada', 'info');
-}
-
-function capturarFirma() {
-    if (!canvas) return;
-    firmaGuardada = canvas.toDataURL('image/png');
-    mostrarToast('✅ Firma guardada correctamente', 'success');
-}
-
-function leerFotoBase64(file) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            resolve(e.target.result);
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function leerFotoCertificacion(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const preview = document.getElementById('caFotosPreview');
-        if (!preview) return;
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.style.width = '120px';
-        img.style.height = '90px';
-        img.style.objectFit = 'cover';
-        img.style.borderRadius = '8px';
-        img.style.border = '2px solid #ccc';
-        preview.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-}
-
-function guardarCertificacionArbol() {
-    const solicitanteId = document.getElementById('caSolicitante').value;
-    const inspectorId = document.getElementById('caInspector').value;
-    
-    const direccion = document.getElementById('caDireccion').value.trim();
-    const especie = document.getElementById('caEspecie').value.trim();
-    
-    if (!solicitanteId) {
-        mostrarToast('⚠️ Seleccione el Solicitante', 'warning');
-        return;
-    }
-    
-    if (!inspectorId) {
-        mostrarToast('⚠️ Seleccione el Inspector', 'warning');
-        return;
-    }
-    
-    if (!direccion || !especie) {
-        mostrarToast('⚠️ Dirección y especie son obligatorios', 'warning');
-        return;
-    }
-    
-    const data = {
-        solicitante: {
-            id: solicitanteId,
-            nombre: window._solicitanteNombre || '',
-            apellido: window._solicitanteApellido || '',
-            cedula: document.getElementById('caSolicitanteCedula').value,
-            telefono: document.getElementById('caSolicitanteTelefono').value
-        },
-        inspector: {
-            id: inspectorId,
-            nombre: window._inspectorNombre || '',
-            apellido: window._inspectorApellido || '',
-            jerarquia: document.getElementById('caInspectorJerarquia').value
-        },
-        arbol: {
-            direccion: direccion,
-            especie: especie,
-            altura: parseFloat(document.getElementById('caAltura').value) || 0,
-            diametro: parseFloat(document.getElementById('caDiametro').value) || 0,
-            inclinacion: parseFloat(document.getElementById('caInclinacion').value) || 0,
-            distancia: parseFloat(document.getElementById('caDistancia').value) || 0,
-            riesgo: document.getElementById('caRiesgo').value,
-            estado: document.getElementById('caEstado').value
-        },
-        utm: {
-            este: document.getElementById('caUtmE').value.trim(),
-            norte: document.getElementById('caUtmN').value.trim(),
-            zona: document.getElementById('caUtmZona').value.trim()
-        },
-        observaciones: document.getElementById('caObservaciones').value.trim(),
-        firma: firmaGuardada,
-        fecha: new Date().toISOString(),
-        oficial: auth.currentUser?.email || 'Sistema',
-        fotos: []
-    };
-
-    const foto1 = document.getElementById('caFoto1');
-    const foto2 = document.getElementById('caFoto2');
-    const totalFotos = (foto1.files && foto1.files[0] ? 1 : 0) + (foto2.files && foto2.files[0] ? 1 : 0);
-
-    if (totalFotos === 0) {
-        guardarCertificacionFinal(data);
-        return;
-    }
-
-    async function procesarFotos() {
-        if (foto1.files && foto1.files[0]) {
-            data.fotos.push(await leerFotoBase64(foto1.files[0]));
-        }
-        if (foto2.files && foto2.files[0]) {
-            data.fotos.push(await leerFotoBase64(foto2.files[0]));
-        }
-        guardarCertificacionFinal(data);
-    }
-    procesarFotos();
-}
-
-function guardarCertificacionFinal(data) {
-    certificaciones.push(data);
-    guardarCertificacionesLocales();
-
-    if (navigator.onLine) {
-        db.collection('certificaciones').add(data)
-            .then(() => {
-                mostrarToast('✅ Certificación guardada en la nube', 'success');
-            })
-            .catch(() => {
-                mostrarToast('⚠️ Guardado localmente (sin conexión)', 'warning');
-            });
-    } else {
-        mostrarToast('📱 Guardado localmente (sin internet)', 'info');
-    }
-
-    document.getElementById('caSolicitante').value = '';
-    document.getElementById('caSolicitanteCedula').value = '';
-    document.getElementById('caSolicitanteTelefono').value = '';
-    document.getElementById('caInspector').value = '';
-    document.getElementById('caInspectorJerarquia').value = '';
-    document.getElementById('caDireccion').value = '';
-    document.getElementById('caEspecie').value = '';
-    document.getElementById('caAltura').value = '';
-    document.getElementById('caDiametro').value = '';
-    document.getElementById('caInclinacion').value = '';
-    document.getElementById('caDistancia').value = '';
-    document.getElementById('caObservaciones').value = '';
-    document.getElementById('caUtmE').value = '';
-    document.getElementById('caUtmN').value = '';
-    document.getElementById('caUtmZona').value = '';
-    document.getElementById('caFoto1').value = '';
-    document.getElementById('caFoto2').value = '';
-    document.getElementById('caFotosPreview').innerHTML = '';
-    limpiarFirma();
-    cargarCertificaciones();
-}
-
-function guardarCertificacionesLocales() {
-    try {
-        localStorage.setItem('certificaciones', JSON.stringify(certificaciones));
-    } catch (e) {
-        console.error('Error guardando certificaciones:', e);
-    }
-}
-
-function cargarCertificaciones() {
-    try {
-        const saved = localStorage.getItem('certificaciones');
-        if (saved) {
-            certificaciones = JSON.parse(saved);
-        }
-    } catch (e) {
-        console.error('Error cargando certificaciones:', e);
-    }
-    renderizarCertificaciones();
-}
-
-function renderizarCertificaciones() {
-    const container = document.getElementById('listaCertificaciones');
-    if (!container) return;
-
-    if (certificaciones.length === 0) {
-        container.innerHTML = '<p class="text-muted">No hay certificaciones registradas</p>';
-        return;
-    }
-
-    let html = '<div class="table-responsive"><table class="table table-sm">';
-    html += '<thead><tr><th>Fecha</th><th>Solicitante</th><th>Inspector</th><th>Dirección</th><th>Especie</th><th>Riesgo</th><th>Acciones</th></tr></thead><tbody>';
-
-    certificaciones.slice().reverse().forEach((cert, index) => {
-        const fecha = cert.fecha ? new Date(cert.fecha).toLocaleDateString() : 'N/A';
-        const solicitante = cert.solicitante ? `${cert.solicitante.apellido}, ${cert.solicitante.nombre}` : 'N/A';
-        const inspector = cert.inspector ? `${cert.inspector.apellido}, ${cert.inspector.nombre}` : 'N/A';
-        const riesgoColor = cert.arbol?.riesgo === 'muy_alto' ? 'danger' : cert.arbol?.riesgo === 'alto' ? 'warning' : cert.arbol?.riesgo === 'medio' ? 'info' : 'success';
-
-        html += `<tr>
-            <td>${fecha}</td>
-            <td>${solicitante}</td>
-            <td>${inspector}</td>
-            <td>${cert.arbol?.direccion || ''}</td>
-            <td>${cert.arbol?.especie || ''}</td>
-            <td><span class="badge bg-${riesgoColor}">${cert.arbol?.riesgo || 'N/A'}</span></td>
-            <td>
-                <button class="btn btn-sm btn-primary" onclick="verCertificacion(${index})">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="eliminarCertificacion(${index})">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>`;
-    });
-
-    html += '</tbody></table></div>';
-    container.innerHTML = html;
-}
-
-function verCertificacion(index) {
-    const cert = certificaciones[index];
-    if (!cert) return;
-    const solicitante = cert.solicitante ? `${cert.solicitante.nombre} ${cert.solicitante.apellido}` : 'N/A';
-    const inspector = cert.inspector ? `${cert.inspector.nombre} ${cert.inspector.apellido}` : 'N/A';
-    alert(`📋 CERTIFICACIÓN DE ÁRBOL\n\n` +
-          `📌 Solicitante: ${solicitante}\n` +
-          `📄 Cédula: ${cert.solicitante?.cedula || 'N/A'}\n` +
-          `📞 Teléfono: ${cert.solicitante?.telefono || 'N/A'}\n` +
-          `👤 Inspector: ${inspector}\n` +
-          `📋 Jerarquía: ${cert.inspector?.jerarquia || 'N/A'}\n` +
-          `📍 Dirección: ${cert.arbol?.direccion || 'N/A'}\n` +
-          `🌳 Especie: ${cert.arbol?.especie || 'N/A'}\n` +
-          `📏 Altura: ${cert.arbol?.altura || 0}m\n` +
-          `📐 Diámetro: ${cert.arbol?.diametro || 0}m\n` +
-          `📏 Inclinación: ${cert.arbol?.inclinacion || 0}°\n` +
-          `🏠 Dist. vivienda: ${cert.arbol?.distancia || 0}m\n` +
-          `⚠️ Riesgo: ${cert.arbol?.riesgo || 'N/A'}\n` +
-          `📝 Observaciones: ${cert.observaciones || 'N/A'}`);
-}
-
-function eliminarCertificacion(index) {
-    if (!confirm('¿Eliminar esta certificación?')) return;
-    certificaciones.splice(index, 1);
-    guardarCertificacionesLocales();
-    renderizarCertificaciones();
-    mostrarToast('✅ Certificación eliminada', 'success');
-}
-
-function generarPDFCertificacion() {
-    if (certificaciones.length === 0) {
-        mostrarToast('⚠️ No hay certificaciones para generar PDF', 'warning');
-        return;
-    }
-
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        
-        // ==== AGREGAR ENCABEZADO CON LOGOS ====
-        agregarEncabezadoConLogos(doc, 'CERTIFICACIÓN DE ÁRBOLES', 'Protección Civil - Municipio Papelón');
-
-        const rows = certificaciones.map(cert => [
-            cert.arbol?.direccion || '',
-            cert.arbol?.especie || '',
-            cert.arbol?.altura || '',
-            cert.arbol?.diametro || '',
-            cert.arbol?.inclinacion || '',
-            cert.arbol?.riesgo || '',
-            cert.fecha ? new Date(cert.fecha).toLocaleDateString() : ''
-        ]);
-
-        doc.autoTable({
-            head: [['Dirección', 'Especie', 'Altura', 'Diámetro', 'Inclinación', 'Riesgo', 'Fecha']],
-            body: rows,
-            startY: 45,
-            styles: { fontSize: 8 },
-            headStyles: { fillColor: [11, 42, 74] }
-        });
-
-        const finalY = doc.lastAutoTable.finalY + 15;
-
-        const ultima = certificaciones[certificaciones.length - 1];
-        if (ultima.solicitante) {
-            doc.setFontSize(10);
-            doc.text(`Solicitante: ${ultima.solicitante.nombre} ${ultima.solicitante.apellido}`, 20, finalY);
-            doc.text(`Cédula: ${ultima.solicitante.cedula || 'N/A'}`, 20, finalY + 6);
-            doc.text(`Teléfono: ${ultima.solicitante.telefono || 'N/A'}`, 20, finalY + 12);
-        }
-        
-        if (ultima.inspector) {
-            doc.text(`Inspector: ${ultima.inspector.nombre} ${ultima.inspector.apellido}`, 120, finalY);
-            doc.text(`Jerarquía: ${ultima.inspector.jerarquia || 'N/A'}`, 120, finalY + 6);
-        }
-
-        doc.text('_________________________', 50, finalY + 25);
-        doc.text('Firma del Inspector', 50, finalY + 33);
-        doc.text('_________________________', 130, finalY + 25);
-        doc.text('Sello de la Institución', 130, finalY + 33);
-        
-        // ==== AGREGAR PIE DE PÁGINA ====
-        agregarPiePagina(doc, doc.internal.pageSize.height - 15);
-
-        doc.save('certificacion_arboles.pdf');
-        mostrarToast('✅ PDF generado correctamente', 'success');
-
-    } catch (error) {
-        console.error('Error generando PDF:', error);
-        mostrarToast('❌ Error al generar PDF', 'danger');
-    }
-}
-
-// ============================================
-// EDAN - EVALUACIÓN DE DAÑOS Y ANÁLISIS DE NECESIDADES
-// ============================================
-
-let edanFamilias = [];
-let edanFirma = null;
-let edanCanvas, edanCtx, edanIsDrawing = false;
-let edanContadorFamilias = 0;
-
 function initEDAN() {
     console.log('📋 Inicializando EDAN...');
     
-    const select = document.getElementById('edanOficial');
+    cargarSelloInstitucional();
     
+    const select = document.getElementById('edanOficial');
     if (select) {
         db.collection('personal')
             .orderBy('apellido', 'asc')
@@ -2764,24 +2204,44 @@ function initEDAN() {
                 snap.forEach(doc => {
                     const data = doc.data();
                     const nombre = `${data.apellido}, ${data.nombre}`;
-                    select.innerHTML += `<option value="${doc.id}">${nombre} - ${data.jerarquia || ''}</option>`;
+                    const tieneFirma = data.firma ? ' ✍️' : '';
+                    select.innerHTML += `<option value="${doc.id}" data-firma="${data.firma || ''}">${nombre} - ${data.jerarquia || ''}${tieneFirma}</option>`;
                 });
             })
-            .catch(error => {
-                console.error('Error cargando oficiales:', error);
-            });
+            .catch(() => {});
+    }
+    
+    if (select) {
+        select.addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            const firma = selected.dataset.firma || '';
+            if (firma) {
+                edanFirmaSeleccionada = firma;
+                const firmaImg = document.getElementById('edanFirmaImg');
+                const placeholder = document.getElementById('edanFirmaPlaceholder');
+                if (firmaImg && placeholder) {
+                    firmaImg.src = firma;
+                    firmaImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }
+            } else {
+                edanFirmaSeleccionada = null;
+                const firmaImg = document.getElementById('edanFirmaImg');
+                const placeholder = document.getElementById('edanFirmaPlaceholder');
+                if (firmaImg && placeholder) {
+                    firmaImg.style.display = 'none';
+                    placeholder.style.display = 'block';
+                    placeholder.textContent = '⚠️ El oficial no tiene firma cargada';
+                }
+            }
+        });
     }
     
     const ahora = new Date();
     const fecha = document.getElementById('edanFecha');
     const hora = document.getElementById('edanHora');
-    
     if (fecha) fecha.value = ahora.toISOString().split('T')[0];
     if (hora) hora.value = ahora.toTimeString().slice(0, 5);
-    
-    iniciarFirmaEdan();
-    cargarEDAN();
-    edanActualizarLista();
     
     const foto1 = document.getElementById('edanFoto1');
     const foto2 = document.getElementById('edanFoto2');
@@ -2789,7 +2249,7 @@ function initEDAN() {
     if (foto1) {
         foto1.addEventListener('change', function() {
             if (this.files && this.files[0]) {
-                leerFotoEDAN(this.files[0], 'edanFotosPreview');
+                previewFotoEDAN(this.files[0], 'edanFotosPreview');
             }
         });
     }
@@ -2797,27 +2257,73 @@ function initEDAN() {
     if (foto2) {
         foto2.addEventListener('change', function() {
             if (this.files && this.files[0]) {
-                leerFotoEDAN(this.files[0], 'edanFotosPreview');
+                previewFotoEDAN(this.files[0], 'edanFotosPreview');
             }
         });
     }
     
-    console.log('✅ EDAN inicializado correctamente');
+    cargarEDAN();
+    edanActualizarLista();
 }
 
-function leerFotoEDAN(file, previewId) {
+function cargarSelloInstitucional() {
+    try {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = 'https://elbordon2703.github.io/sigr-pc/SELLO.png';
+        img.onload = function() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                edanSello = canvas.toDataURL('image/png');
+                const selloImg = document.getElementById('edanSelloImg');
+                const selloPlaceholder = document.getElementById('edanSelloPlaceholder');
+                if (selloImg && selloPlaceholder) {
+                    selloImg.src = edanSello;
+                    selloImg.style.display = 'block';
+                    selloPlaceholder.style.display = 'none';
+                }
+            } catch (e) { console.warn('Error al cargar sello:', e); }
+        };
+        img.onerror = function() {
+            const img2 = new Image();
+            img2.crossOrigin = 'Anonymous';
+            img2.src = 'https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png';
+            img2.onload = function() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img2.width;
+                    canvas.height = img2.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img2, 0, 0);
+                    edanSello = canvas.toDataURL('image/png');
+                    const selloImg = document.getElementById('edanSelloImg');
+                    const selloPlaceholder = document.getElementById('edanSelloPlaceholder');
+                    if (selloImg && selloPlaceholder) {
+                        selloImg.src = edanSello;
+                        selloImg.style.display = 'block';
+                        selloPlaceholder.style.display = 'none';
+                    }
+                } catch (e) { console.warn('Error al cargar sello:', e); }
+            };
+            img2.onerror = function() { console.warn('No se pudo cargar el sello'); };
+        };
+    } catch (e) { console.warn('Error al cargar sello:', e); }
+}
+
+function previewFotoEDAN(file, previewId) {
     if (!file) return;
-    
     const reader = new FileReader();
     reader.onload = function(e) {
         const preview = document.getElementById(previewId);
         if (!preview) return;
-        
         const div = document.createElement('div');
         div.style.display = 'inline-block';
         div.style.margin = '5px';
         div.style.position = 'relative';
-        
         const img = document.createElement('img');
         img.src = e.target.result;
         img.style.width = '120px';
@@ -2825,8 +2331,6 @@ function leerFotoEDAN(file, previewId) {
         img.style.objectFit = 'cover';
         img.style.borderRadius = '8px';
         img.style.border = '2px solid #1677c8';
-        img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-        
         const btnEliminar = document.createElement('button');
         btnEliminar.innerHTML = '✕';
         btnEliminar.style.position = 'absolute';
@@ -2840,24 +2344,30 @@ function leerFotoEDAN(file, previewId) {
         btnEliminar.style.color = 'white';
         btnEliminar.style.fontSize = '12px';
         btnEliminar.style.cursor = 'pointer';
-        btnEliminar.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
         btnEliminar.onclick = function() {
             div.remove();
-            const inputId = previewId === 'edanFotosPreview' ? 'edanFoto1' : 'edanFoto2';
-            const input = document.getElementById(inputId);
-            if (input) input.value = '';
+            const inputs = document.querySelectorAll('input[type="file"]');
+            inputs.forEach(input => {
+                if (input.id.includes('edanFoto')) {
+                    input.value = '';
+                }
+            });
         };
-        
         div.appendChild(img);
         div.appendChild(btnEliminar);
         preview.appendChild(div);
     };
-    
-    reader.onerror = function() {
-        mostrarToast('❌ Error al cargar la foto', 'danger');
-    };
-    
     reader.readAsDataURL(file);
+}
+
+function leerFotoBase64(file) {
+    return new Promise((resolve) => {
+        if (!file) { resolve(null); return; }
+        const reader = new FileReader();
+        reader.onload = function(e) { resolve(e.target.result); };
+        reader.onerror = function() { resolve(null); };
+        reader.readAsDataURL(file);
+    });
 }
 
 function edanAgregarFamilia() {
@@ -2933,154 +2443,24 @@ function edanAgregarFamilia() {
         edanLimpiarFormulario();
         edanActualizarLista();
         mostrarToast(`✅ Familia ${familia.responsable} agregada (${totalPersonas} personas)`, 'success');
+    }).catch(() => {
+        mostrarToast('❌ Error al procesar las fotos', 'danger');
     });
 }
 
-function edanLimpiarFormulario() {
-    document.getElementById('edanResponsable').value = '';
-    document.getElementById('edanCedula').value = '';
-    document.getElementById('edanAdultosM').value = 0;
-    document.getElementById('edanAdultosF').value = 0;
-    document.getElementById('edanMayoresM').value = 0;
-    document.getElementById('edanMayoresF').value = 0;
-    document.getElementById('edanAdolescentesM').value = 0;
-    document.getElementById('edanAdolescentesF').value = 0;
-    document.getElementById('edanNinosM').value = 0;
-    document.getElementById('edanNinosF').value = 0;
-    document.getElementById('edanLactantesM').value = 0;
-    document.getElementById('edanLactantesF').value = 0;
-    document.getElementById('edanAlimentos').value = 0;
-    document.getElementById('edanColchones').value = 0;
-    document.getElementById('edanElectrodomesticos').value = 0;
-    document.getElementById('edanOtros').value = 0;
-    document.getElementById('edanOtrosDesc').value = '';
-    document.getElementById('edanMaterial').value = '';
-    document.getElementById('edanCondicion').value = '';
-    document.getElementById('edanFoto1').value = '';
-    document.getElementById('edanFoto2').value = '';
-    document.getElementById('edanFotosPreview').innerHTML = '';
-    document.getElementById('edanResponsable').focus();
-}
-
-function edanActualizarLista() {
-    const container = document.getElementById('edanListaFamilias');
-    const totalFamilias = document.getElementById('edanTotalFamilias');
-    const totalPersonas = document.getElementById('edanTotalPersonas');
-    
-    if (edanFamilias.length === 0) {
-        container.innerHTML = '<p class="text-muted">No hay familias registradas. Agregue la primera familia.</p>';
-        totalFamilias.textContent = '0 familias';
-        totalPersonas.textContent = '0 personas';
-        return;
-    }
-    
-    let html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
-    html += `<thead>
-        <tr>
-            <th style="width:30px;">#</th>
-            <th>Responsable</th>
-            <th>C.I.</th>
-            <th style="text-align:center;">Adultos<br><small>M/F</small></th>
-            <th style="text-align:center;">Adultos Mayores<br><small>M/F</small></th>
-            <th style="text-align:center;">Adolescentes<br><small>M/F</small></th>
-            <th style="text-align:center;">Niños<br><small>M/F</small></th>
-            <th style="text-align:center;">Lactantes<br><small>M/F</small></th>
-            <th style="text-align:center;">Total</th>
-            <th style="text-align:center;">Tipo V</th>
-            <th style="text-align:center;">Material</th>
-            <th style="text-align:center;">Hab</th>
-            <th style="text-align:center;">Dest</th>
-            <th style="text-align:center;">Acción</th>
-        </tr>
-    </thead><tbody>`;
-    
-    let totalPersonasCount = 0;
-    
-    edanFamilias.forEach((f, index) => {
-        const totalFam = f.totalPersonas || 
-            f.adultos.m + f.adultos.f +
-            f.adultosMayores.m + f.adultosMayores.f +
-            f.adolescentes.m + f.adolescentes.f +
-            f.ninos.m + f.ninos.f +
-            f.lactantes.m + f.lactantes.f;
-        totalPersonasCount += totalFam;
-        
-        const tipoTexto = { 'A': 'A', 'B': 'B', 'C': 'C' };
-        const habTexto = f.habitable ? '✅' : '❌';
-        const destTexto = f.destruida ? '✅' : '❌';
-        const materialTexto = f.material || 'N/A';
-        
-        html += `<tr>
-            <td>${f.id || index + 1}</td>
-            <td><strong>${f.responsable}</strong></td>
-            <td>${f.cedula}</td>
-            <td style="text-align:center;">${f.adultos.m}/${f.adultos.f}</td>
-            <td style="text-align:center;">${f.adultosMayores.m}/${f.adultosMayores.f}</td>
-            <td style="text-align:center;">${f.adolescentes.m}/${f.adolescentes.f}</td>
-            <td style="text-align:center;">${f.ninos.m}/${f.ninos.f}</td>
-            <td style="text-align:center;">${f.lactantes.m}/${f.lactantes.f}</td>
-            <td style="text-align:center;"><strong>${totalFam}</strong></td>
-            <td style="text-align:center;">${tipoTexto[f.tipoVivienda] || 'B'}</td>
-            <td style="font-size:10px;">${materialTexto}</td>
-            <td style="text-align:center;">${habTexto}</td>
-            <td style="text-align:center;">${destTexto}</td>
-            <td style="text-align:center;">
-                <button class="btn btn-sm btn-danger" onclick="edanEliminarFamilia(${index})">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>`;
-    });
-    
-    const totales = edanCalcularTotales();
-    html += `<tr class="table-primary">
-        <td colspan="3"><strong>TOTALES</strong></td>
-        <td style="text-align:center;"><strong>${totales.adultos.m}/${totales.adultos.f}</strong></td>
-        <td style="text-align:center;"><strong>${totales.adultosMayores.m}/${totales.adultosMayores.f}</strong></td>
-        <td style="text-align:center;"><strong>${totales.adolescentes.m}/${totales.adolescentes.f}</strong></td>
-        <td style="text-align:center;"><strong>${totales.ninos.m}/${totales.ninos.f}</strong></td>
-        <td style="text-align:center;"><strong>${totales.lactantes.m}/${totales.lactantes.f}</strong></td>
-        <td style="text-align:center;"><strong>${totales.totalPersonas}</strong></td>
-        <td colspan="4"></td>
-    </tr>`;
-    
-    html += '</tbody></table></div>';
-    
-    const necesidades = edanCalcularNecesidades();
-    html += `<div class="row mt-2">
-        <div class="col-12">
-            <small class="text-muted">
-                <strong>Necesidades totales:</strong> 
-                🍽️ Alimentos: ${necesidades.alimentos} | 
-                🛏️ Colchones: ${necesidades.colchon} | 
-                📺 Electrodomésticos: ${necesidades.electrodomesticos} | 
-                📦 Otros: ${necesidades.otros}
-                ${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}
-            </small>
-        </div>
-    </div>`;
-    
-    container.innerHTML = html;
-    totalFamilias.textContent = `${edanFamilias.length} familias`;
-    totalPersonas.textContent = `${totalPersonasCount} personas`;
-}
-
-function edanEliminarFamilia(index) {
-    if (!confirm(`¿Eliminar la familia ${edanFamilias[index].responsable}?`)) return;
-    edanFamilias.splice(index, 1);
-    edanActualizarLista();
-    mostrarToast('✅ Familia eliminada', 'success');
-}
-
-function edanEliminarTodasFamilias() {
-    if (edanFamilias.length === 0) {
-        mostrarToast('⚠️ No hay familias para eliminar', 'warning');
-        return;
-    }
-    if (!confirm('¿Eliminar todas las familias?')) return;
-    edanFamilias = [];
-    edanActualizarLista();
-    mostrarToast('✅ Todas las familias eliminadas', 'success');
+function edanCalcularTotalesPreview() {
+    const adultoM = parseInt(document.getElementById('edanAdultosM').value) || 0;
+    const adultoF = parseInt(document.getElementById('edanAdultosF').value) || 0;
+    const mayorM = parseInt(document.getElementById('edanMayoresM').value) || 0;
+    const mayorF = parseInt(document.getElementById('edanMayoresF').value) || 0;
+    const adolM = parseInt(document.getElementById('edanAdolescentesM').value) || 0;
+    const adolF = parseInt(document.getElementById('edanAdolescentesF').value) || 0;
+    const ninoM = parseInt(document.getElementById('edanNinosM').value) || 0;
+    const ninoF = parseInt(document.getElementById('edanNinosF').value) || 0;
+    const lactM = parseInt(document.getElementById('edanLactantesM').value) || 0;
+    const lactF = parseInt(document.getElementById('edanLactantesF').value) || 0;
+    const total = adultoM + adultoF + mayorM + mayorF + adolM + adolF + ninoM + ninoF + lactM + lactF;
+    document.getElementById('edanTotalPersonasPreview').value = total;
 }
 
 function edanCalcularTotales() {
@@ -3094,16 +2474,16 @@ function edanCalcularTotales() {
     };
     
     edanFamilias.forEach(f => {
-        totales.adultos.m += f.adultos.m || 0;
-        totales.adultos.f += f.adultos.f || 0;
-        totales.adultosMayores.m += f.adultosMayores.m || 0;
-        totales.adultosMayores.f += f.adultosMayores.f || 0;
-        totales.adolescentes.m += f.adolescentes.m || 0;
-        totales.adolescentes.f += f.adolescentes.f || 0;
-        totales.ninos.m += f.ninos.m || 0;
-        totales.ninos.f += f.ninos.f || 0;
-        totales.lactantes.m += f.lactantes.m || 0;
-        totales.lactantes.f += f.lactantes.f || 0;
+        totales.adultos.m += f.adultos?.m || 0;
+        totales.adultos.f += f.adultos?.f || 0;
+        totales.adultosMayores.m += f.adultosMayores?.m || 0;
+        totales.adultosMayores.f += f.adultosMayores?.f || 0;
+        totales.adolescentes.m += f.adolescentes?.m || 0;
+        totales.adolescentes.f += f.adolescentes?.f || 0;
+        totales.ninos.m += f.ninos?.m || 0;
+        totales.ninos.f += f.ninos?.f || 0;
+        totales.lactantes.m += f.lactantes?.m || 0;
+        totales.lactantes.f += f.lactantes?.f || 0;
     });
     
     totales.totalPersonas = 
@@ -3134,107 +2514,207 @@ function edanCalcularNecesidades() {
     });
     
     necesidades.otrosDesc = [...new Set(necesidades.otrosDesc)].join(', ');
-    
     return necesidades;
+}
+
+function edanActualizarLista() {
+    const container = document.getElementById('edanListaFamilias');
+    const totalFamilias = document.getElementById('edanTotalFamilias');
+    const totalPersonas = document.getElementById('edanTotalPersonas');
+    
+    if (edanFamilias.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay familias registradas. Agregue la primera familia.</p>';
+        if (totalFamilias) totalFamilias.textContent = '0 familias';
+        if (totalPersonas) totalPersonas.textContent = '0 personas';
+        return;
+    }
+    
+    const totales = edanCalcularTotales();
+    const necesidades = edanCalcularNecesidades();
+    
+    let html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+    html += `<thead>
+        <tr>
+            <th style="width:30px;">#</th>
+            <th>Responsable</th>
+            <th>C.I.</th>
+            <th style="text-align:center;">Adultos<br><small>M/F</small></th>
+            <th style="text-align:center;">Adultos Mayores<br><small>M/F</small></th>
+            <th style="text-align:center;">Adolescentes<br><small>M/F</small></th>
+            <th style="text-align:center;">Niños<br><small>M/F</small></th>
+            <th style="text-align:center;">Lactantes<br><small>M/F</small></th>
+            <th style="text-align:center;">Total</th>
+            <th style="text-align:center;">Tipo V</th>
+            <th style="text-align:center;">Material</th>
+            <th style="text-align:center;">Hab</th>
+            <th style="text-align:center;">Dest</th>
+            <th style="text-align:center;">Acción</th>
+        </tr>
+    </thead><tbody>`;
+    
+    let totalPersonasCount = 0;
+    
+    edanFamilias.forEach((f, index) => {
+        const totalFam = f.totalPersonas || 0;
+        totalPersonasCount += totalFam;
+        const tipoTexto = { 'A': 'A', 'B': 'B', 'C': 'C' };
+        const habTexto = f.habitable ? '✅' : '❌';
+        const destTexto = f.destruida ? '✅' : '❌';
+        const materialTexto = f.material || 'N/A';
+        
+        html += `<tr>
+            <td>${f.id || index + 1}</td>
+            <td><strong>${f.responsable}</strong></td>
+            <td>${f.cedula}</td>
+            <td style="text-align:center;">${f.adultos?.m || 0}/${f.adultos?.f || 0}</td>
+            <td style="text-align:center;">${f.adultosMayores?.m || 0}/${f.adultosMayores?.f || 0}</td>
+            <td style="text-align:center;">${f.adolescentes?.m || 0}/${f.adolescentes?.f || 0}</td>
+            <td style="text-align:center;">${f.ninos?.m || 0}/${f.ninos?.f || 0}</td>
+            <td style="text-align:center;">${f.lactantes?.m || 0}/${f.lactantes?.f || 0}</td>
+            <td style="text-align:center;"><strong>${totalFam}</strong></td>
+            <td style="text-align:center;">${tipoTexto[f.tipoVivienda] || 'B'}</td>
+            <td style="font-size:10px;">${materialTexto}</td>
+            <td style="text-align:center;">${habTexto}</td>
+            <td style="text-align:center;">${destTexto}</td>
+            <td style="text-align:center;">
+                <button class="btn btn-sm btn-danger" onclick="edanEliminarFamilia(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    });
+    
+    html += `<tr class="table-primary">
+        <td colspan="3"><strong>TOTALES</strong></td>
+        <td style="text-align:center;"><strong>${totales.adultos.m}/${totales.adultos.f}</strong></td>
+        <td style="text-align:center;"><strong>${totales.adultosMayores.m}/${totales.adultosMayores.f}</strong></td>
+        <td style="text-align:center;"><strong>${totales.adolescentes.m}/${totales.adolescentes.f}</strong></td>
+        <td style="text-align:center;"><strong>${totales.ninos.m}/${totales.ninos.f}</strong></td>
+        <td style="text-align:center;"><strong>${totales.lactantes.m}/${totales.lactantes.f}</strong></td>
+        <td style="text-align:center;"><strong>${totales.totalPersonas}</strong></td>
+        <td colspan="4"></td>
+    </tr>`;
+    
+    html += '</tbody></table></div>';
+    
+    html += `<div class="row mt-2">
+        <div class="col-12">
+            <small class="text-muted">
+                <strong>Necesidades totales:</strong> 
+                🍽️ Alimentos: ${necesidades.alimentos} | 
+                🛏️ Colchones: ${necesidades.colchon} | 
+                📺 Electrodomésticos: ${necesidades.electrodomesticos} | 
+                📦 Otros: ${necesidades.otros}
+                ${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}
+            </small>
+        </div>
+    </div>`;
+    
+    container.innerHTML = html;
+    if (totalFamilias) totalFamilias.textContent = `${edanFamilias.length} familias`;
+    if (totalPersonas) totalPersonas.textContent = `${totalPersonasCount} personas`;
+}
+
+function edanEliminarFamilia(index) {
+    if (!confirm(`¿Eliminar la familia ${edanFamilias[index].responsable}?`)) return;
+    edanFamilias.splice(index, 1);
+    edanActualizarLista();
+    mostrarToast('✅ Familia eliminada', 'success');
+}
+
+function edanEliminarTodasFamilias() {
+    if (edanFamilias.length === 0) {
+        mostrarToast('⚠️ No hay familias para eliminar', 'warning');
+        return;
+    }
+    if (!confirm('¿Eliminar todas las familias?')) return;
+    edanFamilias = [];
+    edanActualizarLista();
+    mostrarToast('✅ Todas las familias eliminadas', 'success');
+}
+
+function edanLimpiarFormulario() {
+    document.getElementById('edanResponsable').value = '';
+    document.getElementById('edanCedula').value = '';
+    document.getElementById('edanAdultosM').value = 0;
+    document.getElementById('edanAdultosF').value = 0;
+    document.getElementById('edanMayoresM').value = 0;
+    document.getElementById('edanMayoresF').value = 0;
+    document.getElementById('edanAdolescentesM').value = 0;
+    document.getElementById('edanAdolescentesF').value = 0;
+    document.getElementById('edanNinosM').value = 0;
+    document.getElementById('edanNinosF').value = 0;
+    document.getElementById('edanLactantesM').value = 0;
+    document.getElementById('edanLactantesF').value = 0;
+    document.getElementById('edanTotalPersonasPreview').value = 0;
+    document.getElementById('edanAlimentos').value = 0;
+    document.getElementById('edanColchones').value = 0;
+    document.getElementById('edanElectrodomesticos').value = 0;
+    document.getElementById('edanOtros').value = 0;
+    document.getElementById('edanOtrosDesc').value = '';
+    document.getElementById('edanMaterial').value = '';
+    document.getElementById('edanCondicion').value = '';
+    document.getElementById('edanFoto1').value = '';
+    document.getElementById('edanFoto2').value = '';
+    document.getElementById('edanFotosPreview').innerHTML = '';
+    document.getElementById('edanResponsable').focus();
 }
 
 function edanLimpiarTodo() {
     if (!confirm('¿Limpiar todos los datos del EDAN?')) return;
     edanFamilias = [];
+    edanContadorFamilias = 0;
     edanLimpiarFormulario();
     edanActualizarLista();
-    limpiarFirmaEdan();
     document.getElementById('edanEvento').value = '';
     document.getElementById('edanPoblacion').value = '';
     document.getElementById('edanSector').value = '';
     document.getElementById('edanCalle').value = '';
+    document.getElementById('edanUtmE').value = '';
+    document.getElementById('edanUtmN').value = '';
+    document.getElementById('edanUtmZona').value = '';
     document.getElementById('edanObservacion').value = '';
+    document.getElementById('edanOficial').value = '';
     document.getElementById('edanMensaje').innerHTML = '';
+    edanFirmaSeleccionada = null;
+    const firmaImg = document.getElementById('edanFirmaImg');
+    const placeholder = document.getElementById('edanFirmaPlaceholder');
+    if (firmaImg && placeholder) {
+        firmaImg.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.textContent = 'Seleccione un oficial para cargar su firma';
+    }
     mostrarToast('🧹 Datos limpiados', 'info');
 }
 
-// ============================================
-// FIRMA DIGITAL EDAN
-// ============================================
-
-function iniciarFirmaEdan() {
-    edanCanvas = document.getElementById('edanFirmaCanvas');
-    if (!edanCanvas) return;
-    edanCtx = edanCanvas.getContext('2d');
-    edanCanvas.width = edanCanvas.offsetWidth || 300;
-    edanCanvas.height = edanCanvas.offsetHeight || 150;
-    edanCtx.lineWidth = 3;
-    edanCtx.strokeStyle = '#0b2a4a';
-    edanCtx.lineCap = 'round';
-    edanCtx.lineJoin = 'round';
-    
-    edanCanvas.addEventListener('mousedown', (e) => {
-        edanIsDrawing = true;
-        const rect = edanCanvas.getBoundingClientRect();
-        edanCtx.beginPath();
-        edanCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-    });
-    edanCanvas.addEventListener('mousemove', (e) => {
-        if (!edanIsDrawing) return;
-        const rect = edanCanvas.getBoundingClientRect();
-        edanCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-        edanCtx.stroke();
-    });
-    edanCanvas.addEventListener('mouseup', () => { edanIsDrawing = false; });
-    edanCanvas.addEventListener('mouseleave', () => { edanIsDrawing = false; });
-    edanCanvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        edanIsDrawing = true;
-        const rect = edanCanvas.getBoundingClientRect();
-        const touch = e.touches[0];
-        edanCtx.beginPath();
-        edanCtx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
-    });
-    edanCanvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        if (!edanIsDrawing) return;
-        const rect = edanCanvas.getBoundingClientRect();
-        const touch = e.touches[0];
-        edanCtx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-        edanCtx.stroke();
-    });
-    edanCanvas.addEventListener('touchend', () => { edanIsDrawing = false; });
-}
-
-function limpiarFirmaEdan() {
-    if (!edanCtx || !edanCanvas) return;
-    edanCtx.clearRect(0, 0, edanCanvas.width, edanCanvas.height);
-    edanFirma = null;
-    mostrarToast('✍️ Firma limpiada', 'info');
-}
-
-function capturarFirmaEdan() {
-    if (!edanCanvas) return;
-    edanFirma = edanCanvas.toDataURL('image/png');
-    mostrarToast('✅ Firma guardada correctamente', 'success');
-}
-
-// ============================================
-// GUARDAR EDAN
-// ============================================
-
 function guardarEDAN() {
-    const oficial = document.getElementById('edanOficial').value;
+    const oficialId = document.getElementById('edanOficial').value;
+    const fecha = document.getElementById('edanFecha').value;
+    const hora = document.getElementById('edanHora').value;
     const evento = document.getElementById('edanEvento').value.trim();
+    const municipio = document.getElementById('edanMunicipio').value;
     const poblacion = document.getElementById('edanPoblacion').value.trim();
+    const sector = document.getElementById('edanSector').value.trim();
+    const calle = document.getElementById('edanCalle').value.trim();
+    const utmE = document.getElementById('edanUtmE').value.trim();
+    const utmN = document.getElementById('edanUtmN').value.trim();
+    const utmZona = document.getElementById('edanUtmZona').value.trim();
+    const observacion = document.getElementById('edanObservacion').value.trim();
     
-    if (!oficial) {
+    if (!oficialId) {
         mostrarToast('⚠️ Seleccione el oficial que elabora', 'warning');
         return;
     }
     
     if (!evento) {
         mostrarToast('⚠️ Indique el evento', 'warning');
+        document.getElementById('edanEvento').focus();
         return;
     }
     
     if (!poblacion) {
         mostrarToast('⚠️ Indique la población', 'warning');
+        document.getElementById('edanPoblacion').focus();
         return;
     }
     
@@ -3246,35 +2726,54 @@ function guardarEDAN() {
     const totales = edanCalcularTotales();
     const necesidades = edanCalcularNecesidades();
     
+    const select = document.getElementById('edanOficial');
+    const selectedOption = select.options[select.selectedIndex];
+    const oficialNombre = selectedOption ? selectedOption.text : 'N/A';
+    
     const data = {
-        fecha: document.getElementById('edanFecha').value,
-        hora: document.getElementById('edanHora').value,
-        oficial: document.getElementById('edanOficial').value,
-        oficialNombre: document.getElementById('edanOficial').options[document.getElementById('edanOficial').selectedIndex]?.text || '',
+        fecha: fecha || new Date().toISOString().split('T')[0],
+        hora: hora || new Date().toTimeString().slice(0, 5),
+        oficial: oficialId,
+        oficialNombre: oficialNombre,
         evento: evento,
-        municipio: document.getElementById('edanMunicipio').value,
+        municipio: municipio || 'Papelón',
         poblacion: poblacion,
-        sector: document.getElementById('edanSector').value.trim(),
-        calle: document.getElementById('edanCalle').value.trim(),
-        observacion: document.getElementById('edanObservacion').value.trim(),
+        sector: sector || '',
+        calle: calle || '',
+        utm: { este: utmE || '', norte: utmN || '', zona: utmZona || '' },
+        observacion: observacion || '',
         familias: edanFamilias,
         totales: totales,
         necesidades: necesidades,
-        firma: edanFirma,
-        fechaRegistro: new Date().toISOString()
+        firma: edanFirmaSeleccionada || null,
+        sello: edanSello || null,
+        fechaRegistro: new Date().toISOString(),
+        registradoPor: auth.currentUser?.email || 'Sistema'
     };
     
     db.collection('edan').add(data)
         .then(() => {
             mostrarToast('✅ EDAN registrado correctamente', 'success');
             edanFamilias = [];
+            edanContadorFamilias = 0;
             edanActualizarLista();
-            limpiarFirmaEdan();
             document.getElementById('edanEvento').value = '';
             document.getElementById('edanPoblacion').value = '';
             document.getElementById('edanSector').value = '';
             document.getElementById('edanCalle').value = '';
+            document.getElementById('edanUtmE').value = '';
+            document.getElementById('edanUtmN').value = '';
+            document.getElementById('edanUtmZona').value = '';
             document.getElementById('edanObservacion').value = '';
+            document.getElementById('edanOficial').value = '';
+            edanFirmaSeleccionada = null;
+            const firmaImg = document.getElementById('edanFirmaImg');
+            const placeholder = document.getElementById('edanFirmaPlaceholder');
+            if (firmaImg && placeholder) {
+                firmaImg.style.display = 'none';
+                placeholder.style.display = 'block';
+                placeholder.textContent = 'Seleccione un oficial para cargar su firma';
+            }
             cargarEDAN();
         })
         .catch(error => {
@@ -3284,12 +2783,7 @@ function guardarEDAN() {
 
 function cargarEDAN() {
     const container = document.getElementById('listaEdan');
-    
-    // 🛡️ PROTECCIÓN: Si el contenedor no está visible en pantalla, salimos de forma segura sin romper nada
-    if (!container) {
-        console.warn("⚠️ Advertencia: El contenedor 'listaEdan' no está presente actualmente en el DOM.");
-        return; 
-    }
+    if (!container) return;
 
     db.collection('edan')
         .orderBy('fechaRegistro', 'desc')
@@ -3302,18 +2796,14 @@ function cargarEDAN() {
             }
             
             let html = '<div class="table-responsive"><table class="table table-sm">';
-            html += '<thead><tr><th>Fecha</th><th>Evento</th><th>Oficial</th><th>Familias</th><th>Total Personas</th></tr></thead><tbody>';
+            html += '<thead><tr><th>Fecha</th><th>Evento</th><th>Oficial</th><th>Familias</th><th>Total Personas</th><th>Acciones</th></tr></thead><tbody>';
             
             snap.forEach(doc => {
                 const data = doc.data();
                 const fecha = data.fecha || 'N/A';
                 let totalPersonas = 0;
                 if (data.totales) {
-                    totalPersonas = (data.totales.adultos?.m || 0) + (data.totales.adultos?.f || 0) +
-                                   (data.totales.adultosMayores?.m || 0) + (data.totales.adultosMayores?.f || 0) +
-                                   (data.totales.adolescentes?.m || 0) + (data.totales.adolescentes?.f || 0) +
-                                   (data.totales.ninos?.m || 0) + (data.totales.ninos?.f || 0) +
-                                   (data.totales.lactantes?.m || 0) + (data.totales.lactantes?.f || 0);
+                    totalPersonas = data.totales.totalPersonas || 0;
                 }
                 
                 html += `<tr>
@@ -3322,6 +2812,14 @@ function cargarEDAN() {
                     <td>${data.oficialNombre || 'N/A'}</td>
                     <td>${data.familias?.length || 0}</td>
                     <td>${totalPersonas}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="verEDAN('${doc.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarEDAN('${doc.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 </tr>`;
             });
             
@@ -3331,10 +2829,51 @@ function cargarEDAN() {
         .catch(() => {});
 }
 
+function verEDAN(id) {
+    db.collection('edan').doc(id).get()
+        .then(doc => {
+            if (!doc.exists) {
+                mostrarToast('⚠️ Registro no encontrado', 'warning');
+                return;
+            }
+            const data = doc.data();
+            const familias = data.familias || [];
+            let msg = '📋 EDAN\n\n';
+            msg += `📅 Fecha: ${data.fecha || 'N/A'}\n`;
+            msg += `🕐 Hora: ${data.hora || 'N/A'}\n`;
+            msg += `👤 Oficial: ${data.oficialNombre || 'N/A'}\n`;
+            msg += `🌪️ Evento: ${data.evento || 'N/A'}\n`;
+            msg += `🏘️ Población: ${data.poblacion || 'N/A'}\n`;
+            msg += `📍 Sector: ${data.sector || 'N/A'}\n`;
+            msg += `📍 Calle: ${data.calle || 'N/A'}\n`;
+            if (data.utm) {
+                msg += `📍 UTM: ${data.utm.este || ''}E ${data.utm.norte || ''}N ${data.utm.zona || ''}\n`;
+            }
+            msg += `\n👨‍👩‍👧‍👦 Familias: ${familias.length}\n`;
+            msg += `👤 Total Personas: ${data.totales?.totalPersonas || 0}\n`;
+            if (data.observacion) {
+                msg += `\n📝 Observaciones: ${data.observacion}\n`;
+            }
+            alert(msg);
+        })
+        .catch(() => {});
+}
+
+function eliminarEDAN(id) {
+    if (!confirm('¿Eliminar este registro EDAN?')) return;
+    db.collection('edan').doc(id).delete()
+        .then(() => {
+            mostrarToast('✅ EDAN eliminado', 'success');
+            cargarEDAN();
+        })
+        .catch(error => {
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
+}
+
 // ============================================
 // GENERAR PDF EDAN
 // ============================================
-
 async function generarPDFEDAN() {
     if (edanFamilias.length > 0) {
         generarPDFDesdeDatos(edanFamilias);
@@ -3375,10 +2914,8 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        // ===== ENCABEZADO CON LOGOS =====
         await agregarEncabezadoConLogos(doc, 'RECOLECCIÓN DE INFORMACIÓN', 'Municipio Papelón - Estado Portuguesa');
         
-        // ===== DATOS GENERALES =====
         let y = 42;
         doc.setFontSize(9);
         
@@ -3397,24 +2934,6 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
             } else {
                 oficialNombre = datosGenerales.oficialNombre.toUpperCase();
             }
-        } else {
-            const select = document.getElementById('edanOficial');
-            if (select && select.selectedIndex > 0) {
-                const texto = select.options[select.selectedIndex]?.text || '';
-                const partes = texto.split(' - ');
-                if (partes.length === 2) {
-                    const nombreCompleto = partes[0];
-                    const jerarquia = partes[1];
-                    const nombreArr = nombreCompleto.split(', ');
-                    if (nombreArr.length === 2) {
-                        oficialNombre = `${jerarquia}. ${nombreArr[0].toUpperCase()} ${nombreArr[1].toUpperCase()}`;
-                    } else {
-                        oficialNombre = `${jerarquia}. ${nombreCompleto.toUpperCase()}`;
-                    }
-                } else {
-                    oficialNombre = texto.toUpperCase();
-                }
-            }
         }
         
         const fecha = datosGenerales?.fecha || document.getElementById('edanFecha')?.value || 'N/A';
@@ -3424,6 +2943,9 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         const poblacion = datosGenerales?.poblacion || document.getElementById('edanPoblacion')?.value || 'N/A';
         const sector = datosGenerales?.sector || document.getElementById('edanSector')?.value || 'N/A';
         const calle = datosGenerales?.calle || document.getElementById('edanCalle')?.value || 'N/A';
+        const utmE = datosGenerales?.utm?.este || document.getElementById('edanUtmE')?.value || 'N/A';
+        const utmN = datosGenerales?.utm?.norte || document.getElementById('edanUtmN')?.value || 'N/A';
+        const utmZona = datosGenerales?.utm?.zona || document.getElementById('edanUtmZona')?.value || 'N/A';
         
         doc.text(`FECHA: ${fecha}`, 20, y);
         doc.text(`HORA: ${hora}`, 120, y);
@@ -3437,9 +2959,13 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         y += 6;
         doc.text(`SECTOR: ${sector}`, 20, y);
         doc.text(`CALLE: ${calle}`, 100, y);
-        y += 8;
+        y += 6;
+        if (utmE !== 'N/A' || utmN !== 'N/A') {
+            doc.text(`UTM: ${utmE}E ${utmN}N ${utmZona}`, 20, y);
+            y += 6;
+        }
+        y += 2;
         
-        // ===== TABLA DE FAMILIAS =====
         const headers = [
             ['N°', 'Nombre', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 
              'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 
@@ -3496,7 +3022,6 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         
         let finalY = doc.lastAutoTable.finalY + 10;
         
-        // ===== CONDICIÓN DE LA VIVIENDA =====
         if (familias.length === 1) {
             const f = familias[0];
             if (f.condicion) {
@@ -3509,7 +3034,6 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
             }
         }
         
-        // ===== NECESIDADES TOTALES =====
         const necesidades = edanCalcularNecesidades();
         
         doc.setFontSize(9);
@@ -3522,7 +3046,6 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         doc.text(`Otros: ${necesidades.otros}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}`, 25, finalY);
         finalY += 8;
         
-        // ===== OBSERVACIONES =====
         const obs = (datosGenerales?.observacion || document.getElementById('edanObservacion')?.value || '');
         if (obs) {
             doc.text('OBSERVACIONES:', 20, finalY);
@@ -3532,13 +3055,11 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
             finalY += splitObs.length * 5 + 5;
         }
         
-        // ===== FIRMAS =====
         doc.text('_________________________', 50, finalY + 10);
         doc.text('Firma del Oficial', 50, finalY + 18);
         doc.text('_________________________', 130, finalY + 10);
         doc.text('Sello de la Institución', 130, finalY + 18);
         
-        // ===== PIE DE PÁGINA =====
         agregarPiePagina(doc, doc.internal.pageSize.height - 15);
         
         doc.save(`EDAN_${fecha}.pdf`);
@@ -3551,11 +3072,383 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
 }
 
 // ============================================
+// CERTIFICACIÓN DE ÁRBOLES
+// ============================================
+let canvasCert, ctxCert, isDrawingCert = false;
+
+function cargarSolicitante() {
+    const select = document.getElementById('caSolicitante');
+    if (!select) return;
+    
+    db.collection('personal')
+        .orderBy('apellido', 'asc')
+        .get()
+        .then(snap => {
+            select.innerHTML = '<option value="">— Seleccione el Solicitante —</option>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const nombre = `${data.apellido}, ${data.nombre}`;
+                select.innerHTML += `<option value="${doc.id}" 
+                    data-cedula="${data.cedula || ''}" 
+                    data-telefono="${data.telefono || ''}"
+                    data-nombre="${data.nombre}" 
+                    data-apellido="${data.apellido}">${nombre}</option>`;
+            });
+        })
+        .catch(() => {});
+}
+
+function cargarDatosSolicitante() {
+    const select = document.getElementById('caSolicitante');
+    const selected = select.options[select.selectedIndex];
+    if (selected && selected.value) {
+        document.getElementById('caSolicitanteCedula').value = selected.dataset.cedula || '';
+        document.getElementById('caSolicitanteTelefono').value = selected.dataset.telefono || '';
+        window._solicitanteNombre = selected.dataset.nombre || '';
+        window._solicitanteApellido = selected.dataset.apellido || '';
+    } else {
+        document.getElementById('caSolicitanteCedula').value = '';
+        document.getElementById('caSolicitanteTelefono').value = '';
+        window._solicitanteNombre = '';
+        window._solicitanteApellido = '';
+    }
+}
+
+function cargarInspector() {
+    const select = document.getElementById('caInspector');
+    if (!select) return;
+    
+    db.collection('personal')
+        .orderBy('apellido', 'asc')
+        .get()
+        .then(snap => {
+            select.innerHTML = '<option value="">— Seleccione el Inspector —</option>';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const nombre = `${data.apellido}, ${data.nombre}`;
+                select.innerHTML += `<option value="${doc.id}" 
+                    data-jerarquia="${data.jerarquia || ''}"
+                    data-nombre="${data.nombre}" 
+                    data-apellido="${data.apellido}">${nombre}</option>`;
+            });
+        })
+        .catch(() => {});
+}
+
+function cargarDatosInspector() {
+    const select = document.getElementById('caInspector');
+    const selected = select.options[select.selectedIndex];
+    if (selected && selected.value) {
+        document.getElementById('caInspectorJerarquia').value = selected.dataset.jerarquia || '';
+        window._inspectorNombre = selected.dataset.nombre || '';
+        window._inspectorApellido = selected.dataset.apellido || '';
+    } else {
+        document.getElementById('caInspectorJerarquia').value = '';
+        window._inspectorNombre = '';
+        window._inspectorApellido = '';
+    }
+}
+
+function iniciarFirmaCert() {
+    canvasCert = document.getElementById('caFirmaCanvas');
+    if (!canvasCert) return;
+    ctxCert = canvasCert.getContext('2d');
+    canvasCert.width = canvasCert.offsetWidth || 300;
+    canvasCert.height = canvasCert.offsetHeight || 150;
+    ctxCert.lineWidth = 3;
+    ctxCert.strokeStyle = '#0b2a4a';
+    ctxCert.lineCap = 'round';
+    ctxCert.lineJoin = 'round';
+    
+    canvasCert.addEventListener('mousedown', (e) => {
+        isDrawingCert = true;
+        const rect = canvasCert.getBoundingClientRect();
+        ctxCert.beginPath();
+        ctxCert.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    });
+    canvasCert.addEventListener('mousemove', (e) => {
+        if (!isDrawingCert) return;
+        const rect = canvasCert.getBoundingClientRect();
+        ctxCert.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctxCert.stroke();
+    });
+    canvasCert.addEventListener('mouseup', () => { isDrawingCert = false; });
+    canvasCert.addEventListener('mouseleave', () => { isDrawingCert = false; });
+    canvasCert.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isDrawingCert = true;
+        const rect = canvasCert.getBoundingClientRect();
+        const touch = e.touches[0];
+        ctxCert.beginPath();
+        ctxCert.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    });
+    canvasCert.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isDrawingCert) return;
+        const rect = canvasCert.getBoundingClientRect();
+        const touch = e.touches[0];
+        ctxCert.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        ctxCert.stroke();
+    });
+    canvasCert.addEventListener('touchend', () => { isDrawingCert = false; });
+}
+
+function limpiarFirma() {
+    if (!ctxCert || !canvasCert) return;
+    ctxCert.clearRect(0, 0, canvasCert.width, canvasCert.height);
+    firmaGuardada = null;
+    mostrarToast('✍️ Firma limpiada', 'info');
+}
+
+function capturarFirma() {
+    if (!canvasCert) return;
+    firmaGuardada = canvasCert.toDataURL('image/png');
+    mostrarToast('✅ Firma guardada correctamente', 'success');
+}
+
+function guardarCertificacionArbol() {
+    const solicitanteId = document.getElementById('caSolicitante').value;
+    const inspectorId = document.getElementById('caInspector').value;
+    const direccion = document.getElementById('caDireccion').value.trim();
+    const especie = document.getElementById('caEspecie').value.trim();
+    
+    if (!solicitanteId) { mostrarToast('⚠️ Seleccione el Solicitante', 'warning'); return; }
+    if (!inspectorId) { mostrarToast('⚠️ Seleccione el Inspector', 'warning'); return; }
+    if (!direccion || !especie) { mostrarToast('⚠️ Dirección y especie son obligatorios', 'warning'); return; }
+    
+    const data = {
+        solicitante: {
+            id: solicitanteId,
+            nombre: window._solicitanteNombre || '',
+            apellido: window._solicitanteApellido || '',
+            cedula: document.getElementById('caSolicitanteCedula').value,
+            telefono: document.getElementById('caSolicitanteTelefono').value
+        },
+        inspector: {
+            id: inspectorId,
+            nombre: window._inspectorNombre || '',
+            apellido: window._inspectorApellido || '',
+            jerarquia: document.getElementById('caInspectorJerarquia').value
+        },
+        arbol: {
+            direccion: direccion,
+            especie: especie,
+            altura: parseFloat(document.getElementById('caAltura').value) || 0,
+            diametro: parseFloat(document.getElementById('caDiametro').value) || 0,
+            inclinacion: parseFloat(document.getElementById('caInclinacion').value) || 0,
+            distancia: parseFloat(document.getElementById('caDistancia').value) || 0,
+            riesgo: document.getElementById('caRiesgo').value,
+            estado: document.getElementById('caEstado').value
+        },
+        utm: {
+            este: document.getElementById('caUtmE').value.trim(),
+            norte: document.getElementById('caUtmN').value.trim(),
+            zona: document.getElementById('caUtmZona').value.trim()
+        },
+        observaciones: document.getElementById('caObservaciones').value.trim(),
+        firma: firmaGuardada,
+        fecha: new Date().toISOString(),
+        oficial: auth.currentUser?.email || 'Sistema',
+        fotos: []
+    };
+
+    const foto1 = document.getElementById('caFoto1');
+    const foto2 = document.getElementById('caFoto2');
+    const totalFotos = (foto1.files && foto1.files[0] ? 1 : 0) + (foto2.files && foto2.files[0] ? 1 : 0);
+
+    if (totalFotos === 0) {
+        guardarCertificacionFinal(data);
+        return;
+    }
+
+    async function procesarFotos() {
+        if (foto1.files && foto1.files[0]) {
+            data.fotos.push(await leerFotoBase64(foto1.files[0]));
+        }
+        if (foto2.files && foto2.files[0]) {
+            data.fotos.push(await leerFotoBase64(foto2.files[0]));
+        }
+        guardarCertificacionFinal(data);
+    }
+    procesarFotos();
+}
+
+function guardarCertificacionFinal(data) {
+    certificaciones.push(data);
+    guardarCertificacionesLocales();
+
+    if (navigator.onLine) {
+        db.collection('certificaciones').add(data)
+            .then(() => { mostrarToast('✅ Certificación guardada en la nube', 'success'); })
+            .catch(() => { mostrarToast('⚠️ Guardado localmente (sin conexión)', 'warning'); });
+    } else {
+        mostrarToast('📱 Guardado localmente (sin internet)', 'info');
+    }
+
+    document.getElementById('caSolicitante').value = '';
+    document.getElementById('caSolicitanteCedula').value = '';
+    document.getElementById('caSolicitanteTelefono').value = '';
+    document.getElementById('caInspector').value = '';
+    document.getElementById('caInspectorJerarquia').value = '';
+    document.getElementById('caDireccion').value = '';
+    document.getElementById('caEspecie').value = '';
+    document.getElementById('caAltura').value = '';
+    document.getElementById('caDiametro').value = '';
+    document.getElementById('caInclinacion').value = '';
+    document.getElementById('caDistancia').value = '';
+    document.getElementById('caObservaciones').value = '';
+    document.getElementById('caUtmE').value = '';
+    document.getElementById('caUtmN').value = '';
+    document.getElementById('caUtmZona').value = '';
+    document.getElementById('caFoto1').value = '';
+    document.getElementById('caFoto2').value = '';
+    document.getElementById('caFotosPreview').innerHTML = '';
+    limpiarFirma();
+    cargarCertificaciones();
+}
+
+function guardarCertificacionesLocales() {
+    try { localStorage.setItem('certificaciones', JSON.stringify(certificaciones)); } 
+    catch (e) { console.error('Error guardando certificaciones:', e); }
+}
+
+function cargarCertificaciones() {
+    try {
+        const saved = localStorage.getItem('certificaciones');
+        if (saved) { certificaciones = JSON.parse(saved); }
+    } catch (e) { console.error('Error cargando certificaciones:', e); }
+    renderizarCertificaciones();
+}
+
+function renderizarCertificaciones() {
+    const container = document.getElementById('listaCertificaciones');
+    if (!container) return;
+
+    if (certificaciones.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay certificaciones registradas</p>';
+        return;
+    }
+
+    let html = '<div class="table-responsive"><table class="table table-sm">';
+    html += '<thead><tr><th>Fecha</th><th>Solicitante</th><th>Inspector</th><th>Dirección</th><th>Especie</th><th>Riesgo</th><th>Acciones</th></tr></thead><tbody>';
+
+    certificaciones.slice().reverse().forEach((cert, index) => {
+        const fecha = cert.fecha ? new Date(cert.fecha).toLocaleDateString() : 'N/A';
+        const solicitante = cert.solicitante ? `${cert.solicitante.apellido}, ${cert.solicitante.nombre}` : 'N/A';
+        const inspector = cert.inspector ? `${cert.inspector.apellido}, ${cert.inspector.nombre}` : 'N/A';
+        const riesgoColor = cert.arbol?.riesgo === 'muy_alto' ? 'danger' : cert.arbol?.riesgo === 'alto' ? 'warning' : cert.arbol?.riesgo === 'medio' ? 'info' : 'success';
+
+        html += `<tr>
+            <td>${fecha}</td>
+            <td>${solicitante}</td>
+            <td>${inspector}</td>
+            <td>${cert.arbol?.direccion || ''}</td>
+            <td>${cert.arbol?.especie || ''}</td>
+            <td><span class="badge bg-${riesgoColor}">${cert.arbol?.riesgo || 'N/A'}</span></td>
+            <td>
+                <button class="btn btn-sm btn-primary" onclick="verCertificacion(${index})"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarCertificacion(${index})"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function verCertificacion(index) {
+    const cert = certificaciones[index];
+    if (!cert) return;
+    const solicitante = cert.solicitante ? `${cert.solicitante.nombre} ${cert.solicitante.apellido}` : 'N/A';
+    const inspector = cert.inspector ? `${cert.inspector.nombre} ${cert.inspector.apellido}` : 'N/A';
+    alert(`📋 CERTIFICACIÓN DE ÁRBOL\n\n` +
+          `📌 Solicitante: ${solicitante}\n` +
+          `📄 Cédula: ${cert.solicitante?.cedula || 'N/A'}\n` +
+          `📞 Teléfono: ${cert.solicitante?.telefono || 'N/A'}\n` +
+          `👤 Inspector: ${inspector}\n` +
+          `📋 Jerarquía: ${cert.inspector?.jerarquia || 'N/A'}\n` +
+          `📍 Dirección: ${cert.arbol?.direccion || 'N/A'}\n` +
+          `🌳 Especie: ${cert.arbol?.especie || 'N/A'}\n` +
+          `📏 Altura: ${cert.arbol?.altura || 0}m\n` +
+          `📐 Diámetro: ${cert.arbol?.diametro || 0}m\n` +
+          `📏 Inclinación: ${cert.arbol?.inclinacion || 0}°\n` +
+          `🏠 Dist. vivienda: ${cert.arbol?.distancia || 0}m\n` +
+          `⚠️ Riesgo: ${cert.arbol?.riesgo || 'N/A'}\n` +
+          `📝 Observaciones: ${cert.observaciones || 'N/A'}`);
+}
+
+function eliminarCertificacion(index) {
+    if (!confirm('¿Eliminar esta certificación?')) return;
+    certificaciones.splice(index, 1);
+    guardarCertificacionesLocales();
+    renderizarCertificaciones();
+    mostrarToast('✅ Certificación eliminada', 'success');
+}
+
+function generarPDFCertificacion() {
+    if (certificaciones.length === 0) {
+        mostrarToast('⚠️ No hay certificaciones para generar PDF', 'warning');
+        return;
+    }
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        agregarEncabezadoConLogos(doc, 'CERTIFICACIÓN DE ÁRBOLES', 'Protección Civil - Municipio Papelón');
+
+        const rows = certificaciones.map(cert => [
+            cert.arbol?.direccion || '',
+            cert.arbol?.especie || '',
+            cert.arbol?.altura || '',
+            cert.arbol?.diametro || '',
+            cert.arbol?.inclinacion || '',
+            cert.arbol?.riesgo || '',
+            cert.fecha ? new Date(cert.fecha).toLocaleDateString() : ''
+        ]);
+
+        doc.autoTable({
+            head: [['Dirección', 'Especie', 'Altura', 'Diámetro', 'Inclinación', 'Riesgo', 'Fecha']],
+            body: rows,
+            startY: 45,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [11, 42, 74] }
+        });
+
+        const finalY = doc.lastAutoTable.finalY + 15;
+
+        const ultima = certificaciones[certificaciones.length - 1];
+        if (ultima.solicitante) {
+            doc.setFontSize(10);
+            doc.text(`Solicitante: ${ultima.solicitante.nombre} ${ultima.solicitante.apellido}`, 20, finalY);
+            doc.text(`Cédula: ${ultima.solicitante.cedula || 'N/A'}`, 20, finalY + 6);
+            doc.text(`Teléfono: ${ultima.solicitante.telefono || 'N/A'}`, 20, finalY + 12);
+        }
+        
+        if (ultima.inspector) {
+            doc.text(`Inspector: ${ultima.inspector.nombre} ${ultima.inspector.apellido}`, 120, finalY);
+            doc.text(`Jerarquía: ${ultima.inspector.jerarquia || 'N/A'}`, 120, finalY + 6);
+        }
+
+        doc.text('_________________________', 50, finalY + 25);
+        doc.text('Firma del Inspector', 50, finalY + 33);
+        doc.text('_________________________', 130, finalY + 25);
+        doc.text('Sello de la Institución', 130, finalY + 33);
+        
+        agregarPiePagina(doc, doc.internal.pageSize.height - 15);
+
+        doc.save('certificacion_arboles.pdf');
+        mostrarToast('✅ PDF generado correctamente', 'success');
+
+    } catch (error) {
+        console.error('Error generando PDF:', error);
+        mostrarToast('❌ Error al generar PDF', 'danger');
+    }
+}
+
+// ============================================
 // VIVIENDAS
 // ============================================
-
-let inspeccionesVivienda = [];
-let firmaGuardadaVivienda = null;
 let canvasVivienda, ctxVivienda, isDrawingVivienda = false;
 
 function cargarInspectoresVivienda() {
@@ -3582,7 +3475,6 @@ function cargarInspectoresVivienda() {
 function cargarDatosInspectorVivienda() {
     const select = document.getElementById('ivInspector');
     const selected = select.options[select.selectedIndex];
-    
     if (selected && selected.value) {
         document.getElementById('ivInspectorJerarquia').value = selected.dataset.jerarquia || '';
         window._inspectorViviendaNombre = selected.dataset.nombre || '';
@@ -3604,7 +3496,6 @@ function calcularTotalPersonasVivienda() {
         (parseInt(document.getElementById('ivAdolescentesF').value) || 0) +
         (parseInt(document.getElementById('ivNinosM').value) || 0) +
         (parseInt(document.getElementById('ivNinosF').value) || 0);
-    
     document.getElementById('ivTotalPersonas').value = total;
 }
 
@@ -3628,49 +3519,37 @@ function iniciarFirmaVivienda() {
     ctxVivienda.lineCap = 'round';
     ctxVivienda.lineJoin = 'round';
     
-    canvasVivienda.addEventListener('mousedown', empezarDibujoVivienda);
-    canvasVivienda.addEventListener('mousemove', dibujarVivienda);
-    canvasVivienda.addEventListener('mouseup', terminarDibujoVivienda);
-    canvasVivienda.addEventListener('mouseleave', terminarDibujoVivienda);
-    canvasVivienda.addEventListener('touchstart', empezarDibujoTouchVivienda);
-    canvasVivienda.addEventListener('touchmove', dibujarTouchVivienda);
-    canvasVivienda.addEventListener('touchend', terminarDibujoVivienda);
-}
-
-function empezarDibujoVivienda(e) {
-    isDrawingVivienda = true;
-    const rect = canvasVivienda.getBoundingClientRect();
-    ctxVivienda.beginPath();
-    ctxVivienda.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-}
-
-function dibujarVivienda(e) {
-    if (!isDrawingVivienda) return;
-    const rect = canvasVivienda.getBoundingClientRect();
-    ctxVivienda.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-    ctxVivienda.stroke();
-}
-
-function empezarDibujoTouchVivienda(e) {
-    e.preventDefault();
-    isDrawingVivienda = true;
-    const rect = canvasVivienda.getBoundingClientRect();
-    const touch = e.touches[0];
-    ctxVivienda.beginPath();
-    ctxVivienda.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
-}
-
-function dibujarTouchVivienda(e) {
-    e.preventDefault();
-    if (!isDrawingVivienda) return;
-    const rect = canvasVivienda.getBoundingClientRect();
-    const touch = e.touches[0];
-    ctxVivienda.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-    ctxVivienda.stroke();
-}
-
-function terminarDibujoVivienda(e) {
-    isDrawingVivienda = false;
+    canvasVivienda.addEventListener('mousedown', (e) => {
+        isDrawingVivienda = true;
+        const rect = canvasVivienda.getBoundingClientRect();
+        ctxVivienda.beginPath();
+        ctxVivienda.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    });
+    canvasVivienda.addEventListener('mousemove', (e) => {
+        if (!isDrawingVivienda) return;
+        const rect = canvasVivienda.getBoundingClientRect();
+        ctxVivienda.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctxVivienda.stroke();
+    });
+    canvasVivienda.addEventListener('mouseup', () => { isDrawingVivienda = false; });
+    canvasVivienda.addEventListener('mouseleave', () => { isDrawingVivienda = false; });
+    canvasVivienda.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isDrawingVivienda = true;
+        const rect = canvasVivienda.getBoundingClientRect();
+        const touch = e.touches[0];
+        ctxVivienda.beginPath();
+        ctxVivienda.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    });
+    canvasVivienda.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isDrawingVivienda) return;
+        const rect = canvasVivienda.getBoundingClientRect();
+        const touch = e.touches[0];
+        ctxVivienda.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        ctxVivienda.stroke();
+    });
+    canvasVivienda.addEventListener('touchend', () => { isDrawingVivienda = false; });
 }
 
 function limpiarFirmaVivienda() {
@@ -3686,49 +3565,16 @@ function capturarFirmaVivienda() {
     mostrarToast('✅ Firma guardada correctamente', 'success');
 }
 
-function leerFotoVivienda(file, previewId) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const preview = document.getElementById(previewId);
-        if (!preview) return;
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.style.width = '120px';
-        img.style.height = '90px';
-        img.style.objectFit = 'cover';
-        img.style.borderRadius = '8px';
-        img.style.border = '2px solid #ccc';
-        preview.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-}
-
 function guardarInspeccionVivienda() {
     const responsable = document.getElementById('ivResponsable').value.trim();
     const inspectorId = document.getElementById('ivInspector').value;
     const direccion = document.getElementById('ivDireccion').value.trim();
     const jefeFamilia = document.getElementById('ivJefeFamilia').value.trim();
     
-    if (!responsable) {
-        mostrarToast('⚠️ El nombre del Responsable es obligatorio', 'warning');
-        return;
-    }
-    
-    if (!inspectorId) {
-        mostrarToast('⚠️ Seleccione el Inspector', 'warning');
-        return;
-    }
-    
-    if (!direccion) {
-        mostrarToast('⚠️ La dirección es obligatoria', 'warning');
-        return;
-    }
-    
-    if (!jefeFamilia) {
-        mostrarToast('⚠️ El Jefe de Familia es obligatorio', 'warning');
-        return;
-    }
+    if (!responsable) { mostrarToast('⚠️ El nombre del Responsable es obligatorio', 'warning'); return; }
+    if (!inspectorId) { mostrarToast('⚠️ Seleccione el Inspector', 'warning'); return; }
+    if (!direccion) { mostrarToast('⚠️ La dirección es obligatoria', 'warning'); return; }
+    if (!jefeFamilia) { mostrarToast('⚠️ El Jefe de Familia es obligatorio', 'warning'); return; }
     
     const data = {
         numero: generarNumeroInspeccion(),
@@ -3807,12 +3653,8 @@ function guardarInspeccionVivienda() {
             
             if (navigator.onLine) {
                 db.collection('viviendas').add(data)
-                    .then(() => {
-                        mostrarToast('✅ Inspección guardada en la nube', 'success');
-                    })
-                    .catch(() => {
-                        mostrarToast('⚠️ Guardado localmente (sin conexión)', 'warning');
-                    });
+                    .then(() => { mostrarToast('✅ Inspección guardada en la nube', 'success'); })
+                    .catch(() => { mostrarToast('⚠️ Guardado localmente (sin conexión)', 'warning'); });
             } else {
                 mostrarToast('📱 Guardado localmente (sin internet)', 'info');
             }
@@ -3820,8 +3662,7 @@ function guardarInspeccionVivienda() {
             limpiarFormularioVivienda();
             cargarViviendas();
         })
-        .catch(error => {
-            console.error('Error procesando fotos:', error);
+        .catch(() => {
             mostrarToast('❌ Error al procesar las fotos', 'danger');
         });
 }
@@ -3859,22 +3700,15 @@ function limpiarFormularioVivienda() {
 }
 
 function guardarViviendasLocales() {
-    try {
-        localStorage.setItem('viviendas', JSON.stringify(inspeccionesVivienda));
-    } catch (e) {
-        console.error('Error guardando viviendas:', e);
-    }
+    try { localStorage.setItem('viviendas', JSON.stringify(inspeccionesVivienda)); } 
+    catch (e) { console.error('Error guardando viviendas:', e); }
 }
 
 function cargarViviendas() {
     try {
         const saved = localStorage.getItem('viviendas');
-        if (saved) {
-            inspeccionesVivienda = JSON.parse(saved);
-        }
-    } catch (e) {
-        console.error('Error cargando viviendas:', e);
-    }
+        if (saved) { inspeccionesVivienda = JSON.parse(saved); }
+    } catch (e) { console.error('Error cargando viviendas:', e); }
     renderizarViviendas();
 }
 
@@ -3901,12 +3735,8 @@ function renderizarViviendas() {
             <td>${inspeccion.responsable?.nombre || 'N/A'}</td>
             <td><span class="badge bg-${riesgoColor}">${riesgoTexto[inspeccion.riesgo] || inspeccion.riesgo}</span></td>
             <td>
-                <button class="btn btn-sm btn-primary" onclick="verVivienda(${index})">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="eliminarVivienda(${index})">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <button class="btn btn-sm btn-primary" onclick="verVivienda(${index})"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarVivienda(${index})"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
     });
@@ -3949,10 +3779,8 @@ async function generarPDFVivienda() {
         const doc = new jsPDF('p', 'mm', 'a4');
         const ultima = inspeccionesVivienda[inspeccionesVivienda.length - 1];
 
-        // ===== ENCABEZADO CON LOGOS =====
         await agregarEncabezadoConLogos(doc, 'INSPECCIÓN DE VIVIENDA', 'Protección Civil - Municipio Papelón');
 
-        // ===== MARCO LEGAL =====
         let y = 42;
         doc.setFontSize(8);
         const marcoLegal = `Marco Legal: La Dirección General del Instituto de Protección Civil y Administración de Desastres del Estado Portuguesa (INPRADEP), a través de la Coordinación de Gestión Integral de Riesgo (G.I.R), y en uso de las atribuciones conferidas en el Artículo 55 de la Constitución de la República Bolivariana de Venezuela, en concordancia con el decreto de fuerza de Ley N° 1.557, Artículo 3 Numeral 2 de la Ley de Protección Civil y Administración de Desastres, Artículo 22 Numeral 4 y Artículo 29 de la Ley de Gestión Integral de Riesgo Socio-naturales y Tecnológicas, CERTIFICA, mediante la presente, la realización de una inspección el día ${ultima.fecha || 'N/A'} a las ${ultima.hora || 'N/A'} HLV.`;
@@ -3960,7 +3788,6 @@ async function generarPDFVivienda() {
         doc.text(splitMarcoLegal, 15, y);
         y += splitMarcoLegal.length * 5 + 5;
 
-        // ===== DATOS PRINCIPALES =====
         doc.setFontSize(10);
         doc.text(`DIRECCIÓN: ${ultima.ubicacion?.direccion || 'N/A'}`, 15, y);
         y += 6;
@@ -3969,7 +3796,6 @@ async function generarPDFVivienda() {
         doc.text(`RESPONSABLE: ${ultima.responsable?.nombre || 'N/A'}    C.I: ${ultima.responsable?.cedula || 'N/A'}    TLF: ${ultima.responsable?.telefono || 'N/A'}`, 15, y);
         y += 8;
 
-        // ===== CARACTERÍSTICAS DE LA ESTRUCTURA =====
         doc.setFontSize(10);
         doc.text('CARACTERÍSTICAS DE LA ESTRUCTURA:', 15, y);
         y += 5;
@@ -4021,12 +3847,10 @@ async function generarPDFVivienda() {
         doc.text(`COORDENADAS UTM: ${ultima.utm?.este || 'N/A'}E ${ultima.utm?.norte || 'N/A'}N ${ultima.utm?.zona || 'N/A'}`, 15, y);
         y += 6;
 
-        // ===== RIESGO =====
         const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
         doc.text(`CLASIFICACIÓN DEL RIESGO: ${riesgoTexto[ultima.riesgo] || ultima.riesgo || 'N/A'}`, 15, y);
         y += 6;
 
-        // ===== FAMILIAS =====
         doc.text(`FAMILIAS BENEFICIADAS: 01`, 15, y);
         y += 5;
         doc.text(`Jefe de Familia: ${ultima.familias?.jefe || 'N/A'}    C.I: ${ultima.familias?.jefeCI || 'N/A'}`, 15, y);
@@ -4040,7 +3864,6 @@ async function generarPDFVivienda() {
         doc.text(`TOTAL PERSONAS BENEFICIADAS: ${ultima.familias?.total || 0}`, 15, y);
         y += 6;
 
-        // ===== RECOMENDACIONES =====
         if (ultima.recomendaciones) {
             doc.text('RECOMENDACIONES:', 15, y);
             y += 5;
@@ -4049,19 +3872,16 @@ async function generarPDFVivienda() {
             y += splitRec.length * 5 + 3;
         }
 
-        // ===== INSPECTOR =====
         doc.text(`INSPECTOR: ${ultima.inspector?.nombre || 'N/A'} ${ultima.inspector?.apellido || ''}`, 15, y);
         y += 5;
         doc.text(`JERARQUÍA: ${ultima.inspector?.jerarquia || 'N/A'}`, 15, y);
         y += 8;
 
-        // ===== FIRMAS =====
         doc.text('_________________________', 50, y);
         doc.text('Firma del Inspector', 50, y + 6);
         doc.text('_________________________', 130, y);
         doc.text('Sello de la Institución', 130, y + 6);
         
-        // ===== PIE DE PÁGINA =====
         agregarPiePagina(doc, doc.internal.pageSize.height - 15);
 
         doc.save(`inspeccion_vivienda_${ultima.numero || 'N/A'}.pdf`);
@@ -4074,9 +3894,8 @@ async function generarPDFVivienda() {
 }
 
 // ============================================
-// ALERTAS TEMPRANAS
+// ALERTAS
 // ============================================
-
 function crearAlerta() {
     const ubicacion = document.getElementById('alUbicacion').value.trim();
     const descripcion = document.getElementById('alDescripcion').value.trim();
@@ -4116,7 +3935,6 @@ function cargarAlertas() {
 // ============================================
 // CIERRES
 // ============================================
-
 function generarCierre() {
     const tipo = document.getElementById('cierreTipo').value;
     const mesInput = document.getElementById('cierreMes').value;
@@ -4141,7 +3959,8 @@ function generarCierre() {
             edan: edan.size,
             certificaciones: certificaciones.size,
             alertas: alertas.size,
-            vehiculos: vehiculos.size        };
+            vehiculos: vehiculos.size
+        };
         return db.collection('cierres').add(resumen);
     }).then(() => {
         mostrarToast('✅ Cierre generado correctamente', 'success');
@@ -4170,9 +3989,6 @@ function cargarHistorialCierres() {
 // ============================================
 // PARTES
 // ============================================
-
-let actividadesParte = [];
-
 function agregarActividadParte() {
     const descripcion = document.getElementById('paDescripcion').value.trim();
     if (!descripcion) { mostrarToast('⚠️ Describa la actividad', 'warning'); return; }
@@ -4263,9 +4079,8 @@ function enviarParteWhatsApp() {
 }
 
 // ============================================
-// USUARIOS (Solo Comandante)
+// USUARIOS
 // ============================================
-
 function crearUsuario() {
     if (usuarioActual.rol !== 'comandante') {
         mostrarToast('❌ Solo el 1er Comandante puede crear usuarios', 'danger');
@@ -4316,7 +4131,6 @@ function cargarUsuarios() {
 // ============================================
 // INICIALIZACIÓN
 // ============================================
-
 document.addEventListener('DOMContentLoaded', () => {
     const fecha = new Date().toISOString().split('T')[0];
     document.getElementById('parteFecha').value = fecha;
@@ -4325,7 +4139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ivNumero').value = generarNumeroInspeccion();
     cargarDatos();
     setInterval(verificarAlertas72h, 300000);
-    iniciarFirma();
+    iniciarFirmaCert();
     iniciarFirmaVivienda();
 });
 
