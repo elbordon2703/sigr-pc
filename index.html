@@ -2865,6 +2865,9 @@ function cargarEDAN() {
         });
 }
 
+// ============================================
+// VER EDAN - CORREGIDO
+// ============================================
 function verEDAN(id) {
     db.collection('edan').doc(id).get()
         .then(doc => {
@@ -2877,11 +2880,16 @@ function verEDAN(id) {
             const totales = data.totales || {};
             const necesidades = data.necesidades || {};
             
-            let msg = '📋 EDAN\n\n';
+            // Obtener nombre completo del oficial
+            const oficialNombre = data.oficialNombre || 'N/A';
+            const oficialJerarquia = data.oficialJerarquia || '';
+            const oficialMostrar = oficialJerarquia ? `${oficialJerarquia} ${oficialNombre}` : oficialNombre;
+            
+            let msg = '📋 EDAN\n';
+            msg += '═'.repeat(30) + '\n\n';
             msg += `📅 Fecha: ${data.fecha || 'N/A'}\n`;
             msg += `🕐 Hora: ${data.hora || 'N/A'}\n`;
-            msg += `👤 Oficial: ${data.oficialNombre || 'N/A'}\n`;
-            msg += `📋 Jerarquía: ${data.oficialJerarquia || 'N/A'}\n`;
+            msg += `👤 Oficial: ${oficialMostrar}\n`;
             msg += `🌪️ Evento: ${data.evento || 'N/A'}\n`;
             msg += `🏘️ Población: ${data.poblacion || 'N/A'}\n`;
             msg += `📍 Sector: ${data.sector || 'N/A'}\n`;
@@ -2907,9 +2915,18 @@ function verEDAN(id) {
                 msg += `\n📝 Observaciones: ${data.observacion}\n`;
             }
             
+            // Mostrar las familias
+            if (familias.length > 0 && familias.length <= 5) {
+                msg += `\n👨‍👩‍👧‍👦 LISTA DE FAMILIAS:\n`;
+                familias.forEach((f, i) => {
+                    msg += `   ${i+1}. ${f.responsable} (${f.cedula}) - ${f.totalPersonas || 0} personas\n`;
+                });
+            }
+            
             alert(msg);
         })
-        .catch(() => {
+        .catch(error => {
+            console.error('Error:', error);
             mostrarToast('❌ Error al cargar el registro', 'danger');
         });
 }
