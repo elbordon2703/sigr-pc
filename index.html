@@ -3014,9 +3014,10 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         let y = 42;
         doc.setFontSize(9);
         
+        // DATOS DEL OFICIAL
         const oficialNombre = datosGenerales?.oficialNombre || 'N/A';
         const oficialJerarquia = datosGenerales?.oficialJerarquia || '';
-        const oficialCompleto = oficialJerarquia ? `${oficialJerarquia}. ${oficialNombre}` : oficialNombre;
+        const nombreMostrar = oficialJerarquia ? `${oficialJerarquia}. ${oficialNombre}` : oficialNombre;
         
         const fecha = datosGenerales?.fecha || 'N/A';
         const hora = datosGenerales?.hora || 'N/A';
@@ -3032,7 +3033,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         doc.text(`FECHA: ${fecha}`, 20, y);
         doc.text(`HORA: ${hora}`, 120, y);
         y += 6;
-        doc.text(`ELABORADO POR: ${oficialCompleto}`, 20, y);
+        doc.text(`ELABORADO POR: ${nombreMostrar}`, 20, y);
         y += 6;
         doc.text(`EVENTO: ${evento}`, 20, y);
         y += 6;
@@ -3046,8 +3047,9 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
             doc.text(`UTM: ${utmE}E ${utmN}N ${utmZona}`, 20, y);
             y += 6;
         }
-        y += 2;
+        y += 4;
         
+        // TABLA DE FAMILIAS
         const headers = [
             ['N°', 'Nombre', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 
              'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 
@@ -3104,6 +3106,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         
         let finalY = doc.lastAutoTable.finalY + 10;
         
+        // TOTALES DE PERSONAS
         const totales = datosGenerales?.totales || edanCalcularTotales();
         doc.setFontSize(9);
         doc.text('TOTALES DE PERSONAS:', 20, finalY);
@@ -3118,6 +3121,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         doc.text(`TOTAL PERSONAS: ${totales.totalPersonas || 0}`, 100, finalY);
         finalY += 8;
         
+        // NECESIDADES
         const necesidades = datosGenerales?.necesidades || edanCalcularNecesidades();
         doc.text('NECESIDADES Y PERDIDAS:', 20, finalY);
         finalY += 5;
@@ -3128,6 +3132,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         doc.text(`Otros: ${necesidades.otros || 0}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}`, 25, finalY);
         finalY += 8;
         
+        // OBSERVACIONES
         const obs = datosGenerales?.observacion || '';
         if (obs) {
             doc.text('OBSERVACIONES:', 20, finalY);
@@ -3137,11 +3142,49 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
             finalY += splitObs.length * 5 + 5;
         }
         
-        doc.text('_________________________', 50, finalY + 10);
-        doc.text('Firma del Oficial', 50, finalY + 18);
-        doc.text('_________________________', 130, finalY + 10);
-        doc.text('Sello de la Institución', 130, finalY + 18);
+        // ===== FIRMA Y SELLO - CORREGIDO =====
+        try {
+            // FIRMA
+            if (datosGenerales?.firma) {
+                try {
+                    doc.addImage(datosGenerales.firma, 'PNG', 30, finalY - 8, 60, 20);
+                    doc.setFontSize(8);
+                    doc.text('Firma del Oficial', 55, finalY + 20);
+                } catch (e) {
+                    doc.text('_________________________', 50, finalY + 5);
+                    doc.text('Firma del Oficial', 55, finalY + 13);
+                }
+            } else {
+                doc.text('_________________________', 50, finalY + 5);
+                doc.text('Firma del Oficial', 55, finalY + 13);
+            }
+        } catch (e) {
+            doc.text('_________________________', 50, finalY + 5);
+            doc.text('Firma del Oficial', 55, finalY + 13);
+        }
+
+        try {
+            // SELLO - Usar edanSello o datosGenerales.sello
+            const selloData = edanSello || datosGenerales?.sello || null;
+            if (selloData) {
+                try {
+                    doc.addImage(selloData, 'PNG', 120, finalY - 8, 50, 20);
+                    doc.setFontSize(8);
+                    doc.text('Sello de la Institución', 135, finalY + 20);
+                } catch (e) {
+                    doc.text('_________________________', 130, finalY + 5);
+                    doc.text('Sello de la Institución', 135, finalY + 13);
+                }
+            } else {
+                doc.text('_________________________', 130, finalY + 5);
+                doc.text('Sello de la Institución', 135, finalY + 13);
+            }
+        } catch (e) {
+            doc.text('_________________________', 130, finalY + 5);
+            doc.text('Sello de la Institución', 135, finalY + 13);
+        }
         
+        // PIE DE PÁGINA
         agregarPiePagina(doc, doc.internal.pageSize.height - 15);
         
         const nombreArchivo = `EDAN_${fecha.replace(/\//g, '-')}_${poblacion}.pdf`;
@@ -3150,7 +3193,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         
     } catch (error) {
         console.error('Error generando PDF:', error);
-        mostrarToast('❌ Error al generar PDF', 'danger');
+        mostrarToast('❌ Error al generar PDF: ' + error.message, 'danger');
     }
 }
 
