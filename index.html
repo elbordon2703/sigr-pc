@@ -3432,6 +3432,87 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         doc.text(`CALLE: ${calle}`, 100, y);
         y += 8;
         
+        // ===== TABLA DE FAMILIAS - CORREGIDO =====
+        // Normalizar los datos de las familias para que tengan la misma estructura
+        const familiasNormalizadas = familias.map(f => {
+            // Si la familia ya tiene la estructura correcta (adultos.m, adultos.f, etc.)
+            if (f.adultos && typeof f.adultos === 'object') {
+                return {
+                    responsable: f.responsable || '',
+                    cedula: f.cedula || '',
+                    adultosM: f.adultos.m || 0,
+                    adultosF: f.adultos.f || 0,
+                    adultosMayoresM: f.adultosMayores?.m || 0,
+                    adultosMayoresF: f.adultosMayores?.f || 0,
+                    adolescentesM: f.adolescentes?.m || 0,
+                    adolescentesF: f.adolescentes?.f || 0,
+                    ninosM: f.ninos?.m || 0,
+                    ninosF: f.ninos?.f || 0,
+                    lactantesM: f.lactantes?.m || 0,
+                    lactantesF: f.lactantes?.f || 0,
+                    tipoVivienda: f.tipoVivienda || 'B',
+                    material: f.material || 'N/A',
+                    habitable: f.habitable ? 'Sí' : 'No',
+                    destruida: f.destruida ? 'Sí' : 'No',
+                    condicion: f.condicion || '',
+                    alimentos: f.alimentos || 0,
+                    colchon: f.colchon || 0,
+                    electrodomesticos: f.electrodomesticos || 0,
+                    otros: f.otros || 0,
+                    otrosDesc: f.otrosDesc || ''
+                };
+            }
+            // Si la familia tiene la estructura antigua (adultosM, adultosF, etc.)
+            return {
+                responsable: f.responsable || '',
+                cedula: f.cedula || '',
+                adultosM: f.adultosM || 0,
+                adultosF: f.adultosF || 0,
+                adultosMayoresM: f.adultosMayoresM || 0,
+                adultosMayoresF: f.adultosMayoresF || 0,
+                adolescentesM: f.adolescentesM || 0,
+                adolescentesF: f.adolescentesF || 0,
+                ninosM: f.ninosM || 0,
+                ninosF: f.ninosF || 0,
+                lactantesM: f.lactantesM || 0,
+                lactantesF: f.lactantesF || 0,
+                tipoVivienda: f.tipoVivienda || 'B',
+                material: f.material || 'N/A',
+                habitable: f.habitable ? 'Sí' : 'No',
+                destruida: f.destruida ? 'Sí' : 'No',
+                condicion: f.condicion || '',
+                alimentos: f.alimentos || 0,
+                colchon: f.colchon || 0,
+                electrodomesticos: f.electrodomesticos || 0,
+                otros: f.otros || 0,
+                otrosDesc: f.otrosDesc || ''
+            };
+        });
+        
+        // Calcular totales
+        let totalAdultosM = 0, totalAdultosF = 0;
+        let totalAdultosMayoresM = 0, totalAdultosMayoresF = 0;
+        let totalAdolescentesM = 0, totalAdolescentesF = 0;
+        let totalNinosM = 0, totalNinosF = 0;
+        let totalLactantesM = 0, totalLactantesF = 0;
+        let totalPersonas = 0;
+        
+        familiasNormalizadas.forEach(f => {
+            totalAdultosM += f.adultosM;
+            totalAdultosF += f.adultosF;
+            totalAdultosMayoresM += f.adultosMayoresM;
+            totalAdultosMayoresF += f.adultosMayoresF;
+            totalAdolescentesM += f.adolescentesM;
+            totalAdolescentesF += f.adolescentesF;
+            totalNinosM += f.ninosM;
+            totalNinosF += f.ninosF;
+            totalLactantesM += f.lactantesM;
+            totalLactantesF += f.lactantesF;
+        });
+        totalPersonas = totalAdultosM + totalAdultosF + totalAdultosMayoresM + totalAdultosMayoresF + 
+                       totalAdolescentesM + totalAdolescentesF + totalNinosM + totalNinosF + 
+                       totalLactantesM + totalLactantesF;
+        
         // ===== TABLA DE FAMILIAS =====
         const headers = [
             ['N°', 'Nombre', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 
@@ -3439,24 +3520,24 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
              'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Material', 'Hab', 'Dest']
         ];
         
-        const rows = familias.map((f, i) => [
+        const rows = familiasNormalizadas.map((f, i) => [
             (i+1).toString(),
             f.responsable || '',
             f.cedula || '',
-            (f.adultos?.m || 0).toString(),
-            (f.adultos?.f || 0).toString(),
-            (f.adultosMayores?.m || 0).toString(),
-            (f.adultosMayores?.f || 0).toString(),
-            (f.adolescentes?.m || 0).toString(),
-            (f.adolescentes?.f || 0).toString(),
-            (f.ninos?.m || 0).toString(),
-            (f.ninos?.f || 0).toString(),
-            (f.lactantes?.m || 0).toString(),
-            (f.lactantes?.f || 0).toString(),
+            f.adultosM.toString(),
+            f.adultosF.toString(),
+            f.adultosMayoresM.toString(),
+            f.adultosMayoresF.toString(),
+            f.adolescentesM.toString(),
+            f.adolescentesF.toString(),
+            f.ninosM.toString(),
+            f.ninosF.toString(),
+            f.lactantesM.toString(),
+            f.lactantesF.toString(),
             f.tipoVivienda || 'B',
             f.material || 'N/A',
-            f.habitable ? 'Sí' : 'No',
-            f.destruida ? 'Sí' : 'No'
+            f.habitable || 'No',
+            f.destruida || 'No'
         ]);
         
         doc.autoTable({
@@ -3489,9 +3570,28 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         
         let finalY = doc.lastAutoTable.finalY + 10;
         
+        // ===== FILA DE TOTALES =====
+        doc.setFontSize(8);
+        doc.text('TOTALES:', 20, finalY);
+        finalY += 5;
+        doc.text(`Adultos M: ${totalAdultosM}`, 25, finalY);
+        doc.text(`Adultos F: ${totalAdultosF}`, 65, finalY);
+        doc.text(`Adultos Mayores M: ${totalAdultosMayoresM}`, 105, finalY);
+        doc.text(`Adultos Mayores F: ${totalAdultosMayoresF}`, 150, finalY);
+        finalY += 5;
+        doc.text(`Adolescentes M: ${totalAdolescentesM}`, 25, finalY);
+        doc.text(`Adolescentes F: ${totalAdolescentesF}`, 65, finalY);
+        doc.text(`Niños M: ${totalNinosM}`, 105, finalY);
+        doc.text(`Niños F: ${totalNinosF}`, 150, finalY);
+        finalY += 5;
+        doc.text(`Lactantes M: ${totalLactantesM}`, 25, finalY);
+        doc.text(`Lactantes F: ${totalLactantesF}`, 65, finalY);
+        doc.text(`TOTAL PERSONAS: ${totalPersonas}`, 105, finalY);
+        finalY += 8;
+        
         // ===== CONDICIÓN DE LA VIVIENDA =====
-        if (familias.length === 1) {
-            const f = familias[0];
+        if (familiasNormalizadas.length === 1) {
+            const f = familiasNormalizadas[0];
             if (f.condicion) {
                 doc.setFontSize(9);
                 doc.text('CONDICIÓN DE LA VIVIENDA:', 20, finalY);
@@ -3503,16 +3603,26 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         }
         
         // ===== NECESIDADES TOTALES =====
-        const necesidades = edanCalcularNecesidades();
+        let totalAlimentos = 0, totalColchon = 0, totalElectrodomesticos = 0, totalOtros = 0;
+        let otrosDescList = [];
+        
+        familiasNormalizadas.forEach(f => {
+            totalAlimentos += f.alimentos || 0;
+            totalColchon += f.colchon || 0;
+            totalElectrodomesticos += f.electrodomesticos || 0;
+            totalOtros += f.otros || 0;
+            if (f.otrosDesc) otrosDescList.push(f.otrosDesc);
+        });
+        const otrosDesc = [...new Set(otrosDescList)].join(', ');
         
         doc.setFontSize(9);
         doc.text('NECESIDADES Y PERDIDAS TOTALES:', 20, finalY);
         finalY += 5;
-        doc.text(`Alimentos: ${necesidades.alimentos}`, 25, finalY);
-        doc.text(`Colchones: ${necesidades.colchon}`, 75, finalY);
-        doc.text(`Electrodomesticos: ${necesidades.electrodomesticos}`, 130, finalY);
+        doc.text(`Alimentos: ${totalAlimentos}`, 25, finalY);
+        doc.text(`Colchones: ${totalColchon}`, 75, finalY);
+        doc.text(`Electrodomesticos: ${totalElectrodomesticos}`, 130, finalY);
         finalY += 5;
-        doc.text(`Otros: ${necesidades.otros}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}`, 25, finalY);
+        doc.text(`Otros: ${totalOtros}${otrosDesc ? ` (${otrosDesc})` : ''}`, 25, finalY);
         finalY += 8;
         
         // ===== OBSERVACIONES =====
@@ -3539,7 +3649,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         
     } catch (error) {
         console.error('Error generando PDF:', error);
-        mostrarToast('❌ Error al generar PDF', 'danger');
+        mostrarToast('❌ Error al generar PDF: ' + error.message, 'danger');
     }
 }
 
