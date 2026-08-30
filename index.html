@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0b2a4a">
-    <link rel="manifest" href="manifest.json">
     <title>SIGR-PC</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -2187,13 +2186,15 @@ async function agregarEncabezadoConLogos(doc, titulo, subtitulo) {
 }
 
 // ============================================
-// EDAN - COMPLETO
+// EDAN
 // ============================================
 function initEDAN() {
     console.log('📋 Inicializando EDAN...');
     
+    // Cargar sello
     cargarSelloInstitucional();
     
+    // Cargar oficiales
     const select = document.getElementById('edanOficial');
     if (select) {
         db.collection('personal')
@@ -2271,6 +2272,7 @@ function cargarSelloInstitucional() {
         const img = new Image();
         img.crossOrigin = 'Anonymous';
         img.src = 'https://elbordon2703.github.io/sigr-pc/SELLO.png';
+        
         img.onload = function() {
             try {
                 const canvas = document.createElement('canvas');
@@ -2279,39 +2281,51 @@ function cargarSelloInstitucional() {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
                 edanSello = canvas.toDataURL('image/png');
+                
                 const selloImg = document.getElementById('edanSelloImg');
                 const selloPlaceholder = document.getElementById('edanSelloPlaceholder');
                 if (selloImg && selloPlaceholder) {
                     selloImg.src = edanSello;
                     selloImg.style.display = 'block';
+                    selloImg.style.maxWidth = '150px';
+                    selloImg.style.maxHeight = '120px';
                     selloPlaceholder.style.display = 'none';
                 }
-            } catch (e) { console.warn('Error al cargar sello:', e); }
+                console.log('✅ Sello cargado correctamente');
+            } catch (e) {
+                console.warn('Error al procesar sello:', e);
+                mostrarSelloFallback();
+            }
         };
+        
         img.onerror = function() {
-            const img2 = new Image();
-            img2.crossOrigin = 'Anonymous';
-            img2.src = 'https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png';
-            img2.onload = function() {
-                try {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img2.width;
-                    canvas.height = img2.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img2, 0, 0);
-                    edanSello = canvas.toDataURL('image/png');
-                    const selloImg = document.getElementById('edanSelloImg');
-                    const selloPlaceholder = document.getElementById('edanSelloPlaceholder');
-                    if (selloImg && selloPlaceholder) {
-                        selloImg.src = edanSello;
-                        selloImg.style.display = 'block';
-                        selloPlaceholder.style.display = 'none';
-                    }
-                } catch (e) { console.warn('Error al cargar sello:', e); }
-            };
-            img2.onerror = function() { console.warn('No se pudo cargar el sello'); };
+            console.warn('❌ No se pudo cargar SELLO.png');
+            mostrarSelloFallback();
         };
-    } catch (e) { console.warn('Error al cargar sello:', e); }
+        
+        setTimeout(() => {
+            if (!edanSello) {
+                console.warn('⏰ Timeout cargando sello');
+                mostrarSelloFallback();
+            }
+        }, 5000);
+        
+    } catch (e) {
+        console.warn('Error al cargar sello:', e);
+        mostrarSelloFallback();
+    }
+}
+
+function mostrarSelloFallback() {
+    const selloPlaceholder = document.getElementById('edanSelloPlaceholder');
+    if (selloPlaceholder) {
+        selloPlaceholder.textContent = '🏛️ Sello no disponible';
+        selloPlaceholder.style.display = 'block';
+    }
+    const selloImg = document.getElementById('edanSelloImg');
+    if (selloImg) {
+        selloImg.style.display = 'none';
+    }
 }
 
 function previewFotoEDAN(file, previewId) {
@@ -2729,12 +2743,15 @@ function guardarEDAN() {
     const select = document.getElementById('edanOficial');
     const selectedOption = select.options[select.selectedIndex];
     const oficialNombre = selectedOption ? selectedOption.text : 'N/A';
+    const oficialJerarquia = oficialNombre.includes(' - ') ? oficialNombre.split(' - ')[1] : '';
+    const oficialNombreCompleto = oficialNombre.includes(' - ') ? oficialNombre.split(' - ')[0] : oficialNombre;
     
     const data = {
         fecha: fecha || new Date().toISOString().split('T')[0],
         hora: hora || new Date().toTimeString().slice(0, 5),
-        oficial: oficialId,
-        oficialNombre: oficialNombre,
+        oficialId: oficialId,
+        oficialNombre: oficialNombreCompleto,
+        oficialJerarquia: oficialJerarquia,
         evento: evento,
         municipio: municipio || 'Papelón',
         poblacion: poblacion,
@@ -2754,9 +2771,11 @@ function guardarEDAN() {
     db.collection('edan').add(data)
         .then(() => {
             mostrarToast('✅ EDAN registrado correctamente', 'success');
+            
             edanFamilias = [];
             edanContadorFamilias = 0;
             edanActualizarLista();
+            
             document.getElementById('edanEvento').value = '';
             document.getElementById('edanPoblacion').value = '';
             document.getElementById('edanSector').value = '';
@@ -2767,6 +2786,7 @@ function guardarEDAN() {
             document.getElementById('edanObservacion').value = '';
             document.getElementById('edanOficial').value = '';
             edanFirmaSeleccionada = null;
+            
             const firmaImg = document.getElementById('edanFirmaImg');
             const placeholder = document.getElementById('edanFirmaPlaceholder');
             if (firmaImg && placeholder) {
@@ -2774,9 +2794,12 @@ function guardarEDAN() {
                 placeholder.style.display = 'block';
                 placeholder.textContent = 'Seleccione un oficial para cargar su firma';
             }
+            
             cargarEDAN();
+            cargarDashboard();
         })
         .catch(error => {
+            console.error('❌ Error guardando:', error);
             mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
@@ -2787,46 +2810,59 @@ function cargarEDAN() {
 
     db.collection('edan')
         .orderBy('fechaRegistro', 'desc')
-        .limit(20)
+        .limit(50)
         .get()
         .then(snap => {
             if (snap.empty) {
-                container.innerHTML = '<p class="text-muted">No hay registros EDAN</p>';
+                container.innerHTML = '<p class="text-muted">No hay registros EDAN. Cree su primer registro.</p>';
                 return;
             }
             
             let html = '<div class="table-responsive"><table class="table table-sm">';
-            html += '<thead><tr><th>Fecha</th><th>Evento</th><th>Oficial</th><th>Familias</th><th>Total Personas</th><th>Acciones</th></tr></thead><tbody>';
+            html += '<thead><tr>';
+            html += '<th>Fecha</th>';
+            html += '<th>Evento</th>';
+            html += '<th>Oficial</th>';
+            html += '<th>Familias</th>';
+            html += '<th>Total Personas</th>';
+            html += '<th>Acciones</th>';
+            html += '</tr></thead><tbody>';
             
             snap.forEach(doc => {
                 const data = doc.data();
                 const fecha = data.fecha || 'N/A';
-                let totalPersonas = 0;
-                if (data.totales) {
-                    totalPersonas = data.totales.totalPersonas || 0;
-                }
+                const oficialNombre = data.oficialNombre || data.oficialId || 'N/A';
+                const familiasCount = data.familias?.length || 0;
+                const totalPersonas = data.totales?.totalPersonas || 0;
                 
                 html += `<tr>
                     <td>${fecha}</td>
                     <td>${data.evento || 'N/A'}</td>
-                    <td>${data.oficialNombre || 'N/A'}</td>
-                    <td>${data.familias?.length || 0}</td>
-                    <td>${totalPersonas}</td>
+                    <td>${oficialNombre}</td>
+                    <td>${familiasCount}</td>
+                    <td><strong>${totalPersonas}</strong></td>
                     <td>
-                        <button class="btn btn-sm btn-primary" onclick="verEDAN('${doc.id}')">
+                        <button class="btn btn-sm btn-primary" onclick="verEDAN('${doc.id}')" title="Ver detalles">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="eliminarEDAN('${doc.id}')">
+                        <button class="btn btn-sm btn-danger" onclick="eliminarEDAN('${doc.id}')" title="Eliminar">
                             <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn btn-sm btn-success" onclick="generarPDFDesdeID('${doc.id}')" title="Generar PDF">
+                            <i class="fas fa-file-pdf"></i>
                         </button>
                     </td>
                 </tr>`;
             });
             
             html += '</tbody></table></div>';
+            html += `<div class="text-muted small">Mostrando ${snap.size} registros</div>`;
             container.innerHTML = html;
         })
-        .catch(() => {});
+        .catch(error => {
+            console.error('❌ Error cargando EDAN:', error);
+            container.innerHTML = '<p class="text-danger">Error al cargar los registros</p>';
+        });
 }
 
 function verEDAN(id) {
@@ -2838,10 +2874,14 @@ function verEDAN(id) {
             }
             const data = doc.data();
             const familias = data.familias || [];
+            const totales = data.totales || {};
+            const necesidades = data.necesidades || {};
+            
             let msg = '📋 EDAN\n\n';
             msg += `📅 Fecha: ${data.fecha || 'N/A'}\n`;
             msg += `🕐 Hora: ${data.hora || 'N/A'}\n`;
             msg += `👤 Oficial: ${data.oficialNombre || 'N/A'}\n`;
+            msg += `📋 Jerarquía: ${data.oficialJerarquia || 'N/A'}\n`;
             msg += `🌪️ Evento: ${data.evento || 'N/A'}\n`;
             msg += `🏘️ Población: ${data.poblacion || 'N/A'}\n`;
             msg += `📍 Sector: ${data.sector || 'N/A'}\n`;
@@ -2850,30 +2890,68 @@ function verEDAN(id) {
                 msg += `📍 UTM: ${data.utm.este || ''}E ${data.utm.norte || ''}N ${data.utm.zona || ''}\n`;
             }
             msg += `\n👨‍👩‍👧‍👦 Familias: ${familias.length}\n`;
-            msg += `👤 Total Personas: ${data.totales?.totalPersonas || 0}\n`;
+            msg += `👤 Total Personas: ${totales.totalPersonas || 0}\n`;
+            msg += `\n📊 DESGLOSE DE PERSONAS:\n`;
+            msg += `   Adultos: ${totales.adultos?.m || 0}M / ${totales.adultos?.f || 0}F\n`;
+            msg += `   Adultos Mayores: ${totales.adultosMayores?.m || 0}M / ${totales.adultosMayores?.f || 0}F\n`;
+            msg += `   Adolescentes: ${totales.adolescentes?.m || 0}M / ${totales.adolescentes?.f || 0}F\n`;
+            msg += `   Niños: ${totales.ninos?.m || 0}M / ${totales.ninos?.f || 0}F\n`;
+            msg += `   Lactantes: ${totales.lactantes?.m || 0}M / ${totales.lactantes?.f || 0}F\n`;
+            msg += `\n📦 NECESIDADES:\n`;
+            msg += `   Alimentos: ${necesidades.alimentos || 0}\n`;
+            msg += `   Colchones: ${necesidades.colchon || 0}\n`;
+            msg += `   Electrodomésticos: ${necesidades.electrodomesticos || 0}\n`;
+            msg += `   Otros: ${necesidades.otros || 0}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}\n`;
+            
             if (data.observacion) {
                 msg += `\n📝 Observaciones: ${data.observacion}\n`;
             }
+            
             alert(msg);
         })
-        .catch(() => {});
+        .catch(() => {
+            mostrarToast('❌ Error al cargar el registro', 'danger');
+        });
 }
 
 function eliminarEDAN(id) {
-    if (!confirm('¿Eliminar este registro EDAN?')) return;
+    if (!confirm('¿Eliminar este registro EDAN permanentemente?')) return;
+    
     db.collection('edan').doc(id).delete()
         .then(() => {
-            mostrarToast('✅ EDAN eliminado', 'success');
+            mostrarToast('✅ EDAN eliminado correctamente', 'success');
             cargarEDAN();
         })
         .catch(error => {
+            console.error('❌ Error eliminando:', error);
             mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
 
-// ============================================
-// GENERAR PDF EDAN
-// ============================================
+async function generarPDFDesdeID(id) {
+    try {
+        mostrarToast('📊 Generando PDF...', 'info');
+        const doc = await db.collection('edan').doc(id).get();
+        
+        if (!doc.exists) {
+            mostrarToast('⚠️ Registro no encontrado', 'warning');
+            return;
+        }
+        
+        const data = doc.data();
+        if (!data.familias || data.familias.length === 0) {
+            mostrarToast('⚠️ El EDAN no tiene familias registradas', 'warning');
+            return;
+        }
+        
+        await generarPDFDesdeDatos(data.familias, data);
+        
+    } catch (error) {
+        console.error('Error generando PDF:', error);
+        mostrarToast('❌ Error al generar PDF', 'danger');
+    }
+}
+
 async function generarPDFEDAN() {
     if (edanFamilias.length > 0) {
         generarPDFDesdeDatos(edanFamilias);
@@ -2919,38 +2997,25 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         let y = 42;
         doc.setFontSize(9);
         
-        let oficialNombre = 'N/A';
-        if (datosGenerales?.oficialNombre) {
-            const partes = datosGenerales.oficialNombre.split(' - ');
-            if (partes.length === 2) {
-                const nombreCompleto = partes[0];
-                const jerarquia = partes[1];
-                const nombreArr = nombreCompleto.split(', ');
-                if (nombreArr.length === 2) {
-                    oficialNombre = `${jerarquia}. ${nombreArr[0].toUpperCase()} ${nombreArr[1].toUpperCase()}`;
-                } else {
-                    oficialNombre = `${jerarquia}. ${nombreCompleto.toUpperCase()}`;
-                }
-            } else {
-                oficialNombre = datosGenerales.oficialNombre.toUpperCase();
-            }
-        }
+        const oficialNombre = datosGenerales?.oficialNombre || 'N/A';
+        const oficialJerarquia = datosGenerales?.oficialJerarquia || '';
+        const oficialCompleto = oficialJerarquia ? `${oficialJerarquia}. ${oficialNombre}` : oficialNombre;
         
-        const fecha = datosGenerales?.fecha || document.getElementById('edanFecha')?.value || 'N/A';
-        const hora = datosGenerales?.hora || document.getElementById('edanHora')?.value || 'N/A';
-        const evento = datosGenerales?.evento || document.getElementById('edanEvento')?.value || 'N/A';
-        const municipio = datosGenerales?.municipio || document.getElementById('edanMunicipio')?.value || 'N/A';
-        const poblacion = datosGenerales?.poblacion || document.getElementById('edanPoblacion')?.value || 'N/A';
-        const sector = datosGenerales?.sector || document.getElementById('edanSector')?.value || 'N/A';
-        const calle = datosGenerales?.calle || document.getElementById('edanCalle')?.value || 'N/A';
-        const utmE = datosGenerales?.utm?.este || document.getElementById('edanUtmE')?.value || 'N/A';
-        const utmN = datosGenerales?.utm?.norte || document.getElementById('edanUtmN')?.value || 'N/A';
-        const utmZona = datosGenerales?.utm?.zona || document.getElementById('edanUtmZona')?.value || 'N/A';
+        const fecha = datosGenerales?.fecha || 'N/A';
+        const hora = datosGenerales?.hora || 'N/A';
+        const evento = datosGenerales?.evento || 'N/A';
+        const municipio = datosGenerales?.municipio || 'N/A';
+        const poblacion = datosGenerales?.poblacion || 'N/A';
+        const sector = datosGenerales?.sector || 'N/A';
+        const calle = datosGenerales?.calle || 'N/A';
+        const utmE = datosGenerales?.utm?.este || 'N/A';
+        const utmN = datosGenerales?.utm?.norte || 'N/A';
+        const utmZona = datosGenerales?.utm?.zona || 'N/A';
         
         doc.text(`FECHA: ${fecha}`, 20, y);
         doc.text(`HORA: ${hora}`, 120, y);
         y += 6;
-        doc.text(`ELABORADO POR: ${oficialNombre}`, 20, y);
+        doc.text(`ELABORADO POR: ${oficialCompleto}`, 20, y);
         y += 6;
         doc.text(`EVENTO: ${evento}`, 20, y);
         y += 6;
@@ -3022,31 +3087,31 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         
         let finalY = doc.lastAutoTable.finalY + 10;
         
-        if (familias.length === 1) {
-            const f = familias[0];
-            if (f.condicion) {
-                doc.setFontSize(9);
-                doc.text('CONDICIÓN DE LA VIVIENDA:', 20, finalY);
-                finalY += 5;
-                const splitCond = doc.splitTextToSize(f.condicion, 170);
-                doc.text(splitCond, 20, finalY);
-                finalY += splitCond.length * 5 + 5;
-            }
-        }
-        
-        const necesidades = edanCalcularNecesidades();
-        
+        const totales = datosGenerales?.totales || edanCalcularTotales();
         doc.setFontSize(9);
-        doc.text('NECESIDADES Y PERDIDAS TOTALES:', 20, finalY);
+        doc.text('TOTALES DE PERSONAS:', 20, finalY);
         finalY += 5;
-        doc.text(`Alimentos: ${necesidades.alimentos}`, 25, finalY);
-        doc.text(`Colchones: ${necesidades.colchon}`, 75, finalY);
-        doc.text(`Electrodomesticos: ${necesidades.electrodomesticos}`, 130, finalY);
+        doc.text(`Adultos: ${totales.adultos?.m || 0}M / ${totales.adultos?.f || 0}F`, 25, finalY);
+        doc.text(`Adultos Mayores: ${totales.adultosMayores?.m || 0}M / ${totales.adultosMayores?.f || 0}F`, 100, finalY);
         finalY += 5;
-        doc.text(`Otros: ${necesidades.otros}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}`, 25, finalY);
+        doc.text(`Adolescentes: ${totales.adolescentes?.m || 0}M / ${totales.adolescentes?.f || 0}F`, 25, finalY);
+        doc.text(`Niños: ${totales.ninos?.m || 0}M / ${totales.ninos?.f || 0}F`, 100, finalY);
+        finalY += 5;
+        doc.text(`Lactantes: ${totales.lactantes?.m || 0}M / ${totales.lactantes?.f || 0}F`, 25, finalY);
+        doc.text(`TOTAL PERSONAS: ${totales.totalPersonas || 0}`, 100, finalY);
         finalY += 8;
         
-        const obs = (datosGenerales?.observacion || document.getElementById('edanObservacion')?.value || '');
+        const necesidades = datosGenerales?.necesidades || edanCalcularNecesidades();
+        doc.text('NECESIDADES Y PERDIDAS:', 20, finalY);
+        finalY += 5;
+        doc.text(`Alimentos: ${necesidades.alimentos || 0}`, 25, finalY);
+        doc.text(`Colchones: ${necesidades.colchon || 0}`, 75, finalY);
+        doc.text(`Electrodomésticos: ${necesidades.electrodomesticos || 0}`, 130, finalY);
+        finalY += 5;
+        doc.text(`Otros: ${necesidades.otros || 0}${necesidades.otrosDesc ? ` (${necesidades.otrosDesc})` : ''}`, 25, finalY);
+        finalY += 8;
+        
+        const obs = datosGenerales?.observacion || '';
         if (obs) {
             doc.text('OBSERVACIONES:', 20, finalY);
             finalY += 5;
@@ -3062,7 +3127,8 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         
         agregarPiePagina(doc, doc.internal.pageSize.height - 15);
         
-        doc.save(`EDAN_${fecha}.pdf`);
+        const nombreArchivo = `EDAN_${fecha.replace(/\//g, '-')}_${poblacion}.pdf`;
+        doc.save(nombreArchivo);
         mostrarToast('✅ PDF generado correctamente', 'success');
         
     } catch (error) {
