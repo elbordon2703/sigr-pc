@@ -81,7 +81,6 @@
         .table td { padding:5px 8px; border-bottom:1px solid #eee; }
         .alerta-72h { background: #fff3cd; border-left: 4px solid #ffc107; padding: 8px 12px; margin: 5px 0; border-radius: 4px; font-size: 12px; }
         .alerta-72h strong { color: #856404; }
-        /* Estilos para EDAN */
         .edan-tabla th { font-size: 10px; padding: 2px 4px; text-align: center; }
         .edan-tabla td { padding: 2px 4px; vertical-align: middle; }
         .edan-tabla input, .edan-tabla select { font-size: 11px; padding: 2px 4px; min-width: 40px; }
@@ -137,17 +136,15 @@
 <!-- LOGIN -->
 <div id="loginOverlay" class="login-overlay">
     <div class="login-card">
-       <div style="text-align:center;margin-bottom:20px;">
-    <!-- LOGO DE PROTECCIÓN CIVIL -->
-    <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
-         alt="Logo Protección Civil" 
-         style="width:80px;height:auto;display:block;margin:0 auto 10px;"
-         onerror="this.style.display='none'">
-    <!-- Si el logo no carga, se muestra el icono -->
-    <i class="fas fa-shield-alt" style="font-size:48px;color:#0b2a4a;"></i>
-    <h2>SIGR-PC</h2>
-    <p><strong>Municipio Papelón</strong></p>
-</div>
+        <div style="text-align:center;margin-bottom:20px;">
+            <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
+                 alt="Logo Protección Civil" 
+                 style="width:80px;height:auto;display:block;margin:0 auto 10px;"
+                 onerror="this.style.display='none'">
+            <i class="fas fa-shield-alt" style="font-size:48px;color:#0b2a4a;"></i>
+            <h2>SIGR-PC</h2>
+            <p><strong>Municipio Papelón</strong></p>
+        </div>
         <div id="loginForm">
             <div class="mb-3">
                 <label class="form-label">Correo electrónico</label>
@@ -167,16 +164,16 @@
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-   <div class="brand">
-    <!-- LOGO EN LA BARRA LATERAL -->
-    <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
-         alt="Logo" 
-         style="width:50px;height:auto;display:block;margin:0 auto 8px;border-radius:50%;background:white;padding:5px;"
-         onerror="this.style.display='none'">
-    <h3><i class="fas fa-shield-alt"></i> SIGR</h3>
-    <small>PC V2.0</small>
-    <div id="userRolBadge" style="font-size:10px;margin-top:5px;background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px;display:inline-block;"></div>
-</div>    <nav class="nav flex-column">
+    <div class="brand">
+        <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
+             alt="Logo" 
+             style="width:50px;height:auto;display:block;margin:0 auto 8px;border-radius:50%;background:white;padding:5px;"
+             onerror="this.style.display='none'">
+        <h3><i class="fas fa-shield-alt"></i> SIGR</h3>
+        <small>PC V2.0</small>
+        <div id="userRolBadge" style="font-size:10px;margin-top:5px;background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px;display:inline-block;"></div>
+    </div>
+    <nav class="nav flex-column">
         <div class="nav-link active" data-section="dashboard" onclick="showSection('dashboard')">
             <i class="fas fa-home"></i> <span>Dashboard</span>
         </div>
@@ -327,40 +324,40 @@
         </div>
     </div>
     
-   <!-- GRUPOS -->
-<div id="section-grupos" class="section">
-    <div class="card">
-        <div class="card-header"><i class="fas fa-users-cog"></i> Grupos Operativos</div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="form-label">📋 Grupo</label>
-                    <select id="gSelect" class="form-select" onchange="cargarIntegrantes()">
-                        <option value="Grupo A">Grupo A</option>
-                        <option value="Grupo B">Grupo B</option>
-                        <option value="Grupo C">Grupo C</option>
-                        <option value="Grupo D">Grupo D</option>
-                    </select>
+    <!-- GRUPOS -->
+    <div id="section-grupos" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-users-cog"></i> Grupos Operativos</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">📋 Grupo</label>
+                        <select id="gSelect" class="form-select" onchange="cargarIntegrantes()">
+                            <option value="Grupo A">Grupo A</option>
+                            <option value="Grupo B">Grupo B</option>
+                            <option value="Grupo C">Grupo C</option>
+                            <option value="Grupo D">Grupo D</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">👤 Jefe de Servicio</label>
+                        <select id="gJefe" class="form-select">
+                            <option value="">Seleccionar Jefe</option>
+                        </select>
+                        <button class="btn btn-sm btn-primary mt-1" onclick="actualizarJefe()">
+                            <i class="fas fa-save"></i> Asignar Jefe
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">👤 Jefe de Servicio</label>
-                    <select id="gJefe" class="form-select">
-                        <option value="">Seleccionar Jefe</option>
-                    </select>
-                    <button class="btn btn-sm btn-primary mt-1" onclick="actualizarJefe()">
-                        <i class="fas fa-save"></i> Asignar Jefe
-                    </button>
-                </div>
-            </div>
-            <div class="mt-3">
-                <h6>👥 Integrantes del Grupo</h6>
-                <div id="gIntegrantes">
-                    <p class="text-muted">Cargando integrantes...</p>
+                <div class="mt-3">
+                    <h6>👥 Integrantes del Grupo</h6>
+                    <div id="gIntegrantes">
+                        <p class="text-muted">Cargando integrantes...</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
     
     <!-- VEHÍCULOS -->
     <div id="section-vehiculos" class="section">
@@ -475,305 +472,305 @@
         </div>
     </div>
     
-    <!-- EDAN - VERSIÓN COMPLETA CON FOTOS -->
-<div id="section-edan" class="section">
-    <div class="card">
-        <div class="card-header">
-            <i class="fas fa-house-damage"></i> EDAN - Evaluación de Daños y Análisis de Necesidades
-            <span class="badge badge-info ms-2">📋 Registro Oficial</span>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                <strong>EDAN:</strong> Complete los datos generales y agregue las familias afectadas.
-                Cada familia se guarda individualmente con sus fotos y datos de la vivienda.
+    <!-- EDAN - VERSIÓN COMPLETA -->
+    <div id="section-edan" class="section">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-house-damage"></i> EDAN - Evaluación de Daños y Análisis de Necesidades
+                <span class="badge badge-info ms-2">📋 Registro Oficial</span>
             </div>
-
-            <!-- ===== DATOS GENERALES ===== -->
-            <div class="card mb-2" style="background:#f8f9fa;">
-                <div class="card-header">
-                    <i class="fas fa-file-alt"></i> Datos Generales
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>EDAN:</strong> Complete los datos generales y agregue las familias afectadas.
+                    Cada familia se guarda individualmente con sus fotos y datos de la vivienda.
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">📅 Fecha</label>
-                            <input type="date" id="edanFecha" class="form-control">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">🕐 Hora</label>
-                            <input type="time" id="edanHora" class="form-control">
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label">👤 Elaborado por</label>
-                            <select id="edanOficial" class="form-select">
-                                <option value="">— Seleccione —</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label">🌪️ Evento</label>
-                            <input type="text" id="edanEvento" class="form-control" placeholder="Ej: Inundación, Lluvias, etc.">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">🏛️ Municipio</label>
-                            <select id="edanMunicipio" class="form-select">
-                                <option value="Papelón">Papelón</option>
-                                <option value="Caño Delgadito">Caño Delgadito</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">🏘️ Población</label>
-                            <input type="text" id="edanPoblacion" class="form-control" placeholder="Ej: El Centro">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📍 Sector</label>
-                            <input type="text" id="edanSector" class="form-control" placeholder="Ej: Barrio Las Flores">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📍 Calle</label>
-                            <input type="text" id="edanCalle" class="form-control" placeholder="Ej: Calle 5">
+
+                <!-- DATOS GENERALES -->
+                <div class="card mb-2" style="background:#f8f9fa;">
+                    <div class="card-header">
+                        <i class="fas fa-file-alt"></i> Datos Generales
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">📅 Fecha</label>
+                                <input type="date" id="edanFecha" class="form-control">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">🕐 Hora</label>
+                                <input type="time" id="edanHora" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">👤 Elaborado por</label>
+                                <select id="edanOficial" class="form-select">
+                                    <option value="">— Seleccione —</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🌪️ Evento</label>
+                                <input type="text" id="edanEvento" class="form-control" placeholder="Ej: Inundación, Lluvias, etc.">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">🏛️ Municipio</label>
+                                <select id="edanMunicipio" class="form-select">
+                                    <option value="Papelón">Papelón</option>
+                                    <option value="Caño Delgadito">Caño Delgadito</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">🏘️ Población</label>
+                                <input type="text" id="edanPoblacion" class="form-control" placeholder="Ej: El Centro">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📍 Sector</label>
+                                <input type="text" id="edanSector" class="form-control" placeholder="Ej: Barrio Las Flores">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📍 Calle</label>
+                                <input type="text" id="edanCalle" class="form-control" placeholder="Ej: Calle 5">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- ===== FORMULARIO PARA AGREGAR FAMILIA ===== -->
-            <div class="card mb-2" style="border:2px solid #1677c8;">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-user-plus"></i> Agregar Familia
-                    <span class="badge bg-light text-dark ms-2" id="edanFamiliaCount">Familia #1</span>
-                </div>
-                <div class="card-body">
-                    <!-- Datos del responsable -->
-                    <div class="row">
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label">👤 Nombre y Apellido del Responsable</label>
-                            <input type="text" id="edanResponsable" class="form-control" placeholder="Nombre completo">
+                <!-- FORMULARIO PARA AGREGAR FAMILIA -->
+                <div class="card mb-2" style="border:2px solid #1677c8;">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-user-plus"></i> Agregar Familia
+                        <span class="badge bg-light text-dark ms-2" id="edanFamiliaCount">Familia #1</span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Datos del responsable -->
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">👤 Nombre y Apellido del Responsable</label>
+                                <input type="text" id="edanResponsable" class="form-control" placeholder="Nombre completo">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📄 N° C.I.</label>
+                                <input type="text" id="edanCedula" class="form-control" placeholder="V-12345678">
+                            </div>
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label">🏠 Tipo de Vivienda</label>
+                                <select id="edanTipoVivienda" class="form-select">
+                                    <option value="A">A - Bloque, ladrillo y cemento</option>
+                                    <option value="B" selected>B - Adobe</option>
+                                    <option value="C">C - Tablas y/o Zinc</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🧱 Material de Construcción</label>
+                                <select id="edanMaterial" class="form-select">
+                                    <option value="">— Seleccione —</option>
+                                    <option value="bahareque">Bahareque</option>
+                                    <option value="bloque">Bloque/Ladrillo</option>
+                                    <option value="madera">Madera</option>
+                                    <option value="zinc">Zinc</option>
+                                    <option value="adobe">Adobe</option>
+                                    <option value="guafa">Guafa</option>
+                                    <option value="mixto">Mixto</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">🏠 Habitable</label>
+                                <select id="edanHabitable" class="form-select">
+                                    <option value="si">Sí</option>
+                                    <option value="no" selected>No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">💀 Destruida</label>
+                                <select id="edanDestruida" class="form-select">
+                                    <option value="si">Sí</option>
+                                    <option value="no" selected>No</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📄 N° C.I.</label>
-                            <input type="text" id="edanCedula" class="form-control" placeholder="V-12345678">
+
+                        <!-- Condición de la vivienda -->
+                        <div class="row mt-2">
+                            <div class="col-12 mb-2">
+                                <label class="form-label">📋 Condición de la Vivienda</label>
+                                <textarea id="edanCondicion" class="form-control" rows="2" placeholder="Describa la condición actual de la vivienda..."></textarea>
+                            </div>
                         </div>
-                        <div class="col-md-5 mb-2">
-                            <label class="form-label">🏠 Tipo de Vivienda</label>
-                            <select id="edanTipoVivienda" class="form-select">
-                                <option value="A">A - Bloque, ladrillo y cemento</option>
-                                <option value="B" selected>B - Adobe</option>
-                                <option value="C">C - Tablas y/o Zinc</option>
-                            </select>
+
+                        <!-- Desglose de Integrantes -->
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <h6 class="text-muted">📊 Integrantes de la Familia</h6>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">👨 Adultos (M)</label>
+                                <input type="number" id="edanAdultosM" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">👩 Adultos (F)</label>
+                                <input type="number" id="edanAdultosF" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">👴 Adultos Mayores (M)</label>
+                                <input type="number" id="edanMayoresM" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">👵 Adultos Mayores (F)</label>
+                                <input type="number" id="edanMayoresF" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">🧑 Adolescentes (M)</label>
+                                <input type="number" id="edanAdolescentesM" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">👧 Adolescentes (F)</label>
+                                <input type="number" id="edanAdolescentesF" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">👦 Niños (M)</label>
+                                <input type="number" id="edanNinosM" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">👧 Niños (F)</label>
+                                <input type="number" id="edanNinosF" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">🍼 Lactantes (M)</label>
+                                <input type="number" id="edanLactantesM" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">🍼 Lactantes (F)</label>
+                                <input type="number" id="edanLactantesF" class="form-control" value="0" min="0">
+                            </div>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label">🧱 Material de Construcción</label>
-                            <select id="edanMaterial" class="form-select">
-                                <option value="">— Seleccione —</option>
-                                <option value="bahareque">Bahareque</option>
-                                <option value="bloque">Bloque/Ladrillo</option>
-                                <option value="madera">Madera</option>
-                                <option value="zinc">Zinc</option>
-                                <option value="adobe">Adobe</option>
-                                <option value="guafa">Guafa</option>
-                                <option value="mixto">Mixto</option>
-                                <option value="otro">Otro</option>
-                            </select>
+
+                        <!-- Necesidades y Pérdidas -->
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <h6 class="text-muted">📦 Necesidades y Pérdidas</h6>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">🍽️ Alimentos</label>
+                                <input type="number" id="edanAlimentos" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">🛏️ Colchones</label>
+                                <input type="number" id="edanColchones" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">📺 Electrodomésticos</label>
+                                <input type="number" id="edanElectrodomesticos" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📦 Otros</label>
+                                <input type="number" id="edanOtros" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📝 Especifique Otros</label>
+                                <input type="text" id="edanOtrosDesc" class="form-control" placeholder="Ej: Medicinas, Ropa">
+                            </div>
                         </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">🏠 Habitable</label>
-                            <select id="edanHabitable" class="form-select">
-                                <option value="si">Sí</option>
-                                <option value="no" selected>No</option>
-                            </select>
+
+                        <!-- FOTOS -->
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <h6 class="text-muted">📸 Evidencia Fotográfica</h6>
+                                <small class="text-muted">Adjunte 2 fotos de la vivienda y daños</small>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📸 Foto 1</label>
+                                <input type="file" id="edanFoto1" class="form-control" accept="image/*" capture="environment">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📸 Foto 2</label>
+                                <input type="file" id="edanFoto2" class="form-control" accept="image/*" capture="environment">
+                            </div>
+                            <div class="col-12 mb-2">
+                                <div id="edanFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
+                            </div>
                         </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">💀 Destruida</label>
-                            <select id="edanDestruida" class="form-select">
-                                <option value="si">Sí</option>
-                                <option value="no" selected>No</option>
-                            </select>
+
+                        <!-- Botones de acción -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="btn btn-success" onclick="edanAgregarFamilia()">
+                                    <i class="fas fa-plus"></i> Agregar Familia
+                                </button>
+                                <button class="btn btn-warning" onclick="edanLimpiarFormulario()">
+                                    <i class="fas fa-undo"></i> Limpiar Formulario
+                                </button>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Condición de la vivienda -->
-                    <div class="row mt-2">
-                        <div class="col-12 mb-2">
-                            <label class="form-label">📋 Condición de la Vivienda</label>
-                            <textarea id="edanCondicion" class="form-control" rows="2" placeholder="Describa la condición actual de la vivienda..."></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Desglose de Integrantes -->
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <h6 class="text-muted">📊 Integrantes de la Familia</h6>
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">👨 Adultos (M)</label>
-                            <input type="number" id="edanAdultosM" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">👩 Adultos (F)</label>
-                            <input type="number" id="edanAdultosF" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">👴 Adultos Mayores (M)</label>
-                            <input type="number" id="edanMayoresM" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">👵 Adultos Mayores (F)</label>
-                            <input type="number" id="edanMayoresF" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">🧑 Adolescentes (M)</label>
-                            <input type="number" id="edanAdolescentesM" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">👧 Adolescentes (F)</label>
-                            <input type="number" id="edanAdolescentesF" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">👦 Niños (M)</label>
-                            <input type="number" id="edanNinosM" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">👧 Niños (F)</label>
-                            <input type="number" id="edanNinosF" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">🍼 Lactantes (M)</label>
-                            <input type="number" id="edanLactantesM" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">🍼 Lactantes (F)</label>
-                            <input type="number" id="edanLactantesF" class="form-control" value="0" min="0">
-                        </div>
-                    </div>
-
-                    <!-- Necesidades y Pérdidas -->
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <h6 class="text-muted">📦 Necesidades y Pérdidas</h6>
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">🍽️ Alimentos</label>
-                            <input type="number" id="edanAlimentos" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">🛏️ Colchones</label>
-                            <input type="number" id="edanColchones" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">📺 Electrodomésticos</label>
-                            <input type="number" id="edanElectrodomesticos" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📦 Otros</label>
-                            <input type="number" id="edanOtros" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📝 Especifique Otros</label>
-                            <input type="text" id="edanOtrosDesc" class="form-control" placeholder="Ej: Medicinas, Ropa">
-                        </div>
-                    </div>
-
-                    <!-- FOTOS -->
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <h6 class="text-muted">📸 Evidencia Fotográfica</h6>
-                            <small class="text-muted">Adjunte 2 fotos de la vivienda y daños</small>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📸 Foto 1</label>
-                            <input type="file" id="edanFoto1" class="form-control" accept="image/*" capture="environment">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📸 Foto 2</label>
-                            <input type="file" id="edanFoto2" class="form-control" accept="image/*" capture="environment">
-                        </div>
-                        <div class="col-12 mb-2">
-                            <div id="edanFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
-                        </div>
-                    </div>
-
-                    <!-- Botones de acción -->
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <button class="btn btn-success" onclick="edanAgregarFamilia()">
-                                <i class="fas fa-plus"></i> Agregar Familia
-                            </button>
-                            <button class="btn btn-warning" onclick="edanLimpiarFormulario()">
-                                <i class="fas fa-undo"></i> Limpiar Formulario
-                            </button>
-                        </div>
-                    </div>
                 </div>
-            </div>
 
-            <!-- ===== LISTA DE FAMILIAS AGREGADAS ===== -->
-            <div class="card mb-2">
-                <div class="card-header">
-                    <i class="fas fa-list"></i> Familias Registradas
-                    <span class="badge bg-secondary ms-2" id="edanTotalFamilias">0 familias</span>
-                    <span class="badge bg-info ms-2" id="edanTotalPersonas">0 personas</span>
-                </div>
-                <div class="card-body" id="edanListaFamilias">
-                    <p class="text-muted">No hay familias registradas. Agregue la primera familia.</p>
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-danger btn-sm" onclick="edanEliminarTodasFamilias()">
-                        <i class="fas fa-trash"></i> Eliminar Todas
-                    </button>
-                </div>
-            </div>
-
-            <!-- ===== OBSERVACIONES ===== -->
-            <div class="row mt-2">
-                <div class="col-12 mb-2">
-                    <label class="form-label">📝 Observaciones</label>
-                    <textarea id="edanObservacion" class="form-control" rows="2" placeholder="Observaciones generales..."></textarea>
-                </div>
-            </div>
-
-            <!-- ===== FIRMA ===== -->
-            <div class="row mt-2">
-                <div class="col-12 mb-2">
-                    <label class="form-label">✍️ Firma del Oficial</label>
-                    <canvas id="edanFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
-                    <div class="mt-2">
-                        <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaEdan()">
-                            <i class="fas fa-eraser"></i> Limpiar
-                        </button>
-                        <button class="btn btn-sm btn-primary" onclick="capturarFirmaEdan()">
-                            <i class="fas fa-save"></i> Guardar Firma
+                <!-- LISTA DE FAMILIAS AGREGADAS -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <i class="fas fa-list"></i> Familias Registradas
+                        <span class="badge bg-secondary ms-2" id="edanTotalFamilias">0 familias</span>
+                        <span class="badge bg-info ms-2" id="edanTotalPersonas">0 personas</span>
+                    </div>
+                    <div class="card-body" id="edanListaFamilias">
+                        <p class="text-muted">No hay familias registradas. Agregue la primera familia.</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-danger btn-sm" onclick="edanEliminarTodasFamilias()">
+                            <i class="fas fa-trash"></i> Eliminar Todas
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- ===== BOTONES FINALES ===== -->
-            <div class="row mt-3">
-                <div class="col-12">
-                    <button class="btn btn-success" onclick="guardarEDAN()">
-                        <i class="fas fa-save"></i> Registrar EDAN
-                    </button>
-                    <button class="btn btn-primary" onclick="generarPDFEDAN()">
-                        <i class="fas fa-file-pdf"></i> Generar PDF
-                    </button>
-                    <button class="btn btn-secondary" onclick="edanLimpiarTodo()">
-                        <i class="fas fa-eraser"></i> Limpiar Todo
-                    </button>
+                <!-- OBSERVACIONES -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">📝 Observaciones</label>
+                        <textarea id="edanObservacion" class="form-control" rows="2" placeholder="Observaciones generales..."></textarea>
+                    </div>
                 </div>
-            </div>
-            <div id="edanMensaje" class="mt-2"></div>
-        </div>
-    </div>
 
-    <!-- ===== LISTA DE EDAN GUARDADOS ===== -->
-    <div class="card mt-3">
-        <div class="card-header">
-            <i class="fas fa-history"></i> EDAN Registrados
+                <!-- FIRMA -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">✍️ Firma del Oficial</label>
+                        <canvas id="edanFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaEdan()">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="capturarFirmaEdan()">
+                                <i class="fas fa-save"></i> Guardar Firma
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTONES FINALES -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-success" onclick="guardarEDAN()">
+                            <i class="fas fa-save"></i> Registrar EDAN
+                        </button>
+                        <button class="btn btn-primary" onclick="generarPDFEDAN()">
+                            <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
+                        <button class="btn btn-secondary" onclick="edanLimpiarTodo()">
+                            <i class="fas fa-eraser"></i> Limpiar Todo
+                        </button>
+                    </div>
+                </div>
+                <div id="edanMensaje" class="mt-2"></div>
+            </div>
         </div>
-        <div class="card-body" id="listaEdan"></div>
+
+        <!-- LISTA DE EDAN GUARDADOS -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="fas fa-history"></i> EDAN Registrados
+            </div>
+            <div class="card-body" id="listaEdan"></div>
+        </div>
     </div>
-</div>
     
     <!-- CERTIFICACIÓN DE ÁRBOLES -->
     <div id="section-certificacion" class="section">
@@ -1819,7 +1816,6 @@ function cargarPersonal() {
 // ============================================
 
 function cargarGrupos() {
-    // Cargar jefes guardados
     db.collection('grupos').get()
         .then(snap => {
             const jefeSelect = document.getElementById('gJefe');
@@ -1832,7 +1828,6 @@ function cargarGrupos() {
                 }
             });
             
-            // Cargar personal para el select de jefes
             db.collection('personal').get()
                 .then(snapPersonal => {
                     jefeSelect.innerHTML = '<option value="">Seleccionar Jefe</option>';
@@ -1842,7 +1837,6 @@ function cargarGrupos() {
                         jefeSelect.innerHTML += `<option value="${doc.id}" ${selected}>${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</option>`;
                     });
                     
-                    // Cargar integrantes del grupo actual
                     cargarIntegrantes();
                 })
                 .catch(error => {
@@ -1858,7 +1852,6 @@ function cargarIntegrantes() {
     const grupo = document.getElementById('gSelect').value;
     const container = document.getElementById('gIntegrantes');
     
-    // Mostrar mensaje de carga
     container.innerHTML = '<p class="text-muted">Cargando integrantes...</p>';
     
     if (!grupo) {
@@ -1866,14 +1859,10 @@ function cargarIntegrantes() {
         return;
     }
     
-    console.log('📋 Cargando integrantes del grupo:', grupo);
-    
     db.collection('personal')
         .where('grupos', 'array-contains', grupo)
         .get()
         .then(snap => {
-            console.log('👥 Integrantes encontrados:', snap.size);
-            
             if (snap.empty) {
                 container.innerHTML = '<p class="text-muted">No hay integrantes en este grupo</p>';
                 return;
@@ -1882,20 +1871,17 @@ function cargarIntegrantes() {
             let html = '<ul class="list-group">';
             snap.forEach(doc => {
                 const data = doc.data();
-                // Verificar si es Jefe de Servicio (guardado en grupos)
-                const isChief = data.grupos && data.grupos.includes('jefe') ? '⭐ ' : '';
-                html += `<li class="list-group-item">${isChief}${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</li>`;
+                html += `<li class="list-group-item">${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</li>`;
             });
             html += '</ul>';
             container.innerHTML = html;
         })
         .catch(error => {
-            console.error('❌ Error cargando integrantes:', error);
+            console.error('Error cargando integrantes:', error);
             container.innerHTML = '<p class="text-danger">Error al cargar integrantes</p>';
         });
 }
 
-// ===== ACTUALIZAR JEFE DE SERVICIO =====
 function actualizarJefe() {
     const grupo = document.getElementById('gSelect').value;
     const jefeId = document.getElementById('gJefe').value;
@@ -1905,7 +1891,6 @@ function actualizarJefe() {
         return;
     }
     
-    // Buscar el personal seleccionado
     db.collection('personal').doc(jefeId).get()
         .then(doc => {
             if (!doc.exists) {
@@ -1916,7 +1901,6 @@ function actualizarJefe() {
             const data = doc.data();
             const nombre = `${data.apellido}, ${data.nombre}`;
             
-            // Guardar en Firestore la asignación de Jefe
             db.collection('grupos').doc(grupo).set({
                 jefe: jefeId,
                 jefeNombre: nombre,
@@ -1924,7 +1908,6 @@ function actualizarJefe() {
             }, { merge: true })
             .then(() => {
                 mostrarToast(`✅ ${nombre} es ahora el Jefe de Servicio de ${grupo}`, 'success');
-                // Recargar integrantes para mostrar el jefe
                 cargarIntegrantes();
             })
             .catch(error => {
@@ -2214,6 +2197,102 @@ function cancelarSolicitud(id) {
 }
 
 // ============================================
+// FUNCIONES DE LOGOS Y PIE DE PÁGINA PARA PDF
+// ============================================
+
+function agregarLogoPC(doc) {
+    return new Promise((resolve) => {
+        try {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.src = 'https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png';
+            img.onload = function() {
+                try {
+                    doc.addImage(img, 'PNG', 15, 8, 25, 12);
+                    resolve(true);
+                } catch (e) {
+                    resolve(false);
+                }
+            };
+            img.onerror = function() {
+                resolve(false);
+            };
+            setTimeout(() => resolve(false), 3000);
+        } catch (e) {
+            resolve(false);
+        }
+    });
+}
+
+function agregarLogoGobernacion(doc) {
+    return new Promise((resolve) => {
+        try {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.src = 'https://elbordon2703.github.io/sigr-pc/LOGO%20GOBERNACION.png';
+            img.onload = function() {
+                try {
+                    doc.addImage(img, 'PNG', 160, 8, 30, 12);
+                    resolve(true);
+                } catch (e) {
+                    resolve(false);
+                }
+            };
+            img.onerror = function() {
+                resolve(false);
+            };
+            setTimeout(() => resolve(false), 3000);
+        } catch (e) {
+            resolve(false);
+        }
+    });
+}
+
+function agregarPiePagina(doc, y) {
+    try {
+        // Primero agregar el texto siempre (fallback)
+        doc.setFontSize(7);
+        doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
+        doc.text('SIGR-PC - Sistema de Gestión Integral de Riesgos', 105, y + 14, { align: 'center' });
+        
+        // Intentar cargar la imagen del pie de página
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = 'https://elbordon2703.github.io/sigr-pc/PIE%20DE%20PAGIAN2.png';
+        img.onload = function() {
+            try {
+                doc.addImage(img, 'PNG', 10, y - 2, 190, 15);
+            } catch (e) {
+                // Si falla, ya tenemos el texto
+            }
+        };
+        img.onerror = function() {
+            // Si la imagen no carga, ya tenemos el texto
+        };
+        setTimeout(() => {}, 1000);
+    } catch (error) {
+        // Fallback: mostrar texto
+        doc.setFontSize(7);
+        doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
+        doc.text('SIGR-PC - Sistema de Gestión Integral de Riesgos', 105, y + 14, { align: 'center' });
+    }
+}
+
+async function agregarEncabezadoConLogos(doc, titulo, subtitulo) {
+    await agregarLogoPC(doc);
+    await agregarLogoGobernacion(doc);
+    
+    doc.setFontSize(16);
+    doc.text(titulo, 105, 25, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(subtitulo || 'Protección Civil - Municipio Papelón', 105, 33, { align: 'center' });
+    doc.setFontSize(8);
+    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 105, 39, { align: 'center' });
+    
+    return doc;
+}
+
+// ============================================
 // CERTIFICACIÓN DE ÁRBOLES
 // ============================================
 
@@ -2365,6 +2444,16 @@ function capturarFirma() {
     mostrarToast('✅ Firma guardada correctamente', 'success');
 }
 
+function leerFotoBase64(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            resolve(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 function leerFotoCertificacion(file) {
     if (!file) return;
     const reader = new FileReader();
@@ -2450,22 +2539,12 @@ function guardarCertificacionArbol() {
         return;
     }
 
-    function leerFoto(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                resolve(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
     async function procesarFotos() {
         if (foto1.files && foto1.files[0]) {
-            data.fotos.push(await leerFoto(foto1.files[0]));
+            data.fotos.push(await leerFotoBase64(foto1.files[0]));
         }
         if (foto2.files && foto2.files[0]) {
-            data.fotos.push(await leerFoto(foto2.files[0]));
+            data.fotos.push(await leerFotoBase64(foto2.files[0]));
         }
         guardarCertificacionFinal(data);
     }
@@ -2608,12 +2687,9 @@ function generarPDFCertificacion() {
     try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
-
-        doc.setFontSize(18);
-        doc.text('CERTIFICACIÓN DE ÁRBOLES', 105, 20, { align: 'center' });
-        doc.setFontSize(10);
-        doc.text('Protección Civil - Municipio Papelón', 105, 28, { align: 'center' });
-        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 105, 34, { align: 'center' });
+        
+        // ==== AGREGAR ENCABEZADO CON LOGOS ====
+        agregarEncabezadoConLogos(doc, 'CERTIFICACIÓN DE ÁRBOLES', 'Protección Civil - Municipio Papelón');
 
         const rows = certificaciones.map(cert => [
             cert.arbol?.direccion || '',
@@ -2628,7 +2704,7 @@ function generarPDFCertificacion() {
         doc.autoTable({
             head: [['Dirección', 'Especie', 'Altura', 'Diámetro', 'Inclinación', 'Riesgo', 'Fecha']],
             body: rows,
-            startY: 40,
+            startY: 45,
             styles: { fontSize: 8 },
             headStyles: { fillColor: [11, 42, 74] }
         });
@@ -2652,6 +2728,9 @@ function generarPDFCertificacion() {
         doc.text('Firma del Inspector', 50, finalY + 33);
         doc.text('_________________________', 130, finalY + 25);
         doc.text('Sello de la Institución', 130, finalY + 33);
+        
+        // ==== AGREGAR PIE DE PÁGINA ====
+        agregarPiePagina(doc, doc.internal.pageSize.height - 15);
 
         doc.save('certificacion_arboles.pdf');
         mostrarToast('✅ PDF generado correctamente', 'success');
@@ -2671,11 +2750,9 @@ let edanFirma = null;
 let edanCanvas, edanCtx, edanIsDrawing = false;
 let edanContadorFamilias = 0;
 
-// ===== INICIALIZAR EDAN =====
 function initEDAN() {
     console.log('📋 Inicializando EDAN...');
     
-    // Cargar oficiales en el selector
     const select = document.getElementById('edanOficial');
     
     if (select) {
@@ -2695,7 +2772,6 @@ function initEDAN() {
             });
     }
     
-    // Inicializar fecha y hora
     const ahora = new Date();
     const fecha = document.getElementById('edanFecha');
     const hora = document.getElementById('edanHora');
@@ -2703,16 +2779,10 @@ function initEDAN() {
     if (fecha) fecha.value = ahora.toISOString().split('T')[0];
     if (hora) hora.value = ahora.toTimeString().slice(0, 5);
     
-    // Inicializar firma
     iniciarFirmaEdan();
-    
-    // Cargar EDAN guardados
     cargarEDAN();
-    
-    // Mostrar lista de familias
     edanActualizarLista();
     
-    // Eventos para fotos
     const foto1 = document.getElementById('edanFoto1');
     const foto2 = document.getElementById('edanFoto2');
     
@@ -2735,31 +2805,19 @@ function initEDAN() {
     console.log('✅ EDAN inicializado correctamente');
 }
 
-// ===== LECTURA DE FOTOS =====
 function leerFotoEDAN(file, previewId) {
-    if (!file) {
-        console.log('⚠️ No hay archivo seleccionado');
-        return;
-    }
-    
-    console.log('📸 Leyendo foto:', file.name);
+    if (!file) return;
     
     const reader = new FileReader();
     reader.onload = function(e) {
-        console.log('✅ Foto cargada correctamente');
         const preview = document.getElementById(previewId);
-        if (!preview) {
-            console.log('❌ No se encontró el contenedor:', previewId);
-            return;
-        }
+        if (!preview) return;
         
-        // Crear contenedor para la imagen
         const div = document.createElement('div');
         div.style.display = 'inline-block';
         div.style.margin = '5px';
         div.style.position = 'relative';
         
-        // Crear imagen
         const img = document.createElement('img');
         img.src = e.target.result;
         img.style.width = '120px';
@@ -2769,7 +2827,6 @@ function leerFotoEDAN(file, previewId) {
         img.style.border = '2px solid #1677c8';
         img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
         
-        // Crear botón de eliminar
         const btnEliminar = document.createElement('button');
         btnEliminar.innerHTML = '✕';
         btnEliminar.style.position = 'absolute';
@@ -2786,7 +2843,6 @@ function leerFotoEDAN(file, previewId) {
         btnEliminar.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
         btnEliminar.onclick = function() {
             div.remove();
-            // Limpiar el input correspondiente
             const inputId = previewId === 'edanFotosPreview' ? 'edanFoto1' : 'edanFoto2';
             const input = document.getElementById(inputId);
             if (input) input.value = '';
@@ -2798,14 +2854,12 @@ function leerFotoEDAN(file, previewId) {
     };
     
     reader.onerror = function() {
-        console.log('❌ Error al leer la foto');
         mostrarToast('❌ Error al cargar la foto', 'danger');
     };
     
     reader.readAsDataURL(file);
 }
 
-// ===== AGREGAR FAMILIA =====
 function edanAgregarFamilia() {
     const responsable = document.getElementById('edanResponsable').value.trim();
     const cedula = document.getElementById('edanCedula').value.trim();
@@ -2816,7 +2870,6 @@ function edanAgregarFamilia() {
         return;
     }
     
-    // Leer valores numéricos correctamente
     const adultoM = parseInt(document.getElementById('edanAdultosM').value) || 0;
     const adultoF = parseInt(document.getElementById('edanAdultosF').value) || 0;
     const mayorM = parseInt(document.getElementById('edanMayoresM').value) || 0;
@@ -2828,7 +2881,6 @@ function edanAgregarFamilia() {
     const lactM = parseInt(document.getElementById('edanLactantesM').value) || 0;
     const lactF = parseInt(document.getElementById('edanLactantesF').value) || 0;
     
-    // Calcular total de personas
     const totalPersonas = adultoM + adultoF + mayorM + mayorF + adolM + adolF + ninoM + ninoF + lactM + lactF;
     
     if (totalPersonas === 0) {
@@ -2836,7 +2888,6 @@ function edanAgregarFamilia() {
         return;
     }
     
-    // Leer fotos (si existen)
     const foto1 = document.getElementById('edanFoto1');
     const foto2 = document.getElementById('edanFoto2');
     const fotosPromises = [];
@@ -2884,7 +2935,7 @@ function edanAgregarFamilia() {
         mostrarToast(`✅ Familia ${familia.responsable} agregada (${totalPersonas} personas)`, 'success');
     });
 }
-// ===== LIMPIAR FORMULARIO =====
+
 function edanLimpiarFormulario() {
     document.getElementById('edanResponsable').value = '';
     document.getElementById('edanCedula').value = '';
@@ -2911,7 +2962,6 @@ function edanLimpiarFormulario() {
     document.getElementById('edanResponsable').focus();
 }
 
-// ===== ACTUALIZAR LISTA DE FAMILIAS =====
 function edanActualizarLista() {
     const container = document.getElementById('edanListaFamilias');
     const totalFamilias = document.getElementById('edanTotalFamilias');
@@ -2982,7 +3032,6 @@ function edanActualizarLista() {
         </tr>`;
     });
     
-    // Totales
     const totales = edanCalcularTotales();
     html += `<tr class="table-primary">
         <td colspan="3"><strong>TOTALES</strong></td>
@@ -2997,7 +3046,6 @@ function edanActualizarLista() {
     
     html += '</tbody></table></div>';
     
-    // Necesidades totales
     const necesidades = edanCalcularNecesidades();
     html += `<div class="row mt-2">
         <div class="col-12">
@@ -3017,7 +3065,6 @@ function edanActualizarLista() {
     totalPersonas.textContent = `${totalPersonasCount} personas`;
 }
 
-// ===== ELIMINAR FAMILIA =====
 function edanEliminarFamilia(index) {
     if (!confirm(`¿Eliminar la familia ${edanFamilias[index].responsable}?`)) return;
     edanFamilias.splice(index, 1);
@@ -3025,7 +3072,6 @@ function edanEliminarFamilia(index) {
     mostrarToast('✅ Familia eliminada', 'success');
 }
 
-// ===== ELIMINAR TODAS LAS FAMILIAS =====
 function edanEliminarTodasFamilias() {
     if (edanFamilias.length === 0) {
         mostrarToast('⚠️ No hay familias para eliminar', 'warning');
@@ -3037,7 +3083,6 @@ function edanEliminarTodasFamilias() {
     mostrarToast('✅ Todas las familias eliminadas', 'success');
 }
 
-// ===== CALCULAR TOTALES =====
 function edanCalcularTotales() {
     const totales = {
         adultos: { m: 0, f: 0 },
@@ -3071,7 +3116,6 @@ function edanCalcularTotales() {
     return totales;
 }
 
-// ===== CALCULAR NECESIDADES =====
 function edanCalcularNecesidades() {
     const necesidades = {
         alimentos: 0,
@@ -3094,7 +3138,6 @@ function edanCalcularNecesidades() {
     return necesidades;
 }
 
-// ===== LIMPIAR TODO =====
 function edanLimpiarTodo() {
     if (!confirm('¿Limpiar todos los datos del EDAN?')) return;
     edanFamilias = [];
@@ -3111,7 +3154,7 @@ function edanLimpiarTodo() {
 }
 
 // ============================================
-// FIRMA DIGITAL
+// FIRMA DIGITAL EDAN
 // ============================================
 
 function iniciarFirmaEdan() {
@@ -3239,7 +3282,6 @@ function guardarEDAN() {
         });
 }
 
-// ===== CARGAR EDAN GUARDADOS =====
 function cargarEDAN() {
     db.collection('edan')
         .orderBy('fechaRegistro', 'desc')
@@ -3282,15 +3324,16 @@ function cargarEDAN() {
         .catch(() => {});
 }
 
-// ===== GENERAR PDF EDAN =====
+// ============================================
+// GENERAR PDF EDAN
+// ============================================
+
 async function generarPDFEDAN() {
-    // Si hay familias en la lista temporal, usarlas
     if (edanFamilias.length > 0) {
         generarPDFDesdeDatos(edanFamilias);
         return;
     }
     
-    // Si no hay familias temporales, buscar en Firestore
     mostrarToast('📊 Buscando EDAN guardados...', 'info');
     
     try {
@@ -3312,7 +3355,6 @@ async function generarPDFEDAN() {
             return;
         }
         
-        // Generar PDF con los datos guardados
         generarPDFDesdeDatos(data.familias, data);
         
     } catch (error) {
@@ -3321,7 +3363,6 @@ async function generarPDFEDAN() {
     }
 }
 
-// ===== GENERAR PDF DESDE DATOS =====
 async function generarPDFDesdeDatos(familias, datosGenerales) {
     try {
         const { jsPDF } = window.jspdf;
@@ -3334,14 +3375,12 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         let y = 42;
         doc.setFontSize(9);
         
-        // Obtener nombre del oficial correctamente formateado
         let oficialNombre = 'N/A';
         if (datosGenerales?.oficialNombre) {
-            // Formato: "Apellido, Nombre - Jerarquía" → "Jerarquía. APELLIDO NOMBRE"
             const partes = datosGenerales.oficialNombre.split(' - ');
             if (partes.length === 2) {
-                const nombreCompleto = partes[0]; // "Barrios, Sigfrido"
-                const jerarquia = partes[1]; // "OCPC I"
+                const nombreCompleto = partes[0];
+                const jerarquia = partes[1];
                 const nombreArr = nombreCompleto.split(', ');
                 if (nombreArr.length === 2) {
                     oficialNombre = `${jerarquia}. ${nombreArr[0].toUpperCase()} ${nombreArr[1].toUpperCase()}`;
@@ -3352,7 +3391,6 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
                 oficialNombre = datosGenerales.oficialNombre.toUpperCase();
             }
         } else {
-            // Usar datos del formulario actual
             const select = document.getElementById('edanOficial');
             if (select && select.selectedIndex > 0) {
                 const texto = select.options[select.selectedIndex]?.text || '';
@@ -3372,7 +3410,6 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
             }
         }
         
-        // Fecha y hora
         const fecha = datosGenerales?.fecha || document.getElementById('edanFecha')?.value || 'N/A';
         const hora = datosGenerales?.hora || document.getElementById('edanHora')?.value || 'N/A';
         const evento = datosGenerales?.evento || document.getElementById('edanEvento')?.value || 'N/A';
@@ -3396,7 +3433,11 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         y += 8;
         
         // ===== TABLA DE FAMILIAS =====
-        const headers = [['N°', 'Nombre y Apellido', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Material', 'Hab', 'Dest']];
+        const headers = [
+            ['N°', 'Nombre', 'C.I.', 'Adultos M', 'Adultos F', 'Adultos Mayores M', 
+             'Adultos Mayores F', 'Adolescentes M', 'Adolescentes F', 'Niños M', 
+             'Niños F', 'Lactantes M', 'Lactantes F', 'Tipo V', 'Material', 'Hab', 'Dest']
+        ];
         
         const rows = familias.map((f, i) => [
             (i+1).toString(),
@@ -3462,15 +3503,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         }
         
         // ===== NECESIDADES TOTALES =====
-        const necesidades = { alimentos: 0, colchon: 0, electrodomesticos: 0, otros: 0, otrosDesc: [] };
-        familias.forEach(f => {
-            necesidades.alimentos += f.alimentos || 0;
-            necesidades.colchon += f.colchon || 0;
-            necesidades.electrodomesticos += f.electrodomesticos || 0;
-            necesidades.otros += f.otros || 0;
-            if (f.otrosDesc) necesidades.otrosDesc.push(f.otrosDesc);
-        });
-        necesidades.otrosDesc = [...new Set(necesidades.otrosDesc)].join(', ');
+        const necesidades = edanCalcularNecesidades();
         
         doc.setFontSize(9);
         doc.text('NECESIDADES Y PERDIDAS TOTALES:', 20, finalY);
@@ -3498,7 +3531,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         doc.text('_________________________', 130, finalY + 10);
         doc.text('Sello de la Institución', 130, finalY + 18);
         
-            // ===== PIE DE PÁGINA =====
+        // ===== PIE DE PÁGINA =====
         agregarPiePagina(doc, doc.internal.pageSize.height - 15);
         
         doc.save(`EDAN_${fecha}.pdf`);
@@ -3509,6 +3542,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
         mostrarToast('❌ Error al generar PDF', 'danger');
     }
 }
+
 // ============================================
 // VIVIENDAS
 // ============================================
@@ -3661,16 +3695,6 @@ function leerFotoVivienda(file, previewId) {
         preview.appendChild(img);
     };
     reader.readAsDataURL(file);
-}
-
-function leerFotoBase64(file) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            resolve(e.target.result);
-        };
-        reader.readAsDataURL(file);
-    });
 }
 
 function guardarInspeccionVivienda() {
@@ -4110,8 +4134,7 @@ function generarCierre() {
             edan: edan.size,
             certificaciones: certificaciones.size,
             alertas: alertas.size,
-            vehiculos: vehiculos.size
-        };
+            vehiculos: vehiculos.size        };
         return db.collection('cierres').add(resumen);
     }).then(() => {
         mostrarToast('✅ Cierre generado correctamente', 'success');
@@ -4284,115 +4307,6 @@ function cargarUsuarios() {
 }
 
 // ============================================
-// FUNCIONES DE LOGOS PARA PDF
-// ============================================
-
-function agregarLogoPC(doc) {
-    return new Promise((resolve) => {
-        try {
-            const img = new Image();
-            img.crossOrigin = 'Anonymous';
-            img.src = 'https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png';
-            img.onload = function() {
-                try {
-                    doc.addImage(img, 'PNG', 15, 8, 25, 12);
-                    resolve(true);
-                } catch (e) {
-                    resolve(false);
-                }
-            };
-            img.onerror = function() {
-                resolve(false);
-            };
-            setTimeout(() => resolve(false), 3000);
-        } catch (e) {
-            resolve(false);
-        }
-    });
-}
-
-function agregarLogoGobernacion(doc) {
-    return new Promise((resolve) => {
-        try {
-            const img = new Image();
-            img.crossOrigin = 'Anonymous';
-            img.src = 'https://elbordon2703.github.io/sigr-pc/LOGO%20GOBERNACION.png';
-            img.onload = function() {
-                try {
-                    doc.addImage(img, 'PNG', 160, 8, 30, 12);
-                    resolve(true);
-                } catch (e) {
-                    resolve(false);
-                }
-            };
-            img.onerror = function() {
-                resolve(false);
-            };
-            setTimeout(() => resolve(false), 3000);
-        } catch (e) {
-            resolve(false);
-        }
-    });
-}
-
-// ===== AGREGAR PIE DE PÁGINA =====
-function agregarPiePagina(doc, y) {
-    try {
-        // Intentar cargar la imagen del pie de página
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        img.src = 'https://elbordon2703.github.io/sigr-pc/PIE%20DE%20PAGIAN2.png';
-        
-        img.onload = function() {
-            try {
-                // Si la imagen carga, mostrarla
-                doc.addImage(img, 'PNG', 10, y, 190, 15);
-                console.log('✅ Pie de página cargado correctamente');
-            } catch (e) {
-                console.log('⚠️ Error al agregar imagen de pie de página:', e);
-                // Si falla, mostrar texto
-                doc.setFontSize(8);
-                doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
-            }
-        };
-        
-        img.onerror = function() {
-            console.log('⚠️ No se pudo cargar la imagen del pie de página');
-            // Si la imagen no carga, mostrar texto
-            doc.setFontSize(8);
-            doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
-        };
-        
-        // Timeout por si tarda mucho
-        setTimeout(() => {
-            // Si después de 3 segundos no cargó, mostrar texto
-            doc.setFontSize(8);
-            doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
-        }, 3000);
-        
-    } catch (error) {
-        console.log('❌ Error al agregar pie de página:', error);
-        // Fallback: mostrar texto
-        doc.setFontSize(8);
-        doc.text('Protección Civil - Municipio Papelón', 105, y + 8, { align: 'center' });
-    }
-}
-
-async function agregarEncabezadoConLogos(doc, titulo, subtitulo) {
-    await agregarLogoPC(doc);
-    await agregarLogoGobernacion(doc);
-    
-    doc.setFontSize(16);
-    doc.text(titulo, 105, 25, { align: 'center' });
-    doc.setFontSize(10);
-    doc.text(subtitulo || 'Protección Civil - Municipio Papelón', 105, 33, { align: 'center' });
-    doc.setFontSize(8);
-    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 105, 39, { align: 'center' });
-    
-    return doc;
-}
-
-// ============================================
 // INICIALIZACIÓN
 // ============================================
 
@@ -4404,6 +4318,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ivNumero').value = generarNumeroInspeccion();
     cargarDatos();
     setInterval(verificarAlertas72h, 300000);
+    iniciarFirma();
+    iniciarFirmaVivienda();
 });
 
 console.log('🚀 SIGR-PC V2.0 cargado correctamente');
