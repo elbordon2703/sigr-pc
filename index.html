@@ -3657,13 +3657,15 @@ function generarPDFCertificacion() {
 }
 
 // ============================================
-// VIVIENDAS - FUNCIONES COMPLETAS
+// VIVIENDAS - FUNCIONES COMPLETAS (SIN DUPLICADOS)
 // ============================================
+
+// NOTA: firmaGuardadaVivienda, canvasVivienda, ctxVivienda, isDrawingVivienda
+// YA ESTÁN DECLARADOS AL PRINCIPIO DEL ARCHIVO
+// NO LOS DECLARES DE NUEVO AQUÍ
 
 let ivFamilias = [];
 let ivContadorFamilias = 0;
-let firmaGuardadaVivienda = null;
-let canvasVivienda, ctxVivienda, isDrawingVivienda = false;
 
 function initViviendas() {
     const ahora = new Date();
