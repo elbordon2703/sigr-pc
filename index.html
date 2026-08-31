@@ -3702,7 +3702,6 @@ async function generarPDFCertificacionConDatos(data) {
         const riesgo = data.arbol?.riesgo || 'N/A';
         const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
         const inspector = data.inspector?.nombreCompleto || 'N/A';
-        const jerarquia = data.inspector?.jerarquia || 'N/A';
         const utmE = data.utm?.este || 'N/A';
         const utmN = data.utm?.norte || 'N/A';
         const utmZona = data.utm?.zona || 'N/A';
@@ -3731,16 +3730,38 @@ async function generarPDFCertificacionConDatos(data) {
         doc.text(`UTM: ${utmE}E ${utmN}N ${utmZona}`, 15, y);
         y += 5;
         doc.text(`INSPECTOR: ${inspector}`, 15, y);
-        y += 5;
-        doc.text(`JERARQUÍA: ${jerarquia}`, 15, y);
-        y += 5;
+        y += 6; // Solo un espacio, sin "Jerarquía"
         
         if (data.observaciones) {
-            const splitObs = doc.splitTextToSize(`OBSERVACIONES: ${data.observaciones}`, 180);
+            doc.text(`OBSERVACIONES:`, 15, y);
+            y += 5;
+            const splitObs = doc.splitTextToSize(data.observaciones, 180);
             doc.text(splitObs, 15, y);
             y += splitObs.length * 5 + 5;
         }
         
+        // ===== RECOMENDACIONES (TEXTO FIJO) =====
+        doc.setFontSize(10);
+        doc.text('RECOMENDACIONES:', 15, y);
+        y += 5;
+        doc.setFontSize(9);
+        
+        const recomendaciones = [
+            '➢ Dirigirse al Ministerio de Eco socialismo (MINEC) para la solicitud de permiso de poda o tala de los árboles inspeccionados.',
+            '➢ Podar o talar el árbol una vez adquirido el permiso.',
+            '➢ Aprovechamiento sustentable: Proceso orientado a la utilización de los recursos naturales y demás elementos de los ecosistemas, de manera eficiente y socialmente útil, según el Art. #3 De la Ley Orgánica del Ambiente No. 5.833 Extraordinario.'
+        ];
+        
+        recomendaciones.forEach((texto, i) => {
+            const splitRec = doc.splitTextToSize(texto, 175);
+            doc.text(splitRec, 18, y);
+            y += splitRec.length * 5 + 2;
+            if (y > 250) { doc.addPage(); y = 20; }
+        });
+        
+        y += 3;
+        
+        // FIRMA Y SELLO
         try {
             if (data.inspector?.firma) {
                 doc.addImage(data.inspector.firma, 'PNG', 30, y + 5, 60, 20);
