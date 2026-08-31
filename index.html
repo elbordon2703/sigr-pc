@@ -3295,13 +3295,13 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
     }
 }
 
-// ============================================
+// ==============================================
 // CERTIFICACIÓN DE ÁRBOLES - FUNCIONES COMPLETAS
-// ============================================
+// ==============================================
 
-let certificaciones = [];
-let firmaGuardada = null;
-let canvasCert, ctxCert, isDrawingCert = false;
+// NOTA: certificaciones, firmaGuardadaCert, canvasCert, ctxCert, isDrawingCert
+// YA ESTÁN DECLARADOS AL PRINCIPIO DEL ARCHIVO
+// NO LOS DECLARES DE NUEVO AQUÍ
 
 // ============================================
 // CARGAR SOLICITANTES
@@ -3441,13 +3441,13 @@ function iniciarFirmaCert() {
 function limpiarFirma() {
     if (!ctxCert || !canvasCert) return;
     ctxCert.clearRect(0, 0, canvasCert.width, canvasCert.height);
-    firmaGuardada = null;
+    firmaGuardadaCert = null;
     mostrarToast('✍️ Firma limpiada', 'info');
 }
 
 function capturarFirma() {
     if (!canvasCert) return;
-    firmaGuardada = canvasCert.toDataURL('image/png');
+    firmaGuardadaCert = canvasCert.toDataURL('image/png');
     mostrarToast('✅ Firma guardada correctamente', 'success');
 }
 
@@ -3514,7 +3514,6 @@ function guardarCertificacionArbol() {
         return; 
     }
     
-    // Obtener datos del inspector
     const inspectorJerarquia = window._inspectorJerarquia || '';
     const inspectorNombre = window._inspectorNombre || '';
     const inspectorApellido = window._inspectorApellido || '';
@@ -3550,14 +3549,13 @@ function guardarCertificacionArbol() {
             zona: document.getElementById('caUtmZona').value.trim()
         },
         observaciones: document.getElementById('caObservaciones').value.trim(),
-        firma: firmaGuardada,
+        firma: firmaGuardadaCert,
         sello: edanSello || null,
         fecha: new Date().toISOString(),
         oficial: auth.currentUser?.email || 'Sistema',
         fotos: []
     };
 
-    // Procesar fotos con compresión
     const foto1 = document.getElementById('caFoto1');
     const foto2 = document.getElementById('caFoto2');
     const fotosPromises = [];
@@ -3598,11 +3596,9 @@ function guardarCertificacionArbol() {
             
             console.log('📦 Datos a guardar:', data);
             
-            // Guardar localmente
             certificaciones.push(data);
             guardarCertificacionesLocales();
 
-            // Guardar en Firestore
             if (navigator.onLine) {
                 db.collection('certificaciones').add(data)
                     .then(() => { 
@@ -3620,7 +3616,6 @@ function guardarCertificacionArbol() {
                 mostrarToast('📱 Guardado localmente (sin internet)', 'info');
             }
 
-            // Limpiar formulario
             caLimpiarTodo();
             cargarCertificaciones();
         })
@@ -3749,13 +3744,11 @@ function generarPDFCertificacionDesdeIndex(index) {
 // GENERAR PDF CERTIFICACIÓN
 // ============================================
 function generarPDFCertificacion() {
-    // Verificar si hay datos en el formulario
     const solicitanteId = document.getElementById('caSolicitante').value;
     const inspectorId = document.getElementById('caInspector').value;
     const direccion = document.getElementById('caDireccion').value.trim();
     
     if (!solicitanteId && !inspectorId && !direccion) {
-        // Si no hay datos en el formulario, usar la última certificación guardada
         if (certificaciones.length === 0) {
             mostrarToast('⚠️ No hay certificaciones para generar PDF', 'warning');
             return;
@@ -3764,7 +3757,6 @@ function generarPDFCertificacion() {
         return;
     }
     
-    // Recolectar datos del formulario
     const inspectorJerarquia = window._inspectorJerarquia || '';
     const inspectorNombre = window._inspectorNombre || '';
     const inspectorApellido = window._inspectorApellido || '';
@@ -3796,7 +3788,7 @@ function generarPDFCertificacion() {
             zona: document.getElementById('caUtmZona').value.trim()
         },
         observaciones: document.getElementById('caObservaciones').value.trim(),
-        firma: firmaGuardada,
+        firma: firmaGuardadaCert,
         sello: edanSello || null,
         fecha: new Date().toISOString(),
         fotos: []
@@ -3818,14 +3810,12 @@ async function generarPDFCertificacionConDatos(data) {
         let y = 42;
         doc.setFontSize(9);
         
-        // TEXTO LEGAL ORIGINAL
         const textoLegal = `La Dirección General del Instituto de Protección Civil y Administración de Desastres del Estado Portuguesa (INPRADEP), a través de la Coordinación de Gestión Integral de Riesgo (G.I.R), y en uso de las atribuciones conferidas en el Artículo 55 de la Constitución de la República Bolivariana de Venezuela, en concordancia con el decreto de fuerza de Ley N° 1.557, Artículo 3 Numeral 2 de la Ley de Protección Civil y Administración de Desastres, Artículo 22 Numeral 4 y Artículo 29 de la Ley de Gestión Integral de Riesgo Socio-naturales y Tecnológicas, CERTIFICA, mediante la presente, la realización de una inspección y evaluación de riesgo arbóreo en el siguiente lugar:`;
         
         const splitLegal = doc.splitTextToSize(textoLegal, 180);
         doc.text(splitLegal, 15, y);
         y += splitLegal.length * 5 + 5;
         
-        // DATOS DE LA INSPECCIÓN
         doc.setFontSize(10);
         const solicitante = data.solicitante ? `${data.solicitante.nombre} ${data.solicitante.apellido}` : 'N/A';
         const cedula = data.solicitante?.cedula || 'N/A';
@@ -3878,7 +3868,6 @@ async function generarPDFCertificacionConDatos(data) {
             y += splitObs.length * 5 + 5;
         }
         
-        // FIRMA Y SELLO
         try {
             if (data.firma) {
                 doc.addImage(data.firma, 'PNG', 30, y + 5, 60, 20);
@@ -3906,7 +3895,6 @@ async function generarPDFCertificacionConDatos(data) {
             doc.text('Sello de la Institución', 135, y + 18);
         }
         
-        // FOTOS
         if (data.fotos && data.fotos.length > 0) {
             doc.addPage();
             y = 20;
