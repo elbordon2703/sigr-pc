@@ -802,31 +802,29 @@
             </div>
 
             <!-- DATOS DEL SOLICITANTE -->
-            <div class="card mb-2" style="background:#f8f9fa;">
-                <div class="card-header"><i class="fas fa-user"></i> Datos del Solicitante</div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📌 Solicitante</label>
-                            <select id="caSolicitante" class="form-select" onchange="cargarDatosSolicitante()">
-                                <option value="">— Seleccione el Solicitante —</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📄 Cédula</label>
-                            <input type="text" id="caSolicitanteCedula" class="form-control" readonly>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📞 Teléfono</label>
-                            <input type="text" id="caSolicitanteTelefono" class="form-control" readonly>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📍 Dirección</label>
-                            <input type="text" id="caDireccion" class="form-control" placeholder="Calle, sector, comunidad">
-                        </div>
-                    </div>
-                </div>
+<div class="card mb-2" style="background:#f8f9fa;">
+    <div class="card-header"><i class="fas fa-user"></i> Datos del Solicitante</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <label class="form-label">👤 Nombre y Apellido</label>
+                <input type="text" id="caSolicitante" class="form-control" placeholder="Nombre completo">
             </div>
+            <div class="col-md-3 mb-2">
+                <label class="form-label">📄 Cédula</label>
+                <input type="text" id="caSolicitanteCedula" class="form-control" placeholder="V-12345678">
+            </div>
+            <div class="col-md-5 mb-2">
+                <label class="form-label">📞 Teléfono</label>
+                <input type="text" id="caSolicitanteTelefono" class="form-control" placeholder="0414-1234567">
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">📍 Dirección</label>
+                <input type="text" id="caDireccion" class="form-control" placeholder="Calle, sector, comunidad">
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- DATOS DEL INSPECTOR -->
             <div class="card mb-2" style="background:#e9ecef;">
