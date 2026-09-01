@@ -1418,34 +1418,110 @@
         </div>
     </div>
     
-    <!-- USUARIOS -->
-    <div id="section-usuarios" class="section">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-user-plus"></i> Gestionar Usuarios</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2"><input type="text" id="uNombre" class="form-control" placeholder="Nombre"></div>
-                    <div class="col-md-3 mb-2"><input type="text" id="uApellido" class="form-control" placeholder="Apellido"></div>
-                    <div class="col-md-3 mb-2"><input type="email" id="uEmail" class="form-control" placeholder="Correo"></div>
-                    <div class="col-md-3 mb-2">
-                        <select id="uRol" class="form-select">
-                            <option value="comandante">👑 1er Comandante</option>
-                            <option value="segundo_comandante">👤 2do Comandante</option>
-                            <option value="jefe_servicio">🛡️ Jefe de Servicio</option>
-                            <option value="oficial">👮 Oficial</option>
-                        </select>
-                    </div>
-                    <div class="col-12"><button class="btn btn-success" onclick="crearUsuario()"><i class="fas fa-user-plus"></i> Crear Usuario</button></div>
+   <!-- USUARIOS -->
+<div id="section-usuarios" class="section">
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-user-plus"></i> Gestionar Usuarios
+            <span class="badge badge-info ms-2">Solo Comandante</span>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Gestión de usuarios:</strong> Solo el 1er Comandante puede crear, editar y eliminar usuarios.
+                Los usuarios deben tener un rol asignado para acceder al sistema.
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">👤 Nombre</label>
+                    <input type="text" id="uNombre" class="form-control" placeholder="Nombre">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">👤 Apellido</label>
+                    <input type="text" id="uApellido" class="form-control" placeholder="Apellido">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">📧 Correo</label>
+                    <input type="email" id="uEmail" class="form-control" placeholder="correo@ejemplo.com">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">🎯 Rol</label>
+                    <select id="uRol" class="form-select">
+                        <option value="comandante">👑 1er Comandante</option>
+                        <option value="segundo_comandante">👤 2do Comandante</option>
+                        <option value="jefe_servicio">🛡️ Jefe de Servicio</option>
+                        <option value="oficial">👮 Oficial</option>
+                    </select>
+                </div>
+                <div class="col-12 mt-2">
+                    <button class="btn btn-success" onclick="crearUsuario()">
+                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    </button>
+                    <button class="btn btn-secondary" onclick="limpiarFormularioUsuario()">
+                        <i class="fas fa-eraser"></i> Limpiar
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="card mt-3">
-            <div class="card-header"><i class="fas fa-list"></i> Usuarios del Sistema</div>
-            <div class="card-body" id="listaUsuarios"></div>
+    </div>
+
+  <!-- USUARIOS -->
+<div id="section-usuarios" class="section">
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-user-plus"></i> Gestionar Usuarios
+            <span class="badge badge-info ms-2">Solo Comandante</span>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Gestión de usuarios:</strong> Solo el 1er Comandante puede crear, editar y eliminar usuarios.
+                Los usuarios deben tener un rol asignado para acceder al sistema.
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">👤 Nombre</label>
+                    <input type="text" id="uNombre" class="form-control" placeholder="Nombre">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">👤 Apellido</label>
+                    <input type="text" id="uApellido" class="form-control" placeholder="Apellido">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">📧 Correo</label>
+                    <input type="email" id="uEmail" class="form-control" placeholder="correo@ejemplo.com">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">🎯 Rol</label>
+                    <select id="uRol" class="form-select">
+                        <option value="comandante">👑 1er Comandante</option>
+                        <option value="segundo_comandante">👤 2do Comandante</option>
+                        <option value="jefe_servicio">🛡️ Jefe de Servicio</option>
+                        <option value="oficial">👮 Oficial</option>
+                    </select>
+                </div>
+                <div class="col-12 mt-2">
+                    <button class="btn btn-success" onclick="crearUsuario()">
+                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    </button>
+                    <button class="btn btn-secondary" onclick="limpiarFormularioUsuario()">
+                        <i class="fas fa-eraser"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            <i class="fas fa-list"></i> Usuarios del Sistema
+            <span class="badge bg-secondary ms-2" id="totalUsuarios">0 usuarios</span>
+        </div>
+        <div class="card-body" id="listaUsuarios">
+            <p class="text-muted">Cargando usuarios...</p>
         </div>
     </div>
 </div>
-
 <!-- TOAST -->
 <div class="toast-container">
     <div id="toast" class="toast align-items-center text-white border-0" role="alert">
@@ -4785,48 +4861,162 @@ function crearUsuario() {
         mostrarToast('❌ Solo el 1er Comandante puede crear usuarios', 'danger');
         return;
     }
+    
     const email = document.getElementById('uEmail').value.trim();
     const nombre = document.getElementById('uNombre').value.trim();
     const apellido = document.getElementById('uApellido').value.trim();
     const rol = document.getElementById('uRol').value;
+    
     if (!email || !nombre || !apellido) {
         mostrarToast('⚠️ Complete todos los campos', 'warning');
         return;
     }
+    
     db.collection('usuarios').where('email', '==', email).get()
         .then(snap => {
-            if (!snap.empty) { mostrarToast('⚠️ El usuario ya existe', 'warning'); return; }
+            if (!snap.empty) {
+                mostrarToast('⚠️ El usuario ya existe', 'warning');
+                return;
+            }
             return db.collection('usuarios').add({
-                email, nombre, apellido, rol,
+                email: email,
+                nombre: nombre,
+                apellido: apellido,
+                rol: rol,
                 activo: true,
                 fechaCreacion: new Date().toISOString(),
                 creadoPor: auth.currentUser?.email || 'Sistema'
             });
         })
         .then(() => {
-            mostrarToast(`✅ Usuario ${nombre} ${apellido} creado como ${rol}`, 'success');
+            const rolTexto = {
+                'comandante': '👑 1er Comandante',
+                'segundo_comandante': '👤 2do Comandante',
+                'jefe_servicio': '🛡️ Jefe de Servicio',
+                'oficial': '👮 Oficial'
+            };
+            mostrarToast(`✅ Usuario ${nombre} ${apellido} creado como ${rolTexto[rol] || rol}`, 'success');
+            document.getElementById('uEmail').value = '';
+            document.getElementById('uNombre').value = '';
+            document.getElementById('uApellido').value = '';
             cargarUsuarios();
         })
-        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+        .catch(error => {
+            console.error('Error creando usuario:', error);
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
+}
+
+function limpiarFormularioUsuario() {
+    document.getElementById('uNombre').value = '';
+    document.getElementById('uApellido').value = '';
+    document.getElementById('uEmail').value = '';
+    document.getElementById('uRol').value = 'oficial';
+    mostrarToast('🧹 Formulario limpiado', 'info');
 }
 
 function cargarUsuarios() {
-    if (usuarioActual.rol !== 'comandante') return;
-    db.collection('usuarios').orderBy('fechaCreacion', 'desc').get()
+    if (usuarioActual.rol !== 'comandante') {
+        const container = document.getElementById('listaUsuarios');
+        if (container) container.innerHTML = '<p class="text-muted">Solo el 1er Comandante puede ver esta sección</p>';
+        return;
+    }
+    
+    const container = document.getElementById('listaUsuarios');
+    const totalBadge = document.getElementById('totalUsuarios');
+    if (!container) return;
+    
+    db.collection('usuarios')
+        .orderBy('fechaCreacion', 'desc')
+        .get()
         .then(snap => {
-            const container = document.getElementById('listaUsuarios');
-            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay usuarios registrados</p>'; return; }
-            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th></tr></thead><tbody>';
+            if (snap.empty) {
+                container.innerHTML = '<p class="text-muted">No hay usuarios registrados</p>';
+                if (totalBadge) totalBadge.textContent = '0 usuarios';
+                return;
+            }
+            
+            if (totalBadge) totalBadge.textContent = `${snap.size} usuarios`;
+            
+            let html = '<div class="table-responsive"><table class="table table-sm">';
+            html += `<thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead><tbody>`;
+            
             snap.forEach(doc => {
                 const data = doc.data();
-                const rolTexto = { 'comandante': '👑 1er Comandante', 'segundo_comandante': '👤 2do Comandante', 'jefe_servicio': '🛡️ Jefe de Servicio', 'oficial': '👮 Oficial' };
-                html += `<tr><td>${data.nombre} ${data.apellido}</td><td>${data.email}</td><td>${rolTexto[data.rol] || data.rol}</td><td><span class="badge ${data.activo ? 'badge-success' : 'badge-danger'}">${data.activo ? 'Activo' : 'Inactivo'}</span></td></tr>`;
+                const rolTexto = {
+                    'comandante': '👑 1er Comandante',
+                    'segundo_comandante': '👤 2do Comandante',
+                    'jefe_servicio': '🛡️ Jefe de Servicio',
+                    'oficial': '👮 Oficial'
+                };
+                
+                const rolDisplay = rolTexto[data.rol] || data.rol;
+                const estadoBadge = data.activo !== false ? 'badge-success' : 'badge-danger';
+                const estadoTexto = data.activo !== false ? 'Activo' : 'Inactivo';
+                
+                html += `<tr>
+                    <td><strong>${data.nombre || 'N/A'} ${data.apellido || ''}</strong></td>
+                    <td>${data.email || 'N/A'}</td>
+                    <td>${rolDisplay}</td>
+                    <td><span class="badge ${estadoBadge}">${estadoTexto}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="toggleUsuario('${doc.id}', ${data.activo !== false ? false : true})" title="Activar/Desactivar">
+                            <i class="fas ${data.activo !== false ? 'fa-pause' : 'fa-play'}"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${doc.id}')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
             });
+            
             html += '</tbody></table></div>';
             container.innerHTML = html;
-        }).catch(() => {});
+        })
+        .catch(error => {
+            console.error('Error cargando usuarios:', error);
+            container.innerHTML = '<p class="text-danger">Error al cargar los usuarios</p>';
+        });
 }
 
+function toggleUsuario(id, nuevoEstado) {
+    if (!confirm(`¿${nuevoEstado ? 'Activar' : 'Desactivar'} este usuario?`)) return;
+    
+    db.collection('usuarios').doc(id).update({
+        activo: nuevoEstado,
+        actualizado: new Date().toISOString()
+    })
+    .then(() => {
+        mostrarToast(`✅ Usuario ${nuevoEstado ? 'activado' : 'desactivado'} correctamente`, 'success');
+        cargarUsuarios();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarToast('❌ Error: ' + error.message, 'danger');
+    });
+}
+
+function eliminarUsuario(id) {
+    if (!confirm('¿Eliminar este usuario permanentemente?')) return;
+    
+    db.collection('usuarios').doc(id).delete()
+        .then(() => {
+            mostrarToast('✅ Usuario eliminado correctamente', 'success');
+            cargarUsuarios();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
+}
 // ============================================
 // INICIALIZACIÓN
 // ============================================
