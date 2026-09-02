@@ -786,176 +786,196 @@
             <div class="card-body" id="listaEdan"></div>
         </div>
     </div>
-    
     <!-- CERTIFICACIÓN DE ÁRBOLES -->
-    <div id="section-certificacion" class="section">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-tree"></i> Certificación de Árboles
-                <span class="badge badge-info ms-2">📋 Registro Oficial</span>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> 
-                    <strong>Certificación de árboles:</strong> Registro oficial para evaluación de riesgo arbóreo.
-                    Complete todos los campos.
-                </div>
-
-                <!-- DATOS DEL SOLICITANTE -->
-                <div class="card mb-2" style="background:#f8f9fa;">
-                    <div class="card-header"><i class="fas fa-user"></i> Datos del Solicitante</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">👤 Nombre y Apellido</label>
-                                <input type="text" id="caSolicitante" class="form-control" placeholder="Nombre completo">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">📄 Cédula</label>
-                                <input type="text" id="caSolicitanteCedula" class="form-control" placeholder="V-12345678">
-                            </div>
-                            <div class="col-md-5 mb-2">
-                                <label class="form-label">📞 Teléfono</label>
-                                <input type="text" id="caSolicitanteTelefono" class="form-control" placeholder="0414-1234567">
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">📍 Dirección</label>
-                                <input type="text" id="caDireccion" class="form-control" placeholder="Calle, sector, comunidad">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- DATOS DEL INSPECTOR -->
-                <div class="card mb-2" style="background:#e9ecef;">
-                    <div class="card-header"><i class="fas fa-user-check"></i> Datos del Inspector (Actuante)</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">👤 Inspector</label>
-                                <select id="caInspector" class="form-select" onchange="cargarDatosInspector()">
-                                    <option value="">— Seleccione el Inspector —</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">📋 Jerarquía y Nombre</label>
-                                <input type="text" id="caInspectorJerarquiaNombre" class="form-control" readonly placeholder="Ej: OCPC I. Barrios Sigfrido">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- DATOS DEL ÁRBOL -->
-                <div class="card mb-2">
-                    <div class="card-header"><i class="fas fa-tree"></i> Datos del Árbol</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">🌳 Especie</label>
-                                <input type="text" id="caEspecie" class="form-control" placeholder="Nombre común o científico">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">📏 Altura (m)</label>
-                                <input type="number" id="caAltura" class="form-control" step="0.1">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">📐 Diámetro (m)</label>
-                                <input type="number" id="caDiametro" class="form-control" step="0.1">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">📏 Inclinación (°)</label>
-                                <input type="number" id="caInclinacion" class="form-control" step="0.1">
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label">🏠 Dist. vivienda (m)</label>
-                                <input type="number" id="caDistancia" class="form-control" step="0.1">
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">⚠️ Nivel de Riesgo</label>
-                                <select id="caRiesgo" class="form-select">
-                                    <option value="bajo">🟢 Bajo</option>
-                                    <option value="medio">🟡 Medio</option>
-                                    <option value="alto">🟠 Alto</option>
-                                    <option value="muy_alto">🔴 Muy Alto</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- UBICACIÓN UTM -->
-                <div class="card mb-2">
-                    <div class="card-header"><i class="fas fa-map-marker-alt"></i> Ubicación UTM</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">📍 UTM Este</label>
-                                <input type="text" id="caUtmE" class="form-control" placeholder="Ej: 123456">
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">📍 UTM Norte</label>
-                                <input type="text" id="caUtmN" class="form-control" placeholder="Ej: 987654">
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">🗺️ Zona</label>
-                                <input type="text" id="caUtmZona" class="form-control" placeholder="Ej: 19">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- OBSERVACIONES -->
-                <div class="row mt-2">
-                    <div class="col-12 mb-2">
-                        <label class="form-label">📝 Observaciones</label>
-                        <textarea id="caObservaciones" class="form-control" rows="2" placeholder="Condiciones del árbol, daños visibles, recomendaciones..."></textarea>
-                    </div>
-                </div>
-
-                <!-- FOTOS -->
-                <div class="row mt-2">
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">📸 Foto 1</label>
-                        <input type="file" id="caFoto1" class="form-control" accept="image/*" capture="environment">
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">📸 Foto 2</label>
-                        <input type="file" id="caFoto2" class="form-control" accept="image/*" capture="environment">
-                    </div>
-                    <div class="col-12 mb-2">
-                        <div id="caFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
-                    </div>
-                </div>
-
-                <!-- FIRMA DEL INSPECTOR (cargada desde personal) -->
-                <div class="row mt-2">
-                    <div class="col-12 mb-2">
-                        <label class="form-label">✍️ Firma del Inspector</label>
-                        <div id="caFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
-                            <p class="text-muted" id="caFirmaPlaceholder">Seleccione un inspector para cargar su firma</p>
-                            <img id="caFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BOTONES -->
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <button class="btn btn-success" onclick="guardarCertificacionArbol()"><i class="fas fa-save"></i> Registrar Certificación</button>
-                        <button class="btn btn-primary" onclick="generarPDFCertificacion()"><i class="fas fa-file-pdf"></i> Generar PDF</button>
-                        <button class="btn btn-secondary" onclick="caLimpiarTodo()"><i class="fas fa-eraser"></i> Limpiar Todo</button>
-                    </div>
-                </div>
-                <div id="caMensaje" class="mt-2"></div>
-            </div>
+<div id="section-certificacion" class="section">
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-tree"></i> Certificación de Árboles
+            <span class="badge badge-info ms-2">📋 Registro Oficial</span>
         </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Certificación de árboles:</strong> Registro oficial para evaluación de riesgo arbóreo.
+                <br>Complete los datos del solicitante, del inspector y agregue <strong>TODOS</strong> los árboles inspeccionados.
+            </div>
 
-        <!-- LISTA DE CERTIFICACIONES -->
-        <div class="card mt-3">
-            <div class="card-header"><i class="fas fa-list"></i> Certificaciones Registradas</div>
-            <div class="card-body" id="listaCertificaciones"></div>
+            <!-- DATOS DEL SOLICITANTE -->
+            <div class="card mb-2" style="background:#f8f9fa;">
+                <div class="card-header"><i class="fas fa-user"></i> Datos del Solicitante</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">👤 Nombre y Apellido</label>
+                            <input type="text" id="caSolicitante" class="form-control" placeholder="Nombre completo">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">📄 Cédula</label>
+                            <input type="text" id="caSolicitanteCedula" class="form-control" placeholder="V-12345678">
+                        </div>
+                        <div class="col-md-5 mb-2">
+                            <label class="form-label">📞 Teléfono</label>
+                            <input type="text" id="caSolicitanteTelefono" class="form-control" placeholder="0414-1234567">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📍 Dirección</label>
+                            <input type="text" id="caDireccion" class="form-control" placeholder="Calle, sector, comunidad">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DATOS DEL INSPECTOR -->
+            <div class="card mb-2" style="background:#e9ecef;">
+                <div class="card-header"><i class="fas fa-user-check"></i> Datos del Inspector (Actuante)</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">👤 Inspector</label>
+                            <select id="caInspector" class="form-select" onchange="cargarDatosInspector()">
+                                <option value="">— Seleccione el Inspector —</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📋 Jerarquía y Nombre</label>
+                            <input type="text" id="caInspectorJerarquiaNombre" class="form-control" readonly placeholder="Ej: OCPC I. Barrios Sigfrido">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LISTA DE ÁRBOLES -->
+            <div class="card mb-2" style="border:2px solid #19864b;">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-tree"></i> Árboles Inspeccionados
+                    <span class="badge bg-light text-dark ms-2" id="caArbolCount">0 árboles</span>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Agregue cada árbol inspeccionado:</strong> Complete los datos del árbol y haga clic en "Agregar Árbol".
+                        Puede agregar tantos árboles como sean necesarios.
+                    </div>
+                    
+                    <!-- DATOS DEL ÁRBOL -->
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">🌳 Especie</label>
+                            <input type="text" id="caEspecie" class="form-control" placeholder="Nombre común o científico">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">📏 Altura (m)</label>
+                            <input type="number" id="caAltura" class="form-control" step="0.1">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">📐 Diámetro (m)</label>
+                            <input type="number" id="caDiametro" class="form-control" step="0.1">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">📏 Inclinación (°)</label>
+                            <input type="number" id="caInclinacion" class="form-control" step="0.1">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">🏠 Dist. vivienda (m)</label>
+                            <input type="number" id="caDistancia" class="form-control" step="0.1">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">⚠️ Nivel de Riesgo</label>
+                            <select id="caRiesgo" class="form-select">
+                                <option value="bajo">🟢 Bajo</option>
+                                <option value="medio">🟡 Medio</option>
+                                <option value="alto">🟠 Alto</option>
+                                <option value="muy_alto">🔴 Muy Alto</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📍 UTM Este</label>
+                            <input type="text" id="caUtmE" class="form-control" placeholder="Ej: 123456">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📍 UTM Norte</label>
+                            <input type="text" id="caUtmN" class="form-control" placeholder="Ej: 987654">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">🗺️ Zona</label>
+                            <input type="text" id="caUtmZona" class="form-control" placeholder="Ej: 19">
+                        </div>
+                        <div class="col-12 mt-2">
+                            <button class="btn btn-success btn-sm" onclick="caAgregarArbol()">
+                                <i class="fas fa-plus"></i> Agregar Árbol
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="caLimpiarArbol()">
+                                <i class="fas fa-undo"></i> Limpiar Campos
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- LISTA DE ÁRBOLES AGREGADOS -->
+                    <div class="mt-3" id="caListaArboles">
+                        <p class="text-muted">No hay árboles agregados. Agregue el primer árbol.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OBSERVACIONES -->
+            <div class="row mt-2">
+                <div class="col-12 mb-2">
+                    <label class="form-label">📝 Observaciones</label>
+                    <textarea id="caObservaciones" class="form-control" rows="2" placeholder="Condiciones generales, daños visibles, recomendaciones..."></textarea>
+                </div>
+            </div>
+
+            <!-- FOTOS -->
+            <div class="row mt-2">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">📸 Foto 1</label>
+                    <input type="file" id="caFoto1" class="form-control" accept="image/*" capture="environment">
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">📸 Foto 2</label>
+                    <input type="file" id="caFoto2" class="form-control" accept="image/*" capture="environment">
+                </div>
+                <div class="col-12 mb-2">
+                    <div id="caFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
+                </div>
+            </div>
+
+            <!-- FIRMA DEL INSPECTOR -->
+            <div class="row mt-2">
+                <div class="col-12 mb-2">
+                    <label class="form-label">✍️ Firma del Inspector</label>
+                    <div id="caFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
+                        <p class="text-muted" id="caFirmaPlaceholder">Seleccione un inspector para cargar su firma</p>
+                        <img id="caFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <button class="btn btn-success" onclick="guardarCertificacionArbol()">
+                        <i class="fas fa-save"></i> Registrar Certificación
+                    </button>
+                    <button class="btn btn-primary" onclick="generarPDFCertificacion()">
+                        <i class="fas fa-file-pdf"></i> Generar PDF
+                    </button>
+                    <button class="btn btn-secondary" onclick="caLimpiarTodo()">
+                        <i class="fas fa-eraser"></i> Limpiar Todo
+                    </button>
+                </div>
+            </div>
+            <div id="caMensaje" class="mt-2"></div>
         </div>
     </div>
+
+    <!-- LISTA DE CERTIFICACIONES -->
+    <div class="card mt-3">
+        <div class="card-header"><i class="fas fa-list"></i> Certificaciones Registradas</div>
+        <div class="card-body" id="listaCertificaciones"></div>
+    </div>
+</div>
+<!-- FIN CERTIFICACIÓN DE ÁRBOLES -->
     
     <!-- VIVIENDAS -->
     <div id="section-viviendas" class="section">
@@ -3357,6 +3377,12 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
 // CERTIFICACIÓN DE ÁRBOLES
 // ============================================
 
+let caArboles = [];
+let caContadorArboles = 0;
+
+// ============================================
+// CARGAR INSPECTORES
+// ============================================
 function cargarInspector() {
     const select = document.getElementById('caInspector');
     if (!select) return;
@@ -3423,6 +3449,123 @@ function cargarDatosInspector() {
     }
 }
 
+// ============================================
+// AGREGAR ÁRBOL A LA LISTA
+// ============================================
+function caAgregarArbol() {
+    const especie = document.getElementById('caEspecie').value.trim();
+    
+    if (!especie) {
+        mostrarToast('⚠️ La especie del árbol es obligatoria', 'warning');
+        document.getElementById('caEspecie').focus();
+        return;
+    }
+    
+    const arbol = {
+        id: caContadorArboles + 1,
+        especie: especie,
+        altura: parseFloat(document.getElementById('caAltura').value) || 0,
+        diametro: parseFloat(document.getElementById('caDiametro').value) || 0,
+        inclinacion: parseFloat(document.getElementById('caInclinacion').value) || 0,
+        distancia: parseFloat(document.getElementById('caDistancia').value) || 0,
+        riesgo: document.getElementById('caRiesgo').value,
+        utm: {
+            este: document.getElementById('caUtmE').value.trim(),
+            norte: document.getElementById('caUtmN').value.trim(),
+            zona: document.getElementById('caUtmZona').value.trim()
+        }
+    };
+    
+    caArboles.push(arbol);
+    caContadorArboles++;
+    
+    caLimpiarArbol();
+    caActualizarListaArboles();
+    mostrarToast(`✅ Árbol ${caContadorArboles} agregado: ${especie}`, 'success');
+}
+
+// ============================================
+// LIMPIAR CAMPOS DEL ÁRBOL
+// ============================================
+function caLimpiarArbol() {
+    document.getElementById('caEspecie').value = '';
+    document.getElementById('caAltura').value = '';
+    document.getElementById('caDiametro').value = '';
+    document.getElementById('caInclinacion').value = '';
+    document.getElementById('caDistancia').value = '';
+    document.getElementById('caRiesgo').value = 'bajo';
+    document.getElementById('caUtmE').value = '';
+    document.getElementById('caUtmN').value = '';
+    document.getElementById('caUtmZona').value = '';
+    document.getElementById('caEspecie').focus();
+}
+
+// ============================================
+// ACTUALIZAR LISTA DE ÁRBOLES
+// ============================================
+function caActualizarListaArboles() {
+    const container = document.getElementById('caListaArboles');
+    const countBadge = document.getElementById('caArbolCount');
+    
+    if (caArboles.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay árboles agregados. Agregue el primer árbol.</p>';
+        if (countBadge) countBadge.textContent = '0 árboles';
+        return;
+    }
+    
+    if (countBadge) countBadge.textContent = `${caArboles.length} árboles`;
+    
+    let html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+    html += `<thead>
+        <tr>
+            <th>#</th>
+            <th>Especie</th>
+            <th style="text-align:center;">Altura<br><small>m</small></th>
+            <th style="text-align:center;">Diámetro<br><small>m</small></th>
+            <th style="text-align:center;">Inclinación<br><small>°</small></th>
+            <th style="text-align:center;">Distancia<br><small>m</small></th>
+            <th style="text-align:center;">Riesgo</th>
+            <th style="text-align:center;">Acción</th>
+        </tr>
+    </thead><tbody>`;
+    
+    caArboles.forEach((arbol, index) => {
+        const riesgoColor = arbol.riesgo === 'muy_alto' ? 'danger' : arbol.riesgo === 'alto' ? 'warning' : arbol.riesgo === 'medio' ? 'info' : 'success';
+        const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
+        
+        html += `<tr>
+            <td>${arbol.id}</td>
+            <td><strong>${arbol.especie}</strong></td>
+            <td style="text-align:center;">${arbol.altura}</td>
+            <td style="text-align:center;">${arbol.diametro}</td>
+            <td style="text-align:center;">${arbol.inclinacion}</td>
+            <td style="text-align:center;">${arbol.distancia}</td>
+            <td style="text-align:center;"><span class="badge bg-${riesgoColor}">${riesgoTexto[arbol.riesgo]}</span></td>
+            <td style="text-align:center;">
+                <button class="btn btn-sm btn-danger" onclick="caEliminarArbol(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    });
+    
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+// ============================================
+// ELIMINAR ÁRBOL DE LA LISTA
+// ============================================
+function caEliminarArbol(index) {
+    if (!confirm(`¿Eliminar el árbol ${caArboles[index].especie}?`)) return;
+    caArboles.splice(index, 1);
+    caActualizarListaArboles();
+    mostrarToast('✅ Árbol eliminado', 'success');
+}
+
+// ============================================
+// LIMPIAR TODO EL FORMULARIO
+// ============================================
 function caLimpiarTodo() {
     if (!confirm('¿Limpiar todos los datos del formulario de Certificación?')) return;
     
@@ -3432,15 +3575,12 @@ function caLimpiarTodo() {
     document.getElementById('caInspector').value = '';
     document.getElementById('caInspectorJerarquiaNombre').value = '';
     document.getElementById('caDireccion').value = '';
-    document.getElementById('caEspecie').value = '';
-    document.getElementById('caAltura').value = '';
-    document.getElementById('caDiametro').value = '';
-    document.getElementById('caInclinacion').value = '';
-    document.getElementById('caDistancia').value = '';
     document.getElementById('caObservaciones').value = '';
-    document.getElementById('caUtmE').value = '';
-    document.getElementById('caUtmN').value = '';
-    document.getElementById('caUtmZona').value = '';
+    
+    caArboles = [];
+    caContadorArboles = 0;
+    caActualizarListaArboles();
+    
     document.getElementById('caFoto1').value = '';
     document.getElementById('caFoto2').value = '';
     document.getElementById('caFotosPreview').innerHTML = '';
@@ -3457,13 +3597,15 @@ function caLimpiarTodo() {
     mostrarToast('🧹 Datos limpiados', 'info');
 }
 
+// ============================================
+// GUARDAR CERTIFICACIÓN CON MÚLTIPLES ÁRBOLES
+// ============================================
 function guardarCertificacionArbol() {
     const solicitante = document.getElementById('caSolicitante').value.trim();
     const solicitanteCedula = document.getElementById('caSolicitanteCedula').value.trim();
     const solicitanteTelefono = document.getElementById('caSolicitanteTelefono').value.trim();
     const direccion = document.getElementById('caDireccion').value.trim();
     const inspectorId = document.getElementById('caInspector').value;
-    const especie = document.getElementById('caEspecie').value.trim();
     
     if (!solicitante) { 
         mostrarToast('⚠️ El nombre del Solicitante es obligatorio', 'warning'); 
@@ -3479,10 +3621,10 @@ function guardarCertificacionArbol() {
         document.getElementById('caDireccion').focus();
         return; 
     }
-    if (!especie) { 
-        mostrarToast('⚠️ La especie del árbol es obligatoria', 'warning'); 
-        document.getElementById('caEspecie').focus();
-        return; 
+    
+    if (caArboles.length === 0) {
+        mostrarToast('⚠️ Agregue al menos 1 árbol', 'warning');
+        return;
     }
     
     const inspectorJerarquia = window._inspectorJerarquia || '';
@@ -3495,7 +3637,8 @@ function guardarCertificacionArbol() {
         solicitante: {
             nombre: solicitante,
             cedula: solicitanteCedula || 'N/A',
-            telefono: solicitanteTelefono || 'N/A'
+            telefono: solicitanteTelefono || 'N/A',
+            direccion: direccion
         },
         inspector: {
             id: inspectorId,
@@ -3505,20 +3648,8 @@ function guardarCertificacionArbol() {
             nombreCompleto: inspectorCompleto,
             firma: firmaInspector
         },
-        arbol: {
-            direccion: direccion,
-            especie: especie,
-            altura: parseFloat(document.getElementById('caAltura').value) || 0,
-            diametro: parseFloat(document.getElementById('caDiametro').value) || 0,
-            inclinacion: parseFloat(document.getElementById('caInclinacion').value) || 0,
-            distancia: parseFloat(document.getElementById('caDistancia').value) || 0,
-            riesgo: document.getElementById('caRiesgo').value
-        },
-        utm: {
-            este: document.getElementById('caUtmE').value.trim(),
-            norte: document.getElementById('caUtmN').value.trim(),
-            zona: document.getElementById('caUtmZona').value.trim()
-        },
+        arboles: caArboles,
+        totalArboles: caArboles.length,
         observaciones: document.getElementById('caObservaciones').value.trim(),
         sello: edanSello || null,
         fecha: new Date().toISOString(),
@@ -3572,7 +3703,7 @@ function guardarCertificacionArbol() {
             if (navigator.onLine) {
                 db.collection('certificaciones').add(data)
                     .then(() => { 
-                        mostrarToast('✅ Certificación guardada en la nube', 'success'); 
+                        mostrarToast(`✅ Certificación guardada: ${caArboles.length} árboles`, 'success'); 
                     })
                     .catch((error) => {
                         console.error('Error guardando en Firestore:', error);
@@ -3625,21 +3756,20 @@ function renderizarCertificaciones() {
     }
 
     let html = '<div class="table-responsive"><table class="table table-sm">';
-    html += '<thead><tr><th>Fecha</th><th>Solicitante</th><th>Inspector</th><th>Dirección</th><th>Especie</th><th>Riesgo</th><th>Acciones</th></tr></thead><tbody>';
+    html += '<thead><tr><th>Fecha</th><th>Solicitante</th><th>Inspector</th><th>Dirección</th><th>Árboles</th><th>Acciones</th></tr></thead><tbody>';
 
     certificaciones.slice().reverse().forEach((cert, index) => {
         const fecha = cert.fecha ? new Date(cert.fecha).toLocaleDateString() : 'N/A';
         const solicitante = cert.solicitante?.nombre || 'N/A';
         const inspector = cert.inspector?.nombreCompleto || 'N/A';
-        const riesgoColor = cert.arbol?.riesgo === 'muy_alto' ? 'danger' : cert.arbol?.riesgo === 'alto' ? 'warning' : cert.arbol?.riesgo === 'medio' ? 'info' : 'success';
+        const totalArboles = cert.arboles?.length || 0;
 
         html += `<tr>
             <td>${fecha}</td>
             <td>${solicitante}</td>
             <td>${inspector}</td>
-            <td>${cert.arbol?.direccion || ''}</td>
-            <td>${cert.arbol?.especie || ''}</td>
-            <td><span class="badge bg-${riesgoColor}">${cert.arbol?.riesgo || 'N/A'}</span></td>
+            <td>${cert.solicitante?.direccion || ''}</td>
+            <td><span class="badge bg-info">${totalArboles} árboles</span></td>
             <td>
                 <button class="btn btn-sm btn-primary" onclick="verCertificacion(${index})"><i class="fas fa-eye"></i></button>
                 <button class="btn btn-sm btn-danger" onclick="eliminarCertificacion(${index})"><i class="fas fa-trash"></i></button>
@@ -3659,23 +3789,30 @@ function verCertificacion(index) {
     
     const solicitante = cert.solicitante?.nombre || 'N/A';
     const inspector = cert.inspector?.nombreCompleto || 'N/A';
-    const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
+    const totalArboles = cert.arboles?.length || 0;
     
-    alert(`📋 CERTIFICACIÓN DE ÁRBOL\n\n` +
-          `📌 Solicitante: ${solicitante}\n` +
-          `📄 Cédula: ${cert.solicitante?.cedula || 'N/A'}\n` +
-          `📞 Teléfono: ${cert.solicitante?.telefono || 'N/A'}\n` +
-          `👤 Inspector: ${inspector}\n` +
-          `📋 Jerarquía: ${cert.inspector?.jerarquia || 'N/A'}\n` +
-          `📍 Dirección: ${cert.arbol?.direccion || 'N/A'}\n` +
-          `🌳 Especie: ${cert.arbol?.especie || 'N/A'}\n` +
-          `📏 Altura: ${cert.arbol?.altura || 0}m\n` +
-          `📐 Diámetro: ${cert.arbol?.diametro || 0}m\n` +
-          `📏 Inclinación: ${cert.arbol?.inclinacion || 0}°\n` +
-          `🏠 Dist. vivienda: ${cert.arbol?.distancia || 0}m\n` +
-          `⚠️ Riesgo: ${riesgoTexto[cert.arbol?.riesgo] || cert.arbol?.riesgo || 'N/A'}\n` +
-          `📍 UTM: ${cert.utm?.este || 'N/A'}E ${cert.utm?.norte || 'N/A'}N ${cert.utm?.zona || 'N/A'}\n` +
-          `📝 Observaciones: ${cert.observaciones || 'N/A'}`);
+    let msg = `📋 CERTIFICACIÓN DE ÁRBOLES\n\n`;
+    msg += `📌 Solicitante: ${solicitante}\n`;
+    msg += `📄 Cédula: ${cert.solicitante?.cedula || 'N/A'}\n`;
+    msg += `📞 Teléfono: ${cert.solicitante?.telefono || 'N/A'}\n`;
+    msg += `📍 Dirección: ${cert.solicitante?.direccion || 'N/A'}\n`;
+    msg += `👤 Inspector: ${inspector}\n`;
+    msg += `📋 Jerarquía: ${cert.inspector?.jerarquia || 'N/A'}\n`;
+    msg += `\n🌳 TOTAL ÁRBOLES: ${totalArboles}\n`;
+    
+    if (cert.arboles && cert.arboles.length > 0) {
+        msg += `\n📋 LISTA DE ÁRBOLES:\n`;
+        cert.arboles.forEach((arbol, i) => {
+            const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
+            msg += `   ${i+1}. ${arbol.especie} - ${arbol.altura}m - Riesgo: ${riesgoTexto[arbol.riesgo] || arbol.riesgo}\n`;
+        });
+    }
+    
+    if (cert.observaciones) {
+        msg += `\n📝 Observaciones: ${cert.observaciones}\n`;
+    }
+    
+    alert(msg);
 }
 
 function eliminarCertificacion(index) {
@@ -3700,7 +3837,7 @@ function generarPDFCertificacion() {
     const inspectorId = document.getElementById('caInspector').value;
     const direccion = document.getElementById('caDireccion').value.trim();
     
-    if (!solicitante && !inspectorId && !direccion) {
+    if (!solicitante && !inspectorId && !direccion && caArboles.length === 0) {
         if (certificaciones.length === 0) {
             mostrarToast('⚠️ No hay certificaciones para generar PDF', 'warning');
             return;
@@ -3719,27 +3856,16 @@ function generarPDFCertificacion() {
         solicitante: {
             nombre: solicitante,
             cedula: document.getElementById('caSolicitanteCedula').value.trim(),
-            telefono: document.getElementById('caSolicitanteTelefono').value.trim()
+            telefono: document.getElementById('caSolicitanteTelefono').value.trim(),
+            direccion: direccion
         },
         inspector: {
             nombreCompleto: inspectorCompleto,
             jerarquia: inspectorJerarquia,
             firma: firmaInspector
         },
-        arbol: {
-            direccion: direccion,
-            especie: document.getElementById('caEspecie').value.trim(),
-            altura: parseFloat(document.getElementById('caAltura').value) || 0,
-            diametro: parseFloat(document.getElementById('caDiametro').value) || 0,
-            inclinacion: parseFloat(document.getElementById('caInclinacion').value) || 0,
-            distancia: parseFloat(document.getElementById('caDistancia').value) || 0,
-            riesgo: document.getElementById('caRiesgo').value
-        },
-        utm: {
-            este: document.getElementById('caUtmE').value.trim(),
-            norte: document.getElementById('caUtmN').value.trim(),
-            zona: document.getElementById('caUtmZona').value.trim()
-        },
+        arboles: caArboles,
+        totalArboles: caArboles.length,
         observaciones: document.getElementById('caObservaciones').value.trim(),
         sello: edanSello || null,
         fecha: new Date().toISOString(),
@@ -3769,18 +3895,9 @@ async function generarPDFCertificacionConDatos(data) {
         const solicitante = data.solicitante?.nombre || 'N/A';
         const cedula = data.solicitante?.cedula || 'N/A';
         const telefono = data.solicitante?.telefono || 'N/A';
-        const direccion = data.arbol?.direccion || 'N/A';
-        const especie = data.arbol?.especie || 'N/A';
-        const altura = data.arbol?.altura || 0;
-        const diametro = data.arbol?.diametro || 0;
-        const inclinacion = data.arbol?.inclinacion || 0;
-        const distancia = data.arbol?.distancia || 0;
-        const riesgo = data.arbol?.riesgo || 'N/A';
-        const riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
+        const direccion = data.solicitante?.direccion || 'N/A';
         const inspector = data.inspector?.nombreCompleto || 'N/A';
-        const utmE = data.utm?.este || 'N/A';
-        const utmN = data.utm?.norte || 'N/A';
-        const utmZona = data.utm?.zona || 'N/A';
+        const jerarquia = data.inspector?.jerarquia || 'N/A';
         const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString() : 'N/A';
         
         doc.text(`SOLICITANTE: ${solicitante}`, 15, y);
@@ -3791,32 +3908,64 @@ async function generarPDFCertificacionConDatos(data) {
         y += 5;
         doc.text(`DIRECCIÓN: ${direccion}`, 15, y);
         y += 5;
-        doc.text(`ESPECIE: ${especie}`, 15, y);
-        y += 5;
-        doc.text(`ALTURA: ${altura} m`, 15, y);
-        y += 5;
-        doc.text(`DIÁMETRO: ${diametro} m`, 15, y);
-        y += 5;
-        doc.text(`INCLINACIÓN: ${inclinacion}°`, 15, y);
-        y += 5;
-        doc.text(`DISTANCIA A VIVIENDA: ${distancia} m`, 15, y);
-        y += 5;
-        doc.text(`NIVEL DE RIESGO: ${riesgoTexto[riesgo] || riesgo}`, 15, y);
-        y += 5;
-        doc.text(`UTM: ${utmE}E ${utmN}N ${utmZona}`, 15, y);
-        y += 5;
         doc.text(`INSPECTOR: ${inspector}`, 15, y);
-        y += 6; // Solo un espacio, sin "Jerarquía"
+        y += 5;
+        doc.text(`JERARQUÍA: ${jerarquia}`, 15, y);
+        y += 5;
+        doc.text(`FECHA: ${fecha}`, 15, y);
+        y += 8;
         
+        // ===== TABLA DE ÁRBOLES =====
+        doc.setFontSize(9);
+        doc.text(`TOTAL DE ÁRBOLES INSPECCIONADOS: ${data.arboles?.length || 0}`, 15, y);
+        y += 5;
+        
+        if (data.arboles && data.arboles.length > 0) {
+            const headers = [
+                ['N°', 'Especie', 'Altura (m)', 'Diámetro (m)', 'Inclinación (°)', 'Distancia (m)', 'Riesgo']
+            ];
+            
+            const rows = data.arboles.map((arbol, i) => [
+                (i+1).toString(),
+                arbol.especie || '',
+                arbol.altura?.toString() || '0',
+                arbol.diametro?.toString() || '0',
+                arbol.inclinacion?.toString() || '0',
+                arbol.distancia?.toString() || '0',
+                arbol.riesgo || 'N/A'
+            ]);
+            
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: y,
+                styles: { fontSize: 7 },
+                headStyles: { fillColor: [11, 42, 74], fontSize: 7 },
+                columnStyles: {
+                    0: { cellWidth: 10 },
+                    1: { cellWidth: 50 },
+                    2: { cellWidth: 20 },
+                    3: { cellWidth: 20 },
+                    4: { cellWidth: 20 },
+                    5: { cellWidth: 20 },
+                    6: { cellWidth: 25 }
+                },
+                pageBreak: 'auto'
+            });
+            
+            y = doc.lastAutoTable.finalY + 10;
+        }
+        
+        // OBSERVACIONES
         if (data.observaciones) {
-            doc.text(`OBSERVACIONES:`, 15, y);
+            doc.text('OBSERVACIONES:', 15, y);
             y += 5;
             const splitObs = doc.splitTextToSize(data.observaciones, 180);
             doc.text(splitObs, 15, y);
             y += splitObs.length * 5 + 5;
         }
         
-        // ===== RECOMENDACIONES (TEXTO FIJO) =====
+        // ===== RECOMENDACIONES =====
         doc.setFontSize(10);
         doc.text('RECOMENDACIONES:', 15, y);
         y += 5;
@@ -3865,6 +4014,7 @@ async function generarPDFCertificacionConDatos(data) {
             doc.text('Sello de la Institución', 135, y + 18);
         }
         
+        // FOTOS
         if (data.fotos && data.fotos.length > 0) {
             doc.addPage();
             y = 20;
