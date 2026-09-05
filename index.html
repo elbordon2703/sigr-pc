@@ -2168,9 +2168,8 @@ function cargarIntegrantesServicio() {
     const jefeNombreInput = document.getElementById('sJefeNombre');
     const respOficial = document.getElementById('respOficial');
     
-    // Limpiar responsabilidades temporales al cambiar de grupo
-    responsabilidadesTemporales = [];
-    actualizarListaResponsabilidades();
+    // NO LIMPIAR responsabilidadesTemporales aquí
+    // Solo actualizar la vista
     
     if (!grupo) {
         container.innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
@@ -2254,6 +2253,9 @@ function cargarIntegrantesServicio() {
             
             if (totalBadge) totalBadge.textContent = `${snap.size} integrantes`;
             respOficial.innerHTML = opcionesOficial;
+            
+            // Actualizar lista de responsabilidades
+            actualizarListaResponsabilidades();
         })
         .catch(error => {
             console.error('Error cargando integrantes:', error);
@@ -2262,7 +2264,7 @@ function cargarIntegrantesServicio() {
 }
 
 // ============================================
-// ASIGNAR RESPONSABILIDAD MEJORADO
+// ASIGNAR RESPONSABILIDAD - CORREGIDO
 // ============================================
 function agregarResponsabilidadMejorado() {
     const oficialId = document.getElementById('respOficial').value;
@@ -2278,13 +2280,6 @@ function agregarResponsabilidadMejorado() {
         return;
     }
     
-    // Verificar si el oficial ya tiene esta responsabilidad específica
-    const existe = responsabilidadesTemporales.find(r => r.oficialId === oficialId && r.funcion === funcion);
-    if (existe) {
-        mostrarToast('⚠️ Este oficial ya tiene esta responsabilidad asignada', 'warning');
-        return;
-    }
-    
     const funcionTexto = {
         'inspector': '🔍 Inspector',
         'rescate_vehicular': '🚗 Rescate Vehicular',
@@ -2293,10 +2288,10 @@ function agregarResponsabilidadMejorado() {
         'conductor': '🚗 Conductor',
         'escribiente': '✍️ Escribiente',
         'auxiliar': '🤝 Auxiliar',
-        'aph': '🚑 APH (Atención Prehospitalaria)',
+        'aph': '🚑 APH',
         'rescate': '🪢 Rescate',
         'bombero': '🔥 Bombero',
-        'operador_comunicaciones': '📡 Operador de Comunicaciones',
+        'operador_comunicaciones': '📡 Operador Comunicaciones',
         'seguridad': '🛡️ Seguridad',
         'coordinacion': '👔 Coordinación',
         'monitoreo': '📡 Monitoreo',
@@ -2306,6 +2301,7 @@ function agregarResponsabilidadMejorado() {
     
     const nombreOficial = integrantesGrupo.find(i => i.id === oficialId)?.nombre || 'Desconocido';
     
+    // Agregar responsabilidad
     responsabilidadesTemporales.push({
         oficialId: oficialId,
         funcion: funcion,
@@ -2314,16 +2310,27 @@ function agregarResponsabilidadMejorado() {
     });
     
     mostrarToast(`✅ ${nombreOficial}: ${funcionTexto[funcion] || funcion}`, 'success');
-    cargarIntegrantesServicio();
+    
+    // ACTUALIZAR LA VISTA INMEDIATAMENTE
     actualizarListaResponsabilidades();
+    
+    // Recargar la tabla de integrantes para mostrar el badge
+    cargarIntegrantesServicio();
 }
 
 // ============================================
-// ACTUALIZAR LISTA DE RESPONSABILIDADES
+// ACTUALIZAR LISTA DE RESPONSABILIDADES - CORREGIDO
 // ============================================
 function actualizarListaResponsabilidades() {
     const container = document.getElementById('listaResponsabilidadesAsignadas');
     const totalBadge = document.getElementById('totalResponsabilidades');
+    
+    console.log('📋 Actualizando lista. Total:', responsabilidadesTemporales.length);
+    
+    if (!container) {
+        console.error('❌ Contenedor "listaResponsabilidadesAsignadas" no encontrado');
+        return;
+    }
     
     if (responsabilidadesTemporales.length === 0) {
         container.innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
@@ -2333,13 +2340,13 @@ function actualizarListaResponsabilidades() {
     
     if (totalBadge) totalBadge.textContent = `${responsabilidadesTemporales.length} asignadas`;
     
-    let html = '<div class="table-responsive"><table class="table table-sm">';
-    html += `<thead>
+    let html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+    html += `<thead class="table-dark">
         <tr>
-            <th>#</th>
+            <th style="width:40px;">#</th>
             <th>Oficial</th>
             <th>Responsabilidad</th>
-            <th>Acción</th>
+            <th style="width:80px;">Acción</th>
         </tr>
     </thead><tbody>`;
     
@@ -2347,7 +2354,7 @@ function actualizarListaResponsabilidades() {
         html += `<tr>
             <td>${index + 1}</td>
             <td><strong>${r.nombre}</strong></td>
-            <td><span class="badge bg-primary">${r.responsabilidad}</span></td>
+            <td><span class="badge bg-primary" style="font-size:13px;">${r.responsabilidad}</span></td>
             <td>
                 <button class="btn btn-sm btn-danger" onclick="eliminarResponsabilidadMejorado(${index})">
                     <i class="fas fa-trash"></i>
@@ -2361,7 +2368,7 @@ function actualizarListaResponsabilidades() {
 }
 
 // ============================================
-// ELIMINAR RESPONSABILIDAD
+// ELIMINAR RESPONSABILIDAD - CORREGIDO
 // ============================================
 function eliminarResponsabilidadMejorado(index) {
     const responsabilidad = responsabilidadesTemporales[index];
@@ -2370,167 +2377,11 @@ function eliminarResponsabilidadMejorado(index) {
     if (!confirm(`¿Eliminar responsabilidad de ${responsabilidad.nombre}?`)) return;
     
     responsabilidadesTemporales.splice(index, 1);
-    cargarIntegrantesServicio();
+    
+    // ACTUALIZAR LA VISTA
     actualizarListaResponsabilidades();
+    cargarIntegrantesServicio();
     mostrarToast('✅ Responsabilidad eliminada', 'success');
-}
-
-// ============================================
-// ABRIR SERVICIO MEJORADO
-// ============================================
-function abrirServicioMejorado() {
-    const grupo = document.getElementById('sGrupo').value;
-    const fecha = document.getElementById('sFecha').value;
-    const jefeNombre = document.getElementById('sJefeNombre').value;
-    
-    if (!grupo) {
-        mostrarToast('⚠️ Seleccione un grupo', 'warning');
-        return;
-    }
-    
-    if (!fecha) {
-        mostrarToast('⚠️ Seleccione fecha y hora', 'warning');
-        return;
-    }
-    
-    if (responsabilidadesTemporales.length === 0) {
-        if (!confirm('⚠️ No hay responsabilidades asignadas. ¿Continuar?')) return;
-    }
-    
-    // Agrupar responsabilidades por oficial (múltiples responsabilidades por oficial)
-    const grouped = {};
-    responsabilidadesTemporales.forEach(item => {
-        if (!grouped[item.oficialId]) {
-            grouped[item.oficialId] = {
-                oficialId: item.oficialId,
-                nombre: item.nombre,
-                responsabilidades: []
-            };
-        }
-        grouped[item.oficialId].responsabilidades.push(item.responsabilidad);
-    });
-    
-    const data = {
-        grupo: grupo,
-        jefe: jefeNombre || 'No definido',
-        fechaApertura: new Date(fecha).toISOString(),
-        estado: 'activo',
-        responsabilidades: Object.values(grouped),
-        creadoPor: auth.currentUser?.email || 'Sistema',
-        fechaRegistro: new Date().toISOString()
-    };
-    
-    db.collection('servicio').add(data)
-        .then(() => {
-            mostrarToast(`✅ Servicio de ${grupo} abierto`, 'success');
-            responsabilidadesTemporales = [];
-            cargarServicioMejorado();
-            cargarDashboard();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarToast('❌ Error: ' + error.message, 'danger');
-        });
-}
-
-// ============================================
-// CARGAR SERVICIO ACTUAL
-// ============================================
-function cargarServicioMejorado() {
-    const container = document.getElementById('sActual');
-    
-    db.collection('servicio')
-        .where('estado', '==', 'activo')
-        .orderBy('fechaApertura', 'desc')
-        .limit(1)
-        .get()
-        .then(snap => {
-            if (snap.empty) {
-                container.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
-                return;
-            }
-            
-            const data = snap.docs[0].data();
-            const fecha = data.fechaApertura ? new Date(data.fechaApertura).toLocaleString() : 'N/A';
-            
-            let html = `<div class="alert alert-info">
-                <strong>📋 ${data.grupo}</strong><br>
-                📅 ${fecha}<br>
-                👤 Jefe: <strong>${data.jefe || 'No definido'}</strong><br>`;
-            
-            if (data.responsabilidades && data.responsabilidades.length > 0) {
-                html += '<hr><strong>Responsabilidades:</strong><br>';
-                data.responsabilidades.forEach(r => {
-                    html += `<div class="list">• ${r.nombre || 'Desconocido'}: <strong>${r.responsabilidades.join(', ')}</strong></div>`;
-                });
-            } else {
-                html += '<p class="text-muted">Sin responsabilidades asignadas</p>';
-            }
-            
-            html += '</div>';
-            container.innerHTML = html;
-        })
-        .catch(error => {
-            console.error('Error cargando servicio:', error);
-            container.innerHTML = '<p class="text-danger">Error al cargar el servicio</p>';
-        });
-}
-
-// ============================================
-// CERRAR SERVICIO
-// ============================================
-function cerrarServicio() {
-    if (!confirm('¿Cerrar el servicio actual?')) return;
-    
-    db.collection('servicio')
-        .where('estado', '==', 'activo')
-        .get()
-        .then(snap => {
-            if (snap.empty) {
-                mostrarToast('⚠️ No hay servicio activo para cerrar', 'warning');
-                return;
-            }
-            
-            const promises = [];
-            snap.forEach(doc => {
-                promises.push(
-                    db.collection('servicio').doc(doc.id).update({
-                        estado: 'cerrado',
-                        fechaCierre: new Date().toISOString()
-                    })
-                );
-            });
-            
-            return Promise.all(promises);
-        })
-        .then(() => {
-            mostrarToast('✅ Servicio cerrado correctamente', 'success');
-            cargarServicioMejorado();
-            cargarDashboard();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarToast('❌ Error: ' + error.message, 'danger');
-        });
-}
-
-// ============================================
-// LIMPIAR SERVICIO
-// ============================================
-function limpiarServicio() {
-    if (!confirm('¿Limpiar la selección de servicio?')) return;
-    
-    responsabilidadesTemporales = [];
-    document.getElementById('sGrupo').value = '';
-    document.getElementById('sJefeNombre').value = '';
-    document.getElementById('sFecha').value = '';
-    document.getElementById('integrantesServicio').innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
-    document.getElementById('listaResponsabilidadesAsignadas').innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
-    document.getElementById('totalIntegrantes').textContent = '0 integrantes';
-    document.getElementById('totalResponsabilidades').textContent = '0 asignadas';
-    document.getElementById('jefeServicioBadge').textContent = '👔 Jefe: No asignado';
-    
-    mostrarToast('🧹 Datos limpiados', 'info');
 }
 // ============================================
 // SOLICITUDES
