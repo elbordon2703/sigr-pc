@@ -291,7 +291,7 @@
             <div class="card-body" id="alertas72h"><p class="text-muted">No hay solicitudes pendientes</p></div>
         </div>
     </div>
-    <!-- PERSONAL -->
+   <!-- PERSONAL -->
 <div id="section-personal" class="section">
     <div class="card">
         <div class="card-header"><i class="fas fa-user-plus"></i> Registrar Personal</div>
@@ -342,20 +342,6 @@
                     </select>
                     <small class="text-muted">Ctrl+Click para múltiple</small>
                 </div>
-                
-                <!-- ===== NUEVO CAMPO: ESTADO DEL PERSONAL ===== -->
-                <div class="col-md-4 mb-2">
-                    <label class="form-label">📋 Estado</label>
-                    <select id="pEstado" class="form-select">
-                        <option value="disponible">✅ Disponible</option>
-                        <option value="en_servicio">🔄 En Servicio</option>
-                        <option value="reposo">🛌 Reposo</option>
-                        <option value="permiso">📋 Permiso</option>
-                        <option value="inactivo">❌ Inactivo</option>
-                    </select>
-                </div>
-                <!-- ===== FIN NUEVO CAMPO ===== -->
-                
                 <div class="col-md-6 mb-2">
                     <label class="form-label">✍️ Firma del Oficial (imagen)</label>
                     <input type="file" id="pFirma" class="form-control" accept="image/*">
@@ -369,12 +355,92 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- LISTA DE PERSONAL CON BOTÓN EDITAR -->
     <div class="card mt-3">
-        <div class="card-header"><i class="fas fa-list"></i> Lista de Personal</div>
-        <div class="card-body" id="listaPersonal"></div>
+        <div class="card-header">
+            <i class="fas fa-list"></i> Lista de Personal
+            <span class="badge bg-secondary ms-2" id="totalPersonalLista">0</span>
+        </div>
+        <div class="card-body" id="listaPersonal">
+            <p class="text-muted">Cargando personal...</p>
+        </div>
+    </div>
+
+    <!-- MODAL PARA EDITAR PERSONAL -->
+    <div class="modal fade" id="modalEditarPersonal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-user-edit"></i> Editar Personal</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editPersonalId">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📝 Apellido</label>
+                            <input type="text" id="editApellido" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">📝 Nombre</label>
+                            <input type="text" id="editNombre" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">🪪 Cédula</label>
+                            <input type="text" id="editCedula" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">📋 Jerarquía</label>
+                            <select id="editJerarquia" class="form-select">
+                                <option value="">Jerarquía</option>
+                                <option>OPC I</option>
+                                <option>OPC II</option>
+                                <option>OPC III</option>
+                                <option>OSPC I</option>
+                                <option>OSPC II</option>
+                                <option>OSPC III</option>
+                                <option>OCPC I</option>
+                                <option>OCPC II</option>
+                                <option>OCPC GENERAL</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">📞 Teléfono</label>
+                            <input type="text" id="editTelefono" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">✉️ Email</label>
+                            <input type="email" id="editEmail" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">👥 Grupos</label>
+                            <select id="editGrupos" class="form-select" multiple>
+                                <option value="Grupo A">Grupo A</option>
+                                <option value="Grupo B">Grupo B</option>
+                                <option value="Grupo C">Grupo C</option>
+                                <option value="Grupo D">Grupo D</option>
+                            </select>
+                            <small class="text-muted">Ctrl+Click para múltiple</small>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <label class="form-label">✍️ Firma del Oficial (imagen)</label>
+                            <input type="file" id="editFirma" class="form-control" accept="image/*">
+                            <div id="editFirmaPreview" style="margin-top:8px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" onclick="guardarEdicionPersonal()">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+<!-- FIN PERSONAL -->
     
     <!-- GRUPOS -->
     <div id="section-grupos" class="section">
@@ -2010,6 +2076,7 @@ function verificarAlertas72h() {
 // ============================================
 // PERSONAL
 // ============================================
+
 function registrarPersonal() {
     const apellido = document.getElementById('pApellido').value.trim();
     const nombre = document.getElementById('pNombre').value.trim();
@@ -2034,8 +2101,8 @@ function registrarPersonal() {
             email: document.getElementById('pEmail').value.trim(),
             grupos: Array.from(document.getElementById('pGrupos').selectedOptions).map(opt => opt.value),
             firma: firmaData,
-            estado_personal: document.getElementById('pEstado').value, // <-- NUEVO
             estado: 'activo',
+            estado_personal: 'disponible',
             fechaRegistro: new Date().toISOString()
         };
         
@@ -2052,48 +2119,157 @@ function cargarPersonal() {
     db.collection('personal').orderBy('fechaRegistro', 'desc').get()
         .then(snap => {
             const container = document.getElementById('listaPersonal');
+            const totalBadge = document.getElementById('totalPersonalLista');
+            
             if (snap.empty) { 
-                container.innerHTML = '<p class="text-muted">No hay personal registrado</p>'; 
+                container.innerHTML = '<p class="text-muted">No hay personal registrado</p>';
+                if (totalBadge) totalBadge.textContent = '0';
                 return; 
             }
             
-            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr>';
-            html += '<th>#</th>';
-            html += '<th>Nombre</th>';
-            html += '<th>Jerarquía</th>';
-            html += '<th>Grupos</th>';
-            html += '<th>Estado</th>';  // <-- NUEVA COLUMNA
-            html += '<th>Firma</th>';
-            html += '</tr></thead><tbody>';
+            if (totalBadge) totalBadge.textContent = snap.size;
+            
+            let html = '<div class="table-responsive"><table class="table table-sm">';
+            html += `<thead><tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Jerarquía</th>
+                <th>Grupos</th>
+                <th>Firma</th>
+                <th>Acciones</th>
+            </tr></thead><tbody>`;
             
             let i = 1;
             snap.forEach(doc => {
                 const data = doc.data();
                 const tieneFirma = data.firma ? '✅' : '❌';
-                
-                // Mapa de estados
-                const estadoMap = {
-                    'disponible': '<span class="badge bg-success">✅ Disponible</span>',
-                    'en_servicio': '<span class="badge bg-primary">🔄 En Servicio</span>',
-                    'reposo': '<span class="badge bg-warning text-dark">🛌 Reposo</span>',
-                    'permiso': '<span class="badge bg-info">📋 Permiso</span>',
-                    'inactivo': '<span class="badge bg-danger">❌ Inactivo</span>'
-                };
-                const estadoHTML = estadoMap[data.estado_personal] || '<span class="badge bg-secondary">No definido</span>';
+                const id = doc.id;
                 
                 html += `<tr>
                     <td>${i++}</td>
                     <td><strong>${data.apellido}, ${data.nombre}</strong></td>
                     <td>${data.jerarquia || '-'}</td>
                     <td>${data.grupos ? data.grupos.join(', ') : '-'}</td>
-                    <td>${estadoHTML}</td>
                     <td>${tieneFirma}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editarPersonal('${id}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarPersonal('${id}')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 </tr>`;
             });
             
             html += '</tbody></table></div>';
             container.innerHTML = html;
         }).catch(() => {});
+}
+
+// ============================================
+// EDITAR PERSONAL
+// ============================================
+function editarPersonal(id) {
+    db.collection('personal').doc(id).get()
+        .then(doc => {
+            if (!doc.exists) {
+                mostrarToast('⚠️ Personal no encontrado', 'warning');
+                return;
+            }
+            
+            const data = doc.data();
+            document.getElementById('editPersonalId').value = id;
+            document.getElementById('editApellido').value = data.apellido || '';
+            document.getElementById('editNombre').value = data.nombre || '';
+            document.getElementById('editCedula').value = data.cedula || '';
+            document.getElementById('editJerarquia').value = data.jerarquia || '';
+            document.getElementById('editTelefono').value = data.telefono || '';
+            document.getElementById('editEmail').value = data.email || '';
+            
+            const gruposSelect = document.getElementById('editGrupos');
+            const gruposActuales = data.grupos || [];
+            Array.from(gruposSelect.options).forEach(opt => {
+                opt.selected = gruposActuales.includes(opt.value);
+            });
+            
+            const preview = document.getElementById('editFirmaPreview');
+            if (data.firma) {
+                preview.innerHTML = `<img src="${data.firma}" style="max-height:80px; border:1px solid #ddd; border-radius:5px; padding:5px;">`;
+            } else {
+                preview.innerHTML = '<p class="text-muted">No hay firma cargada</p>';
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalEditarPersonal'));
+            modal.show();
+        })
+        .catch(error => {
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
+}
+
+// ============================================
+// GUARDAR EDICIÓN DE PERSONAL
+// ============================================
+function guardarEdicionPersonal() {
+    const id = document.getElementById('editPersonalId').value;
+    const apellido = document.getElementById('editApellido').value.trim();
+    const nombre = document.getElementById('editNombre').value.trim();
+    
+    if (!apellido || !nombre) {
+        mostrarToast('⚠️ Nombre y apellido son obligatorios', 'warning');
+        return;
+    }
+    
+    const firmaInput = document.getElementById('editFirma');
+    let firmaPromise = Promise.resolve(null);
+    
+    if (firmaInput.files && firmaInput.files[0]) {
+        firmaPromise = leerFotoBase64(firmaInput.files[0]);
+    }
+    
+    firmaPromise.then(firmaData => {
+        const data = {
+            apellido: apellido,
+            nombre: nombre,
+            cedula: document.getElementById('editCedula').value.trim(),
+            jerarquia: document.getElementById('editJerarquia').value,
+            telefono: document.getElementById('editTelefono').value.trim(),
+            email: document.getElementById('editEmail').value.trim(),
+            grupos: Array.from(document.getElementById('editGrupos').selectedOptions).map(opt => opt.value)
+        };
+        
+        if (firmaData) {
+            data.firma = firmaData;
+        }
+        
+        db.collection('personal').doc(id).update(data)
+            .then(() => {
+                mostrarToast('✅ Personal actualizado correctamente', 'success');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarPersonal'));
+                if (modal) modal.hide();
+                cargarPersonal();
+            })
+            .catch(error => {
+                mostrarToast('❌ Error: ' + error.message, 'danger');
+            });
+    });
+}
+
+// ============================================
+// ELIMINAR PERSONAL
+// ============================================
+function eliminarPersonal(id) {
+    if (!confirm('¿Eliminar este oficial permanentemente?')) return;
+    
+    db.collection('personal').doc(id).delete()
+        .then(() => {
+            mostrarToast('✅ Personal eliminado', 'success');
+            cargarPersonal();
+        })
+        .catch(error => {
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
 }
 // ============================================
 // GRUPOS
