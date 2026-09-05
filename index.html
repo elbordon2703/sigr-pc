@@ -291,49 +291,90 @@
             <div class="card-body" id="alertas72h"><p class="text-muted">No hay solicitudes pendientes</p></div>
         </div>
     </div>
-    
     <!-- PERSONAL -->
-    <div id="section-personal" class="section">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-user-plus"></i> Registrar Personal</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2"><input type="text" id="pApellido" class="form-control" placeholder="Apellido"></div>
-                    <div class="col-md-3 mb-2"><input type="text" id="pNombre" class="form-control" placeholder="Nombre"></div>
-                    <div class="col-md-3 mb-2"><input type="text" id="pCedula" class="form-control" placeholder="Cédula"></div>
-                    <div class="col-md-3 mb-2">
-                        <select id="pJerarquia" class="form-select">
-                            <option value="">Jerarquía</option>
-                            <option>OPC I</option><option>OPC II</option><option>OPC III</option>
-                            <option>OSPC I</option><option>OSPC II</option><option>OSPC III</option>
-                            <option>OCPC I</option><option>OCPC II</option><option>OCPC GENERAL</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-2"><input type="tel" id="pTelefono" class="form-control" placeholder="Teléfono"></div>
-                    <div class="col-md-4 mb-2"><input type="email" id="pEmail" class="form-control" placeholder="Email"></div>
-                    <div class="col-md-4 mb-2">
-                        <select id="pGrupos" class="form-select" multiple>
-                            <option value="Grupo A">Grupo A</option>
-                            <option value="Grupo B">Grupo B</option>
-                            <option value="Grupo C">Grupo C</option>
-                            <option value="Grupo D">Grupo D</option>
-                        </select>
-                        <small class="text-muted">Ctrl+Click para múltiple</small>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">✍️ Firma del Oficial (imagen)</label>
-                        <input type="file" id="pFirma" class="form-control" accept="image/*">
-                        <div id="pFirmaPreview" style="margin-top:8px;"></div>
-                    </div>
-                    <div class="col-12"><button class="btn btn-primary" onclick="registrarPersonal()"><i class="fas fa-save"></i> Registrar</button></div>
+<div id="section-personal" class="section">
+    <div class="card">
+        <div class="card-header"><i class="fas fa-user-plus"></i> Registrar Personal</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">📝 Apellido</label>
+                    <input type="text" id="pApellido" class="form-control" placeholder="Apellido">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">📝 Nombre</label>
+                    <input type="text" id="pNombre" class="form-control" placeholder="Nombre">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">🪪 Cédula</label>
+                    <input type="text" id="pCedula" class="form-control" placeholder="Cédula">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">📋 Jerarquía</label>
+                    <select id="pJerarquia" class="form-select">
+                        <option value="">Jerarquía</option>
+                        <option>OPC I</option>
+                        <option>OPC II</option>
+                        <option>OPC III</option>
+                        <option>OSPC I</option>
+                        <option>OSPC II</option>
+                        <option>OSPC III</option>
+                        <option>OCPC I</option>
+                        <option>OCPC II</option>
+                        <option>OCPC GENERAL</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">📞 Teléfono</label>
+                    <input type="tel" id="pTelefono" class="form-control" placeholder="Teléfono">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">✉️ Email</label>
+                    <input type="email" id="pEmail" class="form-control" placeholder="Email">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">👥 Grupos</label>
+                    <select id="pGrupos" class="form-select" multiple>
+                        <option value="Grupo A">Grupo A</option>
+                        <option value="Grupo B">Grupo B</option>
+                        <option value="Grupo C">Grupo C</option>
+                        <option value="Grupo D">Grupo D</option>
+                    </select>
+                    <small class="text-muted">Ctrl+Click para múltiple</small>
+                </div>
+                
+                <!-- ===== NUEVO CAMPO: ESTADO DEL PERSONAL ===== -->
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">📋 Estado</label>
+                    <select id="pEstado" class="form-select">
+                        <option value="disponible">✅ Disponible</option>
+                        <option value="en_servicio">🔄 En Servicio</option>
+                        <option value="reposo">🛌 Reposo</option>
+                        <option value="permiso">📋 Permiso</option>
+                        <option value="inactivo">❌ Inactivo</option>
+                    </select>
+                </div>
+                <!-- ===== FIN NUEVO CAMPO ===== -->
+                
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">✍️ Firma del Oficial (imagen)</label>
+                    <input type="file" id="pFirma" class="form-control" accept="image/*">
+                    <div id="pFirmaPreview" style="margin-top:8px;"></div>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary" onclick="registrarPersonal()">
+                        <i class="fas fa-save"></i> Registrar
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="card mt-3">
-            <div class="card-header"><i class="fas fa-list"></i> Lista de Personal</div>
-            <div class="card-body" id="listaPersonal"></div>
-        </div>
     </div>
+    
+    <div class="card mt-3">
+        <div class="card-header"><i class="fas fa-list"></i> Lista de Personal</div>
+        <div class="card-body" id="listaPersonal"></div>
+    </div>
+</div>
     
     <!-- GRUPOS -->
     <div id="section-grupos" class="section">
@@ -1985,18 +2026,24 @@ function registrarPersonal() {
     
     firmaPromise.then(firmaData => {
         const data = {
-            apellido, nombre,
+            apellido: apellido,
+            nombre: nombre,
             cedula: document.getElementById('pCedula').value.trim(),
             jerarquia: document.getElementById('pJerarquia').value,
             telefono: document.getElementById('pTelefono').value.trim(),
             email: document.getElementById('pEmail').value.trim(),
             grupos: Array.from(document.getElementById('pGrupos').selectedOptions).map(opt => opt.value),
             firma: firmaData,
+            estado_personal: document.getElementById('pEstado').value, // <-- NUEVO
             estado: 'activo',
             fechaRegistro: new Date().toISOString()
         };
+        
         db.collection('personal').add(data)
-            .then(() => { mostrarToast('✅ Personal registrado', 'success'); cargarPersonal(); })
+            .then(() => { 
+                mostrarToast('✅ Personal registrado', 'success'); 
+                cargarPersonal(); 
+            })
             .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
     });
 }
@@ -2005,19 +2052,49 @@ function cargarPersonal() {
     db.collection('personal').orderBy('fechaRegistro', 'desc').get()
         .then(snap => {
             const container = document.getElementById('listaPersonal');
-            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay personal registrado</p>'; return; }
-            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>#</th><th>Nombre</th><th>Jerarquía</th><th>Grupos</th><th>Firma</th></tr></thead><tbody>';
+            if (snap.empty) { 
+                container.innerHTML = '<p class="text-muted">No hay personal registrado</p>'; 
+                return; 
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr>';
+            html += '<th>#</th>';
+            html += '<th>Nombre</th>';
+            html += '<th>Jerarquía</th>';
+            html += '<th>Grupos</th>';
+            html += '<th>Estado</th>';  // <-- NUEVA COLUMNA
+            html += '<th>Firma</th>';
+            html += '</tr></thead><tbody>';
+            
             let i = 1;
             snap.forEach(doc => {
                 const data = doc.data();
                 const tieneFirma = data.firma ? '✅' : '❌';
-                html += `<tr><td>${i++}</td><td><strong>${data.apellido}, ${data.nombre}</strong></td><td>${data.jerarquia || '-'}</td><td>${data.grupos ? data.grupos.join(', ') : '-'}</td><td>${tieneFirma}</td></tr>`;
+                
+                // Mapa de estados
+                const estadoMap = {
+                    'disponible': '<span class="badge bg-success">✅ Disponible</span>',
+                    'en_servicio': '<span class="badge bg-primary">🔄 En Servicio</span>',
+                    'reposo': '<span class="badge bg-warning text-dark">🛌 Reposo</span>',
+                    'permiso': '<span class="badge bg-info">📋 Permiso</span>',
+                    'inactivo': '<span class="badge bg-danger">❌ Inactivo</span>'
+                };
+                const estadoHTML = estadoMap[data.estado_personal] || '<span class="badge bg-secondary">No definido</span>';
+                
+                html += `<tr>
+                    <td>${i++}</td>
+                    <td><strong>${data.apellido}, ${data.nombre}</strong></td>
+                    <td>${data.jerarquia || '-'}</td>
+                    <td>${data.grupos ? data.grupos.join(', ') : '-'}</td>
+                    <td>${estadoHTML}</td>
+                    <td>${tieneFirma}</td>
+                </tr>`;
             });
+            
             html += '</tbody></table></div>';
             container.innerHTML = html;
         }).catch(() => {});
 }
-
 // ============================================
 // GRUPOS
 // ============================================
