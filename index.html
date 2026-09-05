@@ -602,12 +602,27 @@
                             </select>
                         </div>
                         <div class="col-md-2 mb-2">
-                            <label class="form-label">&nbsp;</label>
-                            <button class="btn btn-success w-100" onclick="agregarResponsabilidadMejorado()">
-                                <i class="fas fa-plus"></i> Asignar
-                            </button>
-                        </div>
-                    </div>
+    <label class="form-label">📋 Estado</label>
+    <select id="respEstado" class="form-select" onchange="mostrarCampoMunicipio()">
+        <option value="disponible">✅ Disponible</option>
+        <option value="en_servicio">🔄 En Servicio</option>
+        <option value="reposo">🛌 Reposo</option>
+        <option value="permiso">📋 Permiso</option>
+        <option value="vacaciones">🏖️ Vacaciones</option>
+        <option value="comision_municipio">🏛️ Comisión en Municipio</option>
+        <option value="comision_nacional">🇻🇪 Comisión Nacional</option>
+        <option value="comision_internacional">🌍 Comisión Internacional</option>
+        <option value="apoyo_instituciones">🤝 Apoyo a otras Instituciones</option>
+        <option value="apoyo_zoedan">🛡️ Apoyo a ZOEDAN</option>
+        <option value="apoyo_pc_municipio">🚒 Apoyo a PC Municipio</option>
+    </select>
+</div>
+
+<!-- CAMPO PARA ESCRIBIR EL MUNICIPIO (se muestra solo cuando se selecciona "Apoyo a PC Municipio") -->
+<div class="col-md-2 mb-2" id="campoMunicipio" style="display:none;">
+    <label class="form-label">🏛️ Municipio</label>
+    <input type="text" id="respMunicipio" class="form-control" placeholder="Ej: Araure, Acarigua...">
+</div>
 
                     <!-- LISTA DE RESPONSABILIDADES ASIGNADAS -->
                     <div class="mt-3" id="listaResponsabilidadesAsignadas">
@@ -2426,6 +2441,20 @@ function cargarIntegrantesServicio() {
         respOficial.innerHTML = '<option value="">— Seleccione un oficial —</option>';
         return;
     }
+// ============================================
+// MOSTRAR CAMPO MUNICIPIO
+// ============================================
+function mostrarCampoMunicipio() {
+    const estado = document.getElementById('respEstado').value;
+    const campoMunicipio = document.getElementById('campoMunicipio');
+    
+    if (estado === 'apoyo_pc_municipio') {
+        campoMunicipio.style.display = 'block';
+    } else {
+        campoMunicipio.style.display = 'none';
+        document.getElementById('respMunicipio').value = '';
+    }
+}
     
     // Buscar el Jefe de Servicio
     db.collection('grupos').doc(grupo).get()
