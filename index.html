@@ -409,45 +409,127 @@
     </div>
     
     <!-- SERVICIO -->
-    <div id="section-servicio" class="section">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-clock"></i> Apertura de Servicio</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">📋 Grupo que recibe</label>
-                        <select id="sGrupo" class="form-select" onchange="cargarIntegrantesServicio()">
-                            <option value="">Seleccionar Grupo</option>
-                            <option value="Grupo A">Grupo A</option>
-                            <option value="Grupo B">Grupo B</option>
-                            <option value="Grupo C">Grupo C</option>
-                            <option value="Grupo D">Grupo D</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">📅 Fecha/Hora</label>
-                        <input type="datetime-local" id="sFecha" class="form-control">
-                    </div>
-                </div>
-                <div class="card mt-2">
-                    <div class="card-header"><i class="fas fa-users"></i> Integrantes del Grupo</div>
-                    <div class="card-body" id="integrantesServicio"><p class="text-muted">Seleccione un grupo para ver los integrantes.</p></div>
-                </div>
-                <div class="card mt-2">
-                    <div class="card-header"><i class="fas fa-tasks"></i> Asignación de Responsabilidades</div>
-                    <div class="card-body">
-                        <div id="responsabilidadesContainer"><p class="text-muted">Seleccione un grupo para asignar responsabilidades.</p></div>
-                        <button class="btn btn-sm btn-success mt-2" onclick="agregarResponsabilidad()"><i class="fas fa-plus"></i> Agregar Responsabilidad</button>
-                    </div>
-                </div>
-                <button class="btn btn-primary mt-3" onclick="abrirServicioMejorado()"><i class="fas fa-play"></i> Abrir Servicio</button>
-                <hr>
-                <h6>Servicio Actual</h6>
-                <div id="sActual"></div>
-                <button class="btn btn-danger mt-2" onclick="cerrarServicio()"><i class="fas fa-stop"></i> Cerrar Servicio</button>
+    <!-- SERVICIO -->
+<div id="section-servicio" class="section">
+    <div class="card">
+        <div class="card-header"><i class="fas fa-clock"></i> Apertura de Servicio</div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Apertura de Servicio:</strong> Seleccione el grupo, verifique el Jefe de Servicio y asigne responsabilidades a cada integrante.
+                <br><small>📌 El Jefe de Servicio se asigna desde el módulo <strong>Grupos</strong>.</small>
             </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">📋 Grupo que recibe</label>
+                    <select id="sGrupo" class="form-select" onchange="cargarIntegrantesServicio()">
+                        <option value="">Seleccionar Grupo</option>
+                        <option value="Grupo A">Grupo A</option>
+                        <option value="Grupo B">Grupo B</option>
+                        <option value="Grupo C">Grupo C</option>
+                        <option value="Grupo D">Grupo D</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">👤 Jefe de Servicio</label>
+                    <input type="text" id="sJefeNombre" class="form-control" readonly placeholder="Seleccione un grupo">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">📅 Fecha/Hora</label>
+                    <input type="datetime-local" id="sFecha" class="form-control">
+                </div>
+            </div>
+
+            <!-- INTEGRANTES DEL GRUPO -->
+            <div class="card mt-2">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-users"></i> Integrantes del Grupo
+                    <span class="badge bg-light text-dark ms-2" id="totalIntegrantes">0 integrantes</span>
+                    <span class="badge bg-warning text-dark ms-2" id="jefeServicioBadge">👔 Jefe: No asignado</span>
+                </div>
+                <div class="card-body" id="integrantesServicio">
+                    <p class="text-muted">Seleccione un grupo para ver los integrantes.</p>
+                </div>
+            </div>
+
+            <!-- ASIGNACIÓN DE RESPONSABILIDADES -->
+            <div class="card mt-2">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-tasks"></i> Asignación de Responsabilidades
+                    <span class="badge bg-light text-dark ms-2" id="totalResponsabilidades">0 asignadas</span>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Nota:</strong> Un oficial puede tener <strong>varias responsabilidades</strong> si el personal es limitado.
+                        Seleccione el oficial, la responsabilidad y haga clic en "Asignar".
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5 mb-2">
+                            <label class="form-label">👤 Oficial</label>
+                            <select id="respOficial" class="form-select">
+                                <option value="">— Seleccione un oficial —</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5 mb-2">
+                            <label class="form-label">📋 Responsabilidad</label>
+                            <select id="respFuncion" class="form-select">
+                                <option value="">— Seleccione una función —</option>
+                                <option value="inspector">🔍 Inspector</option>
+                                <option value="rescate_vehicular">🚗 Rescate Vehicular</option>
+                                <option value="edanista">📋 Edanista</option>
+                                <option value="logistico">📦 Logístico</option>
+                                <option value="conductor">🚗 Conductor</option>
+                                <option value="escribiente">✍️ Escribiente</option>
+                                <option value="auxiliar">🤝 Auxiliar</option>
+                                <option value="aph">🚑 APH (Atención Prehospitalaria)</option>
+                                <option value="rescate">🪢 Rescate</option>
+                                <option value="bombero">🔥 Bombero</option>
+                                <option value="operador_comunicaciones">📡 Operador de Comunicaciones</option>
+                                <option value="seguridad">🛡️ Seguridad</option>
+                                <option value="coordinacion">👔 Coordinación</option>
+                                <option value="monitoreo">📡 Monitoreo</option>
+                                <option value="apoyo">🤝 Apoyo</option>
+                                <option value="otro">📌 Otro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-success w-100" onclick="agregarResponsabilidadMejorado()">
+                                <i class="fas fa-plus"></i> Asignar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- LISTA DE RESPONSABILIDADES ASIGNADAS -->
+                    <div class="mt-3" id="listaResponsabilidadesAsignadas">
+                        <p class="text-muted">No hay responsabilidades asignadas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <button class="btn btn-primary" onclick="abrirServicioMejorado()">
+                        <i class="fas fa-play"></i> Abrir Servicio
+                    </button>
+                    <button class="btn btn-secondary" onclick="limpiarServicio()">
+                        <i class="fas fa-eraser"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
+            <hr>
+            <h6>📌 Servicio Actual</h6>
+            <div id="sActual"></div>
+            <button class="btn btn-danger mt-2" onclick="cerrarServicio()">
+                <i class="fas fa-stop"></i> Cerrar Servicio
+            </button>
         </div>
     </div>
+</div>
     
     <!-- SOLICITUDES -->
     <div id="section-solicitudes" class="section">
@@ -2053,169 +2135,387 @@ function cargarVehiculos() {
 }
 
 // ============================================
-// SERVICIO
+// SERVICIO - FUNCIONES MEJORADAS
+// ============================================
+
+let responsabilidadesTemporales = [];
+let integrantesGrupo = [];
+let jefeServicioActual = null;
+
+// ============================================
+// CARGAR INTEGRANTES DEL GRUPO CON JEFE
 // ============================================
 function cargarIntegrantesServicio() {
     const grupo = document.getElementById('sGrupo').value;
     const container = document.getElementById('integrantesServicio');
-    const respContainer = document.getElementById('responsabilidadesContainer');
+    const totalBadge = document.getElementById('totalIntegrantes');
+    const jefeBadge = document.getElementById('jefeServicioBadge');
+    const jefeNombreInput = document.getElementById('sJefeNombre');
+    const respOficial = document.getElementById('respOficial');
+    
+    // Limpiar responsabilidades temporales al cambiar de grupo
+    responsabilidadesTemporales = [];
+    actualizarListaResponsabilidades();
+    
     if (!grupo) {
         container.innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
-        respContainer.innerHTML = '<p class="text-muted">Seleccione un grupo para asignar responsabilidades.</p>';
+        if (totalBadge) totalBadge.textContent = '0 integrantes';
+        if (jefeBadge) jefeBadge.textContent = '👔 Jefe: No asignado';
+        jefeNombreInput.value = '';
+        respOficial.innerHTML = '<option value="">— Seleccione un oficial —</option>';
         return;
     }
-    db.collection('personal').where('grupos', 'array-contains', grupo).get()
+    
+    // Buscar el Jefe de Servicio asignado en Grupos
+    db.collection('grupos').doc(grupo).get()
+        .then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.jefeNombre) {
+                    jefeServicioActual = data.jefeNombre;
+                    jefeNombreInput.value = data.jefeNombre;
+                    if (jefeBadge) jefeBadge.textContent = `👔 Jefe: ${data.jefeNombre}`;
+                } else {
+                    jefeServicioActual = null;
+                    jefeNombreInput.value = '⚠️ No asignado';
+                    if (jefeBadge) jefeBadge.textContent = '👔 Jefe: No asignado';
+                }
+            }
+        })
+        .catch(() => {});
+    
+    // Cargar integrantes del grupo
+    db.collection('personal')
+        .where('grupos', 'array-contains', grupo)
+        .get()
         .then(snap => {
-            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay integrantes en este grupo.</p>'; return; }
-            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Nombre</th><th>Jerarquía</th><th>Responsabilidades</th></tr></thead><tbody>';
+            if (snap.empty) {
+                container.innerHTML = '<p class="text-muted">No hay integrantes en este grupo.</p>';
+                if (totalBadge) totalBadge.textContent = '0 integrantes';
+                respOficial.innerHTML = '<option value="">— Seleccione un oficial —</option>';
+                return;
+            }
+            
+            integrantesGrupo = [];
+            let html = '<div class="table-responsive"><table class="table table-sm">';
+            html += `<thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Jerarquía</th>
+                    <th>Jefe de Servicio</th>
+                    <th>Responsabilidad</th>
+                </tr>
+            </thead><tbody>`;
+            
+            let i = 1;
+            let opcionesOficial = '<option value="">— Seleccione un oficial —</option>';
+            
             snap.forEach(doc => {
                 const data = doc.data();
                 const nombre = `${data.apellido}, ${data.nombre}`;
                 const id = doc.id;
-                const respAsignadas = responsabilidadesTemporales.filter(r => r.oficialId === id).map(r => r.responsabilidad).join(', ') || 'Sin asignar';
-                html += `<tr><td><strong>${nombre}</strong></td><td>${data.jerarquia || '-'}</td><td>${respAsignadas}</td></tr>`;
+                const esJefe = (jefeServicioActual === nombre);
+                
+                integrantesGrupo.push({ id, nombre, jerarquia: data.jerarquia || '' });
+                
+                // Buscar si ya tiene responsabilidad asignada
+                const respAsignada = responsabilidadesTemporales.find(r => r.oficialId === id);
+                const responsabilidad = respAsignada ? respAsignada.responsabilidad : 'Sin asignar';
+                
+                html += `<tr>
+                    <td>${i++}</td>
+                    <td><strong>${esJefe ? '⭐ ' : ''}${nombre}</strong></td>
+                    <td>${data.jerarquia || '-'}</td>
+                    <td>${esJefe ? '✅ Sí' : ''}</td>
+                    <td><span class="badge ${respAsignada ? 'bg-success' : 'bg-secondary'}">${responsabilidad}</span></td>
+                </tr>`;
+                
+                opcionesOficial += `<option value="${id}">${nombre} - ${data.jerarquia || ''}</option>`;
             });
+            
             html += '</tbody></table></div>';
             container.innerHTML = html;
-            cargarSelectorResponsabilidades(snap);
-        }).catch(() => {});
+            
+            if (totalBadge) totalBadge.textContent = `${snap.size} integrantes`;
+            respOficial.innerHTML = opcionesOficial;
+        })
+        .catch(error => {
+            console.error('Error cargando integrantes:', error);
+            container.innerHTML = '<p class="text-danger">Error al cargar los integrantes</p>';
+        });
 }
 
-function cargarSelectorResponsabilidades(snap) {
-    const container = document.getElementById('responsabilidadesContainer');
-    if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay oficiales para asignar responsabilidades.</p>'; return; }
-    let html = '<div class="row">';
-    html += '<div class="col-md-6 mb-2"><label class="form-label">👤 Oficial</label><select id="respOficial" class="form-select">';
-    snap.forEach(doc => {
-        const data = doc.data();
-        html += `<option value="${doc.id}">${data.apellido}, ${data.nombre} - ${data.jerarquia || ''}</option>`;
-    });
-    html += '</select></div>';
-    html += '<div class="col-md-6 mb-2"><label class="form-label">📋 Responsabilidad</label><select id="respFuncion" class="form-select">';
-    const funciones = [
-        ['coordinacion', '👔 Coordinación General'],
-        ['inspeccion', '🔍 Inspecciones'],
-        ['edan', '📋 EDAN'],
-        ['monitoreo', '📡 Monitoreo'],
-        ['logistica', '📦 Logística'],
-        ['comunicaciones', '📢 Comunicaciones'],
-        ['vehiculos', '🚗 Vehículos'],
-        ['apoyo', '🤝 Apoyo'],
-        ['seguridad', '🛡️ Seguridad'],
-        ['otro', '📌 Otro']
-    ];
-    funciones.forEach(([valor, texto]) => {
-        html += `<option value="${valor}">${texto}</option>`;
-    });
-    html += '</select></div></div>';
+// ============================================
+// ASIGNAR RESPONSABILIDAD MEJORADO
+// ============================================
+function agregarResponsabilidadMejorado() {
+    const oficialId = document.getElementById('respOficial').value;
+    const funcion = document.getElementById('respFuncion').value;
     
-    html += '<div class="mt-2"><h6>Responsabilidades asignadas:</h6><div id="listaResponsabilidadesAsignadas">';
-    if (responsabilidadesTemporales.length === 0) {
-        html += '<p class="text-muted">No hay responsabilidades asignadas.</p>';
-    } else {
-        html += '<ul class="list-group">';
-        responsabilidadesTemporales.forEach((r, i) => {
-            const nombreOficial = snap.docs.find(d => d.id === r.oficialId)?.data()?.apellido || 'Desconocido';
-            html += `<li class="list-group-item d-flex justify-content-between">${nombreOficial}: ${r.responsabilidad}<button class="btn btn-sm btn-danger" onclick="eliminarResponsabilidad(${i})"><i class="fas fa-trash"></i></button></li>`;
-        });
-        html += '</ul>';
+    if (!oficialId) {
+        mostrarToast('⚠️ Seleccione un oficial', 'warning');
+        return;
     }
-    html += '</div></div>';
+    
+    if (!funcion) {
+        mostrarToast('⚠️ Seleccione una responsabilidad', 'warning');
+        return;
+    }
+    
+    // Verificar si el oficial ya tiene esta responsabilidad específica
+    const existe = responsabilidadesTemporales.find(r => r.oficialId === oficialId && r.funcion === funcion);
+    if (existe) {
+        mostrarToast('⚠️ Este oficial ya tiene esta responsabilidad asignada', 'warning');
+        return;
+    }
+    
+    const funcionTexto = {
+        'inspector': '🔍 Inspector',
+        'rescate_vehicular': '🚗 Rescate Vehicular',
+        'edanista': '📋 Edanista',
+        'logistico': '📦 Logístico',
+        'conductor': '🚗 Conductor',
+        'escribiente': '✍️ Escribiente',
+        'auxiliar': '🤝 Auxiliar',
+        'aph': '🚑 APH (Atención Prehospitalaria)',
+        'rescate': '🪢 Rescate',
+        'bombero': '🔥 Bombero',
+        'operador_comunicaciones': '📡 Operador de Comunicaciones',
+        'seguridad': '🛡️ Seguridad',
+        'coordinacion': '👔 Coordinación',
+        'monitoreo': '📡 Monitoreo',
+        'apoyo': '🤝 Apoyo',
+        'otro': '📌 Otro'
+    };
+    
+    const nombreOficial = integrantesGrupo.find(i => i.id === oficialId)?.nombre || 'Desconocido';
+    
+    responsabilidadesTemporales.push({
+        oficialId: oficialId,
+        funcion: funcion,
+        responsabilidad: funcionTexto[funcion] || funcion,
+        nombre: nombreOficial
+    });
+    
+    mostrarToast(`✅ ${nombreOficial}: ${funcionTexto[funcion] || funcion}`, 'success');
+    cargarIntegrantesServicio();
+    actualizarListaResponsabilidades();
+}
+
+// ============================================
+// ACTUALIZAR LISTA DE RESPONSABILIDADES
+// ============================================
+function actualizarListaResponsabilidades() {
+    const container = document.getElementById('listaResponsabilidadesAsignadas');
+    const totalBadge = document.getElementById('totalResponsabilidades');
+    
+    if (responsabilidadesTemporales.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
+        if (totalBadge) totalBadge.textContent = '0 asignadas';
+        return;
+    }
+    
+    if (totalBadge) totalBadge.textContent = `${responsabilidadesTemporales.length} asignadas`;
+    
+    let html = '<div class="table-responsive"><table class="table table-sm">';
+    html += `<thead>
+        <tr>
+            <th>#</th>
+            <th>Oficial</th>
+            <th>Responsabilidad</th>
+            <th>Acción</th>
+        </tr>
+    </thead><tbody>`;
+    
+    responsabilidadesTemporales.forEach((r, index) => {
+        html += `<tr>
+            <td>${index + 1}</td>
+            <td><strong>${r.nombre}</strong></td>
+            <td><span class="badge bg-primary">${r.responsabilidad}</span></td>
+            <td>
+                <button class="btn btn-sm btn-danger" onclick="eliminarResponsabilidadMejorado(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    });
+    
+    html += '</tbody></table></div>';
     container.innerHTML = html;
 }
 
-function agregarResponsabilidad() {
-    const oficialId = document.getElementById('respOficial')?.value;
-    const funcion = document.getElementById('respFuncion')?.value;
-    if (!oficialId) { mostrarToast('⚠️ No hay oficiales disponibles', 'warning'); return; }
-    if (!funcion) { mostrarToast('⚠️ Seleccione una función', 'warning'); return; }
-    const funcionTexto = {
-        'coordinacion': '👔 Coordinación General',
-        'inspeccion': '🔍 Inspecciones',
-        'edan': '📋 EDAN',
-        'monitoreo': '📡 Monitoreo',
-        'logistica': '📦 Logística',
-        'comunicaciones': '📢 Comunicaciones',
-        'vehiculos': '🚗 Vehículos',
-        'apoyo': '🤝 Apoyo',
-        'seguridad': '🛡️ Seguridad',
-        'otro': '📌 Otro'
-    };
-    responsabilidadesTemporales.push({ oficialId, responsabilidad: funcionTexto[funcion] || funcion, funcion });
-    mostrarToast('✅ Responsabilidad asignada', 'success');
-    cargarIntegrantesServicio();
-}
-
-function eliminarResponsabilidad(index) {
+// ============================================
+// ELIMINAR RESPONSABILIDAD
+// ============================================
+function eliminarResponsabilidadMejorado(index) {
+    const responsabilidad = responsabilidadesTemporales[index];
+    if (!responsabilidad) return;
+    
+    if (!confirm(`¿Eliminar responsabilidad de ${responsabilidad.nombre}?`)) return;
+    
     responsabilidadesTemporales.splice(index, 1);
     cargarIntegrantesServicio();
+    actualizarListaResponsabilidades();
     mostrarToast('✅ Responsabilidad eliminada', 'success');
 }
 
+// ============================================
+// ABRIR SERVICIO MEJORADO
+// ============================================
 function abrirServicioMejorado() {
     const grupo = document.getElementById('sGrupo').value;
     const fecha = document.getElementById('sFecha').value;
-    if (!grupo) { mostrarToast('⚠️ Seleccione un grupo', 'warning'); return; }
-    if (!fecha) { mostrarToast('⚠️ Seleccione fecha y hora', 'warning'); return; }
+    const jefeNombre = document.getElementById('sJefeNombre').value;
+    
+    if (!grupo) {
+        mostrarToast('⚠️ Seleccione un grupo', 'warning');
+        return;
+    }
+    
+    if (!fecha) {
+        mostrarToast('⚠️ Seleccione fecha y hora', 'warning');
+        return;
+    }
+    
     if (responsabilidadesTemporales.length === 0) {
         if (!confirm('⚠️ No hay responsabilidades asignadas. ¿Continuar?')) return;
     }
+    
+    // Agrupar responsabilidades por oficial (múltiples responsabilidades por oficial)
     const grouped = {};
     responsabilidadesTemporales.forEach(item => {
-        if (!grouped[item.oficialId]) grouped[item.oficialId] = { oficialId: item.oficialId, responsabilidades: [] };
+        if (!grouped[item.oficialId]) {
+            grouped[item.oficialId] = {
+                oficialId: item.oficialId,
+                nombre: item.nombre,
+                responsabilidades: []
+            };
+        }
         grouped[item.oficialId].responsabilidades.push(item.responsabilidad);
     });
+    
     const data = {
-        grupo, fechaApertura: new Date(fecha).toISOString(),
-        estado: 'activo', jefe: auth.currentUser?.email || 'Sistema',
+        grupo: grupo,
+        jefe: jefeNombre || 'No definido',
+        fechaApertura: new Date(fecha).toISOString(),
+        estado: 'activo',
         responsabilidades: Object.values(grouped),
-        creadoPor: auth.currentUser?.email || 'Sistema'
+        creadoPor: auth.currentUser?.email || 'Sistema',
+        fechaRegistro: new Date().toISOString()
     };
+    
     db.collection('servicio').add(data)
-        .then(() => { mostrarToast('✅ Servicio abierto con responsabilidades', 'success'); responsabilidadesTemporales = []; cargarServicioMejorado(); })
-        .catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+        .then(() => {
+            mostrarToast(`✅ Servicio de ${grupo} abierto`, 'success');
+            responsabilidadesTemporales = [];
+            cargarServicioMejorado();
+            cargarDashboard();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
 }
 
+// ============================================
+// CARGAR SERVICIO ACTUAL
+// ============================================
 function cargarServicioMejorado() {
-    db.collection('servicio').where('estado', '==', 'activo').orderBy('fechaApertura', 'desc').limit(1).get()
+    const container = document.getElementById('sActual');
+    
+    db.collection('servicio')
+        .where('estado', '==', 'activo')
+        .orderBy('fechaApertura', 'desc')
+        .limit(1)
+        .get()
         .then(snap => {
-            const container = document.getElementById('sActual');
-            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay servicio activo</p>'; return; }
+            if (snap.empty) {
+                container.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
+                return;
+            }
+            
             const data = snap.docs[0].data();
             const fecha = data.fechaApertura ? new Date(data.fechaApertura).toLocaleString() : 'N/A';
-            let html = `<div class="alert alert-info"><strong>📋 ${data.grupo}</strong><br>📅 ${fecha}<br>👤 Jefe: ${data.jefe || 'No definido'}<br>`;
+            
+            let html = `<div class="alert alert-info">
+                <strong>📋 ${data.grupo}</strong><br>
+                📅 ${fecha}<br>
+                👤 Jefe: <strong>${data.jefe || 'No definido'}</strong><br>`;
+            
             if (data.responsabilidades && data.responsabilidades.length > 0) {
                 html += '<hr><strong>Responsabilidades:</strong><br>';
                 data.responsabilidades.forEach(r => {
-                    db.collection('personal').doc(r.oficialId).get().then(doc => {
-                        if (doc.exists) {
-                            const p = doc.data();
-                            const nombre = `${p.apellido}, ${p.nombre}`;
-                            const respList = r.responsabilidades.join(', ');
-                            const display = document.getElementById('responsabilidadesDisplay');
-                            if (display) display.innerHTML += `<div class="list">${nombre}: ${respList}</div>`;
-                        }
-                    });
+                    html += `<div class="list">• ${r.nombre || 'Desconocido'}: <strong>${r.responsabilidades.join(', ')}</strong></div>`;
                 });
-                html += '<div id="responsabilidadesDisplay"></div>';
             } else {
                 html += '<p class="text-muted">Sin responsabilidades asignadas</p>';
             }
+            
             html += '</div>';
             container.innerHTML = html;
-        }).catch(() => {});
+        })
+        .catch(error => {
+            console.error('Error cargando servicio:', error);
+            container.innerHTML = '<p class="text-danger">Error al cargar el servicio</p>';
+        });
 }
 
+// ============================================
+// CERRAR SERVICIO
+// ============================================
 function cerrarServicio() {
-    if (!confirm('¿Cerrar servicio actual?')) return;
-    db.collection('servicio').where('estado', '==', 'activo').get()
+    if (!confirm('¿Cerrar el servicio actual?')) return;
+    
+    db.collection('servicio')
+        .where('estado', '==', 'activo')
+        .get()
         .then(snap => {
+            if (snap.empty) {
+                mostrarToast('⚠️ No hay servicio activo para cerrar', 'warning');
+                return;
+            }
+            
+            const promises = [];
             snap.forEach(doc => {
-                db.collection('servicio').doc(doc.id).update({ estado: 'cerrado', fechaCierre: new Date().toISOString() });
+                promises.push(
+                    db.collection('servicio').doc(doc.id).update({
+                        estado: 'cerrado',
+                        fechaCierre: new Date().toISOString()
+                    })
+                );
             });
-            mostrarToast('✅ Servicio cerrado', 'success');
+            
+            return Promise.all(promises);
+        })
+        .then(() => {
+            mostrarToast('✅ Servicio cerrado correctamente', 'success');
             cargarServicioMejorado();
-        }).catch(error => mostrarToast('❌ Error: ' + error.message, 'danger'));
+            cargarDashboard();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
+}
+
+// ============================================
+// LIMPIAR SERVICIO
+// ============================================
+function limpiarServicio() {
+    if (!confirm('¿Limpiar la selección de servicio?')) return;
+    
+    responsabilidadesTemporales = [];
+    document.getElementById('sGrupo').value = '';
+    document.getElementById('sJefeNombre').value = '';
+    document.getElementById('sFecha').value = '';
+    document.getElementById('integrantesServicio').innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
+    document.getElementById('listaResponsabilidadesAsignadas').innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
+    document.getElementById('totalIntegrantes').textContent = '0 integrantes';
+    document.getElementById('totalResponsabilidades').textContent = '0 asignadas';
+    document.getElementById('jefeServicioBadge').textContent = '👔 Jefe: No asignado';
+    
+    mostrarToast('🧹 Datos limpiados', 'info');
 }
 
 // ============================================
