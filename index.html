@@ -1887,8 +1887,21 @@ function cargarDatos() {
     cargarPartes();
     cargarHistorialCierres();
     cargarUsuarios();
+    
+    // ============================================
+    // ESTABLECER HORA CORRECTA EN APERTURA DE SERVICIO
+    // ============================================
+    const ahora = new Date();
+    const fechaInput = document.getElementById('sFecha');
+    if (fechaInput) {
+        const año = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        const horas = String(ahora.getHours()).padStart(2, '0');
+        const minutos = String(ahora.getMinutes()).padStart(2, '0');
+        fechaInput.value = `${año}-${mes}-${dia}T${horas}:${minutos}`;
+    }
 }
-
 // ============================================
 // DASHBOARD
 // ============================================
@@ -5482,7 +5495,23 @@ document.addEventListener('DOMContentLoaded', () => {
     iniciarFirmaVivienda();
     initViviendas();
 });
+// ============================================
+// REFRESCAR HORA CADA 1 MINUTO
+// ============================================
+setInterval(function() {
+    const ahora = new Date();
+    const fechaInput = document.getElementById('sFecha');
+    if (fechaInput) {
+        const año = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        const horas = String(ahora.getHours()).padStart(2, '0');
+        const minutos = String(ahora.getMinutes()).padStart(2, '0');
+        fechaInput.value = `${año}-${mes}-${dia}T${horas}:${minutos}`;
+    }
+}, 60000); // Cada 1 minuto
 
+console.log('🚀 SIGR-PC V2.0 cargado correctamente');
 console.log('🚀 SIGR-PC V2.0 cargado correctamente');
 </script>
 
