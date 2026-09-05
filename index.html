@@ -291,156 +291,141 @@
             <div class="card-body" id="alertas72h"><p class="text-muted">No hay solicitudes pendientes</p></div>
         </div>
     </div>
-   <!-- PERSONAL -->
-<div id="section-personal" class="section">
-    <div class="card">
-        <div class="card-header"><i class="fas fa-user-plus"></i> Registrar Personal</div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">📝 Apellido</label>
-                    <input type="text" id="pApellido" class="form-control" placeholder="Apellido">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">📝 Nombre</label>
-                    <input type="text" id="pNombre" class="form-control" placeholder="Nombre">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">🪪 Cédula</label>
-                    <input type="text" id="pCedula" class="form-control" placeholder="Cédula">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">📋 Jerarquía</label>
-                    <select id="pJerarquia" class="form-select">
-                        <option value="">Jerarquía</option>
-                        <option>OPC I</option>
-                        <option>OPC II</option>
-                        <option>OPC III</option>
-                        <option>OSPC I</option>
-                        <option>OSPC II</option>
-                        <option>OSPC III</option>
-                        <option>OCPC I</option>
-                        <option>OCPC II</option>
-                        <option>OCPC GENERAL</option>
-                    </select>
-                </div>
-                <div class="col-md-4 mb-2">
-                    <label class="form-label">📞 Teléfono</label>
-                    <input type="tel" id="pTelefono" class="form-control" placeholder="Teléfono">
-                </div>
-                <div class="col-md-4 mb-2">
-                    <label class="form-label">✉️ Email</label>
-                    <input type="email" id="pEmail" class="form-control" placeholder="Email">
-                </div>
-                <div class="col-md-4 mb-2">
-                    <label class="form-label">👥 Grupos</label>
-                    <select id="pGrupos" class="form-select" multiple>
-                        <option value="Grupo A">Grupo A</option>
-                        <option value="Grupo B">Grupo B</option>
-                        <option value="Grupo C">Grupo C</option>
-                        <option value="Grupo D">Grupo D</option>
-                    </select>
-                    <small class="text-muted">Ctrl+Click para múltiple</small>
-                </div>
-                <div class="col-md-6 mb-2">
-                    <label class="form-label">✍️ Firma del Oficial (imagen)</label>
-                    <input type="file" id="pFirma" class="form-control" accept="image/*">
-                    <div id="pFirmaPreview" style="margin-top:8px;"></div>
-                </div>
-                <div class="col-12">
-                    <button class="btn btn-primary" onclick="registrarPersonal()">
-                        <i class="fas fa-save"></i> Registrar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- LISTA DE PERSONAL CON BOTÓN EDITAR -->
-    <div class="card mt-3">
-        <div class="card-header">
-            <i class="fas fa-list"></i> Lista de Personal
-            <span class="badge bg-secondary ms-2" id="totalPersonalLista">0</span>
-        </div>
-        <div class="card-body" id="listaPersonal">
-            <p class="text-muted">Cargando personal...</p>
-        </div>
-    </div>
-
-    <!-- MODAL PARA EDITAR PERSONAL -->
-    <div class="modal fade" id="modalEditarPersonal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title"><i class="fas fa-user-edit"></i> Editar Personal</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="editPersonalId">
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📝 Apellido</label>
-                            <input type="text" id="editApellido" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📝 Nombre</label>
-                            <input type="text" id="editNombre" class="form-control">
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label">🪪 Cédula</label>
-                            <input type="text" id="editCedula" class="form-control">
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label">📋 Jerarquía</label>
-                            <select id="editJerarquia" class="form-select">
-                                <option value="">Jerarquía</option>
-                                <option>OPC I</option>
-                                <option>OPC II</option>
-                                <option>OPC III</option>
-                                <option>OSPC I</option>
-                                <option>OSPC II</option>
-                                <option>OSPC III</option>
-                                <option>OCPC I</option>
-                                <option>OCPC II</option>
-                                <option>OCPC GENERAL</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label">📞 Teléfono</label>
-                            <input type="text" id="editTelefono" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">✉️ Email</label>
-                            <input type="email" id="editEmail" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">👥 Grupos</label>
-                            <select id="editGrupos" class="form-select" multiple>
-                                <option value="Grupo A">Grupo A</option>
-                                <option value="Grupo B">Grupo B</option>
-                                <option value="Grupo C">Grupo C</option>
-                                <option value="Grupo D">Grupo D</option>
-                            </select>
-                            <small class="text-muted">Ctrl+Click para múltiple</small>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="form-label">✍️ Firma del Oficial (imagen)</label>
-                            <input type="file" id="editFirma" class="form-control" accept="image/*">
-                            <div id="editFirmaPreview" style="margin-top:8px;"></div>
-                        </div>
+    
+    <!-- PERSONAL -->
+    <div id="section-personal" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-user-plus"></i> Registrar Personal</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">📝 Apellido</label>
+                        <input type="text" id="pApellido" class="form-control" placeholder="Apellido">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">📝 Nombre</label>
+                        <input type="text" id="pNombre" class="form-control" placeholder="Nombre">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">🪪 Cédula</label>
+                        <input type="text" id="pCedula" class="form-control" placeholder="Cédula">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">📋 Jerarquía</label>
+                        <select id="pJerarquia" class="form-select">
+                            <option value="">Jerarquía</option>
+                            <option>OPC I</option><option>OPC II</option><option>OPC III</option>
+                            <option>OSPC I</option><option>OSPC II</option><option>OSPC III</option>
+                            <option>OCPC I</option><option>OCPC II</option><option>OCPC GENERAL</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">📞 Teléfono</label>
+                        <input type="tel" id="pTelefono" class="form-control" placeholder="Teléfono">
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">✉️ Email</label>
+                        <input type="email" id="pEmail" class="form-control" placeholder="Email">
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">👥 Grupos</label>
+                        <select id="pGrupos" class="form-select" multiple>
+                            <option value="Grupo A">Grupo A</option>
+                            <option value="Grupo B">Grupo B</option>
+                            <option value="Grupo C">Grupo C</option>
+                            <option value="Grupo D">Grupo D</option>
+                        </select>
+                        <small class="text-muted">Ctrl+Click para múltiple</small>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">✍️ Firma del Oficial (imagen)</label>
+                        <input type="file" id="pFirma" class="form-control" accept="image/*">
+                        <div id="pFirmaPreview" style="margin-top:8px;"></div>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary" onclick="registrarPersonal()">
+                            <i class="fas fa-save"></i> Registrar
+                        </button>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button class="btn btn-primary" onclick="guardarEdicionPersonal()">
-                        <i class="fas fa-save"></i> Guardar Cambios
-                    </button>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="fas fa-list"></i> Lista de Personal
+                <span class="badge bg-secondary ms-2" id="totalPersonalLista">0</span>
+            </div>
+            <div class="card-body" id="listaPersonal">
+                <p class="text-muted">Cargando personal...</p>
+            </div>
+        </div>
+        <!-- MODAL PARA EDITAR PERSONAL -->
+        <div class="modal fade" id="modalEditarPersonal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fas fa-user-edit"></i> Editar Personal</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editPersonalId">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📝 Apellido</label>
+                                <input type="text" id="editApellido" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📝 Nombre</label>
+                                <input type="text" id="editNombre" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">🪪 Cédula</label>
+                                <input type="text" id="editCedula" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">📋 Jerarquía</label>
+                                <select id="editJerarquia" class="form-select">
+                                    <option value="">Jerarquía</option>
+                                    <option>OPC I</option><option>OPC II</option><option>OPC III</option>
+                                    <option>OSPC I</option><option>OSPC II</option><option>OSPC III</option>
+                                    <option>OCPC I</option><option>OCPC II</option><option>OCPC GENERAL</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">📞 Teléfono</label>
+                                <input type="text" id="editTelefono" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">✉️ Email</label>
+                                <input type="email" id="editEmail" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">👥 Grupos</label>
+                                <select id="editGrupos" class="form-select" multiple>
+                                    <option value="Grupo A">Grupo A</option>
+                                    <option value="Grupo B">Grupo B</option>
+                                    <option value="Grupo C">Grupo C</option>
+                                    <option value="Grupo D">Grupo D</option>
+                                </select>
+                                <small class="text-muted">Ctrl+Click para múltiple</small>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <label class="form-label">✍️ Firma del Oficial (imagen)</label>
+                                <input type="file" id="editFirma" class="form-control" accept="image/*">
+                                <div id="editFirmaPreview" style="margin-top:8px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button class="btn btn-primary" onclick="guardarEdicionPersonal()">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<!-- FIN PERSONAL -->
     
     <!-- GRUPOS -->
     <div id="section-grupos" class="section">
@@ -516,142 +501,146 @@
     </div>
     
     <!-- SERVICIO -->
-    <!-- SERVICIO -->
-<div id="section-servicio" class="section">
-    <div class="card">
-        <div class="card-header"><i class="fas fa-clock"></i> Apertura de Servicio</div>
-        <div class="card-body">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                <strong>Apertura de Servicio:</strong> Seleccione el grupo, verifique el Jefe de Servicio y asigne responsabilidades a cada integrante.
-                <br><small>📌 El Jefe de Servicio se asigna desde el módulo <strong>Grupos</strong>.</small>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-4 mb-2">
-                    <label class="form-label">📋 Grupo que recibe</label>
-                    <select id="sGrupo" class="form-select" onchange="cargarIntegrantesServicio()">
-                        <option value="">Seleccionar Grupo</option>
-                        <option value="Grupo A">Grupo A</option>
-                        <option value="Grupo B">Grupo B</option>
-                        <option value="Grupo C">Grupo C</option>
-                        <option value="Grupo D">Grupo D</option>
-                    </select>
+    <div id="section-servicio" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-clock"></i> Apertura de Servicio</div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Apertura de Servicio:</strong> Seleccione el grupo, verifique el Jefe de Servicio y asigne responsabilidades a cada integrante.
+                    <br><small>📌 El Jefe de Servicio se asigna desde el módulo <strong>Grupos</strong>.</small>
                 </div>
-                <div class="col-md-4 mb-2">
-                    <label class="form-label">👤 Jefe de Servicio</label>
-                    <input type="text" id="sJefeNombre" class="form-control" readonly placeholder="Seleccione un grupo">
-                </div>
-                <div class="col-md-4 mb-2">
-                    <label class="form-label">📅 Fecha/Hora</label>
-                    <input type="datetime-local" id="sFecha" class="form-control">
-                </div>
-            </div>
-
-            <!-- INTEGRANTES DEL GRUPO -->
-            <div class="card mt-2">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-users"></i> Integrantes del Grupo
-                    <span class="badge bg-light text-dark ms-2" id="totalIntegrantes">0 integrantes</span>
-                    <span class="badge bg-warning text-dark ms-2" id="jefeServicioBadge">👔 Jefe: No asignado</span>
-                </div>
-                <div class="card-body" id="integrantesServicio">
-                    <p class="text-muted">Seleccione un grupo para ver los integrantes.</p>
-                </div>
-            </div>
-
-            <!-- ASIGNACIÓN DE RESPONSABILIDADES -->
-            <div class="card mt-2">
-                <div class="card-header bg-success text-white">
-                    <i class="fas fa-tasks"></i> Asignación de Responsabilidades
-                    <span class="badge bg-light text-dark ms-2" id="totalResponsabilidades">0 asignadas</span>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-warning">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Nota:</strong> Un oficial puede tener <strong>varias responsabilidades</strong> si el personal es limitado.
-                        Seleccione el oficial, la responsabilidad y haga clic en "Asignar".
+                
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">📋 Grupo que recibe</label>
+                        <select id="sGrupo" class="form-select" onchange="cargarIntegrantesServicio()">
+                            <option value="">Seleccionar Grupo</option>
+                            <option value="Grupo A">Grupo A</option>
+                            <option value="Grupo B">Grupo B</option>
+                            <option value="Grupo C">Grupo C</option>
+                            <option value="Grupo D">Grupo D</option>
+                        </select>
                     </div>
-                    <div class="row">
-                        <div class="col-md-5 mb-2">
-                            <label class="form-label">👤 Oficial</label>
-                            <select id="respOficial" class="form-select">
-                                <option value="">— Seleccione un oficial —</option>
-                            </select>
-                        </div>
-                        <div class="col-md-5 mb-2">
-                            <label class="form-label">📋 Responsabilidad</label>
-                            <select id="respFuncion" class="form-select">
-                                <option value="">— Seleccione una función —</option>
-                                <option value="inspector">🔍 Inspector</option>
-                                <option value="rescate_vehicular">🚗 Rescate Vehicular</option>
-                                <option value="edanista">📋 Edanista</option>
-                                <option value="logistico">📦 Logístico</option>
-                                <option value="conductor">🚗 Conductor</option>
-                                <option value="escribiente">✍️ Escribiente</option>
-                                <option value="auxiliar">🤝 Auxiliar</option>
-                                <option value="aph">🚑 APH (Atención Prehospitalaria)</option>
-                                <option value="rescate">🪢 Rescate</option>
-                                <option value="bombero">🔥 Bombero</option>
-                                <option value="operador_comunicaciones">📡 Operador de Comunicaciones</option>
-                                <option value="seguridad">🛡️ Seguridad</option>
-                                <option value="coordinacion">👔 Coordinación</option>
-                                <option value="monitoreo">📡 Monitoreo</option>
-                                <option value="apoyo">🤝 Apoyo</option>
-                                <option value="otro">📌 Otro</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 mb-2">
-    <label class="form-label">📋 Estado</label>
-    <select id="respEstado" class="form-select" onchange="mostrarCampoMunicipio()">
-        <option value="disponible">✅ Disponible</option>
-        <option value="en_servicio">🔄 En Servicio</option>
-        <option value="reposo">🛌 Reposo</option>
-        <option value="permiso">📋 Permiso</option>
-        <option value="vacaciones">🏖️ Vacaciones</option>
-        <option value="comision_municipio">🏛️ Comisión en Municipio</option>
-        <option value="comision_nacional">🇻🇪 Comisión Nacional</option>
-        <option value="comision_internacional">🌍 Comisión Internacional</option>
-        <option value="apoyo_instituciones">🤝 Apoyo a otras Instituciones</option>
-        <option value="apoyo_zoedan">🛡️ Apoyo a ZOEDAN</option>
-        <option value="apoyo_pc_municipio">🚒 Apoyo a PC Municipio</option>
-    </select>
-</div>
-
-<!-- CAMPO PARA ESCRIBIR EL MUNICIPIO (se muestra solo cuando se selecciona "Apoyo a PC Municipio") -->
-<div class="col-md-2 mb-2" id="campoMunicipio" style="display:none;">
-    <label class="form-label">🏛️ Municipio</label>
-    <input type="text" id="respMunicipio" class="form-control" placeholder="Ej: Araure, Acarigua...">
-</div>
-
-                    <!-- LISTA DE RESPONSABILIDADES ASIGNADAS -->
-                    <div class="mt-3" id="listaResponsabilidadesAsignadas">
-                        <p class="text-muted">No hay responsabilidades asignadas.</p>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">👤 Jefe de Servicio</label>
+                        <input type="text" id="sJefeNombre" class="form-control" readonly placeholder="Seleccione un grupo">
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">📅 Fecha/Hora</label>
+                        <input type="datetime-local" id="sFecha" class="form-control">
                     </div>
                 </div>
+
+                <!-- INTEGRANTES DEL GRUPO -->
+                <div class="card mt-2">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-users"></i> Integrantes del Grupo
+                        <span class="badge bg-light text-dark ms-2" id="totalIntegrantes">0 integrantes</span>
+                        <span class="badge bg-warning text-dark ms-2" id="jefeServicioBadge">👔 Jefe: No asignado</span>
+                    </div>
+                    <div class="card-body" id="integrantesServicio">
+                        <p class="text-muted">Seleccione un grupo para ver los integrantes.</p>
+                    </div>
+                </div>
+
+                <!-- ASIGNACIÓN DE RESPONSABILIDADES -->
+                <div class="card mt-2">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-tasks"></i> Asignación de Responsabilidades
+                        <span class="badge bg-light text-dark ms-2" id="totalResponsabilidades">0 asignadas</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Nota:</strong> Un oficial puede tener <strong>varias responsabilidades</strong> si el personal es limitado.
+                            Seleccione el oficial, la responsabilidad, el estado y haga clic en "Asignar".
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">👤 Oficial</label>
+                                <select id="respOficial" class="form-select">
+                                    <option value="">— Seleccione un oficial —</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">📋 Responsabilidad</label>
+                                <select id="respFuncion" class="form-select">
+                                    <option value="">— Seleccione una función —</option>
+                                    <option value="inspector">🔍 Inspector</option>
+                                    <option value="rescate_vehicular">🚗 Rescate Vehicular</option>
+                                    <option value="edanista">📋 Edanista</option>
+                                    <option value="logistico">📦 Logístico</option>
+                                    <option value="conductor">🚗 Conductor</option>
+                                    <option value="escribiente">✍️ Escribiente</option>
+                                    <option value="auxiliar">🤝 Auxiliar</option>
+                                    <option value="aph">🚑 APH</option>
+                                    <option value="rescate">🪢 Rescate</option>
+                                    <option value="bombero">🔥 Bombero</option>
+                                    <option value="operador_comunicaciones">📡 Operador Comunicaciones</option>
+                                    <option value="seguridad">🛡️ Seguridad</option>
+                                    <option value="coordinacion">👔 Coordinación</option>
+                                    <option value="monitoreo">📡 Monitoreo</option>
+                                    <option value="apoyo">🤝 Apoyo</option>
+                                    <option value="otro">📌 Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">📋 Estado</label>
+                                <select id="respEstado" class="form-select" onchange="mostrarCampoMunicipio()">
+                                    <option value="disponible">✅ Disponible</option>
+                                    <option value="en_servicio">🔄 En Servicio</option>
+                                    <option value="reposo">🛌 Reposo</option>
+                                    <option value="permiso">📋 Permiso</option>
+                                    <option value="vacaciones">🏖️ Vacaciones</option>
+                                    <option value="comision_municipio">🏛️ Comisión en Municipio</option>
+                                    <option value="comision_nacional">🇻🇪 Comisión Nacional</option>
+                                    <option value="comision_internacional">🌍 Comisión Internacional</option>
+                                    <option value="apoyo_instituciones">🤝 Apoyo a otras Instituciones</option>
+                                    <option value="apoyo_zoedan">🛡️ Apoyo a ZOEDAN</option>
+                                    <option value="apoyo_pc_municipio">🚒 Apoyo a PC Municipio</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-2" id="campoMunicipio" style="display:none;">
+                                <label class="form-label">🏛️ Municipio</label>
+                                <input type="text" id="respMunicipio" class="form-control" placeholder="Ej: Araure, Acarigua...">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-success w-100" onclick="agregarResponsabilidadMejorado()">
+                                    <i class="fas fa-plus"></i> Asignar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- LISTA DE RESPONSABILIDADES ASIGNADAS -->
+                        <div class="mt-3" id="listaResponsabilidadesAsignadas">
+                            <p class="text-muted">No hay responsabilidades asignadas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-primary" onclick="abrirServicioMejorado()">
+                            <i class="fas fa-play"></i> Abrir Servicio
+                        </button>
+                        <button class="btn btn-secondary" onclick="limpiarServicio()">
+                            <i class="fas fa-eraser"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <hr>
+                <h6>📌 Servicio Actual</h6>
+                <div id="sActual"></div>
+                <button class="btn btn-danger mt-2" onclick="cerrarServicio()">
+                    <i class="fas fa-stop"></i> Cerrar Servicio
+                </button>
             </div>
-
-            <!-- BOTONES -->
-<div class="row mt-3">
-    <div class="col-12">
-        <button class="btn btn-primary" onclick="abrirServicioMejorado()">
-            <i class="fas fa-play"></i> Abrir Servicio
-        </button>
-        <button class="btn btn-secondary" onclick="limpiarServicio()">
-            <i class="fas fa-eraser"></i> Limpiar
-        </button>
-    </div>
-</div>
-
-<hr>
-<h6>📌 Servicio Actual</h6>
-<div id="sActual"></div>
-<button class="btn btn-danger mt-2" onclick="cerrarServicio()">
-    <i class="fas fa-stop"></i> Cerrar Servicio
-</button>
         </div>
     </div>
-</div>
     
     <!-- SOLICITUDES -->
     <div id="section-solicitudes" class="section">
@@ -990,196 +979,196 @@
             <div class="card-body" id="listaEdan"></div>
         </div>
     </div>
+    
     <!-- CERTIFICACIÓN DE ÁRBOLES -->
-<div id="section-certificacion" class="section">
-    <div class="card">
-        <div class="card-header">
-            <i class="fas fa-tree"></i> Certificación de Árboles
-            <span class="badge badge-info ms-2">📋 Registro Oficial</span>
+    <div id="section-certificacion" class="section">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-tree"></i> Certificación de Árboles
+                <span class="badge badge-info ms-2">📋 Registro Oficial</span>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Certificación de árboles:</strong> Registro oficial para evaluación de riesgo arbóreo.
+                    <br>Complete los datos del solicitante, del inspector y agregue <strong>TODOS</strong> los árboles inspeccionados.
+                </div>
+
+                <!-- DATOS DEL SOLICITANTE -->
+                <div class="card mb-2" style="background:#f8f9fa;">
+                    <div class="card-header"><i class="fas fa-user"></i> Datos del Solicitante</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">👤 Nombre y Apellido</label>
+                                <input type="text" id="caSolicitante" class="form-control" placeholder="Nombre completo">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📄 Cédula</label>
+                                <input type="text" id="caSolicitanteCedula" class="form-control" placeholder="V-12345678">
+                            </div>
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label">📞 Teléfono</label>
+                                <input type="text" id="caSolicitanteTelefono" class="form-control" placeholder="0414-1234567">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📍 Dirección</label>
+                                <input type="text" id="caDireccion" class="form-control" placeholder="Calle, sector, comunidad">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DATOS DEL INSPECTOR -->
+                <div class="card mb-2" style="background:#e9ecef;">
+                    <div class="card-header"><i class="fas fa-user-check"></i> Datos del Inspector (Actuante)</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">👤 Inspector</label>
+                                <select id="caInspector" class="form-select" onchange="cargarDatosInspector()">
+                                    <option value="">— Seleccione el Inspector —</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📋 Jerarquía y Nombre</label>
+                                <input type="text" id="caInspectorJerarquiaNombre" class="form-control" readonly placeholder="Ej: OCPC I. Barrios Sigfrido">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LISTA DE ÁRBOLES -->
+                <div class="card mb-2" style="border:2px solid #19864b;">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-tree"></i> Árboles Inspeccionados
+                        <span class="badge bg-light text-dark ms-2" id="caArbolCount">0 árboles</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Agregue cada árbol inspeccionado:</strong> Complete los datos del árbol y haga clic en "Agregar Árbol".
+                            Puede agregar tantos árboles como sean necesarios.
+                        </div>
+                        
+                        <!-- DATOS DEL ÁRBOL -->
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">🌳 Especie</label>
+                                <input type="text" id="caEspecie" class="form-control" placeholder="Nombre común o científico">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📏 Altura (m)</label>
+                                <input type="number" id="caAltura" class="form-control" step="0.1">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📐 Diámetro (m)</label>
+                                <input type="number" id="caDiametro" class="form-control" step="0.1">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">📏 Inclinación (°)</label>
+                                <input type="number" id="caInclinacion" class="form-control" step="0.1">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">🏠 Dist. vivienda (m)</label>
+                                <input type="number" id="caDistancia" class="form-control" step="0.1">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">⚠️ Nivel de Riesgo</label>
+                                <select id="caRiesgo" class="form-select">
+                                    <option value="bajo">🟢 Bajo</option>
+                                    <option value="medio">🟡 Medio</option>
+                                    <option value="alto">🟠 Alto</option>
+                                    <option value="muy_alto">🔴 Muy Alto</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📍 UTM Este</label>
+                                <input type="text" id="caUtmE" class="form-control" placeholder="Ej: 123456">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">📍 UTM Norte</label>
+                                <input type="text" id="caUtmN" class="form-control" placeholder="Ej: 987654">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">🗺️ Zona</label>
+                                <input type="text" id="caUtmZona" class="form-control" placeholder="Ej: 19">
+                            </div>
+                            <div class="col-12 mt-2">
+                                <button class="btn btn-success btn-sm" onclick="caAgregarArbol()">
+                                    <i class="fas fa-plus"></i> Agregar Árbol
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="caLimpiarArbol()">
+                                    <i class="fas fa-undo"></i> Limpiar Campos
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- LISTA DE ÁRBOLES AGREGADOS -->
+                        <div class="mt-3" id="caListaArboles">
+                            <p class="text-muted">No hay árboles agregados. Agregue el primer árbol.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OBSERVACIONES -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">📝 Observaciones</label>
+                        <textarea id="caObservaciones" class="form-control" rows="2" placeholder="Condiciones generales, daños visibles, recomendaciones..."></textarea>
+                    </div>
+                </div>
+
+                <!-- FOTOS -->
+                <div class="row mt-2">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">📸 Foto 1</label>
+                        <input type="file" id="caFoto1" class="form-control" accept="image/*" capture="environment">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">📸 Foto 2</label>
+                        <input type="file" id="caFoto2" class="form-control" accept="image/*" capture="environment">
+                    </div>
+                    <div class="col-12 mb-2">
+                        <div id="caFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
+                    </div>
+                </div>
+
+                <!-- FIRMA DEL INSPECTOR -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">✍️ Firma del Inspector</label>
+                        <div id="caFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
+                            <p class="text-muted" id="caFirmaPlaceholder">Seleccione un inspector para cargar su firma</p>
+                            <img id="caFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-success" onclick="guardarCertificacionArbol()">
+                            <i class="fas fa-save"></i> Registrar Certificación
+                        </button>
+                        <button class="btn btn-primary" onclick="generarPDFCertificacion()">
+                            <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
+                        <button class="btn btn-secondary" onclick="caLimpiarTodo()">
+                            <i class="fas fa-eraser"></i> Limpiar Todo
+                        </button>
+                    </div>
+                </div>
+                <div id="caMensaje" class="mt-2"></div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                <strong>Certificación de árboles:</strong> Registro oficial para evaluación de riesgo arbóreo.
-                <br>Complete los datos del solicitante, del inspector y agregue <strong>TODOS</strong> los árboles inspeccionados.
-            </div>
 
-            <!-- DATOS DEL SOLICITANTE -->
-            <div class="card mb-2" style="background:#f8f9fa;">
-                <div class="card-header"><i class="fas fa-user"></i> Datos del Solicitante</div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label">👤 Nombre y Apellido</label>
-                            <input type="text" id="caSolicitante" class="form-control" placeholder="Nombre completo">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📄 Cédula</label>
-                            <input type="text" id="caSolicitanteCedula" class="form-control" placeholder="V-12345678">
-                        </div>
-                        <div class="col-md-5 mb-2">
-                            <label class="form-label">📞 Teléfono</label>
-                            <input type="text" id="caSolicitanteTelefono" class="form-control" placeholder="0414-1234567">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📍 Dirección</label>
-                            <input type="text" id="caDireccion" class="form-control" placeholder="Calle, sector, comunidad">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- DATOS DEL INSPECTOR -->
-            <div class="card mb-2" style="background:#e9ecef;">
-                <div class="card-header"><i class="fas fa-user-check"></i> Datos del Inspector (Actuante)</div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">👤 Inspector</label>
-                            <select id="caInspector" class="form-select" onchange="cargarDatosInspector()">
-                                <option value="">— Seleccione el Inspector —</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📋 Jerarquía y Nombre</label>
-                            <input type="text" id="caInspectorJerarquiaNombre" class="form-control" readonly placeholder="Ej: OCPC I. Barrios Sigfrido">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- LISTA DE ÁRBOLES -->
-            <div class="card mb-2" style="border:2px solid #19864b;">
-                <div class="card-header bg-success text-white">
-                    <i class="fas fa-tree"></i> Árboles Inspeccionados
-                    <span class="badge bg-light text-dark ms-2" id="caArbolCount">0 árboles</span>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-warning">
-                        <i class="fas fa-info-circle"></i> 
-                        <strong>Agregue cada árbol inspeccionado:</strong> Complete los datos del árbol y haga clic en "Agregar Árbol".
-                        Puede agregar tantos árboles como sean necesarios.
-                    </div>
-                    
-                    <!-- DATOS DEL ÁRBOL -->
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">🌳 Especie</label>
-                            <input type="text" id="caEspecie" class="form-control" placeholder="Nombre común o científico">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📏 Altura (m)</label>
-                            <input type="number" id="caAltura" class="form-control" step="0.1">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📐 Diámetro (m)</label>
-                            <input type="number" id="caDiametro" class="form-control" step="0.1">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">📏 Inclinación (°)</label>
-                            <input type="number" id="caInclinacion" class="form-control" step="0.1">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label">🏠 Dist. vivienda (m)</label>
-                            <input type="number" id="caDistancia" class="form-control" step="0.1">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">⚠️ Nivel de Riesgo</label>
-                            <select id="caRiesgo" class="form-select">
-                                <option value="bajo">🟢 Bajo</option>
-                                <option value="medio">🟡 Medio</option>
-                                <option value="alto">🟠 Alto</option>
-                                <option value="muy_alto">🔴 Muy Alto</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📍 UTM Este</label>
-                            <input type="text" id="caUtmE" class="form-control" placeholder="Ej: 123456">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">📍 UTM Norte</label>
-                            <input type="text" id="caUtmN" class="form-control" placeholder="Ej: 987654">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label">🗺️ Zona</label>
-                            <input type="text" id="caUtmZona" class="form-control" placeholder="Ej: 19">
-                        </div>
-                        <div class="col-12 mt-2">
-                            <button class="btn btn-success btn-sm" onclick="caAgregarArbol()">
-                                <i class="fas fa-plus"></i> Agregar Árbol
-                            </button>
-                            <button class="btn btn-warning btn-sm" onclick="caLimpiarArbol()">
-                                <i class="fas fa-undo"></i> Limpiar Campos
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- LISTA DE ÁRBOLES AGREGADOS -->
-                    <div class="mt-3" id="caListaArboles">
-                        <p class="text-muted">No hay árboles agregados. Agregue el primer árbol.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- OBSERVACIONES -->
-            <div class="row mt-2">
-                <div class="col-12 mb-2">
-                    <label class="form-label">📝 Observaciones</label>
-                    <textarea id="caObservaciones" class="form-control" rows="2" placeholder="Condiciones generales, daños visibles, recomendaciones..."></textarea>
-                </div>
-            </div>
-
-            <!-- FOTOS -->
-            <div class="row mt-2">
-                <div class="col-md-6 mb-2">
-                    <label class="form-label">📸 Foto 1</label>
-                    <input type="file" id="caFoto1" class="form-control" accept="image/*" capture="environment">
-                </div>
-                <div class="col-md-6 mb-2">
-                    <label class="form-label">📸 Foto 2</label>
-                    <input type="file" id="caFoto2" class="form-control" accept="image/*" capture="environment">
-                </div>
-                <div class="col-12 mb-2">
-                    <div id="caFotosPreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
-                </div>
-            </div>
-
-            <!-- FIRMA DEL INSPECTOR -->
-            <div class="row mt-2">
-                <div class="col-12 mb-2">
-                    <label class="form-label">✍️ Firma del Inspector</label>
-                    <div id="caFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
-                        <p class="text-muted" id="caFirmaPlaceholder">Seleccione un inspector para cargar su firma</p>
-                        <img id="caFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- BOTONES -->
-            <div class="row mt-3">
-                <div class="col-12">
-                    <button class="btn btn-success" onclick="guardarCertificacionArbol()">
-                        <i class="fas fa-save"></i> Registrar Certificación
-                    </button>
-                    <button class="btn btn-primary" onclick="generarPDFCertificacion()">
-                        <i class="fas fa-file-pdf"></i> Generar PDF
-                    </button>
-                    <button class="btn btn-secondary" onclick="caLimpiarTodo()">
-                        <i class="fas fa-eraser"></i> Limpiar Todo
-                    </button>
-                </div>
-            </div>
-            <div id="caMensaje" class="mt-2"></div>
+        <!-- LISTA DE CERTIFICACIONES -->
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-list"></i> Certificaciones Registradas</div>
+            <div class="card-body" id="listaCertificaciones"></div>
         </div>
     </div>
-
-    <!-- LISTA DE CERTIFICACIONES -->
-    <div class="card mt-3">
-        <div class="card-header"><i class="fas fa-list"></i> Certificaciones Registradas</div>
-        <div class="card-body" id="listaCertificaciones"></div>
-    </div>
-</div>
-<!-- FIN CERTIFICACIÓN DE ÁRBOLES -->
     
     <!-- VIVIENDAS -->
     <div id="section-viviendas" class="section">
@@ -1642,110 +1631,34 @@
         </div>
     </div>
     
-   <!-- USUARIOS -->
-<div id="section-usuarios" class="section">
-    <div class="card">
-        <div class="card-header">
-            <i class="fas fa-user-plus"></i> Gestionar Usuarios
-            <span class="badge badge-info ms-2">Solo Comandante</span>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <strong>Gestión de usuarios:</strong> Solo el 1er Comandante puede crear, editar y eliminar usuarios.
-                Los usuarios deben tener un rol asignado para acceder al sistema.
-            </div>
-            <div class="row">
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">👤 Nombre</label>
-                    <input type="text" id="uNombre" class="form-control" placeholder="Nombre">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">👤 Apellido</label>
-                    <input type="text" id="uApellido" class="form-control" placeholder="Apellido">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">📧 Correo</label>
-                    <input type="email" id="uEmail" class="form-control" placeholder="correo@ejemplo.com">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">🎯 Rol</label>
-                    <select id="uRol" class="form-select">
-                        <option value="comandante">👑 1er Comandante</option>
-                        <option value="segundo_comandante">👤 2do Comandante</option>
-                        <option value="jefe_servicio">🛡️ Jefe de Servicio</option>
-                        <option value="oficial">👮 Oficial</option>
-                    </select>
-                </div>
-                <div class="col-12 mt-2">
-                    <button class="btn btn-success" onclick="crearUsuario()">
-                        <i class="fas fa-user-plus"></i> Crear Usuario
-                    </button>
-                    <button class="btn btn-secondary" onclick="limpiarFormularioUsuario()">
-                        <i class="fas fa-eraser"></i> Limpiar
-                    </button>
+    <!-- USUARIOS -->
+    <div id="section-usuarios" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-user-plus"></i> Gestionar Usuarios</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2"><input type="text" id="uNombre" class="form-control" placeholder="Nombre"></div>
+                    <div class="col-md-3 mb-2"><input type="text" id="uApellido" class="form-control" placeholder="Apellido"></div>
+                    <div class="col-md-3 mb-2"><input type="email" id="uEmail" class="form-control" placeholder="Correo"></div>
+                    <div class="col-md-3 mb-2">
+                        <select id="uRol" class="form-select">
+                            <option value="comandante">👑 1er Comandante</option>
+                            <option value="segundo_comandante">👤 2do Comandante</option>
+                            <option value="jefe_servicio">🛡️ Jefe de Servicio</option>
+                            <option value="oficial">👮 Oficial</option>
+                        </select>
+                    </div>
+                    <div class="col-12"><button class="btn btn-success" onclick="crearUsuario()"><i class="fas fa-user-plus"></i> Crear Usuario</button></div>
                 </div>
             </div>
         </div>
-    </div>
-
-  <!-- USUARIOS -->
-<div id="section-usuarios" class="section">
-    <div class="card">
-        <div class="card-header">
-            <i class="fas fa-user-plus"></i> Gestionar Usuarios
-            <span class="badge badge-info ms-2">Solo Comandante</span>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <strong>Gestión de usuarios:</strong> Solo el 1er Comandante puede crear, editar y eliminar usuarios.
-                Los usuarios deben tener un rol asignado para acceder al sistema.
-            </div>
-            <div class="row">
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">👤 Nombre</label>
-                    <input type="text" id="uNombre" class="form-control" placeholder="Nombre">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">👤 Apellido</label>
-                    <input type="text" id="uApellido" class="form-control" placeholder="Apellido">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">📧 Correo</label>
-                    <input type="email" id="uEmail" class="form-control" placeholder="correo@ejemplo.com">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <label class="form-label">🎯 Rol</label>
-                    <select id="uRol" class="form-select">
-                        <option value="comandante">👑 1er Comandante</option>
-                        <option value="segundo_comandante">👤 2do Comandante</option>
-                        <option value="jefe_servicio">🛡️ Jefe de Servicio</option>
-                        <option value="oficial">👮 Oficial</option>
-                    </select>
-                </div>
-                <div class="col-12 mt-2">
-                    <button class="btn btn-success" onclick="crearUsuario()">
-                        <i class="fas fa-user-plus"></i> Crear Usuario
-                    </button>
-                    <button class="btn btn-secondary" onclick="limpiarFormularioUsuario()">
-                        <i class="fas fa-eraser"></i> Limpiar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card mt-3">
-        <div class="card-header">
-            <i class="fas fa-list"></i> Usuarios del Sistema
-            <span class="badge bg-secondary ms-2" id="totalUsuarios">0 usuarios</span>
-        </div>
-        <div class="card-body" id="listaUsuarios">
-            <p class="text-muted">Cargando usuarios...</p>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-list"></i> Usuarios del Sistema</div>
+            <div class="card-body" id="listaUsuarios"></div>
         </div>
     </div>
 </div>
+
 <!-- TOAST -->
 <div class="toast-container">
     <div id="toast" class="toast align-items-center text-white border-0" role="alert">
@@ -1787,9 +1700,13 @@ let actividadesParte = [];
 let responsabilidadesTemporales = [];
 let firmaGuardada = null;
 let firmaGuardadaVivienda = null;
-
-// Variables para Certificación (sin canvas)
 let firmaGuardadaCert = null;
+let ivFamilias = [];
+let ivContadorFamilias = 0;
+let caArboles = [];
+let caContadorArboles = 0;
+let integrantesGrupo = [];
+let jefeServicioActual = null;
 
 // ============================================
 // AUTENTICACIÓN
@@ -1807,10 +1724,37 @@ function login() {
     }
     
     auth.signInWithEmailAndPassword(email, password)
-        .then(async () => {
+        .then(async (userCredential) => {
+            let usuario = await obtenerUsuarioPorEmail(email);
+            
+            if (!usuario) {
+                const nombreEmail = email.split('@')[0] || 'Usuario';
+                await db.collection('usuarios').add({
+                    email: email,
+                    nombre: nombreEmail,
+                    apellido: '',
+                    rol: 'oficial',
+                    activo: true,
+                    fechaCreacion: new Date().toISOString(),
+                    creadoPor: 'Sistema (Auto-creación)'
+                });
+                usuario = await obtenerUsuarioPorEmail(email);
+                mostrarToast('✅ Usuario creado automáticamente con rol Oficial', 'info');
+            }
+            
+            if (usuario && usuario.activo === false) {
+                await auth.signOut();
+                errorDiv.textContent = '❌ Usuario desactivado. Contacte al administrador.';
+                errorDiv.classList.remove('d-none');
+                mostrarToast('❌ Usuario desactivado', 'danger');
+                return;
+            }
+            
             await cargarUsuarioActual();
             document.getElementById('loginOverlay').style.display = 'none';
-            mostrarToast('✅ Sesión iniciada', 'success');
+            const nombreCompleto = usuario?.nombre || '';
+            const apellido = usuario?.apellido || '';
+            mostrarToast(`✅ Bienvenido ${nombreCompleto} ${apellido}`, 'success');
             cargarDatos();
         })
         .catch(error => {
@@ -2010,9 +1954,7 @@ function cargarDatos() {
     cargarHistorialCierres();
     cargarUsuarios();
     
-    // ============================================
     // ESTABLECER HORA CORRECTA EN APERTURA DE SERVICIO
-    // ============================================
     const ahora = new Date();
     const fechaInput = document.getElementById('sFecha');
     if (fechaInput) {
@@ -2024,6 +1966,23 @@ function cargarDatos() {
         fechaInput.value = `${año}-${mes}-${dia}T${horas}:${minutos}`;
     }
 }
+
+// ============================================
+// REFRESCAR HORA CADA 1 MINUTO
+// ============================================
+setInterval(function() {
+    const ahora = new Date();
+    const fechaInput = document.getElementById('sFecha');
+    if (fechaInput) {
+        const año = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        const horas = String(ahora.getHours()).padStart(2, '0');
+        const minutos = String(ahora.getMinutes()).padStart(2, '0');
+        fechaInput.value = `${año}-${mes}-${dia}T${horas}:${minutos}`;
+    }
+}, 60000);
+
 // ============================================
 // DASHBOARD
 // ============================================
@@ -2041,16 +2000,18 @@ function cargarDashboard() {
         document.getElementById('totalAlertas').textContent = snap.size;
     }).catch(() => {});
     
-    db.collection('servicio').where('estado', '==', 'activo').orderBy('fechaApertura', 'desc').limit(1).get()
-        .then(snap => {
-            const div = document.getElementById('servicioActivo');
-            if (!snap.empty) {
-                const data = snap.docs[0].data();
-                div.innerHTML = `<div class="alert alert-success"><strong>${data.grupo}</strong> - Jefe: ${data.jefe || 'No definido'}</div>`;
-            } else {
-                div.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
-            }
-        }).catch(() => {});
+    db.collection('servicio').where('estado', '==', 'activo').get().then(snap => {
+        const div = document.getElementById('servicioActivo');
+        if (!snap.empty) {
+            const docs = [];
+            snap.forEach(doc => { docs.push({ id: doc.id, ...doc.data() }); });
+            docs.sort((a, b) => new Date(b.fechaApertura) - new Date(a.fechaApertura));
+            const data = docs[0];
+            div.innerHTML = `<div class="alert alert-success"><strong>${data.grupo}</strong> - Jefe: ${data.jefe || 'No definido'}</div>`;
+        } else {
+            div.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
+        }
+    }).catch(() => {});
     
     verificarAlertas72h();
 }
@@ -2061,7 +2022,6 @@ function verificarAlertas72h() {
     
     db.collection('solicitudes')
         .where('estado', 'in', ['recibida', 'en_proceso'])
-        .orderBy('fecha', 'desc')
         .get()
         .then(snap => {
             const container = document.getElementById('alertas72h');
@@ -2091,7 +2051,6 @@ function verificarAlertas72h() {
 // ============================================
 // PERSONAL
 // ============================================
-
 function registrarPersonal() {
     const apellido = document.getElementById('pApellido').value.trim();
     const nombre = document.getElementById('pNombre').value.trim();
@@ -2182,9 +2141,6 @@ function cargarPersonal() {
         }).catch(() => {});
 }
 
-// ============================================
-// EDITAR PERSONAL
-// ============================================
 function editarPersonal(id) {
     db.collection('personal').doc(id).get()
         .then(doc => {
@@ -2223,9 +2179,6 @@ function editarPersonal(id) {
         });
 }
 
-// ============================================
-// GUARDAR EDICIÓN DE PERSONAL
-// ============================================
 function guardarEdicionPersonal() {
     const id = document.getElementById('editPersonalId').value;
     const apellido = document.getElementById('editApellido').value.trim();
@@ -2271,9 +2224,6 @@ function guardarEdicionPersonal() {
     });
 }
 
-// ============================================
-// ELIMINAR PERSONAL
-// ============================================
 function eliminarPersonal(id) {
     if (!confirm('¿Eliminar este oficial permanentemente?')) return;
     
@@ -2286,6 +2236,7 @@ function eliminarPersonal(id) {
             mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
+
 // ============================================
 // GRUPOS
 // ============================================
@@ -2416,14 +2367,7 @@ function cargarVehiculos() {
 }
 
 // ============================================
-// SERVICIO - FUNCIONES COMPLETAS Y CORREGIDAS
-// ============================================
-
-let integrantesGrupo = [];
-let jefeServicioActual = null;
-
-// ============================================
-// CARGAR INTEGRANTES DEL GRUPO
+// SERVICIO
 // ============================================
 function cargarIntegrantesServicio() {
     const grupo = document.getElementById('sGrupo').value;
@@ -2433,6 +2377,9 @@ function cargarIntegrantesServicio() {
     const jefeNombreInput = document.getElementById('sJefeNombre');
     const respOficial = document.getElementById('respOficial');
     
+    responsabilidadesTemporales = [];
+    actualizarListaResponsabilidades();
+    
     if (!grupo) {
         container.innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
         if (totalBadge) totalBadge.textContent = '0 integrantes';
@@ -2441,22 +2388,7 @@ function cargarIntegrantesServicio() {
         respOficial.innerHTML = '<option value="">— Seleccione un oficial —</option>';
         return;
     }
-// ============================================
-// MOSTRAR CAMPO MUNICIPIO
-// ============================================
-function mostrarCampoMunicipio() {
-    const estado = document.getElementById('respEstado').value;
-    const campoMunicipio = document.getElementById('campoMunicipio');
     
-    if (estado === 'apoyo_pc_municipio') {
-        campoMunicipio.style.display = 'block';
-    } else {
-        campoMunicipio.style.display = 'none';
-        document.getElementById('respMunicipio').value = '';
-    }
-}
-    
-    // Buscar el Jefe de Servicio
     db.collection('grupos').doc(grupo).get()
         .then(doc => {
             if (doc.exists) {
@@ -2474,7 +2406,6 @@ function mostrarCampoMunicipio() {
         })
         .catch(() => {});
     
-    // Cargar integrantes
     db.collection('personal')
         .where('grupos', 'array-contains', grupo)
         .get()
@@ -2529,7 +2460,6 @@ function mostrarCampoMunicipio() {
             if (totalBadge) totalBadge.textContent = `${snap.size} integrantes`;
             respOficial.innerHTML = opcionesOficial;
             
-            // Actualizar lista de responsabilidades
             actualizarListaResponsabilidades();
         })
         .catch(error => {
@@ -2538,12 +2468,23 @@ function mostrarCampoMunicipio() {
         });
 }
 
-// ============================================
-// ASIGNAR RESPONSABILIDAD
-// ============================================
+function mostrarCampoMunicipio() {
+    const estado = document.getElementById('respEstado').value;
+    const campoMunicipio = document.getElementById('campoMunicipio');
+    
+    if (estado === 'apoyo_pc_municipio') {
+        campoMunicipio.style.display = 'block';
+    } else {
+        campoMunicipio.style.display = 'none';
+        document.getElementById('respMunicipio').value = '';
+    }
+}
+
 function agregarResponsabilidadMejorado() {
     const oficialId = document.getElementById('respOficial').value;
     const funcion = document.getElementById('respFuncion').value;
+    const estado = document.getElementById('respEstado').value;
+    const municipio = document.getElementById('respMunicipio').value.trim();
     
     if (!oficialId) {
         mostrarToast('⚠️ Seleccione un oficial', 'warning');
@@ -2552,6 +2493,12 @@ function agregarResponsabilidadMejorado() {
     
     if (!funcion) {
         mostrarToast('⚠️ Seleccione una responsabilidad', 'warning');
+        return;
+    }
+    
+    if (estado === 'apoyo_pc_municipio' && !municipio) {
+        mostrarToast('⚠️ Escriba el nombre del municipio', 'warning');
+        document.getElementById('respMunicipio').focus();
         return;
     }
     
@@ -2574,25 +2521,52 @@ function agregarResponsabilidadMejorado() {
         'otro': '📌 Otro'
     };
     
+    const estadoTexto = {
+        'disponible': '✅ Disponible',
+        'en_servicio': '🔄 En Servicio',
+        'reposo': '🛌 Reposo',
+        'permiso': '📋 Permiso',
+        'vacaciones': '🏖️ Vacaciones',
+        'comision_municipio': '🏛️ Comisión en Municipio',
+        'comision_nacional': '🇻🇪 Comisión Nacional',
+        'comision_internacional': '🌍 Comisión Internacional',
+        'apoyo_instituciones': '🤝 Apoyo a otras Instituciones',
+        'apoyo_zoedan': '🛡️ Apoyo a ZOEDAN',
+        'apoyo_pc_municipio': '🚒 Apoyo a PC Municipio'
+    };
+    
     const nombreOficial = integrantesGrupo.find(i => i.id === oficialId)?.nombre || 'Desconocido';
+    
+    const existe = responsabilidadesTemporales.find(r => r.oficialId === oficialId && r.funcion === funcion);
+    if (existe) {
+        mostrarToast('⚠️ Este oficial ya tiene esta responsabilidad asignada', 'warning');
+        return;
+    }
+    
+    let estadoCompleto = estadoTexto[estado] || '✅ Disponible';
+    if (estado === 'apoyo_pc_municipio' && municipio) {
+        estadoCompleto = `🚒 Apoyo a PC ${municipio}`;
+    }
     
     responsabilidadesTemporales.push({
         oficialId: oficialId,
         funcion: funcion,
         responsabilidad: funcionTexto[funcion] || funcion,
+        estado: estado,
+        estadoTexto: estadoCompleto,
+        municipio: municipio,
         nombre: nombreOficial
     });
     
-    mostrarToast(`✅ ${nombreOficial}: ${funcionTexto[funcion] || funcion}`, 'success');
+    mostrarToast(`✅ ${nombreOficial}: ${funcionTexto[funcion] || funcion} (${estadoCompleto})`, 'success');
     
-    // Recargar vistas
+    document.getElementById('respMunicipio').value = '';
+    document.getElementById('campoMunicipio').style.display = 'none';
+    
     cargarIntegrantesServicio();
     actualizarListaResponsabilidades();
 }
 
-// ============================================
-// ACTUALIZAR LISTA DE RESPONSABILIDADES
-// ============================================
 function actualizarListaResponsabilidades() {
     const container = document.getElementById('listaResponsabilidadesAsignadas');
     const totalBadge = document.getElementById('totalResponsabilidades');
@@ -2613,15 +2587,31 @@ function actualizarListaResponsabilidades() {
             <th>#</th>
             <th>Oficial</th>
             <th>Responsabilidad</th>
+            <th>Estado</th>
             <th>Acción</th>
         </tr>
     </thead><tbody>`;
     
     responsabilidadesTemporales.forEach((r, index) => {
+        const estadoColor = {
+            'disponible': 'success',
+            'en_servicio': 'primary',
+            'reposo': 'warning',
+            'permiso': 'info',
+            'vacaciones': 'secondary',
+            'comision_municipio': 'info',
+            'comision_nacional': 'primary',
+            'comision_internacional': 'dark',
+            'apoyo_instituciones': 'secondary',
+            'apoyo_zoedan': 'warning',
+            'apoyo_pc_municipio': 'danger'
+        };
+        
         html += `<tr>
             <td>${index + 1}</td>
             <td><strong>${r.nombre}</strong></td>
             <td><span class="badge bg-primary">${r.responsabilidad}</span></td>
+            <td><span class="badge bg-${estadoColor[r.estado] || 'secondary'}">${r.estadoTexto || '✅ Disponible'}</span></td>
             <td>
                 <button class="btn btn-sm btn-danger" onclick="eliminarResponsabilidadMejorado(${index})">
                     <i class="fas fa-trash"></i>
@@ -2634,9 +2624,6 @@ function actualizarListaResponsabilidades() {
     container.innerHTML = html;
 }
 
-// ============================================
-// ELIMINAR RESPONSABILIDAD
-// ============================================
 function eliminarResponsabilidadMejorado(index) {
     if (!confirm('¿Eliminar esta responsabilidad?')) return;
     responsabilidadesTemporales.splice(index, 1);
@@ -2645,20 +2632,10 @@ function eliminarResponsabilidadMejorado(index) {
     mostrarToast('✅ Responsabilidad eliminada', 'success');
 }
 
-// ============================================
-// ABRIR SERVICIO - CORREGIDO
-// ============================================
 function abrirServicioMejorado() {
-    console.log('🔧 Abriendo servicio...');
-    
     const grupo = document.getElementById('sGrupo').value;
     const fecha = document.getElementById('sFecha').value;
     const jefeNombre = document.getElementById('sJefeNombre').value;
-    
-    console.log('📋 Grupo:', grupo);
-    console.log('📅 Fecha:', fecha);
-    console.log('👤 Jefe:', jefeNombre);
-    console.log('📋 Responsabilidades:', responsabilidadesTemporales);
     
     if (!grupo) {
         mostrarToast('⚠️ Seleccione un grupo', 'warning');
@@ -2675,13 +2652,15 @@ function abrirServicioMejorado() {
         return;
     }
     
-    // Agrupar responsabilidades por oficial
     const grouped = {};
     responsabilidadesTemporales.forEach(item => {
         if (!grouped[item.oficialId]) {
             grouped[item.oficialId] = {
                 oficialId: item.oficialId,
                 nombre: item.nombre,
+                estado: item.estado,
+                estadoTexto: item.estadoTexto,
+                municipio: item.municipio || '',
                 responsabilidades: []
             };
         }
@@ -2689,7 +2668,6 @@ function abrirServicioMejorado() {
     });
     
     const responsabilidadesArray = Object.values(grouped);
-    console.log('📦 Responsabilidades agrupadas:', responsabilidadesArray);
     
     const data = {
         grupo: grupo,
@@ -2701,31 +2679,44 @@ function abrirServicioMejorado() {
         fechaRegistro: new Date().toISOString()
     };
     
-    console.log('💾 Guardando servicio:', data);
-    
     db.collection('servicio').add(data)
+        .then(() => {
+            const updates = responsabilidadesArray.map(r => {
+                let estadoFinal = r.estado;
+                if (r.estado === 'apoyo_pc_municipio' && r.municipio) {
+                    estadoFinal = `apoyo_pc_${r.municipio}`;
+                }
+                return db.collection('personal').doc(r.oficialId).update({
+                    estado_personal: estadoFinal,
+                    estado_texto: r.estadoTexto,
+                    ultima_actualizacion: new Date().toISOString()
+                });
+            });
+            
+            return Promise.all(updates);
+        })
         .then(() => {
             mostrarToast(`✅ Servicio de ${grupo} abierto correctamente`, 'success');
             responsabilidadesTemporales = [];
             cargarServicioMejorado();
             cargarDashboard();
-            // Limpiar el formulario visualmente
+            cargarPersonal();
+            
             document.getElementById('sGrupo').value = '';
             document.getElementById('sJefeNombre').value = '';
             document.getElementById('integrantesServicio').innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
             document.getElementById('listaResponsabilidadesAsignadas').innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
             document.getElementById('totalResponsabilidades').textContent = '0 asignadas';
             document.getElementById('totalIntegrantes').textContent = '0 integrantes';
+            document.getElementById('campoMunicipio').style.display = 'none';
+            document.getElementById('respMunicipio').value = '';
         })
         .catch(error => {
-            console.error('❌ Error:', error);
-            mostrarToast('❌ Error al abrir servicio: ' + error.message, 'danger');
+            console.error('Error:', error);
+            mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
 
-// ============================================
-// CARGAR SERVICIO ACTUAL
-// ============================================
 function cargarServicioMejorado() {
     const container = document.getElementById('sActual');
     
@@ -2738,7 +2729,6 @@ function cargarServicioMejorado() {
                 return;
             }
             
-            // Ordenar manualmente
             const docs = [];
             snap.forEach(doc => {
                 docs.push({ id: doc.id, ...doc.data() });
@@ -2773,12 +2763,7 @@ function cargarServicioMejorado() {
         });
 }
 
-// ============================================
-// CERRAR SERVICIO
-// ============================================
 function cerrarServicio() {
-    console.log('🔧 Cerrando servicio...');
-    
     if (!confirm('¿Está seguro de cerrar el servicio actual?')) return;
     
     db.collection('servicio')
@@ -2792,7 +2777,6 @@ function cerrarServicio() {
             
             const promises = [];
             snap.forEach(doc => {
-                console.log('📄 Cerrando servicio:', doc.id);
                 promises.push(
                     db.collection('servicio').doc(doc.id).update({
                         estado: 'cerrado',
@@ -2809,14 +2793,11 @@ function cerrarServicio() {
             cargarDashboard();
         })
         .catch(error => {
-            console.error('❌ Error:', error);
-            mostrarToast('❌ Error al cerrar servicio: ' + error.message, 'danger');
+            console.error('Error:', error);
+            mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
 
-// ============================================
-// LIMPIAR SERVICIO
-// ============================================
 function limpiarServicio() {
     if (!confirm('¿Limpiar el formulario de servicio?')) return;
     
@@ -2829,9 +2810,12 @@ function limpiarServicio() {
     document.getElementById('totalIntegrantes').textContent = '0 integrantes';
     document.getElementById('totalResponsabilidades').textContent = '0 asignadas';
     document.getElementById('jefeServicioBadge').textContent = '👔 Jefe: No asignado';
+    document.getElementById('campoMunicipio').style.display = 'none';
+    document.getElementById('respMunicipio').value = '';
     
     mostrarToast('🧹 Formulario limpiado', 'info');
 }
+
 // ============================================
 // SOLICITUDES
 // ============================================
@@ -2858,12 +2842,17 @@ function crearSolicitud() {
 }
 
 function cargarSolicitudes() {
-    db.collection('solicitudes').where('estado', 'in', ['recibida', 'en_proceso']).orderBy('fecha', 'desc').get()
+    db.collection('solicitudes').where('estado', 'in', ['recibida', 'en_proceso']).get()
         .then(snap => {
             const container = document.getElementById('listaSolicitudes');
             if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay solicitudes activas</p>'; return; }
+            
+            const docs = [];
+            snap.forEach(doc => { docs.push({ id: doc.id, ...doc.data() }); });
+            docs.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            
             let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Solicitante</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>';
-            snap.forEach(doc => {
+            docs.forEach(doc => {
                 const data = doc.data();
                 const prioridadColor = data.prioridad === 'alta' ? 'danger' : data.prioridad === 'media' ? 'warning' : 'info';
                 html += `<tr><td><strong>${data.solicitante}</strong></td><td>${data.tipo || '—'}</td><td><span class="badge bg-${prioridadColor}">${data.prioridad}</span></td><td><span class="badge ${data.estado === 'recibida' ? 'badge-warning' : 'badge-info'}">${data.estado}</span></td>
@@ -3185,6 +3174,45 @@ function leerFotoBase64(file) {
         reader.onload = function(e) { resolve(e.target.result); };
         reader.onerror = function() { resolve(null); };
         reader.readAsDataURL(file);
+    });
+}
+
+function comprimirImagen(dataUrl, calidad = 0.5, maxWidth = 800, maxHeight = 600) {
+    return new Promise((resolve) => {
+        if (!dataUrl) {
+            resolve(null);
+            return;
+        }
+        const img = new Image();
+        img.onload = function() {
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+            }
+            if (height > maxHeight) {
+                width = (width * maxHeight) / height;
+                height = maxHeight;
+            }
+            
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', calidad));
+            } catch (e) {
+                console.warn('Error comprimiendo imagen:', e);
+                resolve(dataUrl);
+            }
+        };
+        img.onerror = function() {
+            resolve(dataUrl);
+        };
+        img.src = dataUrl;
     });
 }
 
@@ -3990,13 +4018,6 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
 // ============================================
 // CERTIFICACIÓN DE ÁRBOLES
 // ============================================
-
-let caArboles = [];
-let caContadorArboles = 0;
-
-// ============================================
-// CARGAR INSPECTORES
-// ============================================
 function cargarInspector() {
     const select = document.getElementById('caInspector');
     if (!select) return;
@@ -4063,9 +4084,6 @@ function cargarDatosInspector() {
     }
 }
 
-// ============================================
-// AGREGAR ÁRBOL A LA LISTA
-// ============================================
 function caAgregarArbol() {
     const especie = document.getElementById('caEspecie').value.trim();
     
@@ -4098,9 +4116,6 @@ function caAgregarArbol() {
     mostrarToast(`✅ Árbol ${caContadorArboles} agregado: ${especie}`, 'success');
 }
 
-// ============================================
-// LIMPIAR CAMPOS DEL ÁRBOL
-// ============================================
 function caLimpiarArbol() {
     document.getElementById('caEspecie').value = '';
     document.getElementById('caAltura').value = '';
@@ -4114,9 +4129,6 @@ function caLimpiarArbol() {
     document.getElementById('caEspecie').focus();
 }
 
-// ============================================
-// ACTUALIZAR LISTA DE ÁRBOLES
-// ============================================
 function caActualizarListaArboles() {
     const container = document.getElementById('caListaArboles');
     const countBadge = document.getElementById('caArbolCount');
@@ -4167,9 +4179,6 @@ function caActualizarListaArboles() {
     container.innerHTML = html;
 }
 
-// ============================================
-// ELIMINAR ÁRBOL DE LA LISTA
-// ============================================
 function caEliminarArbol(index) {
     if (!confirm(`¿Eliminar el árbol ${caArboles[index].especie}?`)) return;
     caArboles.splice(index, 1);
@@ -4177,9 +4186,6 @@ function caEliminarArbol(index) {
     mostrarToast('✅ Árbol eliminado', 'success');
 }
 
-// ============================================
-// LIMPIAR TODO EL FORMULARIO
-// ============================================
 function caLimpiarTodo() {
     if (!confirm('¿Limpiar todos los datos del formulario de Certificación?')) return;
     
@@ -4211,9 +4217,6 @@ function caLimpiarTodo() {
     mostrarToast('🧹 Datos limpiados', 'info');
 }
 
-// ============================================
-// GUARDAR CERTIFICACIÓN CON MÚLTIPLES ÁRBOLES
-// ============================================
 function guardarCertificacionArbol() {
     const solicitante = document.getElementById('caSolicitante').value.trim();
     const solicitanteCedula = document.getElementById('caSolicitanteCedula').value.trim();
@@ -4529,7 +4532,6 @@ async function generarPDFCertificacionConDatos(data) {
         doc.text(`FECHA: ${fecha}`, 15, y);
         y += 8;
         
-        // ===== TABLA DE ÁRBOLES =====
         doc.setFontSize(9);
         doc.text(`TOTAL DE ÁRBOLES INSPECCIONADOS: ${data.arboles?.length || 0}`, 15, y);
         y += 5;
@@ -4570,7 +4572,6 @@ async function generarPDFCertificacionConDatos(data) {
             y = doc.lastAutoTable.finalY + 10;
         }
         
-        // OBSERVACIONES
         if (data.observaciones) {
             doc.text('OBSERVACIONES:', 15, y);
             y += 5;
@@ -4579,7 +4580,6 @@ async function generarPDFCertificacionConDatos(data) {
             y += splitObs.length * 5 + 5;
         }
         
-        // ===== RECOMENDACIONES =====
         doc.setFontSize(10);
         doc.text('RECOMENDACIONES:', 15, y);
         y += 5;
@@ -4600,7 +4600,6 @@ async function generarPDFCertificacionConDatos(data) {
         
         y += 3;
         
-        // FIRMA Y SELLO
         try {
             if (data.inspector?.firma) {
                 doc.addImage(data.inspector.firma, 'PNG', 30, y + 5, 60, 20);
@@ -4628,7 +4627,6 @@ async function generarPDFCertificacionConDatos(data) {
             doc.text('Sello de la Institución', 135, y + 18);
         }
         
-        // FOTOS
         if (data.fotos && data.fotos.length > 0) {
             doc.addPage();
             y = 20;
@@ -4666,51 +4664,8 @@ async function generarPDFCertificacionConDatos(data) {
 }
 
 // ============================================
-// VIVIENDAS - FUNCIONES COMPLETAS
+// VIVIENDAS
 // ============================================
-
-let ivFamilias = [];
-let ivContadorFamilias = 0;
-
-function comprimirImagen(dataUrl, calidad = 0.5, maxWidth = 800, maxHeight = 600) {
-    return new Promise((resolve) => {
-        if (!dataUrl) {
-            resolve(null);
-            return;
-        }
-        const img = new Image();
-        img.onload = function() {
-            let width = img.width;
-            let height = img.height;
-            
-            if (width > maxWidth) {
-                height = (height * maxWidth) / width;
-                width = maxWidth;
-            }
-            if (height > maxHeight) {
-                width = (width * maxHeight) / height;
-                height = maxHeight;
-            }
-            
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', calidad));
-            } catch (e) {
-                console.warn('Error comprimiendo imagen:', e);
-                resolve(dataUrl);
-            }
-        };
-        img.onerror = function() {
-            resolve(dataUrl);
-        };
-        img.src = dataUrl;
-    });
-}
-
 function initViviendas() {
     const ahora = new Date();
     const fecha = document.getElementById('ivFecha');
@@ -5456,12 +5411,16 @@ function crearAlerta() {
 }
 
 function cargarAlertas() {
-    db.collection('alertas').where('estado', '==', 'activa').orderBy('fecha', 'desc').get()
+    db.collection('alertas').where('estado', '==', 'activa').get()
         .then(snap => {
             const container = document.getElementById('listaAlertas');
             if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay alertas activas</p>'; return; }
+            const docs = [];
+            snap.forEach(doc => { docs.push({ id: doc.id, ...doc.data() }); });
+            docs.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            
             let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Tipo</th><th>Prioridad</th><th>Ubicación</th><th>Estado</th></tr></thead><tbody>';
-            snap.forEach(doc => {
+            docs.forEach(doc => {
                 const data = doc.data();
                 const prioridadColor = data.prioridad === 'alta' ? 'danger' : data.prioridad === 'media' ? 'warning' : 'info';
                 html += `<tr><td>${data.tipo}</td><td><span class="badge bg-${prioridadColor}">${data.prioridad}</span></td><td>${data.ubicacion}</td><td><span class="badge badge-warning">Activa</span></td></tr>`;
@@ -5781,6 +5740,7 @@ function eliminarUsuario(id) {
             mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
+
 // ============================================
 // INICIALIZACIÓN
 // ============================================
@@ -5795,23 +5755,7 @@ document.addEventListener('DOMContentLoaded', () => {
     iniciarFirmaVivienda();
     initViviendas();
 });
-// ============================================
-// REFRESCAR HORA CADA 1 MINUTO
-// ============================================
-setInterval(function() {
-    const ahora = new Date();
-    const fechaInput = document.getElementById('sFecha');
-    if (fechaInput) {
-        const año = ahora.getFullYear();
-        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-        const dia = String(ahora.getDate()).padStart(2, '0');
-        const horas = String(ahora.getHours()).padStart(2, '0');
-        const minutos = String(ahora.getMinutes()).padStart(2, '0');
-        fechaInput.value = `${año}-${mes}-${dia}T${horas}:${minutos}`;
-    }
-}, 60000); // Cada 1 minuto
 
-console.log('🚀 SIGR-PC V2.0 cargado correctamente');
 console.log('🚀 SIGR-PC V2.0 cargado correctamente');
 </script>
 
