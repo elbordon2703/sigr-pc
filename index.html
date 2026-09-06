@@ -1864,46 +1864,48 @@ function mostrarToast(mensaje, tipo = 'success') {
 // ============================================
 function toggleSubmenu(submenuId) {
     const submenu = document.getElementById(submenuId);
-    const icon = document.getElementById('icon-' + submenuId.replace('submenu-', ''));
-    if (submenu) {
-        submenu.classList.toggle('open');
-        if (icon) icon.classList.toggle('open');
+    const iconId = 'icon-' + submenuId.replace('submenu-', '');
+    const icon = document.getElementById(iconId);
+    
+    if (!submenu) {
+        console.warn('Submenú no encontrado:', submenuId);
+        return;
+    }
+    
+    // Cerrar todos los submenús
+    document.querySelectorAll('.submenu').forEach(el => {
+        if (el.id !== submenuId) {
+            el.classList.remove('open');
+        }
+    });
+    document.querySelectorAll('.fa-chevron-down').forEach(el => {
+        if (el.id !== iconId) {
+            el.classList.remove('open');
+        }
+    });
+    
+    // Alternar el submenú actual
+    submenu.classList.toggle('open');
+    if (icon) {
+        icon.classList.toggle('open');
     }
 }
 
 function showSection(section) {
+    // Ocultar todas las secciones
     document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    
+    // Mostrar la sección seleccionada
     const target = document.getElementById('section-' + section);
     if (target) target.classList.add('active');
+    
+    // Actualizar navegación
     document.querySelectorAll('.sidebar .nav-link').forEach(el => {
         el.classList.remove('active');
         if (el.dataset.section === section) el.classList.add('active');
     });
-    document.querySelectorAll('.submenu').forEach(el => el.classList.remove('open'));
-    document.querySelectorAll('.fa-chevron-down').forEach(el => el.classList.remove('open'));
     
-    const submenuMap = {
-        'certificacion': 'submenu-riesgo',
-        'viviendas': 'submenu-riesgo',
-        'edan': 'submenu-riesgo',
-        'solicitudes': 'submenu-riesgo',
-        'alertas': 'submenu-riesgo',
-        'servicio': 'submenu-operaciones',
-        'partes': 'submenu-operaciones',
-        'cierres': 'submenu-operaciones',
-        'personal': 'submenu-recursos',
-        'grupos': 'submenu-recursos',
-        'vehiculos': 'submenu-recursos',
-        'usuarios': 'submenu-admin'
-    };
-    const submenuId = submenuMap[section];
-    if (submenuId) {
-        const submenu = document.getElementById(submenuId);
-        const icon = document.getElementById('icon-' + submenuId.replace('submenu-', ''));
-        if (submenu) submenu.classList.add('open');
-        if (icon) icon.classList.add('open');
-    }
-    
+    // Actualizar título
     const titles = {
         dashboard: 'Dashboard',
         personal: 'Personal',
@@ -1921,6 +1923,38 @@ function showSection(section) {
     };
     document.getElementById('pageTitle').textContent = titles[section] || section;
     
+    // Mantener el submenú abierto si es necesario
+    const submenuMap = {
+        'certificacion': 'submenu-riesgo',
+        'viviendas': 'submenu-riesgo',
+        'edan': 'submenu-riesgo',
+        'solicitudes': 'submenu-riesgo',
+        'alertas': 'submenu-riesgo',
+        'servicio': 'submenu-operaciones',
+        'partes': 'submenu-operaciones',
+        'cierres': 'submenu-operaciones',
+        'personal': 'submenu-recursos',
+        'grupos': 'submenu-recursos',
+        'vehiculos': 'submenu-recursos',
+        'usuarios': 'submenu-admin'
+    };
+    
+    const submenuId = submenuMap[section];
+    if (submenuId) {
+        const submenu = document.getElementById(submenuId);
+        const iconId = 'icon-' + submenuId.replace('submenu-', '');
+        const icon = document.getElementById(iconId);
+        if (submenu) {
+            // Cerrar todos los submenús primero
+            document.querySelectorAll('.submenu').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('.fa-chevron-down').forEach(el => el.classList.remove('open'));
+            // Abrir el que corresponde
+            submenu.classList.add('open');
+            if (icon) icon.classList.add('open');
+        }
+    }
+    
+    // Cargar datos según la sección
     if (section === 'personal') cargarPersonal();
     if (section === 'grupos') cargarGrupos();
     if (section === 'vehiculos') cargarVehiculos();
@@ -1935,21 +1969,6 @@ function showSection(section) {
     if (section === 'usuarios') cargarUsuarios();
     if (section === 'dashboard') cargarDashboard();
 }
-
-function cargarDatos() {
-    cargarDashboard();
-    cargarPersonal();
-    cargarGrupos();
-    cargarVehiculos();
-    cargarServicioMejorado();
-    cargarSolicitudes();
-    initEDAN();
-    cargarCertificaciones();
-    cargarViviendas();
-    cargarAlertas();
-    cargarPartes();
-    cargarHistorialCierres();
-    cargarUsuarios();
     
     // ESTABLECER HORA CORRECTA EN APERTURA DE SERVICIO
     const ahora = new Date();
