@@ -140,32 +140,19 @@
 <body>
 
 <!-- LOGIN -->
-<div id="loginOverlay" class="login-overlay">
-    <div class="login-card">
-        <div style="text-align:center;margin-bottom:20px;">
-            <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
-                 alt="Logo Protección Civil" 
-                 style="width:80px;height:auto;display:block;margin:0 auto 10px;"
-                 onerror="this.style.display='none'">
-            <i class="fas fa-shield-alt" style="font-size:48px;color:#0b2a4a;"></i>
-            <h2>SIGR-PC</h2>
-            <p><strong>Municipio Papelón</strong></p>
-        </div>
-        <div id="loginForm">
-            <div class="mb-3">
-                <label class="form-label">Correo electrónico</label>
-                <input type="email" id="loginEmail" class="form-control" placeholder="comandantepc@gmail.com">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Contraseña</label>
-                <input type="password" id="loginPassword" class="form-control" placeholder="••••••••">
-            </div>
-            <button class="btn btn-primary w-100" onclick="login()">
-                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-            </button>
-            <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
-        </div>
+<div id="loginForm">
+    <div class="mb-3">
+        <label class="form-label">Correo electrónico</label>
+        <input type="email" id="loginEmail" class="form-control" placeholder="comandantepc@gmail.com">
     </div>
+    <div class="mb-3">
+        <label class="form-label">Contraseña</label>
+        <input type="password" id="loginPassword" class="form-control" placeholder="*********">
+    </div>
+    <button class="btn btn-primary w-100" onclick="login()">
+        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+    </button>
+    <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
 </div>
 
 <!-- SIDEBAR -->
@@ -1863,26 +1850,28 @@ function mostrarToast(mensaje, tipo = 'success') {
 // NAVEGACIÓN
 // ============================================
 function toggleSubmenu(submenuId) {
-    const submenu = document.getElementById(submenuId);
-    const iconId = 'icon-' + submenuId.replace('submenu-', '');
-    const icon = document.getElementById(iconId);
+    var submenu = document.getElementById(submenuId);
+    var iconId = 'icon-' + submenuId.replace('submenu-', '');
+    var icon = document.getElementById(iconId);
     
     if (!submenu) {
-        console.warn('Submenú no encontrado:', submenuId);
         return;
     }
     
     // Cerrar todos los submenús
-    document.querySelectorAll('.submenu').forEach(el => {
-        if (el.id !== submenuId) {
-            el.classList.remove('open');
+    var submenus = document.querySelectorAll('.submenu');
+    for (var i = 0; i < submenus.length; i++) {
+        if (submenus[i].id !== submenuId) {
+            submenus[i].classList.remove('open');
         }
-    });
-    document.querySelectorAll('.fa-chevron-down').forEach(el => {
-        if (el.id !== iconId) {
-            el.classList.remove('open');
+    }
+    
+    var icons = document.querySelectorAll('.fa-chevron-down');
+    for (var j = 0; j < icons.length; j++) {
+        if (icons[j].id !== iconId) {
+            icons[j].classList.remove('open');
         }
-    });
+    }
     
     // Alternar el submenú actual
     submenu.classList.toggle('open');
@@ -1893,20 +1882,28 @@ function toggleSubmenu(submenuId) {
 
 function showSection(section) {
     // Ocultar todas las secciones
-    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    var sections = document.querySelectorAll('.section');
+    for (var i = 0; i < sections.length; i++) {
+        sections[i].classList.remove('active');
+    }
     
     // Mostrar la sección seleccionada
-    const target = document.getElementById('section-' + section);
-    if (target) target.classList.add('active');
+    var target = document.getElementById('section-' + section);
+    if (target) {
+        target.classList.add('active');
+    }
     
     // Actualizar navegación
-    document.querySelectorAll('.sidebar .nav-link').forEach(el => {
-        el.classList.remove('active');
-        if (el.dataset.section === section) el.classList.add('active');
-    });
+    var navLinks = document.querySelectorAll('.sidebar .nav-link');
+    for (var j = 0; j < navLinks.length; j++) {
+        navLinks[j].classList.remove('active');
+        if (navLinks[j].dataset.section === section) {
+            navLinks[j].classList.add('active');
+        }
+    }
     
     // Actualizar título
-    const titles = {
+    var titles = {
         dashboard: 'Dashboard',
         personal: 'Personal',
         grupos: 'Grupos',
@@ -1924,7 +1921,7 @@ function showSection(section) {
     document.getElementById('pageTitle').textContent = titles[section] || section;
     
     // Mantener el submenú abierto si es necesario
-    const submenuMap = {
+    var submenuMap = {
         'certificacion': 'submenu-riesgo',
         'viviendas': 'submenu-riesgo',
         'edan': 'submenu-riesgo',
@@ -1939,18 +1936,26 @@ function showSection(section) {
         'usuarios': 'submenu-admin'
     };
     
-    const submenuId = submenuMap[section];
+    var submenuId = submenuMap[section];
     if (submenuId) {
-        const submenu = document.getElementById(submenuId);
-        const iconId = 'icon-' + submenuId.replace('submenu-', '');
-        const icon = document.getElementById(iconId);
+        var submenu = document.getElementById(submenuId);
+        var iconId = 'icon-' + submenuId.replace('submenu-', '');
+        var icon = document.getElementById(iconId);
         if (submenu) {
             // Cerrar todos los submenús primero
-            document.querySelectorAll('.submenu').forEach(el => el.classList.remove('open'));
-            document.querySelectorAll('.fa-chevron-down').forEach(el => el.classList.remove('open'));
+            var allSubmenus = document.querySelectorAll('.submenu');
+            for (var k = 0; k < allSubmenus.length; k++) {
+                allSubmenus[k].classList.remove('open');
+            }
+            var allIcons = document.querySelectorAll('.fa-chevron-down');
+            for (var l = 0; l < allIcons.length; l++) {
+                allIcons[l].classList.remove('open');
+            }
             // Abrir el que corresponde
             submenu.classList.add('open');
-            if (icon) icon.classList.add('open');
+            if (icon) {
+                icon.classList.add('open');
+            }
         }
     }
     
