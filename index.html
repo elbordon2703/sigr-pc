@@ -89,163 +89,103 @@
         #edanListaFamilias table td { padding: 3px 4px; text-align: center; font-size: 11px; }
         .firma-preview { max-width: 100%; max-height: 120px; border: 1px solid #ddd; border-radius: 8px; padding: 5px; background: white; }
         .sello-preview { max-width: 100%; max-height: 120px; border: 1px solid #ddd; border-radius: 8px; padding: 5px; background: white; }
+        
+        /* RESPONSIVE CORREGIDO */
         @media (max-width:768px) {
-    /* Sidebar más compacto */
-    .sidebar { width:var(--sidebar-width-mobile); padding:8px 0; }
-    .sidebar .brand h3 { font-size:14px; }
-    .sidebar .brand small { display:none; }
-    .sidebar .nav-link { padding:8px 0; margin:2px 4px; font-size:12px; justify-content:center; }
-    .sidebar .nav-link i { font-size:18px; width:auto; }
-    .sidebar .nav-link span { display:none; }
-    .submenu { padding-left:0; }
-    .nav-child { padding-left:0 !important; font-size:11px !important; text-align:center; }
-    
-    /* CONTENIDO - MEJORADO PARA MÓVIL */
-    .content { 
-        margin-left:var(--sidebar-width-mobile); 
-        padding:8px 6px; 
-        max-width:100%; 
-        overflow-x:hidden;
-        word-wrap:break-word;
-    }
-    
-    /* TARJETAS - MÁS COMPACTAS */
-    .card { 
-        padding:8px 10px; 
-        margin:6px 0; 
-        border-radius:8px;
-        width:100%;
-        max-width:100%;
-        overflow:hidden;
-    }
-    .card-header { 
-        font-size:13px; 
-        flex-wrap:wrap;
-        word-break:break-word;
-    }
-    .card-body { 
-        padding:8px 0;
-        overflow-x:auto;
-    }
-    .card-title { font-size:20px; }
-    
-    /* COLUMNAS - RESPONSIVE */
-    .col-6 { flex:0 0 50%; max-width:50%; }
-    .col-4 { flex:0 0 100%; max-width:100%; }
-    .col-3 { flex:0 0 50%; max-width:50%; }
-    .col-md-6 { flex:0 0 100%; max-width:100%; }
-    .col-md-4 { flex:0 0 100%; max-width:100%; }
-    .col-md-3 { flex:0 0 50%; max-width:50%; }
-    
-    /* TABLAS - SCROLL HORIZONTAL */
-    .table-responsive {
-        width:100%;
-        overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
-        margin-bottom:8px;
-    }
-    .table { 
-        font-size:12px; 
-        min-width:280px;
-        width:100%;
-    }
-    .table th, .table td {
-        padding:4px 6px;
-        white-space:nowrap;
-    }
-    
-    /* FORMULARIOS - MÁS GRANDES PARA TOCAR */
-    input, select, textarea { 
-        font-size:16px; 
-        padding:8px 10px;
-        width:100%;
-        box-sizing:border-box;
-    }
-    label {
-        font-size:12px;
-        margin-bottom:3px;
-    }
-    
-    /* BOTONES - MÁS GRANDES PARA TOCAR */
-    .btn { 
-        font-size:13px; 
-        padding:8px 14px;
-        min-height:44px;
-        width:auto;
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-    }
-    .btn-sm {
-        font-size:11px;
-        padding:4px 8px;
-        min-height:32px;
-    }
-    
-    /* LOGIN */
-    .login-card { 
-        padding:20px 18px; 
-        margin:0 10px;
-        width:100%;
-        max-width:400px;
-    }
-    .login-card h2 { font-size:20px; }
-    
-    /* TOAST */
-    .toast-container { 
-        bottom:10px; 
-        right:10px; 
-        left:10px; 
-        max-width:100%;
-    }
-    .toast { 
-        font-size:12px; 
-        padding:10px 14px;
-        width:100%;
-    }
-    
-    /* TÍTULOS */
-    h2 { font-size:18px; }
-    h4 { font-size:15px; }
-    h6 { font-size:13px; }
-    
-    /* EDAN TABLA */
-    #edanListaFamilias table { font-size: 9px; }
-    #edanListaFamilias table th { font-size: 8px; padding: 2px 2px; }
-    #edanListaFamilias table td { font-size: 9px; padding: 2px 2px; }
-    
-    /* ALERTAS */
-    .alerta-72h {
-        font-size:11px;
-        padding:6px 10px;
-    }
-    
-    /* DASHBOARD CARDS */
-    .card .card-title {
-        font-size:22px;
-    }
-    .card .card-subtitle {
-        font-size:11px;
-    }
-}
+            .sidebar { width:var(--sidebar-width-mobile); padding:8px 0; }
+            .sidebar .brand h3 { font-size:14px; }
+            .sidebar .brand small { display:none; }
+            .sidebar .nav-link { padding:8px 0; margin:2px 4px; font-size:12px; justify-content:center; }
+            .sidebar .nav-link i { font-size:18px; width:auto; }
+            .sidebar .nav-link span { display:none; }
+            .submenu { padding-left:0; }
+            .nav-child { padding-left:0 !important; font-size:11px !important; text-align:center; }
+            .content { margin-left:var(--sidebar-width-mobile); padding:8px 6px; max-width:100%; overflow-x:hidden; word-wrap:break-word; }
+            .card { padding:8px 10px; margin:6px 0; border-radius:8px; width:100%; max-width:100%; overflow:hidden; }
+            .card-header { font-size:13px; flex-wrap:wrap; word-break:break-word; }
+            .card-body { padding:8px 0; overflow-x:auto; }
+            .card-title { font-size:20px; }
+            .col-6 { flex:0 0 50%; max-width:50%; }
+            .col-4 { flex:0 0 100%; max-width:100%; }
+            .col-3 { flex:0 0 50%; max-width:50%; }
+            .col-md-6 { flex:0 0 100%; max-width:100%; }
+            .col-md-4 { flex:0 0 100%; max-width:100%; }
+            .col-md-3 { flex:0 0 50%; max-width:50%; }
+            .table-responsive { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:8px; }
+            .table { font-size:12px; min-width:280px; width:100%; }
+            .table th, .table td { padding:4px 6px; white-space:nowrap; }
+            input, select, textarea { font-size:16px; padding:8px 10px; width:100%; box-sizing:border-box; }
+            label { font-size:12px; margin-bottom:3px; }
+            .btn { font-size:13px; padding:8px 14px; min-height:44px; width:auto; display:inline-flex; align-items:center; justify-content:center; }
+            .btn-sm { font-size:11px; padding:4px 8px; min-height:32px; }
+            .login-card { padding:20px 18px; margin:0 10px; width:100%; max-width:400px; }
+            .login-card h2 { font-size:20px; }
+            .toast-container { bottom:10px; right:10px; left:10px; max-width:100%; }
+            .toast { font-size:12px; padding:10px 14px; width:100%; }
+            h2 { font-size:18px; }
+            h4 { font-size:15px; }
+            h6 { font-size:13px; }
+            #edanListaFamilias table { font-size: 9px; }
+            #edanListaFamilias table th { font-size: 8px; padding: 2px 2px; }
+            #edanListaFamilias table td { font-size: 9px; padding: 2px 2px; }
+            .alerta-72h { font-size:11px; padding:6px 10px; }
+            .card .card-title { font-size:22px; }
+            .card .card-subtitle { font-size:11px; }
+        }
+        @media (max-width:480px) {
+            .sidebar { width:50px; }
+            .sidebar .nav-link { padding:6px 0; margin:1px 2px; }
+            .sidebar .nav-link i { font-size:16px; }
+            .content { margin-left:50px; padding:5px 4px; }
+            .card { padding:6px 8px; margin:4px 0; border-radius:6px; }
+            .col-6 { flex:0 0 50%; max-width:50%; }
+            .col-3 { flex:0 0 50%; max-width:50%; }
+            .col-md-3 { flex:0 0 50%; max-width:50%; }
+            .login-card { padding:14px 12px; border-radius:10px; }
+            .btn { font-size:12px; padding:6px 12px; min-height:40px; }
+            .table { font-size:10px; min-width:220px; }
+            h2 { font-size:16px; }
+            .card-title { font-size:18px; }
+            .card .card-title { font-size:18px; }
+        }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        img, video, canvas, iframe { max-width: 100%; height: auto; }
+        .table-responsive::-webkit-scrollbar { height: 4px; }
+        .table-responsive::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .table-responsive::-webkit-scrollbar-thumb { background: #1677c8; border-radius: 4px; }
+        .content p, .content div, .content span { word-wrap: break-word; overflow-wrap: break-word; }
+        .badge { font-size:10px; padding:2px 6px; }
     </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="loginForm">
-    <div class="mb-3">
-        <label class="form-label">Correo electrónico</label>
-        <input type="email" id="loginEmail" class="form-control" placeholder="comandantepc@gmail.com">
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+        <div style="text-align:center;margin-bottom:20px;">
+            <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
+                 alt="Logo Protección Civil" 
+                 style="width:80px;height:auto;display:block;margin:0 auto 10px;"
+                 onerror="this.style.display='none'">
+            <i class="fas fa-shield-alt" style="font-size:48px;color:#0b2a4a;"></i>
+            <h2>SIGR-PC</h2>
+            <p><strong>Municipio Papelón</strong></p>
+        </div>
+        <div id="loginForm">
+            <div class="mb-3">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="comandantepc@gmail.com">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Contraseña</label>
+                <input type="password" id="loginPassword" class="form-control" placeholder="*********">
+            </div>
+            <button class="btn btn-primary w-100" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+            </button>
+            <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
+        </div>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Contraseña</label>
-        <input type="password" id="loginPassword" class="form-control" placeholder="*********">
-    </div>
-    <button class="btn btn-primary w-100" onclick="login()">
-        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-    </button>
-    <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
 </div>
 
 <!-- SIDEBAR -->
@@ -764,9 +704,10 @@
                 <span class="badge badge-info ms-2">📋 Registro Oficial</span>
             </div>
             <div class="card-body">
-                <div class="alert alert-info">
+                <div class="alert alert-info" style="text-align:justify;">
                     <i class="fas fa-info-circle"></i> 
                     <strong>EDAN:</strong> Complete los datos generales y agregue las familias afectadas.
+                    Cada familia se guarda individualmente con sus fotos y datos de la vivienda.
                 </div>
 
                 <!-- DATOS GENERALES -->
@@ -1008,11 +949,15 @@
                     </div>
                 </div>
 
-                <!-- OBSERVACIONES -->
+                <!-- OBSERVACIONES Y RECOMENDACIONES -->
                 <div class="row mt-2">
-                    <div class="col-12 mb-2">
+                    <div class="col-md-6 mb-2">
                         <label class="form-label">📝 Observaciones</label>
-                        <textarea id="edanObservacion" class="form-control" rows="2" placeholder="Observaciones generales..."></textarea>
+                        <textarea id="edanObservacion" class="form-control" rows="3" placeholder="Observaciones generales..."></textarea>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">📋 Recomendaciones</label>
+                        <textarea id="edanRecomendaciones" class="form-control" rows="3" placeholder="Recomendaciones para los afectados..."></textarea>
                     </div>
                 </div>
 
@@ -1067,10 +1012,10 @@
                 <span class="badge badge-info ms-2">📋 Registro Oficial</span>
             </div>
             <div class="card-body">
-                <div class="alert alert-info">
+                <div class="alert alert-info" style="text-align:justify;">
                     <i class="fas fa-info-circle"></i> 
-                    <strong>Certificación de árboles:</strong> Registro oficial para evaluación de riesgo arbóreo.
-                    <br>Complete los datos del solicitante, del inspector y agregue <strong>TODOS</strong> los árboles inspeccionados.
+                    <strong>Certificación de árboles:</strong> Registro oficial para evaluación de riesgo arbóreo, conforme a los lineamientos establecidos por la Dirección General del Instituto de Protección Civil y Administración de Desastres del Estado Portuguesa (INPRADEP).
+                    <br><br>Complete los datos del solicitante, del inspector y agregue <strong>TODOS</strong> los árboles inspeccionados.
                 </div>
 
                 <!-- DATOS DEL SOLICITANTE -->
@@ -1194,7 +1139,7 @@
                 <div class="row mt-2">
                     <div class="col-12 mb-2">
                         <label class="form-label">📝 Observaciones</label>
-                        <textarea id="caObservaciones" class="form-control" rows="2" placeholder="Condiciones generales, daños visibles, recomendaciones..."></textarea>
+                        <textarea id="caObservaciones" class="form-control" rows="3" placeholder="Condiciones generales, daños visibles, recomendaciones..."></textarea>
                     </div>
                 </div>
 
@@ -1213,16 +1158,16 @@
                     </div>
                 </div>
 
-               <!-- FIRMA DEL INSPECTOR -->
-<div class="row mt-2">
-    <div class="col-12 mb-2">
-        <label class="form-label">✍️ Firma del Inspector</label>
-        <div id="ivFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
-            <p class="text-muted" id="ivFirmaPlaceholder">Seleccione un inspector para cargar su firma</p>
-            <img id="ivFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
-        </div>
-    </div>
-</div>
+                <!-- FIRMA DEL INSPECTOR -->
+                <div class="row mt-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">✍️ Firma del Inspector</label>
+                        <div id="caFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
+                            <p class="text-muted" id="caFirmaPlaceholder">Seleccione un inspector para cargar su firma</p>
+                            <img id="caFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
+                        </div>
+                    </div>
+                </div>
 
                 <!-- BOTONES -->
                 <div class="row mt-3">
@@ -1257,10 +1202,11 @@
                 <span class="badge badge-info ms-2">📋 Registro Oficial</span>
             </div>
             <div class="card-body">
-                <div class="alert alert-info">
+                <div class="alert alert-info" style="text-align:justify;">
                     <i class="fas fa-info-circle"></i> 
-                    <strong>Inspección de viviendas:</strong> Registro oficial para evaluación de daños en viviendas.
-                    <br><strong>Importante:</strong> El Responsable es el solicitante de la inspección y Jefe de Familia principal.
+                    <strong>Inspección de viviendas:</strong> Registro oficial para evaluación de daños en viviendas, conforme a los lineamientos establecidos por la Dirección General del Instituto de Protección Civil y Administración de Desastres del Estado Portuguesa (INPRADEP), a través de la Coordinación de Gestión Integral de Riesgo (G.I.R), y en uso de las atribuciones conferidas en el Artículo 55 de la Constitución de la República Bolivariana de Venezuela, en concordancia con el decreto de fuerza de Ley N° 1.557, Artículo 3 Numeral 2 de la Ley de Protección Civil y Administración de Desastres, Artículo 22 Numeral 4 y Artículo 29 de la Ley de Gestión Integral de Riesgo Socio-naturales y Tecnológicas.
+                    <br><br><strong>Importante:</strong> El Responsable es el solicitante de la inspección y Jefe de Familia principal.
+                    Si en la misma vivienda habitan otras familias (hijos casados, etc.), agréguelas como "Familias Adicionales".
                 </div>
 
                 <!-- DATOS GENERALES -->
@@ -1287,7 +1233,7 @@
                 <!-- DATOS DEL RESPONSABLE -->
                 <div class="card mb-2" style="background:#f8f9fa; border:2px solid #1677c8;">
                     <div class="card-header bg-primary text-white">
-                        <i class="fas fa-user"></i> Datos del Responsable (Solicitante)
+                        <i class="fas fa-user"></i> Datos del Responsable (Solicitante / Jefe de Familia Principal)
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -1463,7 +1409,7 @@
                         <span class="badge bg-light text-dark ms-2" id="ivFamiliaCount">Familia #1</span>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-warning">
+                        <div class="alert alert-warning" style="text-align:justify;">
                             <i class="fas fa-info-circle"></i> 
                             <strong>Familias adicionales:</strong> Agregue aquí otros núcleos familiares que habitan en la misma vivienda
                             (ej: hijos casados que viven con los padres, etc.)
@@ -1575,14 +1521,13 @@
                     </div>
                 </div>
 
-                <!-- FIRMA -->
+                <!-- FIRMA DEL INSPECTOR - AHORA ES IMAGEN, NO CANVAS -->
                 <div class="row mt-2">
                     <div class="col-12 mb-2">
                         <label class="form-label">✍️ Firma del Inspector</label>
-                        <canvas id="ivFirmaCanvas" style="border:2px solid #ccc;border-radius:8px;width:100%;height:150px;background:white;touch-action:none;"></canvas>
-                        <div class="mt-2">
-                            <button class="btn btn-sm btn-secondary" onclick="limpiarFirmaVivienda()"><i class="fas fa-eraser"></i> Limpiar</button>
-                            <button class="btn btn-sm btn-primary" onclick="capturarFirmaVivienda()"><i class="fas fa-save"></i> Guardar Firma</button>
+                        <div id="ivFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
+                            <p class="text-muted" id="ivFirmaPlaceholder">Seleccione un inspector para cargar su firma</p>
+                            <img id="ivFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
                         </div>
                     </div>
                 </div>
@@ -1776,65 +1721,83 @@ let certificaciones = [];
 let inspeccionesVivienda = [];
 let actividadesParte = [];
 let responsabilidadesTemporales = [];
-let firmaGuardadaVivienda = null;
 let ivFamilias = [];
 let ivContadorFamilias = 0;
 let caArboles = [];
 let caContadorArboles = 0;
 let integrantesGrupo = [];
 let jefeServicioActual = null;
-let isDrawingVivienda = false;
-let ctxVivienda = null;
-let canvasVivienda = null;
 
 // ============================================
-// AUTENTICACIÓN
+// FUNCIONES DE AUTENTICACIÓN
 // ============================================
 function login() {
-    var email = document.getElementById('loginEmail').value;
-    var password = document.getElementById('loginPassword').value;
+    var email = document.getElementById('loginEmail');
+    var password = document.getElementById('loginPassword');
     var errorDiv = document.getElementById('loginError');
-    errorDiv.classList.add('d-none');
     
-    if (!email || !password) {
+    if (!email || !password || !errorDiv) {
+        console.error('Elementos de login no encontrados');
+        return;
+    }
+    
+    var emailValue = email.value.trim();
+    var passwordValue = password.value;
+    
+    errorDiv.classList.add('d-none');
+    errorDiv.textContent = '';
+    
+    if (!emailValue || !passwordValue) {
         errorDiv.textContent = '⚠️ Ingresa correo y contraseña';
         errorDiv.classList.remove('d-none');
         return;
     }
     
-    auth.signInWithEmailAndPassword(email, password)
+    auth.signInWithEmailAndPassword(emailValue, passwordValue)
         .then(async function(userCredential) {
-            var usuario = await obtenerUsuarioPorEmail(email);
-            
-            if (!usuario) {
-                var nombreEmail = email.split('@')[0] || 'Usuario';
-                await db.collection('usuarios').add({
-                    email: email,
-                    nombre: nombreEmail,
-                    apellido: '',
-                    rol: 'oficial',
-                    activo: true,
-                    fechaCreacion: new Date().toISOString(),
-                    creadoPor: 'Sistema (Auto-creación)'
-                });
-                usuario = await obtenerUsuarioPorEmail(email);
-                mostrarToast('✅ Usuario creado automáticamente con rol Oficial', 'info');
-            }
-            
-            if (usuario && usuario.activo === false) {
-                await auth.signOut();
-                errorDiv.textContent = '❌ Usuario desactivado. Contacte al administrador.';
+            try {
+                var usuario = await obtenerUsuarioPorEmail(emailValue);
+                
+                if (!usuario) {
+                    var nombreEmail = emailValue.split('@')[0] || 'Usuario';
+                    await db.collection('usuarios').add({
+                        email: emailValue,
+                        nombre: nombreEmail,
+                        apellido: '',
+                        rol: 'oficial',
+                        activo: true,
+                        fechaCreacion: new Date().toISOString(),
+                        creadoPor: 'Sistema (Auto-creación)'
+                    });
+                    usuario = await obtenerUsuarioPorEmail(emailValue);
+                    mostrarToast('✅ Usuario creado automáticamente con rol Oficial', 'info');
+                }
+                
+                if (usuario && usuario.activo === false) {
+                    await auth.signOut();
+                    errorDiv.textContent = '❌ Usuario desactivado. Contacte al administrador.';
+                    errorDiv.classList.remove('d-none');
+                    mostrarToast('❌ Usuario desactivado', 'danger');
+                    return;
+                }
+                
+                await cargarUsuarioActual();
+                
+                var loginOverlay = document.getElementById('loginOverlay');
+                if (loginOverlay) {
+                    loginOverlay.style.display = 'none';
+                }
+                
+                var nombreCompleto = usuario?.nombre || '';
+                var apellido = usuario?.apellido || '';
+                mostrarToast('✅ Bienvenido ' + nombreCompleto + ' ' + apellido, 'success');
+                cargarDatos();
+            } catch (error) {
+                console.error('Error en login:', error);
+                errorDiv.textContent = '❌ ' + error.message;
                 errorDiv.classList.remove('d-none');
-                mostrarToast('❌ Usuario desactivado', 'danger');
-                return;
+                mostrarToast('❌ Error: ' + error.message, 'danger');
             }
-            
-            await cargarUsuarioActual();
-            document.getElementById('loginOverlay').style.display = 'none';
-            var nombreCompleto = usuario?.nombre || '';
-            var apellido = usuario?.apellido || '';
-            mostrarToast('✅ Bienvenido ' + nombreCompleto + ' ' + apellido, 'success');
-            cargarDatos();
         })
         .catch(function(error) {
             errorDiv.textContent = '❌ ' + error.message;
@@ -1844,9 +1807,31 @@ function login() {
 }
 
 function logout() {
-    auth.signOut();
-    document.getElementById('loginOverlay').style.display = 'flex';
-    mostrarToast('Sesión cerrada', 'info');
+    auth.signOut()
+        .then(function() {
+            var loginOverlay = document.getElementById('loginOverlay');
+            if (loginOverlay) {
+                loginOverlay.style.display = 'flex';
+            }
+            
+            usuarioActual = { email: null, uid: null, rol: null, nombre: null, apellido: null };
+            
+            var loginEmail = document.getElementById('loginEmail');
+            var loginPassword = document.getElementById('loginPassword');
+            if (loginEmail) loginEmail.value = '';
+            if (loginPassword) loginPassword.value = '';
+            
+            var loginError = document.getElementById('loginError');
+            if (loginError) {
+                loginError.classList.add('d-none');
+                loginError.textContent = '';
+            }
+            
+            mostrarToast('✅ Sesión cerrada correctamente', 'success');
+        })
+        .catch(function(error) {
+            mostrarToast('❌ Error al cerrar sesión: ' + error.message, 'danger');
+        });
 }
 
 async function obtenerUsuarioPorEmail(email) {
@@ -1937,15 +1922,30 @@ function mostrarToast(mensaje, tipo) {
     tipo = tipo || 'success';
     var toast = document.getElementById('toast');
     var body = document.getElementById('toastBody');
+    
+    if (!toast || !body) {
+        console.warn('Toast no disponible:', mensaje);
+        return;
+    }
+    
     body.textContent = mensaje;
+    toast.className = 'toast align-items-center text-white border-0';
+    
     var colors = { success: 'bg-success', danger: 'bg-danger', warning: 'bg-warning text-dark', info: 'bg-info' };
-    toast.className = 'toast align-items-center text-white border-0 ' + (colors[tipo] || colors.success);
-    var bsToast = new bootstrap.Toast(toast, { delay: 3000 });
-    bsToast.show();
+    var colorClass = colors[tipo] || colors.success;
+    toast.classList.add(colorClass);
+    
+    try {
+        var bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+        bsToast.show();
+    } catch (e) {
+        toast.style.display = 'block';
+        setTimeout(function() { toast.style.display = 'none'; }, 3000);
+    }
 }
 
 // ============================================
-// NAVEGACIÓN - CORREGIDA
+// NAVEGACIÓN
 // ============================================
 function toggleSubmenu(submenuId) {
     var submenu = document.getElementById(submenuId);
@@ -1954,7 +1954,6 @@ function toggleSubmenu(submenuId) {
     var iconId = 'icon-' + submenuId.replace('submenu-', '');
     var icon = document.getElementById(iconId);
     
-    // Cerrar todos los submenús
     var submenus = document.querySelectorAll('.submenu');
     for (var i = 0; i < submenus.length; i++) {
         submenus[i].classList.remove('open');
@@ -1964,7 +1963,6 @@ function toggleSubmenu(submenuId) {
         icons[j].classList.remove('open');
     }
     
-    // Abrir el submenú actual
     submenu.classList.add('open');
     if (icon) {
         icon.classList.add('open');
@@ -1972,19 +1970,16 @@ function toggleSubmenu(submenuId) {
 }
 
 function showSection(section) {
-    // Ocultar todas las secciones
     var sections = document.querySelectorAll('.section');
     for (var i = 0; i < sections.length; i++) {
         sections[i].classList.remove('active');
     }
     
-    // Mostrar la sección seleccionada
     var target = document.getElementById('section-' + section);
     if (target) {
         target.classList.add('active');
     }
     
-    // Actualizar navegación
     var navLinks = document.querySelectorAll('.sidebar .nav-link');
     for (var j = 0; j < navLinks.length; j++) {
         navLinks[j].classList.remove('active');
@@ -1993,7 +1988,6 @@ function showSection(section) {
         }
     }
     
-    // Actualizar título
     var titles = {
         dashboard: 'Dashboard',
         personal: 'Personal',
@@ -2012,7 +2006,6 @@ function showSection(section) {
     var titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.textContent = titles[section] || section;
     
-    // Mantener el submenú abierto
     var submenuMap = {
         'certificacion': 'submenu-riesgo',
         'viviendas': 'submenu-riesgo',
@@ -2039,7 +2032,6 @@ function showSection(section) {
         }
     }
     
-    // Cargar datos según la sección
     if (section === 'personal') cargarPersonal();
     if (section === 'grupos') cargarGrupos();
     if (section === 'vehiculos') cargarVehiculos();
@@ -2083,72 +2075,7 @@ function cargarDatos() {
 }
 
 // ============================================
-// DASHBOARD
-// ============================================
-function cargarDashboard() {
-    db.collection('personal').get().then(function(snap) {
-        document.getElementById('totalPersonal').textContent = snap.size;
-    }).catch(function() {});
-    db.collection('solicitudes').get().then(function(snap) {
-        document.getElementById('totalSolicitudes').textContent = snap.size;
-    }).catch(function() {});
-    db.collection('edan').get().then(function(snap) {
-        document.getElementById('totalEdan').textContent = snap.size;
-    }).catch(function() {});
-    db.collection('alertas').where('estado', '==', 'activa').get().then(function(snap) {
-        document.getElementById('totalAlertas').textContent = snap.size;
-    }).catch(function() {});
-    
-    db.collection('servicio').where('estado', '==', 'activo').get().then(function(snap) {
-        var div = document.getElementById('servicioActivo');
-        if (!snap.empty) {
-            var docs = [];
-            snap.forEach(function(doc) { docs.push({ id: doc.id, ...doc.data() }); });
-            docs.sort(function(a, b) { return new Date(b.fechaApertura) - new Date(a.fechaApertura); });
-            var data = docs[0];
-            div.innerHTML = '<div class="alert alert-success"><strong>' + data.grupo + '</strong> - Jefe: ' + (data.jefe || 'No definido') + '</div>';
-        } else {
-            div.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
-        }
-    }).catch(function() {});
-    
-    verificarAlertas72h();
-}
-
-function verificarAlertas72h() {
-    var hoy = new Date();
-    var hace72h = new Date(hoy.getTime() - 72 * 60 * 60 * 1000);
-    
-    db.collection('solicitudes')
-        .where('estado', 'in', ['recibida', 'en_proceso'])
-        .get()
-        .then(function(snap) {
-            var container = document.getElementById('alertas72h');
-            var badge = document.getElementById('alerta72hBadge');
-            var hayAlertas = false;
-            var html = '';
-            
-            snap.forEach(function(doc) {
-                var data = doc.data();
-                var fecha = data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha);
-                if (fecha < hace72h) {
-                    hayAlertas = true;
-                    html += '<div class="alerta-72h"><strong>⚠️ ' + data.solicitante + '</strong> - ' + (data.descripcion?.substring(0, 50) || '') + '...<br><small>' + fecha.toLocaleDateString() + '</small></div>';
-                }
-            });
-            
-            if (hayAlertas) {
-                container.innerHTML = html;
-                if (badge) badge.style.display = 'inline-block';
-            } else {
-                container.innerHTML = '<p class="text-muted">No hay solicitudes pendientes con más de 72h</p>';
-                if (badge) badge.style.display = 'none';
-            }
-        }).catch(function() {});
-}
-
-// ============================================
-// FUNCIONES BÁSICAS (PERSONAL, GRUPOS, VEHÍCULOS, SERVICIO)
+// FUNCIONES DE PERSONAL
 // ============================================
 function registrarPersonal() {
     var apellido = document.getElementById('pApellido').value.trim();
@@ -2313,6 +2240,9 @@ function eliminarPersonal(id) {
         });
 }
 
+// ============================================
+// FUNCIONES DE GRUPOS
+// ============================================
 function cargarGrupos() {
     db.collection('grupos').get()
         .then(function(snap) {
@@ -2398,6 +2328,9 @@ function actualizarJefe() {
         .catch(function() {});
 }
 
+// ============================================
+// FUNCIONES DE VEHÍCULOS
+// ============================================
 function registrarVehiculo() {
     var placa = document.getElementById('vPlaca').value.trim();
     var modelo = document.getElementById('vModelo').value.trim();
@@ -2438,7 +2371,7 @@ function cargarVehiculos() {
 }
 
 // ============================================
-// SERVICIO - FUNCIONES BÁSICAS
+// FUNCIONES DE SERVICIO
 // ============================================
 function cargarIntegrantesServicio() {
     var grupo = document.getElementById('sGrupo').value;
@@ -2859,7 +2792,7 @@ function limpiarServicio() {
 }
 
 // ============================================
-// SOLICITUDES
+// FUNCIONES DE SOLICITUDES
 // ============================================
 function crearSolicitud() {
     var solicitante = document.getElementById('solSolicitante').value.trim();
@@ -2928,7 +2861,7 @@ function cancelarSolicitud(id) {
 }
 
 // ============================================
-// FUNCIONES DE UTILIDAD PARA PDF
+// FUNCIONES DE LOGOS Y PIE DE PÁGINA PARA PDF
 // ============================================
 function agregarLogoPC(doc) {
     return new Promise(function(resolve) {
@@ -3007,7 +2940,7 @@ function leerFotoBase64(file) {
 }
 
 // ============================================
-// EDAN - FUNCIONES BÁSICAS (RESUMIDAS)
+// FUNCIONES DE EDAN
 // ============================================
 function initEDAN() {
     console.log('📋 Inicializando EDAN...');
@@ -3618,104 +3551,7 @@ async function generarPDFDesdeDatos(familias, datosGenerales) {
 }
 
 // ============================================
-// VIVIENDAS - FIRMA CORREGIDA
-// ============================================
-function iniciarFirmaVivienda() {
-    canvasVivienda = document.getElementById('ivFirmaCanvas');
-    if (!canvasVivienda) {
-        console.warn('Canvas de firma no encontrado');
-        return;
-    }
-    ctxVivienda = canvasVivienda.getContext('2d');
-    canvasVivienda.width = canvasVivienda.offsetWidth || 300;
-    canvasVivienda.height = canvasVivienda.offsetHeight || 150;
-    ctxVivienda.lineWidth = 3;
-    ctxVivienda.strokeStyle = '#0b2a4a';
-    ctxVivienda.lineCap = 'round';
-    ctxVivienda.lineJoin = 'round';
-    isDrawingVivienda = false;
-    
-    // Remover event listeners anteriores
-    canvasVivienda.removeEventListener('mousedown', onMouseDownFirma);
-    canvasVivienda.removeEventListener('mousemove', onMouseMoveFirma);
-    canvasVivienda.removeEventListener('mouseup', onMouseUpFirma);
-    canvasVivienda.removeEventListener('mouseleave', onMouseUpFirma);
-    canvasVivienda.removeEventListener('touchstart', onTouchStartFirma);
-    canvasVivienda.removeEventListener('touchmove', onTouchMoveFirma);
-    canvasVivienda.removeEventListener('touchend', onTouchEndFirma);
-    
-    // Agregar event listeners
-    canvasVivienda.addEventListener('mousedown', onMouseDownFirma);
-    canvasVivienda.addEventListener('mousemove', onMouseMoveFirma);
-    canvasVivienda.addEventListener('mouseup', onMouseUpFirma);
-    canvasVivienda.addEventListener('mouseleave', onMouseUpFirma);
-    canvasVivienda.addEventListener('touchstart', onTouchStartFirma, { passive: false });
-    canvasVivienda.addEventListener('touchmove', onTouchMoveFirma, { passive: false });
-    canvasVivienda.addEventListener('touchend', onTouchEndFirma, { passive: false });
-}
-
-function onMouseDownFirma(e) {
-    isDrawingVivienda = true;
-    var rect = canvasVivienda.getBoundingClientRect();
-    ctxVivienda.beginPath();
-    ctxVivienda.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-}
-
-function onMouseMoveFirma(e) {
-    if (!isDrawingVivienda) return;
-    var rect = canvasVivienda.getBoundingClientRect();
-    ctxVivienda.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-    ctxVivienda.stroke();
-}
-
-function onMouseUpFirma() {
-    isDrawingVivienda = false;
-}
-
-function onTouchStartFirma(e) {
-    e.preventDefault();
-    isDrawingVivienda = true;
-    var rect = canvasVivienda.getBoundingClientRect();
-    var touch = e.touches[0];
-    ctxVivienda.beginPath();
-    ctxVivienda.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
-}
-
-function onTouchMoveFirma(e) {
-    e.preventDefault();
-    if (!isDrawingVivienda) return;
-    var rect = canvasVivienda.getBoundingClientRect();
-    var touch = e.touches[0];
-    ctxVivienda.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-    ctxVivienda.stroke();
-}
-
-function onTouchEndFirma(e) {
-    e.preventDefault();
-    isDrawingVivienda = false;
-}
-
-function limpiarFirmaVivienda() {
-    if (!ctxVivienda || !canvasVivienda) {
-        mostrarToast('⚠️ No hay firma para limpiar', 'warning');
-        return;
-    }
-    ctxVivienda.clearRect(0, 0, canvasVivienda.width, canvasVivienda.height);
-    firmaGuardadaVivienda = null;
-    mostrarToast('✍️ Firma limpiada', 'info');
-}
-
-function capturarFirmaVivienda() {
-    if (!canvasVivienda) {
-        mostrarToast('⚠️ Canvas no disponible', 'warning');
-        return;
-    }
-    firmaGuardadaVivienda = canvasVivienda.toDataURL('image/png');
-    mostrarToast('✅ Firma guardada correctamente', 'success');
-}
-
-// ============================================
-// FUNCIONES DE VIVIENDAS
+// FUNCIONES DE VIVIENDAS (CON FIRMA COMO IMAGEN)
 // ============================================
 function generarNumeroInspeccion() {
     var fecha = new Date();
@@ -3868,7 +3704,12 @@ function ivLimpiarTodo() {
     document.getElementById('ivSatelital').value = '';
     document.getElementById('ivFotosPreview').innerHTML = '';
     document.getElementById('ivSatelitalPreview').innerHTML = '';
-    limpiarFirmaVivienda();
+    // Limpiar firma
+    document.getElementById('ivFirmaImg').style.display = 'none';
+    document.getElementById('ivFirmaPlaceholder').style.display = 'block';
+    document.getElementById('ivFirmaPlaceholder').textContent = 'Seleccione un inspector para cargar su firma';
+    window._firmaVivienda = null;
+    
     var ahora = new Date();
     document.getElementById('ivFecha').value = ahora.toISOString().split('T')[0];
     document.getElementById('ivHora').value = ahora.toTimeString().slice(0, 5);
@@ -3921,7 +3762,6 @@ function cargarDatosInspectorVivienda() {
             firmaImg.src = firma;
             firmaImg.style.display = 'block';
             placeholder.style.display = 'none';
-            // Guardar la firma para usarla en el PDF
             window._firmaVivienda = firma;
         } else {
             firmaImg.style.display = 'none';
@@ -4043,6 +3883,7 @@ function guardarInspeccionVivienda() {
             mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
+
 function cargarViviendas() {
     var container = document.getElementById('listaViviendas');
     if (!container) return;
@@ -4164,9 +4005,10 @@ function generarPDFVivienda() {
         totalPersonas: parseInt(document.getElementById('ivTotalPersonas').value) || 0,
         recomendaciones: document.getElementById('ivRecomendaciones').value.trim(),
         inspector: {
-            nombreCompleto: document.getElementById('ivInspectorJerarquiaNombre').value || 'No definido'
+            nombreCompleto: document.getElementById('ivInspectorJerarquiaNombre').value || 'No definido',
+            firma: window._firmaVivienda || null
         },
-        firma: firmaGuardadaVivienda,
+        firma: window._firmaVivienda || null,
         sello: edanSello || null,
         fotos: [],
         satelital: null
@@ -4256,25 +4098,28 @@ async function generarPDFViviendaConDatos(data) {
         }
         doc.text('INSPECTOR: ' + (data.inspector?.nombreCompleto || 'N/A'), 15, y);
         y += 8;
+        
+        // FIRMA DEL INSPECTOR - CORREGIDA
         try {
-    var firmaData = data.inspector?.firma || data.firma || null;
-    if (firmaData) {
-        try {
-            doc.addImage(firmaData, 'PNG', 30, y - 5, 60, 20);
-            doc.setFontSize(8);
-            doc.text('Firma del Inspector', 55, y + 20);
+            var firmaData = data.inspector?.firma || data.firma || null;
+            if (firmaData) {
+                try {
+                    doc.addImage(firmaData, 'PNG', 30, y - 5, 60, 20);
+                    doc.setFontSize(8);
+                    doc.text('Firma del Inspector', 55, y + 20);
+                } catch (e) {
+                    doc.text('_________________________', 50, y + 5);
+                    doc.text('Firma del Inspector', 55, y + 13);
+                }
+            } else {
+                doc.text('_________________________', 50, y + 5);
+                doc.text('Firma del Inspector', 55, y + 13);
+            }
         } catch (e) {
             doc.text('_________________________', 50, y + 5);
             doc.text('Firma del Inspector', 55, y + 13);
         }
-    } else {
-        doc.text('_________________________', 50, y + 5);
-        doc.text('Firma del Inspector', 55, y + 13);
-    }
-} catch (e) {
-    doc.text('_________________________', 50, y + 5);
-    doc.text('Firma del Inspector', 55, y + 13);
-}
+        
         try {
             var selloData = data.sello || edanSello;
             if (selloData) {
@@ -4288,6 +4133,7 @@ async function generarPDFViviendaConDatos(data) {
             doc.text('_________________________', 130, y + 5);
             doc.text('Sello de la Institución', 135, y + 13);
         }
+        
         agregarPiePagina(doc, doc.internal.pageSize.height - 15);
         var nombreArchivo = 'INSPECCION_VIVIENDA_' + (data.numero || 'N/A') + '.pdf';
         doc.save(nombreArchivo);
@@ -4818,7 +4664,7 @@ async function generarPDFCertificacionConDatos(data) {
 }
 
 // ============================================
-// FUNCIONES DE ALERTAS, CIERRES, PARTES Y USUARIOS
+// FUNCIONES DE ALERTAS
 // ============================================
 function crearAlerta() {
     var ubicacion = document.getElementById('alUbicacion').value.trim();
@@ -4861,6 +4707,9 @@ function cargarAlertas() {
         }).catch(function() {});
 }
 
+// ============================================
+// FUNCIONES DE CIERRES
+// ============================================
 function generarCierre() {
     var tipo = document.getElementById('cierreTipo').value;
     var mesInput = document.getElementById('cierreMes').value;
@@ -4919,6 +4768,9 @@ function cargarHistorialCierres() {
         }).catch(function() {});
 }
 
+// ============================================
+// FUNCIONES DE PARTES
+// ============================================
 function agregarActividadParte() {
     var descripcion = document.getElementById('paDescripcion').value.trim();
     if (!descripcion) { mostrarToast('⚠️ Describa la actividad', 'warning'); return; }
@@ -5010,6 +4862,9 @@ function enviarParteWhatsApp() {
     window.open(url, '_blank');
 }
 
+// ============================================
+// FUNCIONES DE USUARIOS
+// ============================================
 function crearUsuario() {
     if (usuarioActual.rol !== 'comandante') {
         mostrarToast('❌ Solo el 1er Comandante puede crear usuarios', 'danger');
@@ -5140,6 +4995,71 @@ function eliminarUsuario(id) {
 }
 
 // ============================================
+// FUNCIONES DE DASHBOARD
+// ============================================
+function cargarDashboard() {
+    db.collection('personal').get().then(function(snap) {
+        document.getElementById('totalPersonal').textContent = snap.size;
+    }).catch(function() {});
+    db.collection('solicitudes').get().then(function(snap) {
+        document.getElementById('totalSolicitudes').textContent = snap.size;
+    }).catch(function() {});
+    db.collection('edan').get().then(function(snap) {
+        document.getElementById('totalEdan').textContent = snap.size;
+    }).catch(function() {});
+    db.collection('alertas').where('estado', '==', 'activa').get().then(function(snap) {
+        document.getElementById('totalAlertas').textContent = snap.size;
+    }).catch(function() {});
+    
+    db.collection('servicio').where('estado', '==', 'activo').get().then(function(snap) {
+        var div = document.getElementById('servicioActivo');
+        if (!snap.empty) {
+            var docs = [];
+            snap.forEach(function(doc) { docs.push({ id: doc.id, ...doc.data() }); });
+            docs.sort(function(a, b) { return new Date(b.fechaApertura) - new Date(a.fechaApertura); });
+            var data = docs[0];
+            div.innerHTML = '<div class="alert alert-success"><strong>' + data.grupo + '</strong> - Jefe: ' + (data.jefe || 'No definido') + '</div>';
+        } else {
+            div.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
+        }
+    }).catch(function() {});
+    
+    verificarAlertas72h();
+}
+
+function verificarAlertas72h() {
+    var hoy = new Date();
+    var hace72h = new Date(hoy.getTime() - 72 * 60 * 60 * 1000);
+    
+    db.collection('solicitudes')
+        .where('estado', 'in', ['recibida', 'en_proceso'])
+        .get()
+        .then(function(snap) {
+            var container = document.getElementById('alertas72h');
+            var badge = document.getElementById('alerta72hBadge');
+            var hayAlertas = false;
+            var html = '';
+            
+            snap.forEach(function(doc) {
+                var data = doc.data();
+                var fecha = data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha);
+                if (fecha < hace72h) {
+                    hayAlertas = true;
+                    html += '<div class="alerta-72h"><strong>⚠️ ' + data.solicitante + '</strong> - ' + (data.descripcion?.substring(0, 50) || '') + '...<br><small>' + fecha.toLocaleDateString() + '</small></div>';
+                }
+            });
+            
+            if (hayAlertas) {
+                container.innerHTML = html;
+                if (badge) badge.style.display = 'inline-block';
+            } else {
+                container.innerHTML = '<p class="text-muted">No hay solicitudes pendientes con más de 72h</p>';
+                if (badge) badge.style.display = 'none';
+            }
+        }).catch(function() {});
+}
+
+// ============================================
 // INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -5160,21 +5080,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     cargarDatos();
     setInterval(verificarAlertas72h, 300000);
-    
-    // Inicializar firma de viviendas con retraso
-    setTimeout(function() {
-        try {
-            iniciarFirmaVivienda();
-            console.log('✅ Firma de viviendas inicializada');
-        } catch (e) {
-            console.warn('⚠️ Error al inicializar firma:', e);
-        }
-        try {
-            initViviendas();
-        } catch (e) {
-            console.warn('⚠️ Error al inicializar viviendas:', e);
-        }
-    }, 200);
 });
 
 </script>
