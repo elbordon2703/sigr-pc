@@ -1120,16 +1120,16 @@
                     </div>
                 </div>
 
-                <!-- FIRMA DEL INSPECTOR -->
-                <div class="row mt-2">
-                    <div class="col-12 mb-2">
-                        <label class="form-label">✍️ Firma del Inspector</label>
-                        <div id="caFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
-                            <p class="text-muted" id="caFirmaPlaceholder">Seleccione un inspector para cargar su firma</p>
-                            <img id="caFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
-                        </div>
-                    </div>
-                </div>
+               <!-- FIRMA DEL INSPECTOR -->
+<div class="row mt-2">
+    <div class="col-12 mb-2">
+        <label class="form-label">✍️ Firma del Inspector</label>
+        <div id="ivFirmaPreview" style="border:2px solid #ccc;border-radius:8px;min-height:100px;background:white;display:flex;align-items:center;justify-content:center;padding:10px;">
+            <p class="text-muted" id="ivFirmaPlaceholder">Seleccione un inspector para cargar su firma</p>
+            <img id="ivFirmaImg" style="max-width:100%;max-height:150px;display:none;" />
+        </div>
+    </div>
+</div>
 
                 <!-- BOTONES -->
                 <div class="row mt-3">
@@ -3786,27 +3786,62 @@ function ivLimpiarTodo() {
 function cargarInspectoresVivienda() {
     var select = document.getElementById('ivInspector');
     if (!select) return;
-    db.collection('personal').orderBy('apellido', 'asc').get().then(function(snap) {
-        select.innerHTML = '<option value="">— Seleccione el Inspector —</option>';
-        snap.forEach(function(doc) {
-            var data = doc.data();
-            var nombre = data.apellido + ', ' + data.nombre;
-            select.innerHTML += '<option value="' + doc.id + '" data-jerarquia="' + (data.jerarquia || '') + '" data-nombre="' + data.nombre + '" data-apellido="' + data.apellido + '">' + nombre + '</option>';
-        });
-    }).catch(function() {});
+    
+    db.collection('personal')
+        .orderBy('apellido', 'asc')
+        .get()
+        .then(function(snap) {
+            select.innerHTML = '<option value="">— Seleccione el Inspector —</option>';
+            snap.forEach(function(doc) {
+                var data = doc.data();
+                var nombre = data.apellido + ', ' + data.nombre;
+                var tieneFirma = data.firma ? ' ✍️' : '';
+                select.innerHTML += '<option value="' + doc.id + '" ' +
+                    'data-jerarquia="' + (data.jerarquia || '') + '" ' +
+                    'data-nombre="' + data.nombre + '" ' +
+                    'data-apellido="' + data.apellido + '" ' +
+                    'data-firma="' + (data.firma || '') + '">' +
+                    nombre + tieneFirma + '</option>';
+            });
+        })
+        .catch(function() {});
 }
 
 function cargarDatosInspectorVivienda() {
     var select = document.getElementById('ivInspector');
     var selected = select.options[select.selectedIndex];
+    
     if (selected && selected.value) {
         var jerarquia = selected.dataset.jerarquia || '';
         var nombre = selected.dataset.nombre || '';
         var apellido = selected.dataset.apellido || '';
+        var firma = selected.dataset.firma || '';
+        
         var nombreCompleto = jerarquia ? jerarquia + '. ' + apellido + ' ' + nombre : apellido + ' ' + nombre;
         document.getElementById('ivInspectorJerarquiaNombre').value = nombreCompleto;
+        
+        // Cargar la firma del inspector seleccionado
+        var firmaImg = document.getElementById('ivFirmaImg');
+        var placeholder = document.getElementById('ivFirmaPlaceholder');
+        
+        if (firma) {
+            firmaImg.src = firma;
+            firmaImg.style.display = 'block';
+            placeholder.style.display = 'none';
+            // Guardar la firma para usarla en el PDF
+            window._firmaVivienda = firma;
+        } else {
+            firmaImg.style.display = 'none';
+            placeholder.style.display = 'block';
+            placeholder.textContent = '⚠️ El inspector no tiene firma cargada';
+            window._firmaVivienda = null;
+        }
     } else {
         document.getElementById('ivInspectorJerarquiaNombre').value = '';
+        document.getElementById('ivFirmaImg').style.display = 'none';
+        document.getElementById('ivFirmaPlaceholder').style.display = 'block';
+        document.getElementById('ivFirmaPlaceholder').textContent = 'Seleccione un inspector para cargar su firma';
+        window._firmaVivienda = null;
     }
 }
 
@@ -3837,6 +3872,9 @@ function guardarInspeccionVivienda() {
     var inspectorNombre = selectedOption.dataset.nombre || '';
     var inspectorApellido = selectedOption.dataset.apellido || '';
     var inspectorCompleto = inspectorJerarquia ? inspectorJerarquia + '. ' + inspectorApellido + ' ' + inspectorNombre : inspectorApellido + ' ' + inspectorNombre;
+    
+    // Obtener la firma del inspector seleccionado
+    var firmaInspector = window._firmaVivienda || null;
     
     var adultosM = parseInt(document.getElementById('ivAdultosM').value) || 0;
     var adultosF = parseInt(document.getElementById('ivAdultosF').value) || 0;
@@ -3890,9 +3928,10 @@ function guardarInspeccionVivienda() {
             nombre: inspectorNombre,
             apellido: inspectorApellido,
             jerarquia: inspectorJerarquia,
-            nombreCompleto: inspectorCompleto
+            nombreCompleto: inspectorCompleto,
+            firma: firmaInspector
         },
-        firma: firmaGuardadaVivienda,
+        firma: firmaInspector,
         sello: edanSello || null,
         fechaRegistro: new Date().toISOString(),
         oficial: auth.currentUser?.email || 'Sistema',
@@ -3911,7 +3950,6 @@ function guardarInspeccionVivienda() {
             mostrarToast('❌ Error: ' + error.message, 'danger');
         });
 }
-
 function cargarViviendas() {
     var container = document.getElementById('listaViviendas');
     if (!container) return;
@@ -4126,17 +4164,24 @@ async function generarPDFViviendaConDatos(data) {
         doc.text('INSPECTOR: ' + (data.inspector?.nombreCompleto || 'N/A'), 15, y);
         y += 8;
         try {
-            if (data.firma) {
-                doc.addImage(data.firma, 'PNG', 30, y - 5, 60, 20);
-                doc.text('Firma del Inspector', 55, y + 20);
-            } else {
-                doc.text('_________________________', 50, y + 5);
-                doc.text('Firma del Inspector', 55, y + 13);
-            }
+    var firmaData = data.inspector?.firma || data.firma || null;
+    if (firmaData) {
+        try {
+            doc.addImage(firmaData, 'PNG', 30, y - 5, 60, 20);
+            doc.setFontSize(8);
+            doc.text('Firma del Inspector', 55, y + 20);
         } catch (e) {
             doc.text('_________________________', 50, y + 5);
             doc.text('Firma del Inspector', 55, y + 13);
         }
+    } else {
+        doc.text('_________________________', 50, y + 5);
+        doc.text('Firma del Inspector', 55, y + 13);
+    }
+} catch (e) {
+    doc.text('_________________________', 50, y + 5);
+    doc.text('Firma del Inspector', 55, y + 13);
+}
         try {
             var selloData = data.sello || edanSello;
             if (selloData) {
