@@ -239,6 +239,7 @@
                 <i class="fas fa-calendar-check"></i> <span>Cierres</span>
             </div>
         </div>
+        <!-- RECURSOS - CORREGIDO -->
         <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-recursos')">
             <i class="fas fa-users"></i> <span>Recursos</span>
             <i class="fas fa-chevron-down ms-auto" id="icon-recursos"></i>
@@ -254,6 +255,7 @@
                 <i class="fas fa-truck"></i> <span>Vehículos</span>
             </div>
         </div>
+        <!-- ADMINISTRACIÓN - CORREGIDO -->
         <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-admin')">
             <i class="fas fa-cog"></i> <span>Administración</span>
             <i class="fas fa-chevron-down ms-auto" id="icon-admin"></i>
@@ -263,12 +265,12 @@
                 <i class="fas fa-user-cog"></i> <span>Usuarios</span>
             </div>
         </div>
+        <!-- SALIR -->
         <div class="nav-link" style="border-top:1px solid rgba(255,255,255,0.1);margin-top:20px;" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i> <span>Salir</span>
         </div>
     </nav>
 </div>
-
 <!-- CONTENT -->
 <div class="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -1945,9 +1947,12 @@ function mostrarToast(mensaje, tipo) {
 }
 
 // ============================================
-// NAVEGACIÓN
+// NAVEGACIÓN - CORREGIDA DEFINITIVAMENTE
 // ============================================
+
 function toggleSubmenu(submenuId) {
+    console.log('🔄 toggleSubmenu llamado para:', submenuId);
+    
     // Buscar el submenú
     var submenu = document.getElementById(submenuId);
     if (!submenu) {
@@ -1975,18 +1980,26 @@ function toggleSubmenu(submenuId) {
     if (icon) {
         icon.classList.add('open');
     }
+    
+    console.log('✅ Submenú abierto:', submenuId);
 }
-    function showSection(section) {
+
+function showSection(section) {
+    console.log('🔄 showSection llamado para:', section);
+    
+    // Ocultar todas las secciones
     var sections = document.querySelectorAll('.section');
     for (var i = 0; i < sections.length; i++) {
         sections[i].classList.remove('active');
     }
     
+    // Mostrar la sección seleccionada
     var target = document.getElementById('section-' + section);
     if (target) {
         target.classList.add('active');
     }
     
+    // Actualizar navegación
     var navLinks = document.querySelectorAll('.sidebar .nav-link');
     for (var j = 0; j < navLinks.length; j++) {
         navLinks[j].classList.remove('active');
@@ -1995,6 +2008,7 @@ function toggleSubmenu(submenuId) {
         }
     }
     
+    // Actualizar título
     var titles = {
         dashboard: 'Dashboard',
         personal: 'Personal',
@@ -2013,6 +2027,7 @@ function toggleSubmenu(submenuId) {
     var titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.textContent = titles[section] || section;
     
+    // Mantener el submenú abierto según la sección
     var submenuMap = {
         'certificacion': 'submenu-riesgo',
         'viviendas': 'submenu-riesgo',
@@ -2039,6 +2054,7 @@ function toggleSubmenu(submenuId) {
         }
     }
     
+    // Cargar datos según la sección
     if (section === 'personal') cargarPersonal();
     if (section === 'grupos') cargarGrupos();
     if (section === 'vehiculos') cargarVehiculos();
@@ -2055,6 +2071,8 @@ function toggleSubmenu(submenuId) {
 }
 
 function cargarDatos() {
+    console.log('🔄 Cargando datos...');
+    
     cargarDashboard();
     cargarPersonal();
     cargarGrupos();
@@ -2079,8 +2097,9 @@ function cargarDatos() {
         var minutos = String(ahora.getMinutes()).padStart(2, '0');
         fechaInput.value = año + '-' + mes + '-' + dia + 'T' + horas + ':' + minutos;
     }
+    
+    console.log('✅ Datos cargados correctamente');
 }
-
 // ============================================
 // FUNCIONES DE PERSONAL
 // ============================================
