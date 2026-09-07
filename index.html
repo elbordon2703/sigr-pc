@@ -1666,6 +1666,42 @@ function cargarDashboard() {
         }
     }).catch(function() {});
 }
+    // ============================================
+// VERIFICAR ALERTAS DE 72 HORAS
+// ============================================
+function verificarAlertas72h() {
+    var hoy = new Date();
+    var hace72h = new Date(hoy.getTime() - 72 * 60 * 60 * 1000);
+    
+    db.collection('solicitudes')
+        .where('estado', 'in', ['recibida', 'en_proceso'])
+        .get()
+        .then(function(snap) {
+            var container = document.getElementById('alertas72h');
+            var badge = document.getElementById('alerta72hBadge');
+            var hayAlertas = false;
+            var html = '';
+            
+            snap.forEach(function(doc) {
+                var data = doc.data();
+                var fecha = data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha);
+                if (fecha < hace72h) {
+                    hayAlertas = true;
+                    html += '<div class="alerta-72h"><strong>⚠️ ' + data.solicitante + '</strong> - ' + (data.descripcion?.substring(0, 50) || '') + '...<br><small>' + fecha.toLocaleDateString() + '</small></div>';
+                }
+            });
+            
+            if (hayAlertas) {
+                container.innerHTML = html;
+                if (badge) badge.style.display = 'inline-block';
+            } else {
+                container.innerHTML = '<p class="text-muted">No hay solicitudes pendientes con más de 72h</p>';
+                if (badge) badge.style.display = 'none';
+            }
+        }).catch(function(error) {
+            console.warn('⚠️ Error verificando alertas 72h:', error);
+        });
+}
 
 // ============================================
 // FUNCIONES DE PERSONAL (resumidas)
