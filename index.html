@@ -3795,35 +3795,48 @@ function enviarParteWhatsApp() {
 }
 
 // ============================================
-// FUNCIONES DE CERTIFICACIÓN (resumidas)
+// CERTIFICACIÓN DE ÁRBOLES
 // ============================================
 function cargarInspector() {
     var select = document.getElementById('caInspector');
     if (!select) return;
-    db.collection('personal').orderBy('apellido', 'asc').get()
+    
+    db.collection('personal')
+        .orderBy('apellido', 'asc')
+        .get()
         .then(function(snap) {
-            select.innerHTML = '<option value="">— Seleccione —</option>';
+            select.innerHTML = '<option value="">— Seleccione el Inspector —</option>';
             snap.forEach(function(doc) {
                 var data = doc.data();
                 var nombre = data.apellido + ', ' + data.nombre;
                 var tieneFirma = data.firma ? ' ✍️' : '';
-                select.innerHTML += '<option value="' + doc.id + '" data-jerarquia="' + (data.jerarquia || '') + '" data-nombre="' + data.nombre + '" data-apellido="' + data.apellido + '" data-firma="' + (data.firma || '') + '">' + nombre + tieneFirma + '</option>';
+                select.innerHTML += '<option value="' + doc.id + '" ' +
+                    'data-jerarquia="' + (data.jerarquia || '') + '" ' +
+                    'data-nombre="' + data.nombre + '" ' +
+                    'data-apellido="' + data.apellido + '" ' +
+                    'data-firma="' + (data.firma || '') + '">' +
+                    nombre + tieneFirma + '</option>';
             });
-        }).catch(function() {});
+        })
+        .catch(function() {});
 }
 
 function cargarDatosInspector() {
     var select = document.getElementById('caInspector');
     var selected = select.options[select.selectedIndex];
+    
     if (selected && selected.value) {
         var jerarquia = selected.dataset.jerarquia || '';
         var nombre = selected.dataset.nombre || '';
         var apellido = selected.dataset.apellido || '';
         var firma = selected.dataset.firma || '';
+        
         var nombreCompleto = jerarquia ? jerarquia + '. ' + apellido + ' ' + nombre : apellido + ' ' + nombre;
         document.getElementById('caInspectorJerarquiaNombre').value = nombreCompleto;
+        
         var firmaImg = document.getElementById('caFirmaImg');
         var placeholder = document.getElementById('caFirmaPlaceholder');
+        
         if (firma) {
             firmaImg.src = firma;
             firmaImg.style.display = 'block';
@@ -3831,19 +3844,25 @@ function cargarDatosInspector() {
         } else {
             firmaImg.style.display = 'none';
             placeholder.style.display = 'block';
-            placeholder.textContent = '⚠️ Sin firma';
+            placeholder.textContent = '⚠️ El inspector no tiene firma cargada';
         }
     } else {
         document.getElementById('caInspectorJerarquiaNombre').value = '';
         document.getElementById('caFirmaImg').style.display = 'none';
         document.getElementById('caFirmaPlaceholder').style.display = 'block';
-        document.getElementById('caFirmaPlaceholder').textContent = 'Seleccione un inspector';
+        document.getElementById('caFirmaPlaceholder').textContent = 'Seleccione un inspector para cargar su firma';
     }
 }
 
 function caAgregarArbol() {
     var especie = document.getElementById('caEspecie').value.trim();
-    if (!especie) { mostrarToast('⚠️ Especie es obligatoria', 'warning'); return; }
+    
+    if (!especie) {
+        mostrarToast('⚠️ La especie del árbol es obligatoria', 'warning');
+        document.getElementById('caEspecie').focus();
+        return;
+    }
+    
     var arbol = {
         id: caContadorArboles + 1,
         especie: especie,
@@ -3858,11 +3877,13 @@ function caAgregarArbol() {
             zona: document.getElementById('caUtmZona').value.trim()
         }
     };
+    
     caArboles.push(arbol);
     caContadorArboles++;
+    
     caLimpiarArbol();
     caActualizarListaArboles();
-    mostrarToast('✅ Árbol agregado', 'success');
+    mostrarToast('✅ Árbol ' + caContadorArboles + ' agregado: ' + especie, 'success');
 }
 
 function caLimpiarArbol() {
@@ -3875,37 +3896,46 @@ function caLimpiarArbol() {
     document.getElementById('caUtmE').value = '';
     document.getElementById('caUtmN').value = '';
     document.getElementById('caUtmZona').value = '';
+    document.getElementById('caEspecie').focus();
 }
 
 function caActualizarListaArboles() {
     var container = document.getElementById('caListaArboles');
     var countBadge = document.getElementById('caArbolCount');
+    
     if (caArboles.length === 0) {
-        container.innerHTML = '<p class="text-muted">No hay árboles</p>';
+        container.innerHTML = '<p class="text-muted">No hay árboles agregados. Agregue el primer árbol.</p>';
         if (countBadge) countBadge.textContent = '0 árboles';
         return;
     }
+    
     if (countBadge) countBadge.textContent = caArboles.length + ' árboles';
-    var html = '<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>#</th><th>Especie</th><th style="text-align:center;">Altura<br><small>m</small></th><th style="text-align:center;">Diámetro<br><small>m</small></th><th style="text-align:center;">Inclinación<br><small>°</small></th><th style="text-align:center;">Distancia<br><small>m</small></th><th style="text-align:center;">Riesgo</th><th style="text-align:center;">Acción</th></tr></thead><tbody>';
+    
+    var html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+    html += '<thead><tr><th>#</th><th>Especie</th><th style="text-align:center;">Altura<br><small>m</small></th><th style="text-align:center;">Diámetro<br><small>m</small></th><th style="text-align:center;">Inclinación<br><small>°</small></th><th style="text-align:center;">Distancia<br><small>m</small></th><th style="text-align:center;">Riesgo</th><th style="text-align:center;">Acción</th></tr></thead><tbody>';
+    
     for (var i = 0; i < caArboles.length; i++) {
         var arbol = caArboles[i];
         var riesgoColor = arbol.riesgo === 'muy_alto' ? 'danger' : arbol.riesgo === 'alto' ? 'warning' : arbol.riesgo === 'medio' ? 'info' : 'success';
         var riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
+        
         html += '<tr><td>' + arbol.id + '</td><td><strong>' + arbol.especie + '</strong></td><td style="text-align:center;">' + arbol.altura + '</td><td style="text-align:center;">' + arbol.diametro + '</td><td style="text-align:center;">' + arbol.inclinacion + '</td><td style="text-align:center;">' + arbol.distancia + '</td><td style="text-align:center;"><span class="badge bg-' + riesgoColor + '">' + riesgoTexto[arbol.riesgo] + '</span></td><td style="text-align:center;"><button class="btn btn-sm btn-danger" onclick="caEliminarArbol(' + i + ')"><i class="fas fa-trash"></i></button></td></tr>';
     }
+    
     html += '</tbody></table></div>';
     container.innerHTML = html;
 }
 
 function caEliminarArbol(index) {
-    if (!confirm('¿Eliminar este árbol?')) return;
+    if (!confirm('¿Eliminar el árbol ' + caArboles[index].especie + '?')) return;
     caArboles.splice(index, 1);
     caActualizarListaArboles();
     mostrarToast('✅ Árbol eliminado', 'success');
 }
 
 function caLimpiarTodo() {
-    if (!confirm('¿Limpiar todo?')) return;
+    if (!confirm('¿Limpiar todos los datos del formulario de Certificación?')) return;
+    
     document.getElementById('caSolicitante').value = '';
     document.getElementById('caSolicitanteCedula').value = '';
     document.getElementById('caSolicitanteTelefono').value = '';
@@ -3913,15 +3943,19 @@ function caLimpiarTodo() {
     document.getElementById('caInspectorJerarquiaNombre').value = '';
     document.getElementById('caDireccion').value = '';
     document.getElementById('caObservaciones').value = '';
+    
     caArboles = [];
     caContadorArboles = 0;
     caActualizarListaArboles();
+    
     document.getElementById('caFoto1').value = '';
     document.getElementById('caFoto2').value = '';
     document.getElementById('caFotosPreview').innerHTML = '';
+    
     document.getElementById('caFirmaImg').style.display = 'none';
     document.getElementById('caFirmaPlaceholder').style.display = 'block';
-    document.getElementById('caFirmaPlaceholder').textContent = 'Seleccione un inspector';
+    document.getElementById('caFirmaPlaceholder').textContent = 'Seleccione un inspector para cargar su firma';
+    
     mostrarToast('🧹 Datos limpiados', 'info');
 }
 
@@ -3929,10 +3963,26 @@ function guardarCertificacionArbol() {
     var solicitante = document.getElementById('caSolicitante').value.trim();
     var inspectorId = document.getElementById('caInspector').value;
     var direccion = document.getElementById('caDireccion').value.trim();
-    if (!solicitante) { mostrarToast('⚠️ Solicitante es obligatorio', 'warning'); return; }
-    if (!inspectorId) { mostrarToast('⚠️ Seleccione inspector', 'warning'); return; }
-    if (!direccion) { mostrarToast('⚠️ Dirección es obligatoria', 'warning'); return; }
-    if (caArboles.length === 0) { mostrarToast('⚠️ Agregue al menos 1 árbol', 'warning'); return; }
+    
+    if (!solicitante) { 
+        mostrarToast('⚠️ El nombre del Solicitante es obligatorio', 'warning'); 
+        document.getElementById('caSolicitante').focus();
+        return; 
+    }
+    if (!inspectorId) { 
+        mostrarToast('⚠️ Seleccione el Inspector', 'warning'); 
+        return; 
+    }
+    if (!direccion) { 
+        mostrarToast('⚠️ La dirección es obligatoria', 'warning'); 
+        document.getElementById('caDireccion').focus();
+        return; 
+    }
+    
+    if (caArboles.length === 0) {
+        mostrarToast('⚠️ Agregue al menos 1 árbol', 'warning');
+        return;
+    }
     
     var select = document.getElementById('caInspector');
     var selected = select.options[select.selectedIndex];
@@ -3965,57 +4015,362 @@ function guardarCertificacionArbol() {
         oficial: auth.currentUser?.email || 'Sistema',
         fotos: []
     };
-    certificaciones.push(data);
-    db.collection('certificaciones').add(data)
-        .then(function() { mostrarToast('✅ Certificación guardada', 'success'); })
-        .catch(function() { mostrarToast('⚠️ Guardado local', 'warning'); });
-    caLimpiarTodo();
-    cargarCertificaciones();
+    
+    // Procesar fotos
+    var foto1 = document.getElementById('caFoto1');
+    var foto2 = document.getElementById('caFoto2');
+    var fotosPromises = [];
+    
+    if (foto1.files && foto1.files[0]) {
+        fotosPromises.push(leerFotoBase64(foto1.files[0]));
+    } else {
+        fotosPromises.push(Promise.resolve(null));
+    }
+    
+    if (foto2.files && foto2.files[0]) {
+        fotosPromises.push(leerFotoBase64(foto2.files[0]));
+    } else {
+        fotosPromises.push(Promise.resolve(null));
+    }
+    
+    mostrarToast('📸 Procesando fotos...', 'info');
+    
+    Promise.all(fotosPromises)
+        .then(function(fotos) {
+            data.fotos = fotos.filter(function(f) { return f !== null; });
+            
+            // Guardar en Firestore
+            db.collection('certificaciones').add(data)
+                .then(function() {
+                    mostrarToast('✅ Certificación guardada: ' + caArboles.length + ' árboles', 'success');
+                    caLimpiarTodo();
+                    cargarCertificaciones();
+                })
+                .catch(function(error) {
+                    console.error('Error guardando:', error);
+                    mostrarToast('⚠️ Error al guardar: ' + error.message, 'danger');
+                });
+        })
+        .catch(function(error) {
+            console.error('Error procesando fotos:', error);
+            mostrarToast('❌ Error al procesar las fotos', 'danger');
+        });
 }
 
 function cargarCertificaciones() {
     var container = document.getElementById('listaCertificaciones');
     if (!container) return;
-    db.collection('certificaciones').orderBy('fecha', 'desc').limit(20).get()
+    
+    db.collection('certificaciones')
+        .orderBy('fecha', 'desc')
+        .limit(50)
+        .get()
         .then(function(snap) {
-            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay certificaciones</p>'; return; }
-            var html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fecha</th><th>Solicitante</th><th>Inspector</th><th>Árboles</th><th>Acciones</th></tr></thead><tbody>';
+            if (snap.empty) {
+                container.innerHTML = '<p class="text-muted">No hay certificaciones registradas</p>';
+                return;
+            }
+            
+            var html = '<div class="table-responsive"><table class="table table-sm">';
+            html += '<thead><tr><th>Fecha</th><th>Solicitante</th><th>Inspector</th><th>Árboles</th><th>Acciones</th></tr></thead><tbody>';
+            
             snap.forEach(function(doc) {
                 var data = doc.data();
                 var fecha = data.fecha ? new Date(data.fecha).toLocaleDateString() : 'N/A';
                 var solicitante = data.solicitante?.nombre || 'N/A';
                 var inspector = data.inspector?.nombreCompleto || 'N/A';
                 var totalArboles = data.arboles?.length || 0;
-                html += '<tr><td>' + fecha + '</td><td>' + solicitante + '</td><td>' + inspector + '</td><td><span class="badge bg-info">' + totalArboles + '</span></td><td><button class="btn btn-sm btn-primary" onclick="verCertificacion(\'' + doc.id + '\')"><i class="fas fa-eye"></i></button> <button class="btn btn-sm btn-danger" onclick="eliminarCertificacion(\'' + doc.id + '\')"><i class="fas fa-trash"></i></button></td></tr>';
+                
+                html += '<tr><td>' + fecha + '</td><td>' + solicitante + '</td><td>' + inspector + '</td><td><span class="badge bg-info">' + totalArboles + ' árboles</span></td><td><button class="btn btn-sm btn-primary" onclick="verCertificacion(\'' + doc.id + '\')"><i class="fas fa-eye"></i></button> <button class="btn btn-sm btn-danger" onclick="eliminarCertificacion(\'' + doc.id + '\')"><i class="fas fa-trash"></i></button> <button class="btn btn-sm btn-success" onclick="generarPDFCertificacionDesdeID(\'' + doc.id + '\')"><i class="fas fa-file-pdf"></i></button></td></tr>';
             });
+            
             html += '</tbody></table></div>';
             container.innerHTML = html;
-        }).catch(function() {});
+        })
+        .catch(function(error) {
+            console.error('Error cargando certificaciones:', error);
+            container.innerHTML = '<p class="text-danger">Error al cargar las certificaciones</p>';
+        });
 }
 
 function verCertificacion(id) {
     db.collection('certificaciones').doc(id).get()
         .then(function(doc) {
-            if (!doc.exists) { mostrarToast('⚠️ No encontrado', 'warning'); return; }
+            if (!doc.exists) {
+                mostrarToast('⚠️ Certificación no encontrada', 'warning');
+                return;
+            }
             var data = doc.data();
             var msg = '📋 CERTIFICACIÓN DE ÁRBOLES\n\n';
             msg += '📌 Solicitante: ' + (data.solicitante?.nombre || 'N/A') + '\n';
             msg += '📄 Cédula: ' + (data.solicitante?.cedula || 'N/A') + '\n';
+            msg += '📞 Teléfono: ' + (data.solicitante?.telefono || 'N/A') + '\n';
             msg += '📍 Dirección: ' + (data.solicitante?.direccion || 'N/A') + '\n';
             msg += '👤 Inspector: ' + (data.inspector?.nombreCompleto || 'N/A') + '\n';
-            msg += '🌳 Total Árboles: ' + (data.arboles?.length || 0) + '\n';
-            if (data.observaciones) msg += '\n📝 Observaciones: ' + data.observaciones + '\n';
+            msg += '📋 Jerarquía: ' + (data.inspector?.jerarquia || 'N/A') + '\n';
+            msg += '\n🌳 TOTAL ÁRBOLES: ' + (data.arboles?.length || 0) + '\n';
+            
+            if (data.arboles && data.arboles.length > 0) {
+                msg += '\n📋 LISTA DE ÁRBOLES:\n';
+                for (var i = 0; i < data.arboles.length; i++) {
+                    var arbol = data.arboles[i];
+                    var riesgoTexto = { 'bajo': 'Bajo', 'medio': 'Medio', 'alto': 'Alto', 'muy_alto': 'Muy Alto' };
+                    msg += '   ' + (i+1) + '. ' + arbol.especie + ' - ' + arbol.altura + 'm - Riesgo: ' + (riesgoTexto[arbol.riesgo] || arbol.riesgo) + '\n';
+                }
+            }
+            
+            if (data.observaciones) {
+                msg += '\n📝 Observaciones: ' + data.observaciones + '\n';
+            }
+            
             alert(msg);
-        }).catch(function() { mostrarToast('❌ Error', 'danger'); });
+        })
+        .catch(function(error) {
+            mostrarToast('❌ Error al cargar la certificación', 'danger');
+        });
 }
 
 function eliminarCertificacion(id) {
-    if (!confirm('¿Eliminar esta certificación?')) return;
+    if (!confirm('¿Eliminar esta certificación permanentemente?')) return;
+    
     db.collection('certificaciones').doc(id).delete()
-        .then(function() { mostrarToast('✅ Certificación eliminada', 'success'); cargarCertificaciones(); })
-        .catch(function(error) { mostrarToast('❌ Error: ' + error.message, 'danger'); });
+        .then(function() {
+            mostrarToast('✅ Certificación eliminada', 'success');
+            cargarCertificaciones();
+        })
+        .catch(function(error) {
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
 }
 
+function generarPDFCertificacion() {
+    var solicitante = document.getElementById('caSolicitante').value.trim();
+    var inspectorId = document.getElementById('caInspector').value;
+    var direccion = document.getElementById('caDireccion').value.trim();
+    
+    if (!solicitante && !inspectorId && !direccion && caArboles.length === 0) {
+        mostrarToast('⚠️ Complete los datos o seleccione una certificación guardada', 'warning');
+        return;
+    }
+    
+    var select = document.getElementById('caInspector');
+    var selected = select.options[select.selectedIndex];
+    var inspectorJerarquia = selected.dataset.jerarquia || '';
+    var inspectorNombre = selected.dataset.nombre || '';
+    var inspectorApellido = selected.dataset.apellido || '';
+    var inspectorCompleto = inspectorJerarquia ? inspectorJerarquia + '. ' + inspectorApellido + ' ' + inspectorNombre : inspectorApellido + ' ' + inspectorNombre;
+    var firmaInspector = selected.dataset.firma || null;
+    
+    var data = {
+        solicitante: {
+            nombre: solicitante || 'N/A',
+            cedula: document.getElementById('caSolicitanteCedula').value.trim() || 'N/A',
+            telefono: document.getElementById('caSolicitanteTelefono').value.trim() || 'N/A',
+            direccion: direccion || 'N/A'
+        },
+        inspector: {
+            nombreCompleto: inspectorCompleto || 'N/A',
+            jerarquia: inspectorJerarquia || 'N/A',
+            firma: firmaInspector
+        },
+        arboles: caArboles,
+        totalArboles: caArboles.length,
+        observaciones: document.getElementById('caObservaciones').value.trim() || '',
+        sello: edanSello || null,
+        fecha: new Date().toISOString(),
+        fotos: []
+    };
+    
+    generarPDFCertificacionConDatos(data);
+}
+
+function generarPDFCertificacionDesdeID(id) {
+    mostrarToast('📊 Generando PDF...', 'info');
+    db.collection('certificaciones').doc(id).get()
+        .then(function(doc) {
+            if (!doc.exists) {
+                mostrarToast('⚠️ Certificación no encontrada', 'warning');
+                return;
+            }
+            var data = doc.data();
+            generarPDFCertificacionConDatos(data);
+        })
+        .catch(function(error) {
+            mostrarToast('❌ Error: ' + error.message, 'danger');
+        });
+}
+
+async function generarPDFCertificacionConDatos(data) {
+    try {
+        var { jsPDF } = window.jspdf;
+        var doc = new jsPDF('p', 'mm', 'a4');
+        
+        await agregarEncabezadoConLogos(doc, 'CERTIFICACIÓN DE ÁRBOLES', 'Protección Civil - Municipio Papelón');
+        
+        var y = 42;
+        doc.setFontSize(9);
+        
+        var textoLegal = 'La Dirección General del Instituto de Protección Civil y Administración de Desastres del Estado Portuguesa (INPRADEP), a través de la Coordinación de Gestión Integral de Riesgo (G.I.R), y en uso de las atribuciones conferidas en el Artículo 55 de la Constitución de la República Bolivariana de Venezuela, en concordancia con el decreto de fuerza de Ley N° 1.557, Artículo 3 Numeral 2 de la Ley de Protección Civil y Administración de Desastres, Artículo 22 Numeral 4 y Artículo 29 de la Ley de Gestión Integral de Riesgo Socio-naturales y Tecnológicas, CERTIFICA, mediante la presente, la realización de una inspección y evaluación de riesgo arbóreo en el siguiente lugar:';
+        
+        var splitLegal = doc.splitTextToSize(textoLegal, 180);
+        doc.text(splitLegal, 15, y);
+        y += splitLegal.length * 5 + 5;
+        
+        doc.setFontSize(10);
+        var solicitante = data.solicitante?.nombre || 'N/A';
+        var cedula = data.solicitante?.cedula || 'N/A';
+        var telefono = data.solicitante?.telefono || 'N/A';
+        var direccion = data.solicitante?.direccion || 'N/A';
+        var inspector = data.inspector?.nombreCompleto || 'N/A';
+        var jerarquia = data.inspector?.jerarquia || 'N/A';
+        var fecha = data.fecha ? new Date(data.fecha).toLocaleDateString() : 'N/A';
+        
+        doc.text('SOLICITANTE: ' + solicitante, 15, y);
+        y += 5;
+        doc.text('CÉDULA: ' + cedula, 15, y);
+        y += 5;
+        doc.text('TELÉFONO: ' + telefono, 15, y);
+        y += 5;
+        doc.text('DIRECCIÓN: ' + direccion, 15, y);
+        y += 5;
+        doc.text('INSPECTOR: ' + inspector, 15, y);
+        y += 5;
+        doc.text('JERARQUÍA: ' + jerarquia, 15, y);
+        y += 5;
+        doc.text('FECHA: ' + fecha, 15, y);
+        y += 8;
+        
+        doc.setFontSize(9);
+        doc.text('TOTAL DE ÁRBOLES INSPECCIONADOS: ' + (data.arboles?.length || 0), 15, y);
+        y += 5;
+        
+        if (data.arboles && data.arboles.length > 0) {
+            var headers = [['N°', 'Especie', 'Altura (m)', 'Diámetro (m)', 'Inclinación (°)', 'Distancia (m)', 'Riesgo']];
+            var rows = [];
+            for (var i = 0; i < data.arboles.length; i++) {
+                var arbol = data.arboles[i];
+                rows.push([
+                    (i+1).toString(),
+                    arbol.especie || '',
+                    arbol.altura?.toString() || '0',
+                    arbol.diametro?.toString() || '0',
+                    arbol.inclinacion?.toString() || '0',
+                    arbol.distancia?.toString() || '0',
+                    arbol.riesgo || 'N/A'
+                ]);
+            }
+            
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: y,
+                styles: { fontSize: 7 },
+                headStyles: { fillColor: [11, 42, 74], fontSize: 7 },
+                columnStyles: {
+                    0: { cellWidth: 10 },
+                    1: { cellWidth: 50 },
+                    2: { cellWidth: 20 },
+                    3: { cellWidth: 20 },
+                    4: { cellWidth: 20 },
+                    5: { cellWidth: 20 },
+                    6: { cellWidth: 25 }
+                },
+                pageBreak: 'auto'
+            });
+            
+            y = doc.lastAutoTable.finalY + 10;
+        }
+        
+        if (data.observaciones) {
+            doc.text('OBSERVACIONES:', 15, y);
+            y += 5;
+            var splitObs = doc.splitTextToSize(data.observaciones, 180);
+            doc.text(splitObs, 15, y);
+            y += splitObs.length * 5 + 5;
+        }
+        
+        doc.setFontSize(10);
+        doc.text('RECOMENDACIONES:', 15, y);
+        y += 5;
+        doc.setFontSize(9);
+        
+        var recomendaciones = [
+            '➢ Dirigirse al Ministerio de Ecosocialismo (MINEC) para la solicitud de permiso de poda o tala de los árboles inspeccionados.',
+            '➢ Podar o talar el árbol una vez adquirido el permiso.',
+            '➢ Aprovechamiento sustentable: Proceso orientado a la utilización de los recursos naturales y demás elementos de los ecosistemas, de manera eficiente y socialmente útil, según el Art. #3 De la Ley Orgánica del Ambiente No. 5.833 Extraordinario.'
+        ];
+        
+        for (var j = 0; j < recomendaciones.length; j++) {
+            var splitRec = doc.splitTextToSize(recomendaciones[j], 175);
+            doc.text(splitRec, 18, y);
+            y += splitRec.length * 5 + 2;
+            if (y > 250) { doc.addPage(); y = 20; }
+        }
+        
+        y += 3;
+        
+        try {
+            if (data.inspector?.firma) {
+                doc.addImage(data.inspector.firma, 'PNG', 30, y + 5, 60, 20);
+                doc.text('Firma del Inspector', 55, y + 30);
+            } else {
+                doc.text('_________________________', 50, y + 10);
+                doc.text('Firma del Inspector', 55, y + 18);
+            }
+        } catch (e) {
+            doc.text('_________________________', 50, y + 10);
+            doc.text('Firma del Inspector', 55, y + 18);
+        }
+        
+        try {
+            var selloData = data.sello || edanSello;
+            if (selloData) {
+                doc.addImage(selloData, 'PNG', 120, y + 5, 50, 20);
+                doc.text('Sello de la Institución', 135, y + 30);
+            } else {
+                doc.text('_________________________', 130, y + 10);
+                doc.text('Sello de la Institución', 135, y + 18);
+            }
+        } catch (e) {
+            doc.text('_________________________', 130, y + 10);
+            doc.text('Sello de la Institución', 135, y + 18);
+        }
+        
+        if (data.fotos && data.fotos.length > 0) {
+            doc.addPage();
+            y = 20;
+            doc.setFontSize(12);
+            doc.text('EVIDENCIA FOTOGRÁFICA', 105, y, { align: 'center' });
+            y += 10;
+            var x = 15;
+            for (var k = 0; k < data.fotos.length; k++) {
+                try {
+                    doc.addImage(data.fotos[k], 'PNG', x, y, 85, 60);
+                    x += 90;
+                    if ((k + 1) % 2 === 0) {
+                        x = 15;
+                        y += 65;
+                    }
+                    if (y > 250) {
+                        doc.addPage();
+                        y = 20;
+                        x = 15;
+                    }
+                } catch (e) { console.warn('Error al agregar foto:', e); }
+            }
+        }
+        
+        agregarPiePagina(doc, doc.internal.pageSize.height - 15);
+        
+        var nombreArchivo = 'CERTIFICACION_ARBOL_' + fecha.replace(/\//g, '-') + '.pdf';
+        doc.save(nombreArchivo);
+        mostrarToast('✅ PDF generado correctamente', 'success');
+        
+    } catch (error) {
+        console.error('Error generando PDF:', error);
+        mostrarToast('❌ Error al generar PDF: ' + error.message, 'danger');
+    }
+}
 // ============================================
 // FUNCIONES DE USUARIOS
 // ============================================
