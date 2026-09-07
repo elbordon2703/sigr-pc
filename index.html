@@ -1948,28 +1948,35 @@ function mostrarToast(mensaje, tipo) {
 // NAVEGACIÓN
 // ============================================
 function toggleSubmenu(submenuId) {
+    // Buscar el submenú
     var submenu = document.getElementById(submenuId);
-    if (!submenu) return;
+    if (!submenu) {
+        console.warn('⚠️ Submenú no encontrado:', submenuId);
+        return;
+    }
     
+    // Buscar el ícono
     var iconId = 'icon-' + submenuId.replace('submenu-', '');
     var icon = document.getElementById(iconId);
     
-    var submenus = document.querySelectorAll('.submenu');
-    for (var i = 0; i < submenus.length; i++) {
-        submenus[i].classList.remove('open');
-    }
-    var icons = document.querySelectorAll('.fa-chevron-down');
-    for (var j = 0; j < icons.length; j++) {
-        icons[j].classList.remove('open');
+    // CERRAR todos los submenús
+    var allSubmenus = document.querySelectorAll('.submenu');
+    for (var i = 0; i < allSubmenus.length; i++) {
+        allSubmenus[i].classList.remove('open');
     }
     
+    var allIcons = document.querySelectorAll('.fa-chevron-down');
+    for (var j = 0; j < allIcons.length; j++) {
+        allIcons[j].classList.remove('open');
+    }
+    
+    // ABRIR solo el submenú que hiciste clic
     submenu.classList.add('open');
     if (icon) {
         icon.classList.add('open');
     }
 }
-
-function showSection(section) {
+    function showSection(section) {
     var sections = document.querySelectorAll('.section');
     for (var i = 0; i < sections.length; i++) {
         sections[i].classList.remove('active');
