@@ -1637,7 +1637,7 @@ function cargarDatos() {
 }
 
 // ============================================
-// FUNCIONES DE DASHBOARD
+// DASHBOARD
 // ============================================
 function cargarDashboard() {
     db.collection('personal').get().then(function(snap) {
@@ -1665,10 +1665,10 @@ function cargarDashboard() {
             div.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
         }
     }).catch(function() {});
+    
+    verificarAlertas72h();
 }
-    // ============================================
-// VERIFICAR ALERTAS DE 72 HORAS
-// ============================================
+
 function verificarAlertas72h() {
     var hoy = new Date();
     var hace72h = new Date(hoy.getTime() - 72 * 60 * 60 * 1000);
@@ -1702,7 +1702,6 @@ function verificarAlertas72h() {
             console.warn('⚠️ Error verificando alertas 72h:', error);
         });
 }
-
 // ============================================
 // FUNCIONES DE PERSONAL (resumidas)
 // ============================================
