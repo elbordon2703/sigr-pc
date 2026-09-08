@@ -570,7 +570,7 @@
                             </div>
                             <div class="col-md-2 mb-2">
                                 <label class="form-label">&nbsp;</label>
-                                <button class="btn btn-success w-100" onclick="agregarResponsabilidadMejorado()">
+                                <button class="btn btn-success w-100" onclick="agregarResponsabilidadMejorado(); return false;">
                                     <i class="fas fa-plus"></i> Asignar
                                 </button>
                             </div>
@@ -2325,14 +2325,21 @@ function agregarResponsabilidadMejorado() {
 }
 
 function actualizarListaResponsabilidades() {
+    console.log('🔄 actualizarListaResponsabilidades() ejecutada');
+    console.log('📋 Responsabilidades actuales:', responsabilidadesTemporales);
+    
     var container = document.getElementById('listaResponsabilidadesAsignadas');
     var totalBadge = document.getElementById('totalResponsabilidades');
     
-    if (!container) return;
+    if (!container) {
+        console.error('❌ Contenedor no encontrado: listaResponsabilidadesAsignadas');
+        return;
+    }
     
     if (responsabilidadesTemporales.length === 0) {
         container.innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
         if (totalBadge) totalBadge.textContent = '0 asignadas';
+        console.log('📋 Lista vacía');
         return;
     }
     
@@ -2362,6 +2369,7 @@ function actualizarListaResponsabilidades() {
     
     html += '</tbody></table></div>';
     container.innerHTML = html;
+    console.log('✅ Lista actualizada con ' + responsabilidadesTemporales.length + ' elementos');
 }
 
 function eliminarResponsabilidadMejorado(index) {
