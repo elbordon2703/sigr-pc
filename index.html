@@ -1694,6 +1694,7 @@ function login() {
     var email = document.getElementById('loginEmail').value.trim();
     var password = document.getElementById('loginPassword').value;
     var errorDiv = document.getElementById('loginError');
+    
     errorDiv.classList.add('d-none');
     
     if (!email || !password) {
@@ -1734,7 +1735,6 @@ function login() {
             errorDiv.classList.remove('d-none');
         });
 }
-
 function logout() {
     auth.signOut()
         .then(function() {
@@ -2210,6 +2210,10 @@ function cargarIntegrantesServicio() {
         });
 }
 
+// ============================================
+// FUNCIONES DE SERVICIO - CORREGIDAS
+// ============================================
+
 function mostrarCampoMunicipio() {
     var estado = document.getElementById('respEstado').value;
     var campo = document.getElementById('campoMunicipio');
@@ -2220,25 +2224,46 @@ function mostrarCampoMunicipio() {
         document.getElementById('respMunicipio').value = '';
     }
 }
- 
+
+function agregarResponsabilidadMejorado() {
+    var oficialId = document.getElementById('respOficial').value;
+    var funcion = document.getElementById('respFuncion').value;
+    var estado = document.getElementById('respEstado').value;
+    var municipio = document.getElementById('respMunicipio').value.trim();
+    
+    if (!oficialId) {
+        mostrarToast('⚠️ Seleccione un oficial', 'warning');
+        return;
+    }
+    if (!funcion) {
+        mostrarToast('⚠️ Seleccione una responsabilidad', 'warning');
+        return;
+    }
+    if (estado === 'apoyo_pc_municipio' && !municipio) {
+        mostrarToast('⚠️ Escriba el nombre del municipio', 'warning');
+        document.getElementById('respMunicipio').focus();
+        return;
+    }
+    
     var funcionTexto = {
-    'inspector': '🔍 Inspector',
-    'rescate_vehicular': '🚗 Rescate Vehicular',
-    'edanista': '📋 Edanista',
-    'logistico': '📦 Logístico',
-    'conductor': '🚗 Conductor',
-    'escribiente': '✍️ Escribiente',
-    'auxiliar': '🤝 Auxiliar',
-    'aph': '🚑 APH',
-    'rescate': '🪢 Rescate',
-    'bombero': '🔥 Bombero',
-    'operador_comunicaciones': '📡 Operador Comunicaciones',
-    'seguridad': '🛡️ Seguridad',
-    'coordinacion': '👔 Coordinación',
-    'monitoreo': '📡 Monitoreo',
-    'apoyo': '🤝 Apoyo',
-    'otro': '📌 Otro'
-};
+        'inspector': '🔍 Inspector',
+        'rescate_vehicular': '🚗 Rescate Vehicular',
+        'edanista': '📋 Edanista',
+        'logistico': '📦 Logístico',
+        'conductor': '🚗 Conductor',
+        'escribiente': '✍️ Escribiente',
+        'auxiliar': '🤝 Auxiliar',
+        'aph': '🚑 APH',
+        'rescate': '🪢 Rescate',
+        'bombero': '🔥 Bombero',
+        'operador_comunicaciones': '📡 Operador Comunicaciones',
+        'seguridad': '🛡️ Seguridad',
+        'coordinacion': '👔 Coordinación',
+        'monitoreo': '📡 Monitoreo',
+        'apoyo': '🤝 Apoyo',
+        'otro': '📌 Otro'
+    };
+    
     var estadoTexto = {
         'disponible': '✅ Disponible',
         'en_servicio': '🔄 En Servicio',
@@ -2252,19 +2277,34 @@ function mostrarCampoMunicipio() {
         'apoyo_zoedan': '🛡️ Apoyo a ZOEDAN',
         'apoyo_pc_municipio': '🚒 Apoyo a PC Municipio'
     };
+    
     var nombreOficial = 'Desconocido';
     for (var i = 0; i < integrantesGrupo.length; i++) {
-        if (integrantesGrupo[i].id === oficialId) { nombreOficial = integrantesGrupo[i].nombre; break; }
+        if (integrantesGrupo[i].id === oficialId) {
+            nombreOficial = integrantesGrupo[i].nombre;
+            break;
+        }
     }
-    var existe = responsabilidadesTemporales.find(function(r) { return r.oficialId === oficialId && r.funcion === funcion; });
+    
+    var existe = false;
+    for (var j = 0; j < responsabilidadesTemporales.length; j++) {
+        if (responsabilidadesTemporales[j].oficialId === oficialId && 
+            responsabilidadesTemporales[j].funcion === funcion) {
+            existe = true;
+            break;
+        }
+    }
+    
     if (existe) {
-        mostrarToast('⚠️ Ya tiene esta responsabilidad', 'warning');
+        mostrarToast('⚠️ Este oficial ya tiene esta responsabilidad', 'warning');
         return;
     }
+    
     var estadoCompleto = estadoTexto[estado] || '✅ Disponible';
     if (estado === 'apoyo_pc_municipio' && municipio) {
         estadoCompleto = '🚒 Apoyo a PC ' + municipio;
     }
+    
     responsabilidadesTemporales.push({
         oficialId: oficialId,
         funcion: funcion,
@@ -2274,9 +2314,12 @@ function mostrarCampoMunicipio() {
         municipio: municipio,
         nombre: nombreOficial
     });
+    
     mostrarToast('✅ ' + nombreOficial + ': ' + (funcionTexto[funcion] || funcion) + ' (' + estadoCompleto + ')', 'success');
+    
     document.getElementById('respMunicipio').value = '';
     document.getElementById('campoMunicipio').style.display = 'none';
+    
     cargarIntegrantesServicio();
     actualizarListaResponsabilidades();
 }
@@ -2284,14 +2327,20 @@ function mostrarCampoMunicipio() {
 function actualizarListaResponsabilidades() {
     var container = document.getElementById('listaResponsabilidadesAsignadas');
     var totalBadge = document.getElementById('totalResponsabilidades');
+    
     if (!container) return;
+    
     if (responsabilidadesTemporales.length === 0) {
         container.innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
         if (totalBadge) totalBadge.textContent = '0 asignadas';
         return;
     }
+    
     if (totalBadge) totalBadge.textContent = responsabilidadesTemporales.length + ' asignadas';
-    var html = '<div class="table-responsive"><table class="table table-sm table-bordered"><thead class="table-dark"><tr><th>#</th><th>Oficial</th><th>Responsabilidad</th><th>Estado</th><th>Acción</th></tr></thead><tbody>';
+    
+    var html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+    html += '<thead class="table-dark"><tr><th>#</th><th>Oficial</th><th>Responsabilidad</th><th>Estado</th><th>Acción</th></tr></thead><tbody>';
+    
     for (var idx = 0; idx < responsabilidadesTemporales.length; idx++) {
         var r = responsabilidadesTemporales[idx];
         var estadoColor = {
@@ -2307,8 +2356,10 @@ function actualizarListaResponsabilidades() {
             'apoyo_zoedan': 'warning',
             'apoyo_pc_municipio': 'danger'
         };
-        html += '<tr><td>' + (idx + 1) + '</td><td><strong>' + r.nombre + '</strong></td><td><span class="badge bg-primary">' + r.responsabilidad + '</span></td><td><span class="badge bg-' + (estadoColor[r.estado] || 'secondary') + '">' + (r.estadoTexto || '✅ Disponible') + '</span></td><td><button class="btn btn-sm btn-danger" onclick="eliminarResponsabilidadMejorado(' + idx + ')"><i class="fas fa-trash"></i></button></td></tr>';
+        var color = estadoColor[r.estado] || 'secondary';
+        html += '<tr><td>' + (idx + 1) + '</td><td><strong>' + r.nombre + '</strong></td><td><span class="badge bg-primary">' + r.responsabilidad + '</span></td><td><span class="badge bg-' + color + '">' + (r.estadoTexto || '✅ Disponible') + '</span></td><td><button class="btn btn-sm btn-danger" onclick="eliminarResponsabilidadMejorado(' + idx + ')"><i class="fas fa-trash"></i></button></td></tr>';
     }
+    
     html += '</tbody></table></div>';
     container.innerHTML = html;
 }
