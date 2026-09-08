@@ -2227,13 +2227,108 @@ function agregarResponsabilidadMejorado() {
     var estado = document.getElementById('respEstado').value;
     var municipio = document.getElementById('respMunicipio').value.trim();
     
-    if (!oficialId) { mostrarToast('⚠️ Seleccione un oficial', 'warning'); return; }
-    if (!funcion) { mostrarToast('⚠️ Seleccione una responsabilidad', 'warning'); return; }
+    // VALIDACIONES
+    if (!oficialId) {
+        mostrarToast('⚠️ Seleccione un oficial', 'warning');
+        return;
+    }
+    
+    if (!funcion) {
+        mostrarToast('⚠️ Seleccione una responsabilidad', 'warning');
+        return;
+    }
+    
     if (estado === 'apoyo_pc_municipio' && !municipio) {
-        mostrarToast('⚠️ Escriba el municipio', 'warning');
+        mostrarToast('⚠️ Escriba el nombre del municipio', 'warning');
         document.getElementById('respMunicipio').focus();
         return;
     }
+    
+    // MAPEO DE TEXTO PARA RESPONSABILIDADES
+    var funcionTexto = {
+        'inspector': '🔍 Inspector',
+        'rescate_vehicular': '🚗 Rescate Vehicular',
+        'edanista': '📋 Edanista',
+        'logistico': '📦 Logístico',
+        'conductor': '🚗 Conductor',
+        'escribiente': '✍️ Escribiente',
+        'auxiliar': '🤝 Auxiliar',
+        'aph': '🚑 APH',
+        'rescate': '🪢 Rescate',
+        'bombero': '🔥 Bombero',
+        'operador_comunicaciones': '📡 Operador Comunicaciones',
+        'seguridad': '🛡️ Seguridad',
+        'coordinacion': '👔 Coordinación',
+        'monitoreo': '📡 Monitoreo',
+        'apoyo': '🤝 Apoyo',
+        'otro': '📌 Otro'
+    };
+    
+    var estadoTexto = {
+        'disponible': '✅ Disponible',
+        'en_servicio': '🔄 En Servicio',
+        'reposo': '🛌 Reposo',
+        'permiso': '📋 Permiso',
+        'vacaciones': '🏖️ Vacaciones',
+        'comision_municipio': '🏛️ Comisión en Municipio',
+        'comision_nacional': '🇻🇪 Comisión Nacional',
+        'comision_internacional': '🌍 Comisión Internacional',
+        'apoyo_instituciones': '🤝 Apoyo a otras Instituciones',
+        'apoyo_zoedan': '🛡️ Apoyo a ZOEDAN',
+        'apoyo_pc_municipio': '🚒 Apoyo a PC Municipio'
+    };
+    
+    // OBTENER NOMBRE DEL OFICIAL
+    var nombreOficial = 'Desconocido';
+    for (var i = 0; i < integrantesGrupo.length; i++) {
+        if (integrantesGrupo[i].id === oficialId) {
+            nombreOficial = integrantesGrupo[i].nombre;
+            break;
+        }
+    }
+    
+    // VERIFICAR SI YA TIENE ESA RESPONSABILIDAD
+    var existe = false;
+    for (var j = 0; j < responsabilidadesTemporales.length; j++) {
+        if (responsabilidadesTemporales[j].oficialId === oficialId && 
+            responsabilidadesTemporales[j].funcion === funcion) {
+            existe = true;
+            break;
+        }
+    }
+    
+    if (existe) {
+        mostrarToast('⚠️ Este oficial ya tiene esta responsabilidad asignada', 'warning');
+        return;
+    }
+    
+    // CONSTRUIR TEXTO DEL ESTADO
+    var estadoCompleto = estadoTexto[estado] || '✅ Disponible';
+    if (estado === 'apoyo_pc_municipio' && municipio) {
+        estadoCompleto = '🚒 Apoyo a PC ' + municipio;
+    }
+    
+    // AGREGAR RESPONSABILIDAD
+    responsabilidadesTemporales.push({
+        oficialId: oficialId,
+        funcion: funcion,
+        responsabilidad: funcionTexto[funcion] || funcion,
+        estado: estado,
+        estadoTexto: estadoCompleto,
+        municipio: municipio,
+        nombre: nombreOficial
+    });
+    
+    mostrarToast('✅ ' + nombreOficial + ': ' + (funcionTexto[funcion] || funcion) + ' (' + estadoCompleto + ')', 'success');
+    
+    // LIMPIAR CAMPOS
+    document.getElementById('respMunicipio').value = '';
+    document.getElementById('campoMunicipio').style.display = 'none';
+    
+    // ACTUALIZAR VISTAS
+    cargarIntegrantesServicio();
+    actualizarListaResponsabilidades();
+}
     
     var funcionTexto = {
         'inspector': '🔍 Inspector',
