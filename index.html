@@ -1791,15 +1791,31 @@ function mostrarToast(mensaje, tipo) {
     tipo = tipo || 'success';
     var toast = document.getElementById('toast');
     var body = document.getElementById('toastBody');
+    
     if (!toast || !body) return;
+    
     body.textContent = mensaje;
+    
+    // Quitar clases anteriores
     toast.className = 'toast align-items-center text-white border-0';
-    var colors = { success: 'bg-success', danger: 'bg-danger', warning: 'bg-warning text-dark', info: 'bg-info' };
-    toast.classList.add(colors[tipo] || colors.success);
+    
+    // Definir colores - CORREGIDO
+    var colors = { 
+        success: 'bg-success', 
+        danger: 'bg-danger', 
+        warning: 'bg-warning',      // ✅ AHORA SIN ESPACIO
+        info: 'bg-info' 
+    };
+    
+    // Agregar la clase correcta
+    var colorClass = colors[tipo] || colors.success;
+    toast.classList.add(colorClass);
+    
     try {
         var bsToast = new bootstrap.Toast(toast, { delay: 3000 });
         bsToast.show();
     } catch (e) {
+        // Fallback
         toast.style.display = 'block';
         setTimeout(function() { toast.style.display = 'none'; }, 3000);
     }
