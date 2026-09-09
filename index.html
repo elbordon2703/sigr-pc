@@ -292,75 +292,6 @@
         </div>
     </div>
     
-    <!-- PERSONAL -->
-    <div id="section-personal" class="section">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-user-plus"></i> Registrar Personal</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <label class="form-label">📝 Apellido</label>
-                        <input type="text" id="pApellido" class="form-control" placeholder="Apellido">
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <label class="form-label">📝 Nombre</label>
-                        <input type="text" id="pNombre" class="form-control" placeholder="Nombre">
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <label class="form-label">🪪 Cédula</label>
-                        <input type="text" id="pCedula" class="form-control" placeholder="Cédula">
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <label class="form-label">📋 Jerarquía</label>
-                        <select id="pJerarquia" class="form-select">
-                            <option value="">Jerarquía</option>
-                            <option>OPC I</option><option>OPC II</option><option>OPC III</option>
-                            <option>OSPC I</option><option>OSPC II</option><option>OSPC III</option>
-                            <option>OCPC I</option><option>OCPC II</option><option>OCPC GENERAL</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <label class="form-label">📞 Teléfono</label>
-                        <input type="tel" id="pTelefono" class="form-control" placeholder="Teléfono">
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <label class="form-label">✉️ Email</label>
-                        <input type="email" id="pEmail" class="form-control" placeholder="Email">
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <label class="form-label">👥 Grupos</label>
-                        <select id="pGrupos" class="form-select" multiple>
-                            <option value="Grupo A">Grupo A</option>
-                            <option value="Grupo B">Grupo B</option>
-                            <option value="Grupo C">Grupo C</option>
-                            <option value="Grupo D">Grupo D</option>
-                        </select>
-                        <small class="text-muted">Ctrl+Click para múltiple</small>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">✍️ Firma del Oficial (imagen)</label>
-                        <input type="file" id="pFirma" class="form-control" accept="image/*">
-                        <div id="pFirmaPreview" style="margin-top:8px;"></div>
-                    </div>
-                    <div class="col-12">
-                        <button class="btn btn-primary" onclick="registrarPersonal()">
-                            <i class="fas fa-save"></i> Registrar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card mt-3">
-            <div class="card-header">
-                <i class="fas fa-list"></i> Lista de Personal
-                <span class="badge bg-secondary ms-2" id="totalPersonalLista">0</span>
-            </div>
-            <div class="card-body" id="listaPersonal">
-                <p class="text-muted">Cargando personal...</p>
-            </div>
-        </div>
-    </div>
-    
     <!-- SERVICIO -->
     <div id="section-servicio" class="section">
         <div class="card">
@@ -497,6 +428,40 @@
             </div>
         </div>
     </div>
+    
+    <!-- SOLICITUDES -->
+    <div id="section-solicitudes" class="section">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-tasks"></i> Solicitudes</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-2"><input type="text" id="solSolicitante" class="form-control" placeholder="Solicitante"></div>
+                    <div class="col-md-4 mb-2"><input type="tel" id="solTelefono" class="form-control" placeholder="Teléfono"></div>
+                    <div class="col-md-4 mb-2"><input type="text" id="solDireccion" class="form-control" placeholder="Dirección"></div>
+                    <div class="col-md-6 mb-2">
+                        <select id="solTipo" class="form-select">
+                            <option value="emergencia">🔴 Emergencia</option>
+                            <option value="inspeccion">🔍 Inspección</option>
+                            <option value="asesoria">📋 Asesoría</option>
+                            <option value="otro">📌 Otro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <select id="solPrioridad" class="form-select">
+                            <option value="alta">🔴 Alta</option>
+                            <option value="media">🟡 Media</option>
+                            <option value="baja">🟢 Baja</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-2"><textarea id="solDescripcion" class="form-control" rows="2" placeholder="Descripción"></textarea></div>
+                    <div class="col-12"><button class="btn btn-primary" onclick="crearSolicitud()"><i class="fas fa-save"></i> Registrar Solicitud</button></div>
+                </div>
+                <hr>
+                <h6>Solicitudes Activas</h6>
+                <div id="listaSolicitudes"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- TOAST -->
@@ -530,18 +495,7 @@ const db = firebase.firestore();
 // VARIABLES GLOBALES
 // ============================================
 let usuarioActual = { email: null, uid: null, rol: null, nombre: null, apellido: null };
-let edanFamilias = [];
-let edanContadorFamilias = 0;
-let edanFirmaSeleccionada = null;
-let edanSello = null;
-let certificaciones = [];
-let inspeccionesVivienda = [];
-let actividadesParte = [];
 let responsabilidadesTemporales = [];
-let ivFamilias = [];
-let ivContadorFamilias = 0;
-let caArboles = [];
-let caContadorArboles = 0;
 let integrantesGrupo = [];
 let jefeServicioActual = null;
 
@@ -637,13 +591,6 @@ function cargarDatos() {
     cargarVehiculos();
     cargarServicioMejorado();
     cargarSolicitudes();
-    initEDAN();
-    cargarCertificaciones();
-    cargarViviendas();
-    cargarAlertas();
-    cargarPartes();
-    cargarHistorialCierres();
-    cargarUsuarios();
 }
 
 // ============================================
@@ -1259,57 +1206,20 @@ function verificarAlertas72h() {
 // ============================================
 // FUNCIONES DE PERSONAL
 // ============================================
-function registrarPersonal() {
-    var apellido = document.getElementById('pApellido').value.trim();
-    var nombre = document.getElementById('pNombre').value.trim();
-    if (!apellido || !nombre) {
-        mostrarToast('⚠️ Nombre y apellido son obligatorios', 'warning');
-        return;
-    }
-    
-    var firmaInput = document.getElementById('pFirma');
-    var firmaPromise = Promise.resolve(null);
-    if (firmaInput.files && firmaInput.files[0]) {
-        firmaPromise = leerFotoBase64(firmaInput.files[0]);
-    }
-    
-    firmaPromise.then(function(firmaData) {
-        var data = {
-            apellido: apellido,
-            nombre: nombre,
-            cedula: document.getElementById('pCedula').value.trim(),
-            jerarquia: document.getElementById('pJerarquia').value,
-            telefono: document.getElementById('pTelefono').value.trim(),
-            email: document.getElementById('pEmail').value.trim(),
-            grupos: Array.from(document.getElementById('pGrupos').selectedOptions).map(function(opt) { return opt.value; }),
-            firma: firmaData,
-            estado: 'activo',
-            estado_personal: 'disponible',
-            fechaRegistro: new Date().toISOString()
-        };
-        db.collection('personal').add(data)
-            .then(function() { mostrarToast('✅ Personal registrado', 'success'); cargarPersonal(); })
-            .catch(function(error) { mostrarToast('❌ Error: ' + error.message, 'danger'); });
-    });
-}
-
 function cargarPersonal() {
     db.collection('personal').orderBy('fechaRegistro', 'desc').get()
         .then(function(snap) {
             var container = document.getElementById('listaPersonal');
-            var totalBadge = document.getElementById('totalPersonalLista');
             if (snap.empty) { 
                 container.innerHTML = '<p class="text-muted">No hay personal registrado</p>';
-                if (totalBadge) totalBadge.textContent = '0';
                 return; 
             }
-            if (totalBadge) totalBadge.textContent = snap.size;
-            var html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>#</th><th>Nombre</th><th>Jerarquía</th><th>Grupos</th><th>Firma</th><th>Acciones</th></tr></thead><tbody>';
+            var html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>#</th><th>Nombre</th><th>Jerarquía</th><th>Grupos</th><th>Acciones</th></tr></thead><tbody>';
             var i = 1;
             snap.forEach(function(doc) {
                 var data = doc.data();
                 var id = doc.id;
-                html += '<tr><td>' + (i++) + '</td><td><strong>' + data.apellido + ', ' + data.nombre + '</strong></td><td>' + (data.jerarquia || '-') + '</td><td>' + (data.grupos ? data.grupos.join(', ') : '-') + '</td><td>' + (data.firma ? '✅' : '❌') + '</td><td><button class="btn btn-sm btn-primary" onclick="editarPersonal(\'' + id + '\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="eliminarPersonal(\'' + id + '\')"><i class="fas fa-trash"></i></button></td></tr>';
+                html += '<tr><td>' + (i++) + '</td><td><strong>' + data.apellido + ', ' + data.nombre + '</strong></td><td>' + (data.jerarquia || '-') + '</td><td>' + (data.grupos ? data.grupos.join(', ') : '-') + '</td><td><button class="btn btn-sm btn-primary" onclick="editarPersonal(\'' + id + '\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="eliminarPersonal(\'' + id + '\')"><i class="fas fa-trash"></i></button></td></tr>';
             });
             html += '</tbody></table></div>';
             container.innerHTML = html;
@@ -1386,28 +1296,6 @@ function actualizarJefe() {
 // ============================================
 // FUNCIONES DE VEHÍCULOS
 // ============================================
-function registrarVehiculo() {
-    var placa = document.getElementById('vPlaca').value.trim();
-    var modelo = document.getElementById('vModelo').value.trim();
-    if (!placa || !modelo) {
-        mostrarToast('⚠️ Placa y modelo son obligatorios', 'warning');
-        return;
-    }
-    var data = {
-        placa: placa,
-        modelo: modelo,
-        tipo: document.getElementById('vTipo').value,
-        año: document.getElementById('vAño').value.trim(),
-        estado: document.getElementById('vEstado').value,
-        kilometraje: parseFloat(document.getElementById('vKilometraje').value) || 0,
-        fechaRegistro: new Date().toISOString(),
-        registradoPor: auth.currentUser?.email || 'Sistema'
-    };
-    db.collection('vehiculos').add(data)
-        .then(function() { mostrarToast('✅ Vehículo registrado', 'success'); cargarVehiculos(); })
-        .catch(function(error) { mostrarToast('❌ Error: ' + error.message, 'danger'); });
-}
-
 function cargarVehiculos() {
     db.collection('vehiculos').orderBy('fechaRegistro', 'desc').get()
         .then(function(snap) {
@@ -1493,137 +1381,6 @@ function cancelarSolicitud(id) {
 }
 
 // ============================================
-// FUNCIONES DE EDAN (resumido)
-// ============================================
-function initEDAN() {
-    var select = document.getElementById('edanOficial');
-    if (select) {
-        db.collection('personal').orderBy('apellido', 'asc').get()
-            .then(function(snap) {
-                select.innerHTML = '<option value="">— Seleccione —</option>';
-                snap.forEach(function(doc) {
-                    var data = doc.data();
-                    var nombre = data.apellido + ', ' + data.nombre;
-                    var tieneFirma = data.firma ? ' ✍️' : '';
-                    select.innerHTML += '<option value="' + doc.id + '" data-firma="' + (data.firma || '') + '">' + nombre + ' - ' + (data.jerarquia || '') + tieneFirma + '</option>';
-                });
-            }).catch(function() {});
-    }
-    if (select) {
-        select.addEventListener('change', function() {
-            var selected = this.options[this.selectedIndex];
-            var firma = selected.dataset.firma || '';
-            if (firma) {
-                edanFirmaSeleccionada = firma;
-                document.getElementById('edanFirmaImg').src = firma;
-                document.getElementById('edanFirmaImg').style.display = 'block';
-                document.getElementById('edanFirmaPlaceholder').style.display = 'none';
-            } else {
-                edanFirmaSeleccionada = null;
-                document.getElementById('edanFirmaImg').style.display = 'none';
-                document.getElementById('edanFirmaPlaceholder').style.display = 'block';
-                document.getElementById('edanFirmaPlaceholder').textContent = '⚠️ Sin firma';
-            }
-        });
-    }
-    var ahora = new Date();
-    var fecha = document.getElementById('edanFecha');
-    var hora = document.getElementById('edanHora');
-    if (fecha) fecha.value = ahora.toISOString().split('T')[0];
-    if (hora) hora.value = ahora.toTimeString().slice(0, 5);
-    cargarEDAN();
-    edanActualizarLista();
-}
-
-function edanAgregarFamilia() {
-    var responsable = document.getElementById('edanResponsable').value.trim();
-    if (!responsable) {
-        mostrarToast('⚠️ El nombre del responsable es obligatorio', 'warning');
-        document.getElementById('edanResponsable').focus();
-        return;
-    }
-    var adultoM = parseInt(document.getElementById('edanAdultosM').value) || 0;
-    var adultoF = parseInt(document.getElementById('edanAdultosF').value) || 0;
-    var mayorM = parseInt(document.getElementById('edanMayoresM').value) || 0;
-    var mayorF = parseInt(document.getElementById('edanMayoresF').value) || 0;
-    var adolM = parseInt(document.getElementById('edanAdolescentesM').value) || 0;
-    var adolF = parseInt(document.getElementById('edanAdolescentesF').value) || 0;
-    var ninoM = parseInt(document.getElementById('edanNinosM').value) || 0;
-    var ninoF = parseInt(document.getElementById('edanNinosF').value) || 0;
-    var lactM = parseInt(document.getElementById('edanLactantesM').value) || 0;
-    var lactF = parseInt(document.getElementById('edanLactantesF').value) || 0;
-    var totalPersonas = adultoM + adultoF + mayorM + mayorF + adolM + adolF + ninoM + ninoF + lactM + lactF;
-    if (totalPersonas === 0) {
-        mostrarToast('⚠️ La familia debe tener al menos 1 integrante', 'warning');
-        return;
-    }
-    var familia = {
-        id: edanContadorFamilias + 1,
-        responsable: responsable,
-        cedula: document.getElementById('edanCedula').value.trim() || 'N/A',
-        adultos: { m: adultoM, f: adultoF },
-        adultosMayores: { m: mayorM, f: mayorF },
-        adolescentes: { m: adolM, f: adolF },
-        ninos: { m: ninoM, f: ninoF },
-        lactantes: { m: lactM, f: lactF },
-        tipoVivienda: document.getElementById('edanTipoVivienda').value,
-        material: document.getElementById('edanMaterial').value,
-        condicion: document.getElementById('edanCondicion').value.trim(),
-        habitable: document.getElementById('edanHabitable').value === 'si',
-        destruida: document.getElementById('edanDestruida').value === 'si',
-        alimentos: parseInt(document.getElementById('edanAlimentos').value) || 0,
-        colchon: parseInt(document.getElementById('edanColchones').value) || 0,
-        electrodomesticos: parseInt(document.getElementById('edanElectrodomesticos').value) || 0,
-        otros: parseInt(document.getElementById('edanOtros').value) || 0,
-        otrosDesc: document.getElementById('edanOtrosDesc').value.trim(),
-        fotos: [],
-        totalPersonas: totalPersonas
-    };
-    edanFamilias.push(familia);
-    edanContadorFamilias++;
-    edanLimpiarFormulario();
-    edanActualizarLista();
-    mostrarToast('✅ Familia ' + familia.responsable + ' agregada (' + totalPersonas + ' personas)', 'success');
-}
-
-function edanActualizarLista() {
-    var container = document.getElementById('edanListaFamilias');
-    var totalFamilias = document.getElementById('edanTotalFamilias');
-    var totalPersonas = document.getElementById('edanTotalPersonas');
-    if (edanFamilias.length === 0) {
-        container.innerHTML = '<p class="text-muted">No hay familias registradas.</p>';
-        if (totalFamilias) totalFamilias.textContent = '0 familias';
-        if (totalPersonas) totalPersonas.textContent = '0 personas';
-        return;
-    }
-    var totalPersonasCount = 0;
-    var html = '<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>#</th><th>Responsable</th><th>C.I.</th><th style="text-align:center;">Adultos<br><small>M/F</small></th><th style="text-align:center;">Adultos Mayores<br><small>M/F</small></th><th style="text-align:center;">Adolescentes<br><small>M/F</small></th><th style="text-align:center;">Niños<br><small>M/F</small></th><th style="text-align:center;">Lactantes<br><small>M/F</small></th><th style="text-align:center;">Total</th><th style="text-align:center;">Acción</th></tr></thead><tbody>';
-    for (var i = 0; i < edanFamilias.length; i++) {
-        var f = edanFamilias[i];
-        var totalFam = f.totalPersonas || 0;
-        totalPersonasCount += totalFam;
-        html += '<tr><td>' + (f.id || i + 1) + '</td><td><strong>' + f.responsable + '</strong></td><td>' + f.cedula + '</td><td style="text-align:center;">' + (f.adultos?.m || 0) + '/' + (f.adultos?.f || 0) + '</td><td style="text-align:center;">' + (f.adultosMayores?.m || 0) + '/' + (f.adultosMayores?.f || 0) + '</td><td style="text-align:center;">' + (f.adolescentes?.m || 0) + '/' + (f.adolescentes?.f || 0) + '</td><td style="text-align:center;">' + (f.ninos?.m || 0) + '/' + (f.ninos?.f || 0) + '</td><td style="text-align:center;">' + (f.lactantes?.m || 0) + '/' + (f.lactantes?.f || 0) + '</td><td style="text-align:center;"><strong>' + totalFam + '</strong></td><td style="text-align:center;"><button class="btn btn-sm btn-danger" onclick="edanEliminarFamilia(' + i + ')"><i class="fas fa-trash"></i></button></td></tr>';
-    }
-    html += '</tbody></table></div>';
-    container.innerHTML = html;
-    if (totalFamilias) totalFamilias.textContent = edanFamilias.length + ' familias';
-    if (totalPersonas) totalPersonas.textContent = totalPersonasCount + ' personas';
-}
-
-// ============================================
-// FUNCIONES DE UTILIDAD
-// ============================================
-function leerFotoBase64(file) {
-    return new Promise(function(resolve) {
-        if (!file) { resolve(null); return; }
-        var reader = new FileReader();
-        reader.onload = function(e) { resolve(e.target.result); };
-        reader.onerror = function() { resolve(null); };
-        reader.readAsDataURL(file);
-    });
-}
-
-// ============================================
 // INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -1638,9 +1395,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     var cierreMes = document.getElementById('cierreMes');
     if (cierreMes) cierreMes.value = new Date().toISOString().slice(0, 7);
-    
-    var ivNumero = document.getElementById('ivNumero');
-    if (ivNumero) ivNumero.value = generarNumeroInspeccion();
     
     cargarDatos();
     setInterval(verificarAlertas72h, 300000);
