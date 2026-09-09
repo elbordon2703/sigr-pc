@@ -4466,8 +4466,8 @@ function crearUsuario() {
             document.getElementById('uEmail').value = '';
             document.getElementById('uNombre').value = '';
             document.getElementById('uApellido').value = '';
-            cargarUsuarios();
-        }).catch(function(error) { mostrarToast('❌ Error: ' + error.message, 'danger'); });
+            cargarUsuarios();            
+        .catch(function(error) { mostrarToast('❌ Error: ' + error.message, 'danger'); });
 }
 
 function cargarUsuarios() {
