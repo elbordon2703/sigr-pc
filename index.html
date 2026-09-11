@@ -1580,13 +1580,13 @@ async function encabezadoCertificacionPDF(doc, folio){
   doc.setTextColor(11,42,74);
   doc.text(folio, folioX + 39, folioY + 6.8, {align:'center'});
 
-  // Línea separadora
+   // Línea separadora
   doc.setDrawColor(11,42,74);
   doc.setLineWidth(0.6);
-  doc.line(M, 55, W-M, 55);
+  doc.line(M, 60, W-M, 60);
 
   doc.setTextColor(0,0,0);
-  return 62;
+  return 68;
 }
 
 /* ---------- GENERAR PDF CERTIFICACIÓN ---------- */
@@ -1620,7 +1620,7 @@ function generarPDFCertificacion(id){
     var M = 12;
 
     return encabezadoCertificacionPDF(doc, folio).then(function(y){
-      // Fecha y hora debajo del folio (línea separada, 9pt)
+           // Fecha y hora debajo del folio (línea separada, 9pt)
       var fechaTxt = formatearFecha(c.fecha);
       var horaTxt  = formatearHora12(c.hora);
       doc.setFont('helvetica','normal');
@@ -1776,11 +1776,10 @@ function generarPDFCertificacion(id){
       doc.text(c.inspector_nombre || 'Inspector', 60, y+26, {align:'center'});
       doc.text('Inspector de Riesgo', 60, y+30, {align:'center'});
 
-      // Sello
+          // Sello institucional (a la derecha de la firma, alineado)
       if(window.SIGR.selloB64){
-        try{ doc.addImage(window.SIGR.selloB64, 'PNG', 130, y, 42, 42); }catch(e){}
+        try{ doc.addImage(window.SIGR.selloB64, 'PNG', 135, y - 2, 38, 38); }catch(e){}
       }
-
       // ---- FOTOS EN PÁGINAS SIGUIENTES ----
       var fotos = [
         {img: c.foto1, pie: c.pie1},
