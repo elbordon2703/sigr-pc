@@ -1003,46 +1003,50 @@ function cargarDatosBase(){
     window.SIGR.grupos    = res[1].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
     window.SIGR.vehiculos = res[2].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
 
-   /* Sello institucional — intenta Firestore, si no está usa SELLO.png del repo */
-return db.collection('config').doc('sello').get()
-  .then(function(snap){
-    if(snap && snap.exists && snap.data().imagen){
-      window.SIGR.selloB64 = snap.data().imagen;
-      return null;
-    }
-    return fetch('SELLO.png')
-      .then(function(r){ return r.ok ? r.blob() : null; })
-      .then(function(b){
-        if(!b) return;
-        return new Promise(function(res){
-          var fr = new FileReader();
-          fr.onload = function(){ window.SIGR.selloB64 = fr.result; res(); };
-          fr.onerror = function(){ res(); };
-          fr.readAsDataURL(b);
-        });
+    /* Sello institucional */
+    return db.collection('config').doc('sello').get()
+      .catch(function(){ return null; })
+      .then(function(snap){
+        if(snap && snap.exists && snap.data().imagen){
+          window.SIGR.selloB64 = snap.data().imagen;
+          return null;
+        }
+        return fetch('SELLO.png')
+          .then(function(r){ return r.ok ? r.blob() : null; })
+          .then(function(b){
+            if(!b) return;
+            return new Promise(function(res){
+              var fr = new FileReader();
+              fr.onload = function(){ window.SIGR.selloB64 = fr.result; res(); };
+              fr.onerror = function(){ res(); };
+              fr.readAsDataURL(b);
+            });
+          });
       });
   })
   .then(function(){
-    /* Pie de página — intenta Firestore, si no está usa PIE DE PAGIAN2.png del repo */
-    return db.collection('config').doc('pie_pagina').get();
-  })
-  .then(function(snap){
-    if(snap && snap.exists && snap.data().imagen){
-      window.SIGR.pieB64 = snap.data().imagen;
-      return null;
-    }
-    return fetch('PIE%20DE%20PAGIAN2.png')
-      .then(function(r){ return r.ok ? r.blob() : null; })
-      .then(function(b){
-        if(!b) return;
-        return new Promise(function(res){
-          var fr = new FileReader();
-          fr.onload = function(){ window.SIGR.pieB64 = fr.result; res(); };
-          fr.onerror = function(){ res(); };
-          fr.readAsDataURL(b);
-        });
+    /* Pie de página institucional */
+    return db.collection('config').doc('pie_pagina').get()
+      .catch(function(){ return null; })
+      .then(function(snap){
+        if(snap && snap.exists && snap.data().imagen){
+          window.SIGR.pieB64 = snap.data().imagen;
+          return null;
+        }
+        return fetch('PIE%20DE%20PAGIAN2.png')
+          .then(function(r){ return r.ok ? r.blob() : null; })
+          .then(function(b){
+            if(!b) return;
+            return new Promise(function(res){
+              var fr = new FileReader();
+              fr.onload = function(){ window.SIGR.pieB64 = fr.result; res(); };
+              fr.onerror = function(){ res(); };
+              fr.readAsDataURL(b);
+            });
+          });
       });
-  })  }).catch(function(e){
+  })
+  .catch(function(e){
     console.error('Error cargando datos base:', e);
   });
 }
