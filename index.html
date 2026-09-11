@@ -1,1572 +1,1111 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0b2a4a">
-    <title>SIGR-PC</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGR-PC V3.0 — Protección Civil Municipio Papelón</title>
+<link rel="manifest" href="manifest">
+<meta name="theme-color" content="#0b2a4a">
 
-    <style>
-        :root { --primary: #0b2a4a; --secondary: #1677c8; --success: #19864b; --danger: #dc3545; --warning: #ffc107; --sidebar-width: 220px; --sidebar-width-mobile: 60px; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { width: 100%; max-width: 100%; overflow-x: hidden; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
-        .login-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: var(--primary); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; }
-        .login-card { background:white; padding:30px 25px; border-radius:16px; max-width:400px; width:100%; box-shadow:0 10px 40px rgba(0,0,0,0.3); }
-        .login-card h2 { font-size:22px; color:var(--primary); }
-        .sidebar { min-height:100vh; background:var(--primary); color:white; padding:15px 0; position:fixed; top:0; left:0; width:var(--sidebar-width); z-index:1000; overflow-y:auto; overflow-x:hidden; transition:all 0.3s ease; }
-        .sidebar .brand { text-align:center; padding:15px 10px; border-bottom:1px solid rgba(255,255,255,0.1); }
-        .sidebar .brand h3 { font-size:18px; margin:0; white-space:nowrap; }
-        .sidebar .brand small { font-size:10px; opacity:0.7; display:block; }
-        .sidebar .nav-link { color:rgba(255,255,255,0.8); padding:10px 16px; border-radius:8px; margin:3px 10px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:10px; font-size:13px; white-space:nowrap; }
-        .sidebar .nav-link:hover { background:rgba(255,255,255,0.1); color:white; }
-        .sidebar .nav-link.active { background:var(--secondary); color:white; }
-        .sidebar .nav-link i { width:22px; text-align:center; font-size:16px; flex-shrink:0; }
-        .sidebar .nav-link span { flex:1; }
-        .nav-parent { cursor:pointer; }
-        .nav-parent .fa-chevron-down { transition:transform 0.3s ease; font-size:12px; }
-        .nav-parent .fa-chevron-down.open { transform:rotate(180deg); }
-        .submenu { display: none; padding-left: 20px; overflow: hidden; transition: all 0.3s ease; }
-        .submenu.open { display: block !important; }
-        .nav-child { padding-left:40px !important; font-size:12px !important; background:rgba(255,255,255,0.05); border-radius:0 !important; margin:0 !important; }
-        .nav-child:hover { background:rgba(255,255,255,0.1); }
-        .nav-child.active { background:var(--secondary); color:white; }
-        .content { margin-left:var(--sidebar-width); padding:15px 20px; max-width:100%; overflow-x:hidden; transition:all 0.3s ease; min-height:100vh; }
-        .section { display:none; width:100%; max-width:100%; overflow-x:hidden; }
-        .section.active { display:block; }
-        .card { background:#fff; border-radius:10px; padding:12px 14px; margin:8px 0; box-shadow:0 1px 4px rgba(0,0,0,0.08); width:100%; max-width:100%; overflow:hidden; }
-        .card-header { font-weight:600; font-size:14px; padding:6px 0 10px 0; border-bottom:1px solid #eee; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-        .card-body { padding:10px 0; overflow-x:auto; }
-        .card-title { font-size:24px; margin:0; }
-        .row { display:flex; flex-wrap:wrap; margin:0 -5px; width:100%; max-width:100%; }
-        .row > [class*="col-"] { padding:0 5px; flex:1 1 auto; max-width:100%; }
-        .col-12 { flex:0 0 100%; max-width:100%; }
-        .col-6 { flex:0 0 50%; max-width:50%; }
-        .col-4 { flex:0 0 33.33%; max-width:33.33%; }
-        .col-3 { flex:0 0 25%; max-width:25%; }
-        .col-md-6 { flex:0 0 50%; max-width:50%; }
-        .col-md-4 { flex:0 0 33.33%; max-width:33.33%; }
-        .col-md-3 { flex:0 0 25%; max-width:25%; }
-        label { font-size:12px; font-weight:600; display:block; margin-bottom:2px; color:#333; }
-        input, select, textarea { width:100%; padding:7px 10px; border:1px solid #ccd4dd; border-radius:6px; font-size:14px; background:#fff; max-width:100%; box-sizing:border-box; }
-        input:focus, select:focus, textarea:focus { outline:none; border-color:var(--secondary); box-shadow:0 0 0 2px rgba(22,119,200,0.2); }
-        textarea { min-height:60px; resize:vertical; font-family:inherit; }
-        .btn { border:none; border-radius:6px; padding:8px 14px; font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
-        .btn:hover { opacity:0.85; transform:translateY(-1px); }
-        .btn-primary { background:var(--secondary); color:#fff; }
-        .btn-success { background:var(--success); color:#fff; }
-        .btn-danger { background:var(--danger); color:#fff; }
-        .btn-warning { background:var(--warning); color:#000; }
-        .btn-secondary { background:#6c757d; color:#fff; }
-        .btn-sm { padding:4px 8px; font-size:11px; }
-        .badge { padding:3px 8px; border-radius:12px; font-size:11px; font-weight:600; display:inline-block; }
-        .badge-success { background:#d4edda; color:#155724; }
-        .badge-danger { background:#f8d7da; color:#721c24; }
-        .badge-warning { background:#fff3cd; color:#856404; }
-        .badge-info { background:#cce5ff; color:#004085; }
-        .toast-container { position:fixed; bottom:20px; right:20px; z-index:9999; max-width:90%; }
-        .toast { padding:10px 16px; border-radius:8px; color:#fff; font-size:13px; box-shadow:0 3px 12px rgba(0,0,0,0.2); max-width:100%; word-wrap:break-word; }
-        .toast-success { background:var(--success); }
-        .toast-danger { background:var(--danger); }
-        .toast-warning { background:var(--warning); color:#000; }
-        .toast-info { background:var(--secondary); }
-        .table-responsive { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-        .table { width:100%; border-collapse:collapse; font-size:13px; min-width:300px; }
-        .table th { background:#f0f2f5; text-align:left; padding:6px 8px; font-weight:600; border-bottom:2px solid #dee2e6; }
-        .table td { padding:5px 8px; border-bottom:1px solid #eee; }
-        .alerta-72h { background: #fff3cd; border-left: 4px solid #ffc107; padding: 8px 12px; margin: 5px 0; border-radius: 4px; font-size: 12px; }
-        .alerta-72h strong { color: #856404; }
-        #edanListaFamilias table { font-size: 11px; }
-        #edanListaFamilias table th { font-size: 10px; padding: 3px 4px; text-align: center; }
-        #edanListaFamilias table td { padding: 3px 4px; text-align: center; font-size: 11px; }
-        .firma-preview { max-width: 100%; max-height: 120px; border: 1px solid #ddd; border-radius: 8px; padding: 5px; background: white; }
-        .sello-preview { max-width: 100%; max-height: 120px; border: 1px solid #ddd; border-radius: 8px; padding: 5px; background: white; }
-        /* Modal de edición de personal (se usa en Bloque 6) */
-        .modal-header.bg-primary { background: var(--secondary) !important; }
-        @media (max-width:768px) {
-            .sidebar { width:var(--sidebar-width-mobile); padding:8px 0; }
-            .sidebar .brand h3 { font-size:14px; }
-            .sidebar .brand small { display:none; }
-            .sidebar .nav-link { padding:8px 0; margin:2px 4px; font-size:12px; justify-content:center; }
-            .sidebar .nav-link i { font-size:18px; width:auto; }
-            .sidebar .nav-link span { display:none; }
-            .submenu { padding-left:0; }
-            .submenu.open { display:block !important; }
-            .nav-child { padding-left:0 !important; font-size:11px !important; text-align:center; }
-            .content { margin-left:var(--sidebar-width-mobile); padding:8px 6px; max-width:100%; overflow-x:hidden; word-wrap:break-word; }
-            .card { padding:8px 10px; margin:6px 0; border-radius:8px; width:100%; max-width:100%; overflow:hidden; }
-            .card-header { font-size:13px; flex-wrap:wrap; word-break:break-word; }
-            .card-body { padding:8px 0; overflow-x:auto; }
-            .card-title { font-size:20px; }
-            .col-6 { flex:0 0 50%; max-width:50%; }
-            .col-4 { flex:0 0 100%; max-width:100%; }
-            .col-3 { flex:0 0 50%; max-width:50%; }
-            .col-md-6 { flex:0 0 100%; max-width:100%; }
-            .col-md-4 { flex:0 0 100%; max-width:100%; }
-            .col-md-3 { flex:0 0 50%; max-width:50%; }
-            .table-responsive { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:8px; }
-            .table { font-size:12px; min-width:280px; width:100%; }
-            .table th, .table td { padding:4px 6px; white-space:nowrap; }
-            input, select, textarea { font-size:16px; padding:8px 10px; width:100%; box-sizing:border-box; }
-            label { font-size:12px; margin-bottom:3px; }
-            .btn { font-size:13px; padding:8px 14px; min-height:44px; width:auto; display:inline-flex; align-items:center; justify-content:center; }
-            .btn-sm { font-size:11px; padding:4px 8px; min-height:32px; }
-            .login-card { padding:20px 18px; margin:0 10px; width:100%; max-width:400px; }
-            .login-card h2 { font-size:20px; }
-            .toast-container { bottom:10px; right:10px; left:10px; max-width:100%; }
-            .toast { font-size:12px; padding:10px 14px; width:100%; }
-            h2 { font-size:18px; }
-            h4 { font-size:15px; }
-            h6 { font-size:13px; }
-            #edanListaFamilias table { font-size: 9px; }
-            #edanListaFamilias table th { font-size: 8px; padding: 2px 2px; }
-            #edanListaFamilias table td { font-size: 9px; padding: 2px 2px; }
-            .alerta-72h { font-size:11px; padding:6px 10px; }
-            .card .card-title { font-size:22px; }
-            .card .card-subtitle { font-size:11px; }
-        }
-        @media (max-width:480px) {
-            .sidebar { width:50px; }
-            .sidebar .nav-link { padding:6px 0; margin:1px 2px; }
-            .sidebar .nav-link i { font-size:16px; }
-            .content { margin-left:50px; padding:5px 4px; }
-            .card { padding:6px 8px; margin:4px 0; border-radius:6px; }
-            .col-6 { flex:0 0 50%; max-width:50%; }
-            .col-3 { flex:0 0 50%; max-width:50%; }
-            .col-md-3 { flex:0 0 50%; max-width:50%; }
-            .login-card { padding:14px 12px; border-radius:10px; }
-            .btn { font-size:12px; padding:6px 12px; min-height:40px; }
-            .table { font-size:10px; min-width:220px; }
-            h2 { font-size:16px; }
-            .card-title { font-size:18px; }
-            .card .card-title { font-size:18px; }
-        }
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        img, video, canvas, iframe { max-width: 100%; height: auto; }
-        .table-responsive::-webkit-scrollbar { height: 4px; }
-        .table-responsive::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        .table-responsive::-webkit-scrollbar-thumb { background: #1677c8; border-radius: 4px; }
-        .content p, .content div, .content span { word-wrap: break-word; overflow-wrap: break-word; }
-        .badge { font-size:10px; padding:2px 6px; }
-    </style>
-</head><body>
+<!-- ============================================================
+     FIREBASE SDK (compat, sin módulos, para un solo archivo)
+     ============================================================ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
-<!-- LOGIN -->
-<div id="loginOverlay" class="login-overlay">
-    <div class="login-card">
-        <div style="text-align:center;margin-bottom:20px;">
-            <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
-                 alt="Logo Protección Civil" 
-                 style="width:80px;height:auto;display:block;margin:0 auto 10px;"
-                 onerror="this.style.display='none'">
-            <i class="fas fa-shield-alt" style="font-size:48px;color:#0b2a4a;"></i>
-            <h2>SIGR-PC</h2>
-            <p><strong>Municipio Papelón</strong></p>
-        </div>
-        <div id="loginForm">
-            <div class="mb-3">
-                <label class="form-label">Correo electrónico</label>
-                <input type="email" id="loginEmail" class="form-control" placeholder="comandantepc@gmail.com">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Contraseña</label>
-                <input type="password" id="loginPassword" class="form-control" placeholder="*********">
-            </div>
-            <button class="btn btn-primary w-100" onclick="login()">
-                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-            </button>
-            <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
-        </div>
+<!-- jsPDF para los módulos 2 (Gestión de Riesgo) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+/* ============================================================
+   VARIABLES INSTITUCIONALES (NO TOCAR)
+   ============================================================ */
+:root{
+  --primary:#0b2a4a;
+  --secondary:#1677c8;
+  --success:#19864b;
+  --danger:#dc3545;
+  --warning:#ffc107;
+  --bg:#f4f6f9;
+  --card:#ffffff;
+  --text:#1c1c1c;
+  --muted:#6c757d;
+  --border:#dee2e6;
+  --sidebar-w:230px;
+  --sidebar-w-mini:56px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  font-family:Tahoma, Verdana, Segoe UI, sans-serif;
+  font-size:12px;
+  color:var(--text);
+  background:var(--bg);
+  line-height:1.45;
+}
+p, .justify{text-align:justify;}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;}
+input,select,textarea{font-family:inherit;font-size:inherit;}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+#loginView{
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;z-index:1000;
+}
+.login-card{
+  background:#fff;border-radius:10px;
+  box-shadow:0 20px 50px rgba(0,0,0,.3);
+  width:100%;max-width:380px;padding:28px 26px;
+}
+.login-card h1{
+  font-size:16px;color:var(--primary);
+  text-align:center;margin-bottom:4px;
+}
+.login-card h2{
+  font-size:11px;color:var(--muted);
+  text-align:center;font-weight:normal;margin-bottom:20px;
+}
+.login-logos{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:16px;gap:8px;
+}
+.login-logos img{max-height:52px;object-fit:contain;}
+.login-card label{
+  display:block;font-size:11px;color:var(--primary);
+  font-weight:bold;margin-bottom:4px;margin-top:10px;
+}
+.login-card input{
+  width:100%;padding:9px 10px;border:1px solid var(--border);
+  border-radius:6px;font-size:12px;outline:none;
+}
+.login-card input:focus{border-color:var(--secondary);}
+.btn{
+  display:inline-block;padding:9px 14px;border-radius:6px;
+  font-size:12px;font-weight:bold;color:#fff;background:var(--secondary);
+  transition:.15s;text-align:center;
+}
+.btn:hover{filter:brightness(1.1);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-primary{background:var(--primary);}
+.btn-success{background:var(--success);}
+.btn-danger{background:var(--danger);}
+.btn-warning{background:var(--warning);color:#1c1c1c;}
+.btn-block{display:block;width:100%;}
+.btn-sm{padding:5px 9px;font-size:11px;}
+#loginError{
+  display:none;background:#f8d7da;color:#721c24;
+  border:1px solid #f5c6cb;padding:8px 10px;border-radius:6px;
+  font-size:11px;margin-top:12px;
+}
+
+/* ============================================================
+   LAYOUT PRINCIPAL
+   ============================================================ */
+#appView{display:none;min-height:100vh;}
+#appView.active{display:block;}
+
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:52px;
+  background:var(--primary);color:#fff;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+.topbar .brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:bold;letter-spacing:.3px;
+}
+.topbar .brand img{height:32px;}
+.topbar .user-box{
+  display:flex;align-items:center;gap:10px;font-size:11px;
+}
+.topbar .user-box .rol{
+  background:var(--secondary);padding:3px 8px;border-radius:12px;
+  font-size:10px;text-transform:uppercase;letter-spacing:.4px;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar{
+  position:fixed;top:52px;left:0;bottom:0;
+  width:var(--sidebar-w);background:var(--primary);
+  color:#cfe1f5;overflow-y:auto;z-index:90;
+  transition:width .2s ease;padding-top:8px;
+}
+.sidebar::-webkit-scrollbar{width:6px;}
+.sidebar::-webkit-scrollbar-thumb{background:#1e4d7d;border-radius:3px;}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 14px;color:#cfe1f5;text-decoration:none;
+  font-size:12px;border-left:3px solid transparent;
+  transition:.15s;white-space:nowrap;cursor:pointer;
+}
+.nav-item:hover{background:#123a63;color:#fff;}
+.nav-item.active{
+  background:#123a63;color:#fff;
+  border-left-color:var(--secondary);font-weight:bold;
+}
+.nav-item.disabled{opacity:.45;cursor:not-allowed;}
+.nav-item .nav-icon{
+  width:20px;text-align:center;flex-shrink:0;font-size:15px;
+}
+.nav-item .nav-label-short{display:none;}
+
+/* ============================================================
+   CONTENIDO
+   ============================================================ */
+.content{
+  margin-left:var(--sidebar-w);margin-top:52px;
+  padding:20px;transition:margin-left .2s ease;
+}
+.section{display:none;}
+.section.active{display:block;animation:fade .2s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.page-title{
+  font-size:17px;color:var(--primary);font-weight:bold;
+  margin-bottom:4px;
+}
+.page-sub{
+  font-size:11px;color:var(--muted);margin-bottom:18px;
+}
+
+/* ============================================================
+   CARDS DASHBOARD
+   ============================================================ */
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;margin-bottom:20px;
+}
+.card{
+  background:var(--card);border-radius:10px;padding:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  border-left:4px solid var(--secondary);
+}
+.card.success{border-left-color:var(--success);}
+.card.danger{border-left-color:var(--danger);}
+.card.warning{border-left-color:var(--warning);}
+.card.primary{border-left-color:var(--primary);}
+.card .card-label{
+  font-size:10px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:6px;
+}
+.card .card-value{
+  font-size:26px;font-weight:bold;color:var(--primary);
+}
+.card .card-foot{
+  font-size:10px;color:var(--muted);margin-top:4px;
+}
+
+/* ============================================================
+   TABLAS
+   ============================================================ */
+.table-wrap{overflow-x:auto;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead th{
+  background:var(--primary);color:#fff;text-align:left;
+  padding:9px 10px;font-weight:bold;font-size:11px;
+  white-space:nowrap;
+}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--border);}
+tbody tr:hover{background:#f8fafc;}
+tbody tr:last-child td{border-bottom:none;}
+
+/* ============================================================
+   BADGES DE ESTADO
+   ============================================================ */
+.badge{
+  display:inline-block;padding:2px 8px;border-radius:10px;
+  font-size:10px;font-weight:bold;text-transform:uppercase;
+  letter-spacing:.3px;
+}
+.badge.disponible{background:#d1f0dd;color:#0f5132;}
+.badge.en_servicio{background:#cfe2ff;color:#084298;}
+.badge.reposo{background:#fff3cd;color:#664d03;}
+.badge.permiso{background:#e2e3e5;color:#41464b;}
+.badge.vacaciones{background:#d3d3f7;color:#2c2c8a;}
+.badge.comision_municipio{background:#ffe5d0;color:#8a4b00;}
+.badge.comision_nacional{background:#f8d7da;color:#721c24;}
+.badge.comision_internacional{background:#e7c6ff;color:#5a1e8a;}
+.badge.apoyo_instituciones{background:#cff4fc;color:#055160;}
+.badge.apoyo_zoedan{background:#d1ecf1;color:#0c5460;}
+.badge.apoyo_pc_municipio{background:#d4edda;color:#155724;}
+
+/* ============================================================
+   MODALES
+   ============================================================ */
+.modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.55);z-index:200;
+  align-items:flex-start;justify-content:center;
+  padding:24px 12px;overflow-y:auto;
+}
+.modal.active{display:flex;}
+.modal-content{
+  background:#fff;border-radius:10px;width:100%;max-width:640px;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+  animation:modalIn .2s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.modal-header{
+  background:var(--primary);color:#fff;
+  padding:12px 16px;border-radius:10px 10px 0 0;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-header h3{font-size:14px;font-weight:bold;}
+.modal-header .close{
+  color:#fff;font-size:20px;line-height:1;padding:0 4px;
+}
+.modal-body{padding:16px;max-height:70vh;overflow-y:auto;}
+.modal-footer{
+  padding:12px 16px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:8px;
+}
+
+/* ============================================================
+   FORMULARIOS
+   ============================================================ */
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.form-group{flex:1;min-width:160px;}
+.form-group label{
+  display:block;font-size:11px;color:var(--primary);
+  font-weight:bold;margin-bottom:4px;
+}
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width:100%;padding:7px 9px;border:1px solid var(--border);
+  border-radius:6px;outline:none;background:#fff;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{border-color:var(--secondary);}
+.form-group textarea{resize:vertical;min-height:70px;}
+
+/* ============================================================
+   RESPONSIVE (MÓVIL)
+   ============================================================ */
+@media (max-width:768px){
+  .sidebar{width:var(--sidebar-w-mini);}
+  .sidebar .nav-label-full{display:none;}
+  .sidebar .nav-label-short{display:inline;font-size:10px;}
+  .nav-item{
+    flex-direction:column;gap:2px;
+    padding:8px 4px;text-align:center;font-size:9px;
+  }
+  .nav-item .nav-icon{font-size:17px;}
+  .content{margin-left:var(--sidebar-w-mini);padding:12px;}
+  .topbar .brand span.brand-text{display:none;}
+  .topbar .user-box .email{display:none;}
+  .cards-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .card .card-value{font-size:20px;}
+}
+@media (max-width:420px){
+  .cards-grid{grid-template-columns:1fr;}
+}
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+.mt-10{margin-top:10px;}
+.mt-20{margin-top:20px;}
+.mb-10{margin-bottom:10px;}
+.text-center{text-align:center;}
+.text-muted{color:var(--muted);}
+.hidden{display:none !important;}
+.loading{
+  display:inline-block;width:14px;height:14px;
+  border:2px solid rgba(255,255,255,.4);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .7s linear infinite;vertical-align:middle;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     VISTA LOGIN
+     ============================================================ -->
+<div id="loginView">
+  <div class="login-card">
+    <div class="login-logos">
+      <img src="LOGO%20PC.png" alt="PC" onerror="this.style.display='none'">
+      <img src="LOGO%20GOBERNACION.png" alt="Gob" onerror="this.style.display='none'">
     </div>
+    <h1>SIGR-PC V3.0</h1>
+    <h2>Sistema de Gestión Integral de Riesgo<br>Protección Civil — Municipio Papelón</h2>
+
+    <label for="loginEmail">Correo electrónico</label>
+    <input type="email" id="loginEmail" placeholder="usuario@ejemplo.com" autocomplete="username">
+
+    <label for="loginPass">Contraseña</label>
+    <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+
+    <div id="loginError"></div>
+
+    <button class="btn btn-primary btn-block mt-20" id="btnLogin" onclick="iniciarSesion()">
+      Ingresar al sistema
+    </button>
+  </div>
 </div>
 
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
+<!-- ============================================================
+     VISTA APP
+     ============================================================ -->
+<div id="appView">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
     <div class="brand">
-        <img src="https://elbordon2703.github.io/sigr-pc/LOGO%20PC.png" 
-             alt="Logo" 
-             style="width:50px;height:auto;display:block;margin:0 auto 8px;border-radius:50%;background:white;padding:5px;"
-             onerror="this.style.display='none'">
-        <h3><i class="fas fa-shield-alt"></i> SIGR</h3>
-        <small>PC V2.0</small>
-        <div id="userRolBadge" style="font-size:10px;margin-top:5px;background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px;display:inline-block;"></div>
+      <img src="LOGO%20PC.png" alt="PC" onerror="this.style.display='none'">
+      <span class="brand-text">SIGR-PC V3.0</span>
     </div>
-    <nav class="nav flex-column">
-        <div class="nav-link active" data-section="dashboard" onclick="showSection('dashboard')">
-            <i class="fas fa-home"></i> <span>Dashboard</span>
-        </div>
-        <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-riesgo')">
-            <i class="fas fa-shield-alt"></i> <span>Gestión de Riesgo</span>
-            <i class="fas fa-chevron-down ms-auto" id="icon-riesgo"></i>
-        </div>
-        <div class="submenu" id="submenu-riesgo">
-            <div class="nav-link nav-child" data-section="certificacion" onclick="showSection('certificacion')">
-                <i class="fas fa-tree"></i> <span>Certificación</span>
-            </div>
-            <div class="nav-link nav-child" data-section="viviendas" onclick="showSection('viviendas')">
-                <i class="fas fa-home"></i> <span>Viviendas</span>
-            </div>
-            <div class="nav-link nav-child" data-section="edan" onclick="showSection('edan')">
-                <i class="fas fa-house-damage"></i> <span>EDAN</span>
-            </div>
-            <div class="nav-link nav-child" data-section="solicitudes" onclick="showSection('solicitudes')">
-                <i class="fas fa-tasks"></i> <span>Solicitudes</span>
-            </div>
-            <div class="nav-link nav-child" data-section="alertas" onclick="showSection('alertas')">
-                <i class="fas fa-bell"></i> <span>Alertas</span>
-            </div>
-        </div>
-        <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-operaciones')">
-            <i class="fas fa-clock"></i> <span>Operaciones</span>
-            <i class="fas fa-chevron-down ms-auto" id="icon-operaciones"></i>
-        </div>
-        <div class="submenu" id="submenu-operaciones">
-            <div class="nav-link nav-child" data-section="servicio" onclick="showSection('servicio')">
-                <i class="fas fa-play"></i> <span>Apertura de Servicio</span>
-            </div>
-            <div class="nav-link nav-child" data-section="partes" onclick="showSection('partes')">
-                <i class="fas fa-file-alt"></i> <span>Partes</span>
-            </div>
-            <div class="nav-link nav-child" data-section="cierres" onclick="showSection('cierres')">
-                <i class="fas fa-calendar-check"></i> <span>Cierres</span>
-            </div>
-        </div>
-        <!-- RECURSOS -->
-        <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-recursos')">
-            <i class="fas fa-users"></i> <span>Recursos</span>
-            <i class="fas fa-chevron-down ms-auto" id="icon-recursos"></i>
-        </div>
-        <div class="submenu" id="submenu-recursos">
-            <div class="nav-link nav-child" data-section="personal" onclick="showSection('personal')">
-                <i class="fas fa-user-plus"></i> <span>Personal</span>
-            </div>
-            <div class="nav-link nav-child" data-section="grupos" onclick="showSection('grupos')">
-                <i class="fas fa-users-cog"></i> <span>Grupos</span>
-            </div>
-            <div class="nav-link nav-child" data-section="vehiculos" onclick="showSection('vehiculos')">
-                <i class="fas fa-truck"></i> <span>Vehículos</span>
-            </div>
-        </div>
-        <!-- ADMINISTRACIÓN -->
-        <div class="nav-link nav-parent" onclick="toggleSubmenu('submenu-admin')">
-            <i class="fas fa-cog"></i> <span>Administración</span>
-            <i class="fas fa-chevron-down ms-auto" id="icon-admin"></i>
-        </div>
-        <div class="submenu" id="submenu-admin">
-            <div class="nav-link nav-child" data-section="usuarios" onclick="showSection('usuarios')">
-                <i class="fas fa-user-cog"></i> <span>Usuarios</span>
-            </div>
-        </div>
-        <div class="nav-link" style="border-top:1px solid rgba(255,255,255,0.1);margin-top:20px;" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i> <span>Salir</span>
-        </div>
-    </nav>
-</div>
+    <div class="user-box">
+      <span class="email" id="topEmail">—</span>
+      <span class="rol" id="topRol">—</span>
+      <button class="btn btn-sm btn-danger" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </div>
 
-<!-- CONTENT -->
-<div class="content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 id="pageTitle">Dashboard</h4>
-            <small id="userInfo" class="text-muted"></small>
-        </div>
-        <div>
-            <span id="statusBadge" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:bold;background:#d4edda;color:#155724;">
-                <i class="fas fa-circle" style="font-size:8px;"></i> Conectado
-            </span>
-            <span id="alerta72hBadge" style="display:none;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:bold;background:#fff3cd;color:#856404;margin-left:5px;">
-                ⚠️ Alertas 72h
-            </span>
-        </div>
-    </div>
-    
-    <!-- DASHBOARD -->
-    <div id="section-dashboard" class="section active">
-        <div class="row">
-            <div class="col-md-3 col-6 mb-3">
-                <div class="card"><div class="card-body"><h6 class="card-subtitle text-muted">Personal</h6><h2 class="card-title" id="totalPersonal">0</h2></div></div>
-            </div>
-            <div class="col-md-3 col-6 mb-3">
-                <div class="card"><div class="card-body"><h6 class="card-subtitle text-muted">Solicitudes</h6><h2 class="card-title" id="totalSolicitudes">0</h2></div></div>
-            </div>
-            <div class="col-md-3 col-6 mb-3">
-                <div class="card"><div class="card-body"><h6 class="card-subtitle text-muted">EDAN</h6><h2 class="card-title" id="totalEdan">0</h2></div></div>
-            </div>
-            <div class="col-md-3 col-6 mb-3">
-                <div class="card"><div class="card-body"><h6 class="card-subtitle text-muted">Alertas</h6><h2 class="card-title" id="totalAlertas">0</h2></div></div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header"><i class="fas fa-clock"></i> Servicio Activo</div>
-            <div class="card-body" id="servicioActivo"><p class="text-muted">No hay servicio activo</p></div>
-        </div>
-        <div class="card mt-3">
-            <div class="card-header"><i class="fas fa-exclamation-triangle"></i> Solicitudes sin atender (72h)</div>
-            <div class="card-body" id="alertas72h"><p class="text-muted">No hay solicitudes pendientes</p></div>
-        </div>
-    </div>
-    
-    <!-- PERSONAL -->
-    <div id="section-personal" class="section">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-user-plus"></i> Registrar Personal</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <label class="form-label">📝 Apellido</label>
-                        <input type="text" id="pApellido" class="form-control" placeholder="Apellido">
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <label class="form-label">📝 Nombre</label>
-                        <input type="text" id="pNombre" class="form-control" placeholder="Nombre">
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <label class="form-label">🪪 Cédula</label>
-                        <input type="text" id="pCedula" class="form-control" placeholder="Cédula">
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <label class="form-label">📋 Jerarquía</label>
-                        <select id="pJerarquia" class="form-select">
-                            <option value="">Jerarquía</option>
-                            <option>OPC I</option><option>OPC II</option><option>OPC III</option>
-                            <option>OSPC I</option><option>OSPC II</option><option>OSPC III</option>
-                            <option>OCPC I</option><option>OCPC II</option><option>OCPC GENERAL</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <label class="form-label">📞 Teléfono</label>
-                        <input type="tel" id="pTelefono" class="form-control" placeholder="Teléfono">
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <label class="form-label">✉️ Email</label>
-                        <input type="email" id="pEmail" class="form-control" placeholder="Email">
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <label class="form-label">👥 Grupos</label>
-                        <select id="pGrupos" class="form-select" multiple>
-                            <option value="Grupo A">Grupo A</option>
-                            <option value="Grupo B">Grupo B</option>
-                            <option value="Grupo C">Grupo C</option>
-                            <option value="Grupo D">Grupo D</option>
-                        </select>
-                        <small class="text-muted">Ctrl+Click para múltiple</small>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label class="form-label">✍️ Firma del Oficial (imagen)</label>
-                        <input type="file" id="pFirma" class="form-control" accept="image/*">
-                        <div id="pFirmaPreview" style="margin-top:8px;"></div>
-                    </div>
-                    <div class="col-12">
-                        <button class="btn btn-primary" onclick="registrarPersonal()">
-                            <i class="fas fa-save"></i> Registrar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card mt-3">
-            <div class="card-header">
-                <i class="fas fa-list"></i> Lista de Personal
-                <span class="badge bg-secondary ms-2" id="totalPersonalLista">0</span>
-            </div>
-            <div class="card-body" id="listaPersonal">
-                <p class="text-muted">Cargando personal...</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- GRUPOS -->
-    <div id="section-grupos" class="section">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-users-cog"></i> Grupos Operativos</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label class="form-label">📋 Grupo</label>
-                        <select id="gSelect" class="form-select" onchange="cargarIntegrantes()">
-                            <option value="Grupo A">Grupo A</option>
-                            <option value="Grupo B">Grupo B</option>
-                            <option value="Grupo C">Grupo C</option>
-                            <option value="Grupo D">Grupo D</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">👤 Jefe de Servicio</label>
-                        <select id="gJefe" class="form-select">
-                            <option value="">Seleccionar Jefe</option>
-                        </select>
-                        <button class="btn btn-sm btn-primary mt-1" onclick="actualizarJefe()">
-                            <i class="fas fa-save"></i> Asignar Jefe
-                        </button>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <h6>👥 Integrantes del Grupo</h6>
-                    <div id="gIntegrantes">
-                        <p class="text-muted">Cargando integrantes...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- VEHÍCULOS -->
-    <div id="section-vehiculos" class="section">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-truck"></i> Gestión de Vehículos</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2"><input type="text" id="vPlaca" class="form-control" placeholder="Placa"></div>
-                    <div class="col-md-3 mb-2">
-                        <select id="vTipo" class="form-select">
-                            <option value="moto">🏍️ Moto</option>
-                            <option value="camioneta">🚐 Camioneta</option>
-                            <option value="ambulancia">🚑 Ambulancia</option>
-                            <option value="camion">🚛 Camión</option>
-                            <option value="sedan">🚗 Sedán</option>
-                            <option value="otro">🚙 Otro</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-2"><input type="text" id="vModelo" class="form-control" placeholder="Modelo"></div>
-                    <div class="col-md-3 mb-2"><input type="text" id="vAño" class="form-control" placeholder="Año"></div>
-                    <div class="col-md-6 mb-2">
-                        <select id="vEstado" class="form-select">
-                            <option value="disponible">✅ Disponible</option>
-                            <option value="en_servicio">🔄 En Servicio</option>
-                            <option value="mantenimiento">🔧 Mantenimiento</option>
-                            <option value="averiado">❌ Averiado</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-2"><input type="number" id="vKilometraje" class="form-control" placeholder="Kilometraje (km)" step="0.1"></div>
-                    <div class="col-12"><button class="btn btn-primary" onclick="registrarVehiculo()"><i class="fas fa-save"></i> Registrar Vehículo</button></div>
-                </div>
-            </div>
-        </div>
-        <div class="card mt-3">
-            <div class="card-header"><i class="fas fa-list"></i> Flota de Vehículos</div>
-            <div class="card-body" id="listaVehiculos"></div>
-        </div>
-    </div>
-    
-    <!-- SERVICIO -->
-    <div id="section-servicio" class="section">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-clock"></i> Apertura de Servicio</div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> 
-                    <strong>Apertura de Servicio:</strong> Seleccione el grupo, verifique el Jefe de Servicio y asigne responsabilidades a cada integrante.
-                    <br><small>📌 El Jefe de Servicio se asigna desde el módulo <strong>Grupos</strong>.</small>
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-4 mb-2">
-                        <label class="form-label">📋 Grupo que recibe</label>
-                        <select id="sGrupo" class="form-select" onchange="cargarIntegrantesServicio()">
-                            <option value="">Seleccionar Grupo</option>
-                            <option value="Grupo A">Grupo A</option>
-                            <option value="Grupo B">Grupo B</option>
-                            <option value="Grupo C">Grupo C</option>
-                            <option value="Grupo D">Grupo D</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <label class="form-label">👤 Jefe de Servicio</label>
-                        <input type="text" id="sJefeNombre" class="form-control" readonly placeholder="Seleccione un grupo">
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <label class="form-label">📅 Fecha/Hora</label>
-                        <input type="datetime-local" id="sFecha" class="form-control">
-                    </div>
-                </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a class="nav-item active" data-target="dashboard" onclick="mostrarSeccion('dashboard')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label-full">Dashboard</span>
+      <span class="nav-label-short">Dash</span>
+    </a>
+    <a class="nav-item disabled" data-target="certificacion" data-modulo="2">
+      <span class="nav-icon">🌳</span>
+      <span class="nav-label-full">Certificación Árboles</span>
+      <span class="nav-label-short">Cert</span>
+    </a>
+    <a class="nav-item disabled" data-target="viviendas" data-modulo="2">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label-full">Viviendas</span>
+      <span class="nav-label-short">Vivi</span>
+    </a>
+    <a class="nav-item disabled" data-target="edan" data-modulo="2">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label-full">EDAN</span>
+      <span class="nav-label-short">EDAN</span>
+    </a>
+    <a class="nav-item disabled" data-target="solicitudes" data-modulo="2">
+      <span class="nav-icon">📨</span>
+      <span class="nav-label-full">Solicitudes</span>
+      <span class="nav-label-short">Soli</span>
+    </a>
+    <a class="nav-item disabled" data-target="alertas" data-modulo="2">
+      <span class="nav-icon">🚨</span>
+      <span class="nav-label-full">Alertas Tempranas</span>
+      <span class="nav-label-short">Aler</span>
+    </a>
+    <a class="nav-item disabled" data-target="servicio" data-modulo="3">
+      <span class="nav-icon">🛡️</span>
+      <span class="nav-label-full">Apertura de Servicio</span>
+      <span class="nav-label-short">Serv</span>
+    </a>
+    <a class="nav-item disabled" data-target="partes" data-modulo="3">
+      <span class="nav-icon">📝</span>
+      <span class="nav-label-full">Partes</span>
+      <span class="nav-label-short">Part</span>
+    </a>
+    <a class="nav-item disabled" data-target="cierres" data-modulo="3">
+      <span class="nav-icon">📦</span>
+      <span class="nav-label-full">Cierres</span>
+      <span class="nav-label-short">Cier</span>
+    </a>
+    <a class="nav-item disabled" data-target="personal" data-modulo="4">
+      <span class="nav-icon">👥</span>
+      <span class="nav-label-full">Personal</span>
+      <span class="nav-label-short">Pers</span>
+    </a>
+    <a class="nav-item disabled" data-target="grupos" data-modulo="4">
+      <span class="nav-icon">👨‍👩‍👧</span>
+      <span class="nav-label-full">Grupos</span>
+      <span class="nav-label-short">Grup</span>
+    </a>
+    <a class="nav-item disabled" data-target="vehiculos" data-modulo="4">
+      <span class="nav-icon">🚙</span>
+      <span class="nav-label-full">Vehículos</span>
+      <span class="nav-label-short">Vehi</span>
+    </a>
+    <a class="nav-item disabled" data-target="usuarios" data-modulo="5">
+      <span class="nav-icon">🔐</span>
+      <span class="nav-label-full">Usuarios</span>
+      <span class="nav-label-short">Usua</span>
+    </a>
+  </aside>
 
-                <div class="card mt-2">
-                    <div class="card-header bg-primary text-white">
-                        <i class="fas fa-users"></i> Integrantes del Grupo
-                        <span class="badge bg-light text-dark ms-2" id="totalIntegrantes">0 integrantes</span>
-                        <span class="badge bg-warning text-dark ms-2" id="jefeServicioBadge">👔 Jefe: No asignado</span>
-                    </div>
-                    <div class="card-body" id="integrantesServicio">
-                        <p class="text-muted">Seleccione un grupo para ver los integrantes.</p>
-                    </div>
-                </div>
+  <!-- CONTENIDO -->
+  <main class="content">
 
-                <div class="card mt-2">
-                    <div class="card-header bg-success text-white">
-                        <i class="fas fa-tasks"></i> Asignación de Responsabilidades
-                        <span class="badge bg-light text-dark ms-2" id="totalResponsabilidades">0 asignadas</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-warning">
-                            <i class="fas fa-info-circle"></i>
-                            <strong>Nota:</strong> Un oficial puede tener <strong>varias responsabilidades</strong> si el personal es limitado.
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">👤 Oficial</label>
-                                <select id="respOficial" class="form-select">
-                                    <option value="">— Seleccione un oficial —</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="form-label">📋 Responsabilidad</label>
-                                <select id="respFuncion" class="form-select">
-                                    <option value="">— Seleccione una función —</option>
-                                    <option value="inspector">🔍 Inspector</option>
-                                    <option value="rescate_vehicular">🚗 Rescate Vehicular</option>
-                                    <option value="edanista">📋 Edanista</option>
-                                    <option value="logistico">📦 Logístico</option>
-                                    <option value="conductor">🚗 Conductor</option>
-                                    <option value="escribiente">✍️ Escribiente</option>
-                                    <option value="auxiliar">🤝 Auxiliar</option>
-                                    <option value="aph">🚑 APH</option>
-                                    <option value="rescate">🪢 Rescate</option>
-                                    <option value="bombero">🔥 Bombero</option>
-                                    <option value="operador_comunicaciones">📡 Operador Comunicaciones</option>
-                                    <option value="seguridad">🛡️ Seguridad</option>
-                                    <option value="coordinacion">👔 Coordinación</option>
-                                    <option value="monitoreo">📡 Monitoreo</option>
-                                    <option value="apoyo">🤝 Apoyo</option>
-                                    <option value="otro">📌 Otro</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">📋 Estado</label>
-                                <select id="respEstado" class="form-select" onchange="mostrarCampoMunicipio()">
-                                    <option value="disponible">✅ Disponible</option>
-                                    <option value="en_servicio">🔄 En Servicio</option>
-                                    <option value="reposo">🛌 Reposo</option>
-                                    <option value="permiso">📋 Permiso</option>
-                                    <option value="vacaciones">🏖️ Vacaciones</option>
-                                    <option value="comision_municipio">🏛️ Comisión en Municipio</option>
-                                    <option value="comision_nacional">🇻🇪 Comisión Nacional</option>
-                                    <option value="comision_internacional">🌍 Comisión Internacional</option>
-                                    <option value="apoyo_instituciones">🤝 Apoyo a otras Instituciones</option>
-                                    <option value="apoyo_zoedan">🛡️ Apoyo a ZOEDAN</option>
-                                    <option value="apoyo_pc_municipio">🚒 Apoyo a PC Municipio</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2 mb-2" id="campoMunicipio" style="display:none;">
-                                <label class="form-label">🏛️ Municipio</label>
-                                <input type="text" id="respMunicipio" class="form-control" placeholder="Ej: Araure, Acarigua...">
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label class="form-label">&nbsp;</label>
-                                <button class="btn btn-success w-100" onclick="agregarResponsabilidadMejorado()">
-                                    <i class="fas fa-plus"></i> Asignar
-                                </button>
-                            </div>
-                        </div>
+    <!-- ======================================================
+         SECCIÓN DASHBOARD (activa siempre)
+         ====================================================== -->
+    <section id="sec-dashboard" class="section active">
+      <div class="page-title">Panel de Control</div>
+      <div class="page-sub">Resumen general del sistema — Protección Civil Municipio Papelón</div>
 
-                        <div class="mt-3" id="listaResponsabilidadesAsignadas">
-                            <p class="text-muted">No hay responsabilidades asignadas.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <button class="btn btn-primary" onclick="abrirServicioMejorado()">
-                            <i class="fas fa-play"></i> Abrir Servicio
-                        </button>
-                        <button class="btn btn-secondary" onclick="limpiarServicio()">
-                            <i class="fas fa-eraser"></i> Limpiar
-                        </button>
-                    </div>
-                </div>
-
-                <hr>
-                <h6>📌 Servicio Actual</h6>
-                <div id="sActual"></div>
-                <button class="btn btn-danger mt-2" onclick="cerrarServicio()">
-                    <i class="fas fa-stop"></i> Cerrar Servicio
-                </button>
-            </div>
+      <div class="cards-grid">
+        <div class="card primary">
+          <div class="card-label">Personal registrado</div>
+          <div class="card-value" id="dashPersonal">0</div>
+          <div class="card-foot">Total de oficiales activos</div>
         </div>
-    </div>
-    
-    <!-- SOLICITUDES -->
-    <div id="section-solicitudes" class="section">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-tasks"></i> Solicitudes</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 mb-2"><input type="text" id="solSolicitante" class="form-control" placeholder="Solicitante"></div>
-                    <div class="col-md-4 mb-2"><input type="tel" id="solTelefono" class="form-control" placeholder="Teléfono"></div>
-                    <div class="col-md-4 mb-2"><input type="text" id="solDireccion" class="form-control" placeholder="Dirección"></div>
-                    <div class="col-md-6 mb-2">
-                        <select id="solTipo" class="form-select">
-                            <option value="emergencia">🔴 Emergencia</option>
-                            <option value="inspeccion">🔍 Inspección</option>
-                            <option value="asesoria">📋 Asesoría</option>
-                            <option value="otro">📌 Otro</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <select id="solPrioridad" class="form-select">
-                            <option value="alta">🔴 Alta</option>
-                            <option value="media">🟡 Media</option>
-                            <option value="baja">🟢 Baja</option>
-                        </select>
-                    </div>
-                    <div class="col-12 mb-2"><textarea id="solDescripcion" class="form-control" rows="2" placeholder="Descripción"></textarea></div>
-                    <div class="col-12"><button class="btn btn-primary" onclick="crearSolicitud()"><i class="fas fa-save"></i> Registrar Solicitud</button></div>
-                </div>
-                <hr>
-                <h6>Solicitudes Activas</h6>
-                <div id="listaSolicitudes"></div>
-            </div>
+        <div class="card warning">
+          <div class="card-label">Solicitudes</div>
+          <div class="card-value" id="dashSolicitudes">0</div>
+          <div class="card-foot">Pendientes de gestión</div>
         </div>
-    </div>
-</div>
+        <div class="card danger">
+          <div class="card-label">EDAN</div>
+          <div class="card-value" id="dashEdan">0</div>
+          <div class="card-foot">Evaluaciones registradas</div>
+        </div>
+        <div class="card success">
+          <div class="card-label">Alertas</div>
+          <div class="card-value" id="dashAlertas">0</div>
+          <div class="card-foot">Alertas tempranas activas</div>
+        </div>
+      </div>
 
-<!-- TOAST -->
-<div class="toast-container">
-    <div id="toast" class="toast align-items-center text-white border-0" role="alert">
-        <div class="d-flex">
-            <div class="toast-body" id="toastBody"></div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.classList.remove('show')"></button>
+      <div class="cards-grid">
+        <div class="card success">
+          <div class="card-label">Servicio activo</div>
+          <div class="card-value" id="dashServicioActivo">—</div>
+          <div class="card-foot">Estado actual del servicio</div>
         </div>
-    </div>
+        <div class="card danger">
+          <div class="card-label">Alertas 72h</div>
+          <div class="card-value" id="dashAlertas72">0</div>
+          <div class="card-foot">Solicitudes con más de 72 horas</div>
+        </div>
+      </div>
+
+      <div class="mt-20">
+        <div class="page-title" style="font-size:14px;">Módulos del sistema</div>
+        <div class="page-sub">Estado de carga de los módulos</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Módulo</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Base + Login + Dashboard</td>
+                <td>Estructura, autenticación, panel</td>
+                <td><span class="badge en_servicio">Activo</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Gestión de Riesgo</td>
+                <td>Certificación, Viviendas, EDAN, Solicitudes, Alertas</td>
+                <td><span class="badge permiso" id="mod2Estado">Pendiente</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Operaciones</td>
+                <td>Servicio, Partes, Cierres</td>
+                <td><span class="badge permiso" id="mod3Estado">Pendiente</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Recursos</td>
+                <td>Personal, Grupos, Vehículos</td>
+                <td><span class="badge permiso" id="mod4Estado">Pendiente</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Administración</td>
+                <td>Usuarios (solo comandante)</td>
+                <td><span class="badge permiso" id="mod5Estado">Pendiente</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         AQUÍ SE INSERTARÁN LOS MÓDULOS 2 AL 5
+         (cada módulo agrega sus <section> debajo de este comentario)
+         ====================================================== -->
+    <!-- === MODULO 2 === -->
+    <!-- === MODULO 3 === -->
+    <!-- === MODULO 4 === -->
+    <!-- === MODULO 5 === -->
+
+  </main>
 </div>
 
 <script>
-// ============================================
-// FIREBASE CONFIG
-// ============================================
+/* ============================================================
+   MÓDULO 1 — BASE + LOGIN + DASHBOARD
+   ============================================================ */
+
+/* ---------- FIREBASE CONFIG (NO TOCAR) ---------- */
 const firebaseConfig = {
-    apiKey: "AIzaSyAeNrW0ioimnKysCmHDuujBXvAJwxZr_fA",
-    authDomain: "sigr-pc.firebaseapp.com",
-    projectId: "sigr-pc",
-    storageBucket: "sigr-pc.appspot.com",
-    messagingSenderId: "195683731733",
-    appId: "1:195683731733:web:ab76b626b974773ea9411c"
+  apiKey: "AIzaSyAeNrW0ioimnKysCmHDuujBXvAJwxZr_fA",
+  authDomain: "sigr-pc.firebaseapp.com",
+  projectId: "sigr-pc",
+  storageBucket: "sigr-pc.appspot.com",
+  messagingSenderId: "195683731733",
+  appId: "1:195683731733:web:ab76b626b974773ea9411c"
 };
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.firestore();
+const db   = firebase.firestore();
 
-// ============================================
-// VARIABLES GLOBALES
-// ============================================
-let usuarioActual = { email: null, uid: null, rol: null, nombre: null, apellido: null };
-let responsabilidadesTemporales = [];
-let integrantesGrupo = [];
-let jefeServicioActual = null;
+/* ---------- ESTADO GLOBAL ---------- */
+const SIGR = {
+  usuario: null,        // { email, nombre, apellido, rol, activo }
+  personal: [],         // caché de personal
+  grupos: [],
+  vehiculos: [],
+  selloB64: null,
+  pieB64: null,
+  modulosCargados: { 1:true, 2:false, 3:false, 4:false, 5:false }
+};
+window.SIGR = SIGR;
 
-// ============================================
-// FUNCIONES DE NAVEGACIÓN
-// ============================================
-function toggleSubmenu(submenuId) {
-    var submenu = document.getElementById(submenuId);
-    if (!submenu) return;
-    
-    var iconId = 'icon-' + submenuId.replace('submenu-', '');
-    var icon = document.getElementById(iconId);
-    
-    var allSubmenus = document.querySelectorAll('.submenu');
-    for (var i = 0; i < allSubmenus.length; i++) {
-        allSubmenus[i].classList.remove('open');
-    }
-    var allIcons = document.querySelectorAll('.fa-chevron-down');
-    for (var j = 0; j < allIcons.length; j++) {
-        allIcons[j].classList.remove('open');
-    }
-    
-    submenu.classList.add('open');
-    if (icon) icon.classList.add('open');
+/* ============================================================
+   AUTENTICACIÓN
+   ============================================================ */
+
+/**
+ * Inicia sesión con Firebase Auth y verifica rol en Firestore.
+ */
+async function iniciarSesion(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const err   = document.getElementById('loginError');
+  const btn   = document.getElementById('btnLogin');
+
+  err.style.display = 'none';
+
+  if(!email || !pass){
+    err.textContent = 'Debe ingresar correo y contraseña.';
+    err.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Verificando...';
+
+  try{
+    const cred = await auth.signInWithEmailAndPassword(email, pass);
+    await cargarPerfilUsuario(cred.user);
+    // onAuthStateChanged se encarga de mostrar la app
+  }catch(e){
+    console.error('Error login:', e);
+    let msg = 'Error al iniciar sesión.';
+    if(e.code === 'auth/user-not-found')      msg = 'Usuario no encontrado.';
+    if(e.code === 'auth/wrong-password')      msg = 'Contraseña incorrecta.';
+    if(e.code === 'auth/invalid-email')       msg = 'Correo inválido.';
+    if(e.code === 'auth/too-many-requests')   msg = 'Demasiados intentos. Intente más tarde.';
+    if(e.code === 'auth/invalid-credential')  msg = 'Credenciales inválidas.';
+    err.textContent = msg;
+    err.style.display = 'block';
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Ingresar al sistema';
+  }
 }
 
-function showSection(section) {
-    var sections = document.querySelectorAll('.section');
-    for (var i = 0; i < sections.length; i++) {
-        sections[i].classList.remove('active');
+/**
+ * Carga el perfil del usuario desde Firestore (colección "usuarios").
+ * Si no existe el doc, lo crea con rol "oficial" para no bloquear el sistema.
+ */
+async function cargarPerfilUsuario(user){
+  const ref  = db.collection('usuarios').doc(user.uid);
+  const snap = await ref.get();
+
+  if(snap.exists){
+    const data = snap.data();
+    if(data.activo === false){
+      await auth.signOut();
+      throw { code:'custom/inactivo', message:'Usuario inactivo. Contacte al comandante.' };
     }
-    
-    var target = document.getElementById('section-' + section);
-    if (target) target.classList.add('active');
-    
-    var navLinks = document.querySelectorAll('.sidebar .nav-link');
-    for (var j = 0; j < navLinks.length; j++) {
-        navLinks[j].classList.remove('active');
-        if (navLinks[j].dataset.section === section) {
-            navLinks[j].classList.add('active');
-        }
-    }
-    
-    var titles = {
-        dashboard: 'Dashboard',
-        personal: 'Personal',
-        grupos: 'Grupos',
-        vehiculos: 'Vehículos',
-        servicio: 'Apertura de Servicio',
-        solicitudes: 'Solicitudes',
-        edan: 'EDAN',
-        certificacion: 'Certificación de Árboles',
-        viviendas: 'Inspección de Viviendas',
-        alertas: 'Alertas Tempranas',
-        partes: 'Partes de Servicio',
-        cierres: 'Cierres',
-        usuarios: 'Usuarios'
+    SIGR.usuario = { uid:user.uid, email:user.email, ...data };
+  }else{
+    // Si no existe, crear doc básico (solo pasa la primera vez con el comandante)
+    const nuevo = {
+      email: user.email,
+      nombre: 'Comandante',
+      apellido: 'PC',
+      rol: 'comandante',
+      activo: true,
+      creado: firebase.firestore.FieldValue.serverTimestamp()
     };
-    var titleEl = document.getElementById('pageTitle');
-    if (titleEl) titleEl.textContent = titles[section] || section;
-    
-    var submenuMap = {
-        'certificacion': 'submenu-riesgo',
-        'viviendas': 'submenu-riesgo',
-        'edan': 'submenu-riesgo',
-        'solicitudes': 'submenu-riesgo',
-        'alertas': 'submenu-riesgo',
-        'servicio': 'submenu-operaciones',
-        'partes': 'submenu-operaciones',
-        'cierres': 'submenu-operaciones',
-        'personal': 'submenu-recursos',
-        'grupos': 'submenu-recursos',
-        'vehiculos': 'submenu-recursos',
-        'usuarios': 'submenu-admin'
-    };
-    
-    var submenuId = submenuMap[section];
-    if (submenuId) {
-        var submenu = document.getElementById(submenuId);
-        var iconId = 'icon-' + submenuId.replace('submenu-', '');
-        var icon = document.getElementById(iconId);
-        if (submenu) {
-            submenu.classList.add('open');
-            if (icon) icon.classList.add('open');
-        }
+    await ref.set(nuevo);
+    SIGR.usuario = { uid:user.uid, email:user.email, ...nuevo };
+  }
+}
+
+/**
+ * Cierra sesión.
+ */
+async function cerrarSesion(){
+  if(!confirm('¿Desea cerrar la sesión?')) return;
+  await auth.signOut();
+}
+
+/**
+ * Observador de estado de autenticación.
+ * Se dispara al cargar la página y cuando cambia la sesión.
+ */
+auth.onAuthStateChanged(async (user)=>{
+  if(user){
+    try{
+      if(!SIGR.usuario){
+        await cargarPerfilUsuario(user);
+      }
+      mostrarApp();
+      await actualizarDashboard();
+      // Cargar datos base compartidos (los módulos 2-5 los usarán)
+      await cargarDatosBase();
+    }catch(e){
+      console.error('Error perfil:', e);
+      alert(e.message || 'Error al cargar el perfil.');
+      await auth.signOut();
     }
-}
-
-function cargarDatos() {
-    cargarDashboard();
-    cargarPersonal();
-    cargarGrupos();
-    cargarVehiculos();
-    cargarServicioMejorado();
-    cargarSolicitudes();
-}
-
-// ============================================
-// FUNCIONES DE LOGIN/LOGOUT
-// ============================================
-function login() {
-    var email = document.getElementById('loginEmail').value.trim();
-    var password = document.getElementById('loginPassword').value;
-    var errorDiv = document.getElementById('loginError');
-    errorDiv.classList.add('d-none');
-    
-    if (!email || !password) {
-        errorDiv.textContent = '⚠️ Ingresa correo y contraseña';
-        errorDiv.classList.remove('d-none');
-        return;
-    }
-    
-    auth.signInWithEmailAndPassword(email, password)
-        .then(async function(userCredential) {
-            var usuario = await obtenerUsuarioPorEmail(email);
-            if (!usuario) {
-                var nombreEmail = email.split('@')[0] || 'Usuario';
-                await db.collection('usuarios').add({
-                    email: email,
-                    nombre: nombreEmail,
-                    apellido: '',
-                    rol: 'oficial',
-                    activo: true,
-                    fechaCreacion: new Date().toISOString(),
-                    creadoPor: 'Sistema'
-                });
-                usuario = await obtenerUsuarioPorEmail(email);
-            }
-            if (usuario && usuario.activo === false) {
-                await auth.signOut();
-                errorDiv.textContent = '❌ Usuario desactivado';
-                errorDiv.classList.remove('d-none');
-                return;
-            }
-            await cargarUsuarioActual();
-            document.getElementById('loginOverlay').style.display = 'none';
-            mostrarToast('✅ Bienvenido ' + (usuario?.nombre || ''), 'success');
-            cargarDatos();
-        })
-        .catch(function(error) {
-            errorDiv.textContent = '❌ ' + error.message;
-            errorDiv.classList.remove('d-none');
-        });
-}
-
-function logout() {
-    auth.signOut()
-        .then(function() {
-            document.getElementById('loginOverlay').style.display = 'flex';
-            usuarioActual = { email: null, uid: null, rol: null, nombre: null, apellido: null };
-            mostrarToast('✅ Sesión cerrada', 'success');
-        })
-        .catch(function(error) {
-            mostrarToast('❌ Error: ' + error.message, 'danger');
-        });
-}
-
-async function obtenerUsuarioPorEmail(email) {
-    try {
-        var snapshot = await db.collection('usuarios').where('email', '==', email).limit(1).get();
-        if (!snapshot.empty) {
-            var doc = snapshot.docs[0];
-            return { id: doc.id, ...doc.data() };
-        }
-        return null;
-    } catch (error) {
-        return null;
-    }
-}
-
-async function cargarUsuarioActual() {
-    var user = auth.currentUser;
-    if (!user) return null;
-    var usuario = await obtenerUsuarioPorEmail(user.email);
-    if (usuario) {
-        usuarioActual = {
-            email: user.email,
-            uid: user.uid,
-            rol: usuario.rol || 'oficial',
-            nombre: usuario.nombre || '',
-            apellido: usuario.apellido || ''
-        };
-        var userInfo = document.getElementById('userInfo');
-        var rolBadge = document.getElementById('userRolBadge');
-        if (userInfo) {
-            var rolTexto = { 'comandante': '👑 Comandante', 'segundo_comandante': '👤 2do Comandante', 'jefe_servicio': '🛡️ Jefe Servicio', 'oficial': '👮 Oficial' };
-            userInfo.textContent = (usuarioActual.nombre || '') + ' ' + (usuarioActual.apellido || '') + ' - ' + (rolTexto[usuarioActual.rol] || usuarioActual.rol);
-        }
-        if (rolBadge) {
-            var rolTexto = { 'comandante': '👑 Comandante', 'segundo_comandante': '👤 2do Comandante', 'jefe_servicio': '🛡️ Jefe Servicio', 'oficial': '👮 Oficial' };
-            rolBadge.textContent = rolTexto[usuarioActual.rol] || usuarioActual.rol;
-        }
-        return usuarioActual;
-    }
-    return null;
-}
-
-function mostrarToast(mensaje, tipo) {
-    tipo = tipo || 'success';
-    var toast = document.getElementById('toast');
-    var body = document.getElementById('toastBody');
-    if (!toast || !body) return;
-    body.textContent = mensaje;
-    toast.className = 'toast align-items-center text-white border-0';
-    var colors = { success: 'bg-success', danger: 'bg-danger', warning: 'bg-warning', info: 'bg-info' };
-    var colorClass = colors[tipo] || colors.success;
-    toast.classList.add(colorClass);
-    try {
-        var bsToast = new bootstrap.Toast(toast, { delay: 3000 });
-        bsToast.show();
-    } catch (e) {
-        toast.style.display = 'block';
-        setTimeout(function() { toast.style.display = 'none'; }, 3000);
-    }
-}
-
-// ============================================
-// FUNCIONES DE SERVICIO
-// ============================================
-function cargarIntegrantesServicio() {
-    var grupo = document.getElementById('sGrupo').value;
-    var container = document.getElementById('integrantesServicio');
-    var totalBadge = document.getElementById('totalIntegrantes');
-    var jefeBadge = document.getElementById('jefeServicioBadge');
-    var jefeNombreInput = document.getElementById('sJefeNombre');
-    var respOficial = document.getElementById('respOficial');
-    
-    responsabilidadesTemporales = [];
-    actualizarListaResponsabilidades();
-    
-    if (!grupo) {
-        container.innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
-        if (totalBadge) totalBadge.textContent = '0 integrantes';
-        if (jefeBadge) jefeBadge.textContent = '👔 Jefe: No asignado';
-        jefeNombreInput.value = '';
-        respOficial.innerHTML = '<option value="">— Seleccione un oficial —</option>';
-        return;
-    }
-    
-    db.collection('grupos').doc(grupo).get()
-        .then(function(doc) {
-            if (doc.exists) {
-                var data = doc.data();
-                if (data.jefeNombre) {
-                    jefeServicioActual = data.jefeNombre;
-                    jefeNombreInput.value = data.jefeNombre;
-                    if (jefeBadge) jefeBadge.textContent = '👔 Jefe: ' + data.jefeNombre;
-                } else {
-                    jefeServicioActual = null;
-                    jefeNombreInput.value = '⚠️ No asignado';
-                    if (jefeBadge) jefeBadge.textContent = '👔 Jefe: No asignado';
-                }
-            }
-        })
-        .catch(function() {});
-    
-    db.collection('personal')
-        .where('grupos', 'array-contains', grupo)
-        .get()
-        .then(function(snap) {
-            if (snap.empty) {
-                container.innerHTML = '<p class="text-muted">No hay integrantes en este grupo.</p>';
-                if (totalBadge) totalBadge.textContent = '0 integrantes';
-                respOficial.innerHTML = '<option value="">— Seleccione un oficial —</option>';
-                return;
-            }
-            
-            integrantesGrupo = [];
-            var html = '<div class="table-responsive"><table class="table table-sm">';
-            html += '<thead><tr><th>#</th><th>Nombre</th><th>Jerarquía</th><th>Jefe</th><th>Responsabilidad</th></tr></thead><tbody>';
-            
-            var i = 1;
-            var opcionesOficial = '<option value="">— Seleccione un oficial —</option>';
-            
-            snap.forEach(function(doc) {
-                var data = doc.data();
-                var nombre = data.apellido + ', ' + data.nombre;
-                var id = doc.id;
-                var esJefe = (jefeServicioActual === nombre);
-                
-                integrantesGrupo.push({ id: id, nombre: nombre, jerarquia: data.jerarquia || '' });
-                
-                var respAsignada = responsabilidadesTemporales.find(function(r) { return r.oficialId === id; });
-                var responsabilidad = respAsignada ? respAsignada.responsabilidad : 'Sin asignar';
-                
-                html += '<tr><td>' + (i++) + '</td><td><strong>' + (esJefe ? '⭐ ' : '') + nombre + '</strong></td><td>' + (data.jerarquia || '-') + '</td><td>' + (esJefe ? '✅' : '') + '</td><td><span class="badge ' + (respAsignada ? 'bg-success' : 'bg-secondary') + '">' + responsabilidad + '</span></td></tr>';
-                
-                opcionesOficial += '<option value="' + id + '">' + nombre + ' - ' + (data.jerarquia || '') + '</option>';
-            });
-            
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
-            
-            if (totalBadge) totalBadge.textContent = snap.size + ' integrantes';
-            respOficial.innerHTML = opcionesOficial;
-            
-            actualizarListaResponsabilidades();
-        })
-        .catch(function(error) {
-            container.innerHTML = '<p class="text-danger">Error al cargar los integrantes</p>';
-        });
-}
-
-function mostrarCampoMunicipio() {
-    var estado = document.getElementById('respEstado').value;
-    var campoMunicipio = document.getElementById('campoMunicipio');
-    if (estado === 'apoyo_pc_municipio') {
-        campoMunicipio.style.display = 'block';
-    } else {
-        campoMunicipio.style.display = 'none';
-        document.getElementById('respMunicipio').value = '';
-    }
-}
-
-function agregarResponsabilidadMejorado() {
-    var oficialId = document.getElementById('respOficial').value;
-    var funcion = document.getElementById('respFuncion').value;
-    var estado = document.getElementById('respEstado').value;
-    var municipio = document.getElementById('respMunicipio').value.trim();
-    
-    if (!oficialId) {
-        mostrarToast('⚠️ Seleccione un oficial', 'warning');
-        return;
-    }
-    if (!funcion) {
-        mostrarToast('⚠️ Seleccione una responsabilidad', 'warning');
-        return;
-    }
-    if (estado === 'apoyo_pc_municipio' && !municipio) {
-        mostrarToast('⚠️ Escriba el nombre del municipio', 'warning');
-        document.getElementById('respMunicipio').focus();
-        return;
-    }
-    
-    var funcionTexto = {
-        'inspector': '🔍 Inspector',
-        'rescate_vehicular': '🚗 Rescate Vehicular',
-        'edanista': '📋 Edanista',
-        'logistico': '📦 Logístico',
-        'conductor': '🚗 Conductor',
-        'escribiente': '✍️ Escribiente',
-        'auxiliar': '🤝 Auxiliar',
-        'aph': '🚑 APH',
-        'rescate': '🪢 Rescate',
-        'bombero': '🔥 Bombero',
-        'operador_comunicaciones': '📡 Operador Comunicaciones',
-        'seguridad': '🛡️ Seguridad',
-        'coordinacion': '👔 Coordinación',
-        'monitoreo': '📡 Monitoreo',
-        'apoyo': '🤝 Apoyo',
-        'otro': '📌 Otro'
-    };
-    
-    var estadoTexto = {
-        'disponible': '✅ Disponible',
-        'en_servicio': '🔄 En Servicio',
-        'reposo': '🛌 Reposo',
-        'permiso': '📋 Permiso',
-        'vacaciones': '🏖️ Vacaciones',
-        'comision_municipio': '🏛️ Comisión en Municipio',
-        'comision_nacional': '🇻🇪 Comisión Nacional',
-        'comision_internacional': '🌍 Comisión Internacional',
-        'apoyo_instituciones': '🤝 Apoyo a otras Instituciones',
-        'apoyo_zoedan': '🛡️ Apoyo a ZOEDAN',
-        'apoyo_pc_municipio': '🚒 Apoyo a PC Municipio'
-    };
-    
-    var nombreOficial = 'Desconocido';
-    for (var i = 0; i < integrantesGrupo.length; i++) {
-        if (integrantesGrupo[i].id === oficialId) {
-            nombreOficial = integrantesGrupo[i].nombre;
-            break;
-        }
-    }
-    
-    var existe = false;
-    for (var j = 0; j < responsabilidadesTemporales.length; j++) {
-        if (responsabilidadesTemporales[j].oficialId === oficialId && 
-            responsabilidadesTemporales[j].funcion === funcion) {
-            existe = true;
-            break;
-        }
-    }
-    
-    if (existe) {
-        mostrarToast('⚠️ Este oficial ya tiene esta responsabilidad', 'warning');
-        return;
-    }
-    
-    var estadoCompleto = estadoTexto[estado] || '✅ Disponible';
-    if (estado === 'apoyo_pc_municipio' && municipio) {
-        estadoCompleto = '🚒 Apoyo a PC ' + municipio;
-    }
-    
-    responsabilidadesTemporales.push({
-        oficialId: oficialId,
-        funcion: funcion,
-        responsabilidad: funcionTexto[funcion] || funcion,
-        estado: estado,
-        estadoTexto: estadoCompleto,
-        municipio: municipio,
-        nombre: nombreOficial
-    });
-    
-    mostrarToast('✅ ' + nombreOficial + ': ' + (funcionTexto[funcion] || funcion) + ' (' + estadoCompleto + ')', 'success');
-    
-    document.getElementById('respMunicipio').value = '';
-    document.getElementById('campoMunicipio').style.display = 'none';
-    
-    cargarIntegrantesServicio();
-    actualizarListaResponsabilidades();
-}
-
-function actualizarListaResponsabilidades() {
-    var container = document.getElementById('listaResponsabilidadesAsignadas');
-    var totalBadge = document.getElementById('totalResponsabilidades');
-    
-    if (!container) return;
-    
-    if (responsabilidadesTemporales.length === 0) {
-        container.innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
-        if (totalBadge) totalBadge.textContent = '0 asignadas';
-        return;
-    }
-    
-    if (totalBadge) totalBadge.textContent = responsabilidadesTemporales.length + ' asignadas';
-    
-    var html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
-    html += '<thead class="table-dark"><tr><th>#</th><th>Oficial</th><th>Responsabilidad</th><th>Estado</th><th>Acción</th></tr></thead><tbody>';
-    
-    for (var idx = 0; idx < responsabilidadesTemporales.length; idx++) {
-        var r = responsabilidadesTemporales[idx];
-        var estadoColor = {
-            'disponible': 'success',
-            'en_servicio': 'primary',
-            'reposo': 'warning',
-            'permiso': 'info',
-            'vacaciones': 'secondary',
-            'comision_municipio': 'info',
-            'comision_nacional': 'primary',
-            'comision_internacional': 'dark',
-            'apoyo_instituciones': 'secondary',
-            'apoyo_zoedan': 'warning',
-            'apoyo_pc_municipio': 'danger'
-        };
-        var color = estadoColor[r.estado] || 'secondary';
-        html += '<tr><td>' + (idx + 1) + '</td><td><strong>' + r.nombre + '</strong></td><td><span class="badge bg-primary">' + r.responsabilidad + '</span></td><td><span class="badge bg-' + color + '">' + (r.estadoTexto || '✅ Disponible') + '</span></td><td><button class="btn btn-sm btn-danger" onclick="eliminarResponsabilidadMejorado(' + idx + ')"><i class="fas fa-trash"></i></button></td></tr>';
-    }
-    
-    html += '</tbody></table></div>';
-    container.innerHTML = html;
-}
-
-function eliminarResponsabilidadMejorado(index) {
-    if (!confirm('¿Eliminar esta responsabilidad?')) return;
-    responsabilidadesTemporales.splice(index, 1);
-    cargarIntegrantesServicio();
-    actualizarListaResponsabilidades();
-    mostrarToast('✅ Responsabilidad eliminada', 'success');
-}
-
-function abrirServicioMejorado() {
-    var grupo = document.getElementById('sGrupo').value;
-    var fecha = document.getElementById('sFecha').value;
-    var jefeNombre = document.getElementById('sJefeNombre').value;
-    
-    if (!grupo) {
-        mostrarToast('⚠️ Seleccione un grupo', 'warning');
-        return;
-    }
-    if (!fecha) {
-        mostrarToast('⚠️ Seleccione fecha y hora', 'warning');
-        return;
-    }
-    if (responsabilidadesTemporales.length === 0) {
-        mostrarToast('⚠️ Asigne al menos una responsabilidad', 'warning');
-        return;
-    }
-    
-    var grouped = {};
-    for (var i = 0; i < responsabilidadesTemporales.length; i++) {
-        var item = responsabilidadesTemporales[i];
-        if (!grouped[item.oficialId]) {
-            grouped[item.oficialId] = {
-                oficialId: item.oficialId,
-                nombre: item.nombre,
-                estado: item.estado,
-                estadoTexto: item.estadoTexto,
-                municipio: item.municipio || '',
-                responsabilidades: []
-            };
-        }
-        grouped[item.oficialId].responsabilidades.push(item.responsabilidad);
-    }
-    
-    var responsabilidadesArray = Object.values(grouped);
-    var data = {
-        grupo: grupo,
-        jefe: jefeNombre || 'No definido',
-        fechaApertura: new Date(fecha).toISOString(),
-        estado: 'activo',
-        responsabilidades: responsabilidadesArray,
-        creadoPor: auth.currentUser?.email || 'Sistema',
-        fechaRegistro: new Date().toISOString()
-    };
-    
-    db.collection('servicio').add(data)
-        .then(function() {
-            var updates = [];
-            for (var j = 0; j < responsabilidadesArray.length; j++) {
-                var r = responsabilidadesArray[j];
-                var estadoFinal = r.estado;
-                if (r.estado === 'apoyo_pc_municipio' && r.municipio) {
-                    estadoFinal = 'apoyo_pc_' + r.municipio;
-                }
-                updates.push(db.collection('personal').doc(r.oficialId).update({
-                    estado_personal: estadoFinal,
-                    estado_texto: r.estadoTexto,
-                    ultima_actualizacion: new Date().toISOString()
-                }));
-            }
-            return Promise.all(updates);
-        })
-        .then(function() {
-            mostrarToast('✅ Servicio de ' + grupo + ' abierto correctamente', 'success');
-            responsabilidadesTemporales = [];
-            cargarServicioMejorado();
-            cargarDashboard();
-            cargarPersonal();
-            
-            document.getElementById('sGrupo').value = '';
-            document.getElementById('sJefeNombre').value = '';
-            document.getElementById('integrantesServicio').innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
-            document.getElementById('listaResponsabilidadesAsignadas').innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
-            document.getElementById('totalResponsabilidades').textContent = '0 asignadas';
-            document.getElementById('totalIntegrantes').textContent = '0 integrantes';
-            document.getElementById('campoMunicipio').style.display = 'none';
-            document.getElementById('respMunicipio').value = '';
-        })
-        .catch(function(error) {
-            console.error('Error:', error);
-            mostrarToast('❌ Error: ' + error.message, 'danger');
-        });
-}
-
-function cargarServicioMejorado() {
-    var container = document.getElementById('sActual');
-    
-    db.collection('servicio')
-        .where('estado', '==', 'activo')
-        .get()
-        .then(function(snap) {
-            if (snap.empty) {
-                container.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
-                return;
-            }
-            
-            var docs = [];
-            snap.forEach(function(doc) {
-                docs.push({ id: doc.id, ...doc.data() });
-            });
-            docs.sort(function(a, b) {
-                return new Date(b.fechaApertura) - new Date(a.fechaApertura);
-            });
-            
-            var data = docs[0];
-            var fecha = data.fechaApertura ? new Date(data.fechaApertura).toLocaleString() : 'N/A';
-            
-            var html = '<div class="alert alert-success"><strong>📋 ' + data.grupo + '</strong><br>📅 ' + fecha + '<br>👤 Jefe: <strong>' + (data.jefe || 'No definido') + '</strong><br>';
-            
-            if (data.responsabilidades && data.responsabilidades.length > 0) {
-                html += '<hr><strong>📋 Responsabilidades asignadas:</strong><br>';
-                for (var i = 0; i < data.responsabilidades.length; i++) {
-                    var r = data.responsabilidades[i];
-                    html += '<div class="list">• ' + (r.nombre || 'Desconocido') + ': <strong>' + r.responsabilidades.join(', ') + '</strong></div>';
-                }
-            } else {
-                html += '<p class="text-muted">Sin responsabilidades asignadas</p>';
-            }
-            
-            html += '</div>';
-            container.innerHTML = html;
-        })
-        .catch(function(error) {
-            console.error('Error cargando servicio:', error);
-            container.innerHTML = '<p class="text-danger">Error al cargar el servicio</p>';
-        });
-}
-
-function cerrarServicio() {
-    if (!confirm('¿Está seguro de cerrar el servicio actual?')) return;
-    
-    db.collection('servicio')
-        .where('estado', '==', 'activo')
-        .get()
-        .then(function(snap) {
-            if (snap.empty) {
-                mostrarToast('⚠️ No hay servicio activo para cerrar', 'warning');
-                return;
-            }
-            
-            var promises = [];
-            snap.forEach(function(doc) {
-                promises.push(
-                    db.collection('servicio').doc(doc.id).update({
-                        estado: 'cerrado',
-                        fechaCierre: new Date().toISOString()
-                    })
-                );
-            });
-            
-            return Promise.all(promises);
-        })
-        .then(function() {
-            mostrarToast('✅ Servicio cerrado correctamente', 'success');
-            cargarServicioMejorado();
-            cargarDashboard();
-        })
-        .catch(function(error) {
-            console.error('Error:', error);
-            mostrarToast('❌ Error: ' + error.message, 'danger');
-        });
-}
-
-function limpiarServicio() {
-    if (!confirm('¿Limpiar el formulario de servicio?')) return;
-    
-    responsabilidadesTemporales = [];
-    document.getElementById('sGrupo').value = '';
-    document.getElementById('sJefeNombre').value = '';
-    document.getElementById('sFecha').value = '';
-    document.getElementById('integrantesServicio').innerHTML = '<p class="text-muted">Seleccione un grupo para ver los integrantes.</p>';
-    document.getElementById('listaResponsabilidadesAsignadas').innerHTML = '<p class="text-muted">No hay responsabilidades asignadas.</p>';
-    document.getElementById('totalIntegrantes').textContent = '0 integrantes';
-    document.getElementById('totalResponsabilidades').textContent = '0 asignadas';
-    document.getElementById('jefeServicioBadge').textContent = '👔 Jefe: No asignado';
-    document.getElementById('campoMunicipio').style.display = 'none';
-    document.getElementById('respMunicipio').value = '';
-    
-    mostrarToast('🧹 Formulario limpiado', 'info');
-}
-
-// ============================================
-// FUNCIONES DE DASHBOARD
-// ============================================
-function cargarDashboard() {
-    db.collection('personal').get().then(function(snap) {
-        document.getElementById('totalPersonal').textContent = snap.size;
-    }).catch(function() {});
-    db.collection('solicitudes').get().then(function(snap) {
-        document.getElementById('totalSolicitudes').textContent = snap.size;
-    }).catch(function() {});
-    db.collection('edan').get().then(function(snap) {
-        document.getElementById('totalEdan').textContent = snap.size;
-    }).catch(function() {});
-    db.collection('alertas').where('estado', '==', 'activa').get().then(function(snap) {
-        document.getElementById('totalAlertas').textContent = snap.size;
-    }).catch(function() {});
-    
-    db.collection('servicio').where('estado', '==', 'activo').get().then(function(snap) {
-        var div = document.getElementById('servicioActivo');
-        if (!snap.empty) {
-            var docs = [];
-            snap.forEach(function(doc) { docs.push({ id: doc.id, ...doc.data() }); });
-            docs.sort(function(a, b) { return new Date(b.fechaApertura) - new Date(a.fechaApertura); });
-            var data = docs[0];
-            div.innerHTML = '<div class="alert alert-success"><strong>' + data.grupo + '</strong> - Jefe: ' + (data.jefe || 'No definido') + '</div>';
-        } else {
-            div.innerHTML = '<p class="text-muted">No hay servicio activo</p>';
-        }
-    }).catch(function() {});
-    
-    verificarAlertas72h();
-}
-
-function verificarAlertas72h() {
-    var hoy = new Date();
-    var hace72h = new Date(hoy.getTime() - 72 * 60 * 60 * 1000);
-    
-    db.collection('solicitudes')
-        .where('estado', 'in', ['recibida', 'en_proceso'])
-        .get()
-        .then(function(snap) {
-            var container = document.getElementById('alertas72h');
-            var badge = document.getElementById('alerta72hBadge');
-            var hayAlertas = false;
-            var html = '';
-            
-            snap.forEach(function(doc) {
-                var data = doc.data();
-                var fecha = data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha);
-                if (fecha < hace72h) {
-                    hayAlertas = true;
-                    html += '<div class="alerta-72h"><strong>⚠️ ' + data.solicitante + '</strong> - ' + (data.descripcion?.substring(0, 50) || '') + '...<br><small>' + fecha.toLocaleDateString() + '</small></div>';
-                }
-            });
-            
-            if (hayAlertas) {
-                container.innerHTML = html;
-                if (badge) badge.style.display = 'inline-block';
-            } else {
-                container.innerHTML = '<p class="text-muted">No hay solicitudes pendientes con más de 72h</p>';
-                if (badge) badge.style.display = 'none';
-            }
-        }).catch(function() {});
-}
-
-// ============================================
-// FUNCIONES DE PERSONAL
-// ============================================
-function cargarPersonal() {
-    db.collection('personal').orderBy('fechaRegistro', 'desc').get()
-        .then(function(snap) {
-            var container = document.getElementById('listaPersonal');
-            if (snap.empty) { 
-                container.innerHTML = '<p class="text-muted">No hay personal registrado</p>';
-                return; 
-            }
-            var html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>#</th><th>Nombre</th><th>Jerarquía</th><th>Grupos</th><th>Acciones</th></tr></thead><tbody>';
-            var i = 1;
-            snap.forEach(function(doc) {
-                var data = doc.data();
-                var id = doc.id;
-                html += '<tr><td>' + (i++) + '</td><td><strong>' + data.apellido + ', ' + data.nombre + '</strong></td><td>' + (data.jerarquia || '-') + '</td><td>' + (data.grupos ? data.grupos.join(', ') : '-') + '</td><td><button class="btn btn-sm btn-primary" onclick="editarPersonal(\'' + id + '\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="eliminarPersonal(\'' + id + '\')"><i class="fas fa-trash"></i></button></td></tr>';
-            });
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
-        }).catch(function() {});
-}
-
-// ============================================
-// FUNCIONES DE GRUPOS
-// ============================================
-function cargarGrupos() {
-    db.collection('grupos').get()
-        .then(function(snap) {
-            var jefeSelect = document.getElementById('gJefe');
-            var jefesGuardados = {};
-            snap.forEach(function(doc) {
-                var data = doc.data();
-                if (data.jefe) jefesGuardados[doc.id] = data.jefe;
-            });
-            db.collection('personal').get()
-                .then(function(snapPersonal) {
-                    jefeSelect.innerHTML = '<option value="">Seleccionar Jefe</option>';
-                    snapPersonal.forEach(function(doc) {
-                        var data = doc.data();
-                        var selected = jefesGuardados[doc.id] ? 'selected' : '';
-                        jefeSelect.innerHTML += '<option value="' + doc.id + '" ' + selected + '>' + data.apellido + ', ' + data.nombre + ' - ' + (data.jerarquia || '') + '</option>';
-                    });
-                    cargarIntegrantes();
-                }).catch(function() {});
-        }).catch(function() {});
-}
-
-function cargarIntegrantes() {
-    var grupo = document.getElementById('gSelect').value;
-    var container = document.getElementById('gIntegrantes');
-    if (!grupo) { container.innerHTML = '<p class="text-muted">Seleccione un grupo</p>'; return; }
-    container.innerHTML = '<p class="text-muted">Cargando...</p>';
-    db.collection('personal').where('grupos', 'array-contains', grupo).get()
-        .then(function(snap) {
-            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay integrantes</p>'; return; }
-            var html = '<ul class="list-group">';
-            snap.forEach(function(doc) {
-                var data = doc.data();
-                html += '<li class="list-group-item">' + data.apellido + ', ' + data.nombre + ' - ' + (data.jerarquia || '') + '</li>';
-            });
-            html += '</ul>';
-            container.innerHTML = html;
-        }).catch(function() {});
-}
-
-function actualizarJefe() {
-    var grupo = document.getElementById('gSelect').value;
-    var jefeId = document.getElementById('gJefe').value;
-    if (!grupo || !jefeId) {
-        mostrarToast('⚠️ Seleccione grupo y jefe', 'warning');
-        return;
-    }
-    db.collection('personal').doc(jefeId).get()
-        .then(function(doc) {
-            if (!doc.exists) { mostrarToast('❌ Personal no encontrado', 'danger'); return; }
-            var data = doc.data();
-            var nombre = data.apellido + ', ' + data.nombre;
-            db.collection('grupos').doc(grupo).set({
-                jefe: jefeId,
-                jefeNombre: nombre,
-                actualizado: new Date().toISOString()
-            }, { merge: true })
-            .then(function() {
-                mostrarToast('✅ ' + nombre + ' es Jefe de ' + grupo, 'success');
-                cargarIntegrantes();
-            }).catch(function() {});
-        }).catch(function() {});
-}
-
-// ============================================
-// FUNCIONES DE VEHÍCULOS
-// ============================================
-function cargarVehiculos() {
-    db.collection('vehiculos').orderBy('fechaRegistro', 'desc').get()
-        .then(function(snap) {
-            var container = document.getElementById('listaVehiculos');
-            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay vehículos</p>'; return; }
-            var html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Placa</th><th>Tipo</th><th>Modelo</th><th>Estado</th><th>Kilometraje</th></tr></thead><tbody>';
-            snap.forEach(function(doc) {
-                var data = doc.data();
-                var estadoColor = { 'disponible': 'success', 'en_servicio': 'info', 'mantenimiento': 'warning', 'averiado': 'danger' };
-                var estadoTexto = { 'disponible': '✅ Disponible', 'en_servicio': '🔄 En Servicio', 'mantenimiento': '🔧 Mantenimiento', 'averiado': '❌ Averiado' };
-                html += '<tr><td><strong>' + data.placa + '</strong></td><td>' + data.tipo + '</td><td>' + data.modelo + '</td><td><span class="badge bg-' + (estadoColor[data.estado] || 'secondary') + '">' + (estadoTexto[data.estado] || data.estado) + '</span></td><td>' + data.kilometraje + ' km</td></tr>';
-            });
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
-        }).catch(function() {});
-}
-
-// ============================================
-// FUNCIONES DE SOLICITUDES
-// ============================================
-function crearSolicitud() {
-    var solicitante = document.getElementById('solSolicitante').value.trim();
-    var descripcion = document.getElementById('solDescripcion').value.trim();
-    if (!solicitante || !descripcion) {
-        mostrarToast('⚠️ Complete los campos', 'warning');
-        return;
-    }
-    var data = {
-        solicitante: solicitante,
-        descripcion: descripcion,
-        telefono: document.getElementById('solTelefono').value.trim(),
-        direccion: document.getElementById('solDireccion').value.trim(),
-        tipo: document.getElementById('solTipo').value,
-        prioridad: document.getElementById('solPrioridad').value,
-        estado: 'recibida',
-        fecha: new Date().toISOString(),
-        seguimiento: [{ fecha: new Date().toISOString(), accion: 'Recibida', usuario: auth.currentUser?.email || 'Sistema' }]
-    };
-    db.collection('solicitudes').add(data)
-        .then(function() { mostrarToast('✅ Solicitud registrada', 'success'); cargarSolicitudes(); })
-        .catch(function(error) { mostrarToast('❌ Error: ' + error.message, 'danger'); });
-}
-
-function cargarSolicitudes() {
-    db.collection('solicitudes').where('estado', 'in', ['recibida', 'en_proceso']).get()
-        .then(function(snap) {
-            var container = document.getElementById('listaSolicitudes');
-            if (snap.empty) { container.innerHTML = '<p class="text-muted">No hay solicitudes activas</p>'; return; }
-            var docs = [];
-            snap.forEach(function(doc) { docs.push({ id: doc.id, ...doc.data() }); });
-            docs.sort(function(a, b) { return new Date(b.fecha) - new Date(a.fecha); });
-            var html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Solicitante</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>';
-            for (var i = 0; i < docs.length; i++) {
-                var data = docs[i];
-                var prioridadColor = data.prioridad === 'alta' ? 'danger' : data.prioridad === 'media' ? 'warning' : 'info';
-                html += '<tr><td><strong>' + data.solicitante + '</strong></td><td>' + (data.tipo || '—') + '</td><td><span class="badge bg-' + prioridadColor + '">' + data.prioridad + '</span></td><td><span class="badge ' + (data.estado === 'recibida' ? 'badge-warning' : 'badge-info') + '">' + data.estado + '</span></td><td><button class="btn btn-sm btn-success" onclick="atenderSolicitud(\'' + docs[i].id + '\')"><i class="fas fa-check"></i></button> <button class="btn btn-sm btn-danger" onclick="cancelarSolicitud(\'' + docs[i].id + '\')"><i class="fas fa-times"></i></button></td></tr>';
-            }
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
-        }).catch(function() {});
-}
-
-function atenderSolicitud(id) {
-    db.collection('solicitudes').doc(id).update({
-        estado: 'completada',
-        fechaAtencion: new Date().toISOString(),
-        seguimiento: firebase.firestore.FieldValue.arrayUnion({
-            fecha: new Date().toISOString(),
-            accion: 'Atendida',
-            usuario: auth.currentUser?.email || 'Sistema'
-        })
-    }).then(function() { mostrarToast('✅ Solicitud atendida', 'success'); cargarSolicitudes(); })
-        .catch(function(error) { mostrarToast('❌ Error: ' + error.message, 'danger'); });
-}
-
-function cancelarSolicitud(id) {
-    if (!confirm('¿Cancelar esta solicitud?')) return;
-    db.collection('solicitudes').doc(id).update({
-        estado: 'cancelada',
-        fechaCancelacion: new Date().toISOString()
-    }).then(function() { mostrarToast('✅ Solicitud cancelada', 'success'); cargarSolicitudes(); })
-        .catch(function(error) { mostrarToast('❌ Error: ' + error.message, 'danger'); });
-}
-
-// ============================================
-// INICIALIZACIÓN
-// ============================================
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 SIGR-PC V2.0 cargado correctamente');
-    
-    var fecha = new Date().toISOString().split('T')[0];
-    var parteFecha = document.getElementById('parteFecha');
-    if (parteFecha) parteFecha.value = fecha;
-    
-    var sFecha = document.getElementById('sFecha');
-    if (sFecha) sFecha.value = new Date().toISOString().slice(0, 16);
-    
-    var cierreMes = document.getElementById('cierreMes');
-    if (cierreMes) cierreMes.value = new Date().toISOString().slice(0, 7);
-    
-    cargarDatos();
-    setInterval(verificarAlertas72h, 300000);
+  }else{
+    SIGR.usuario = null;
+    mostrarLogin();
+  }
 });
 
-</script>
+/* ============================================================
+   NAVEGACIÓN ENTRE VISTAS
+   ============================================================ */
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+function mostrarLogin(){
+  document.getElementById('loginView').style.display = 'flex';
+  document.getElementById('appView').classList.remove('active');
+}
+
+function mostrarApp(){
+  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('appView').classList.add('active');
+
+  const u = SIGR.usuario;
+  document.getElementById('topEmail').textContent = u.email || '—';
+  document.getElementById('topRol').textContent   = (u.rol || '—').replace('_',' ');
+}
+
+/**
+ * Muestra la sección indicada. Los módulos 2-5 llaman a esta función.
+ * Si la sección pertenece a un módulo no cargado, avisa.
+ */
+function mostrarSeccion(target){
+  // Buscar la sección
+  const sec = document.getElementById('sec-' + target);
+  if(!sec){
+    alert('Este módulo aún no está cargado en el sistema.');
+    return;
+  }
+  // Ocultar todas, mostrar la pedida
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  sec.classList.add('active');
+
+  // Resaltar en sidebar
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const item = document.querySelector('.nav-item[data-target="'+target+'"]');
+  if(item){
+    item.classList.remove('disabled');
+    item.classList.add('active');
+  }
+  // Scroll arriba
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/**
+ * Habilita en el sidebar las opciones cuyos módulos ya están cargados.
+ * Los módulos 2-5 llaman a esta función al terminar de registrarse.
+ */
+function habilitarModulo(numModulo){
+  SIGR.modulosCargados[numModulo] = true;
+  document.querySelectorAll('.nav-item[data-modulo="'+numModulo+'"]').forEach(n=>{
+    n.classList.remove('disabled');
+  });
+  const badge = document.getElementById('mod'+numModulo+'Estado');
+  if(badge){
+    badge.textContent = 'Activo';
+    badge.className = 'badge en_servicio';
+  }
+}
+window.habilitarModulo = habilitarModulo;
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+
+async function actualizarDashboard(){
+  try{
+    const [personal, solicitudes, edan, alertas, servicio, solicitudes72] = await Promise.all([
+      db.collection('personal').where('activo','==',true).get().catch(()=>({size:0})),
+      db.collection('solicitudes').where('estado','==','pendiente').get().catch(()=>({size:0})),
+      db.collection('edan').get().catch(()=>({size:0})),
+      db.collection('alertas').where('activa','==',true).get().catch(()=>({size:0})),
+      db.collection('servicio').where('estado','==','activo').limit(1).get().catch(()=>({size:0})),
+      db.collection('solicitudes').where('estado','==','pendiente').get().catch(()=>({docs:[]}))
+    ]);
+
+    document.getElementById('dashPersonal').textContent    = personal.size || 0;
+    document.getElementById('dashSolicitudes').textContent = solicitudes.size || 0;
+    document.getElementById('dashEdan').textContent        = edan.size || 0;
+    document.getElementById('dashAlertas').textContent     = alertas.size || 0;
+    document.getElementById('dashServicioActivo').textContent =
+      (servicio.size > 0) ? 'SÍ' : 'NO';
+
+    // Alertas 72h: solicitudes pendientes con más de 72 horas
+    let cont72 = 0;
+    const ahora = Date.now();
+    (solicitudes72.docs || []).forEach(d=>{
+      const data = d.data();
+      const f = data.fecha_creacion?.toDate?.() || data.fechaCreacion?.toDate?.();
+      if(f && (ahora - f.getTime()) > (72*60*60*1000)) cont72++;
+    });
+    document.getElementById('dashAlertas72').textContent = cont72;
+
+  }catch(e){
+    console.error('Error dashboard:', e);
+  }
+}
+window.actualizarDashboard = actualizarDashboard;
+
+/* ============================================================
+   DATOS BASE COMPARTIDOS (los usarán los módulos 2-5)
+   ============================================================ */
+
+/**
+ * Carga en caché: personal, grupos, vehículos, sello y pie de página.
+ */
+async function cargarDatosBase(){
+  try{
+    const [p, g, v] = await Promise.all([
+      db.collection('personal').get().catch(()=>({docs:[]})),
+      db.collection('grupos').get().catch(()=>({docs:[]})),
+      db.collection('vehiculos').get().catch(()=>({docs:[]}))
+    ]);
+    SIGR.personal  = p.docs.map(d=>({id:d.id, ...d.data()}));
+    SIGR.grupos    = g.docs.map(d=>({id:d.id, ...d.data()}));
+    SIGR.vehiculos = v.docs.map(d=>({id:d.id, ...d.data()}));
+  }catch(e){
+    console.error('Error cargando datos base:', e);
+  }
+
+  // Sello y pie de página institucional (para PDFs)
+  try{
+    const s = await db.collection('config').doc('sello').get();
+    if(s.exists && s.data().imagen) SIGR.selloB64 = s.data().imagen;
+  }catch(e){ /* silencioso */ }
+  try{
+    const p = await db.collection('config').doc('pie_pagina').get();
+    if(p.exists && p.data().imagen) SIGR.pieB64 = p.data().imagen;
+  }catch(e){ /* silencioso */ }
+}
+window.cargarDatosBase = cargarDatosBase;
+
+/* ============================================================
+   HELPERS GLOBALES (los usarán los módulos 2-5)
+   ============================================================ */
+
+/**
+ * Lee un archivo de imagen y devuelve Base64 (sin comprimir).
+ */
+function leerFotoBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = ()=>resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+window.leerFotoBase64 = leerFotoBase64;
+
+/**
+ * Comprime una imagen a Base64. Por defecto: 300px ancho, JPEG 0.7.
+ */
+function comprimirImagen(file, maxAncho=300, calidad=0.7){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = (ev)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const canvas = document.createElement('canvas');
+        const ratio  = img.height / img.width;
+        canvas.width  = Math.min(maxAncho, img.width);
+        canvas.height = Math.round(canvas.width * ratio);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', calidad));
+      };
+      img.onerror = reject;
+      img.src = ev.target.result;
+    };
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+window.comprimirImagen = comprimirImagen;
+
+/**
+ * Formatea fecha a dd/mm/yyyy.
+ */
+function formatearFecha(d){
+  if(!d) return '—';
+  const f = (d.toDate)?d.toDate():new Date(d);
+  const dd = String(f.getDate()).padStart(2,'0');
+  const mm = String(f.getMonth()+1).padStart(2,'0');
+  return dd+'/'+mm+'/'+f.getFullYear();
+}
+window.formatearFecha = formatearFecha;
+
+/**
+ * Formatea fecha y hora a dd/mm/yyyy hh:mm.
+ */
+function formatearFechaHora(d){
+  if(!d) return '—';
+  const f = (d.toDate)?d.toDate():new Date(d);
+  const dd = String(f.getDate()).padStart(2,'0');
+  const mm = String(f.getMonth()+1).padStart(2,'0');
+  const hh = String(f.getHours()).padStart(2,'0');
+  const mi = String(f.getMinutes()).padStart(2,'0');
+  return dd+'/'+mm+'/'+f.getFullYear()+' '+hh+':'+mi;
+}
+window.formatearFechaHora = formatearFechaHora;
+
+/**
+ * Genera folio correlativo global (compartido entre Vivienda, EDAN y Certificación).
+ * Formato: PC-XXX-YYYY-NNNN
+ * Usa db.runTransaction() sobre contadores/folios_{año}.
+ * Se asigna al generar el PDF, no al guardar.
+ */
+async function generarFolio(tipo){
+  const año = new Date().getFullYear();
+  const ref  = db.collection('contadores').doc('folios_'+año);
+  const nro = await db.runTransaction(async (tx)=>{
+    const snap = await tx.get(ref);
+    let actual = 0;
+    if(snap.exists) actual = snap.data().ultimo || 0;
+    actual++;
+    if(snap.exists){
+      tx.update(ref, { ultimo: actual, actualizado: firebase.firestore.FieldValue.serverTimestamp() });
+    }else{
+      tx.set(ref, { ultimo: actual, año: año, creado: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    return actual;
+  });
+  const nnnn = String(nro).padStart(4,'0');
+  return 'PC-'+tipo+'-'+año+'-'+nnnn;
+}
+window.generarFolio = generarFolio;
+
+/**
+ * Devuelve el array de inspectores (personal con responsabilidad inspector o edanista).
+ */
+function getInspectores(){
+  return SIGR.personal.filter(p =>
+    p.activo !== false &&
+    (p.responsabilidad === 'inspector' || p.responsabilidad === 'edanista')
+  );
+}
+window.getInspectores = getInspectores;
+
+/**
+ * Devuelve el array de personal activo.
+ */
+function getPersonalActivo(){
+  return SIGR.personal.filter(p => p.activo !== false);
+}
+window.getPersonalActivo = getPersonalActivo;
+
+/**
+ * Devuelve el array de vehículos activos.
+ */
+function getVehiculosActivos(){
+  return SIGR.vehiculos.filter(v => v.activo !== false);
+}
+window.getVehiculosActivos = getVehiculosActivos;
+
+/* ============================================================
+   HELPERS DE PDF (los usarán los módulos 2)
+   ============================================================ */
+
+/**
+ * Dibuja el encabezado oficial en un PDF jsPDF.
+ * Logo PC izquierda, logo Gobernación derecha, título centrado, subtítulo, fecha.
+ * Devuelve la coordenada Y donde debe continuar el contenido.
+ */
+async function encabezadoPDF(doc, titulo, subtitulo){
+  const W = doc.internal.pageSize.getWidth();
+  const fecha = new Date().toLocaleDateString('es-VE');
+
+  // Logos (intento Firestore, fallback a archivos del repo)
+  try{
+    const logoPC  = await cargarImagenBase64('LOGO%20PC.png', SIGR.selloB64);
+    const logoGob = await cargarImagenBase64('LOGO%20GOBERNACION.png', null);
+    if(logoPC)  doc.addImage(logoPC,  'PNG', 12, 8, 22, 22);
+    if(logoGob) doc.addImage(logoGob, 'PNG', W-34, 8, 22, 22);
+  }catch(e){ /* sin logos no se rompe el PDF */ }
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  doc.setTextColor(11,42,74);
+  doc.text('PROTECCIÓN CIVIL — MUNICIPIO PAPELÓN', W/2, 16, {align:'center'});
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.text('Estado Portuguesa — Venezuela', W/2, 21, {align:'center'});
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  doc.text(titulo.toUpperCase(), W/2, 30, {align:'center'});
+
+  if(subtitulo){
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.text(subtitulo, W/2, 35, {align:'center'});
+  }
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(90,90,90);
+  doc.text('Fecha: '+fecha, W-12, 40, {align:'right'});
+
+  doc.setDrawColor(11,42,74);
+  doc.setLineWidth(0.6);
+  doc.line(10, 44, W-10, 44);
+
+  doc.setTextColor(0,0,0);
+  return 50;
+}
+window.encabezadoPDF = encabezadoPDF;
+
+/**
+ * Dibuja el recuadro con el folio oficial.
+ */
+function recuadroFolioPDF(doc, folio, y){
+  const W = doc.internal.pageSize.getWidth();
+  doc.setDrawColor(11,42,74);
+  doc.setLineWidth(0.8);
+  doc.roundedRect(W/2-45, y, 90, 10, 2, 2);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  doc.setTextColor(11,42,74);
+  doc.text('N° '+folio, W/2, y+6.8, {align:'center'});
+  doc.setTextColor(0,0,0);
+  return y+15;
+}
+window.recuadroFolioPDF = recuadroFolioPDF;
+
+/**
+ * Agrega el pie de página institucional a TODAS las páginas del PDF.
+ * Imagen centrada, "SIGR-PC | Protección Civil - Municipio Papelón" a la izq.,
+ * "Página X de Y" a la der. Helvetica 7pt gris.
+ */
+async function pieDePaginaPDF(doc){
+  const total = doc.internal.getNumberOfPages();
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+
+  let imgPie = SIGR.pieB64;
+  if(!imgPie){
+    try{
+      imgPie = await cargarImagenBase64('PIE%20DE%20PAGIAN2.png', null);
+    }catch(e){ /* sin imagen */ }
+  }
+
+  for(let i=1; i<=total; i++){
+    doc.setPage(i);
+
+    if(imgPie){
+      try{
+        const w = 60, h = 10;
+        doc.addImage(imgPie, 'PNG', W/2 - w/2, H-14, w, h);
+      }catch(e){ /* silencioso */ }
+    }
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    doc.setTextColor(120,120,120);
+    doc.text('SIGR-PC | Protección Civil - Municipio Papelón', 10, H-4);
+    doc.text('Página '+i+' de '+total, W-10, H-4, {align:'right'});
+  }
+  doc.setTextColor(0,0,0);
+}
+window.pieDePaginaPDF = pieDePaginaPDF;
+
+/**
+ * Dibuja el marco legal (texto justificado, Helvetica 9pt).
+ */
+function marcoLegalPDF(doc, texto, y){
+  const W = doc.internal.pageSize.getWidth();
+  const M = 12;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  const lineas = doc.splitTextToSize(texto, W - M*2);
+  doc.text(lineas, M, y, {align:'justify', maxWidth: W - M*2});
+  return y + lineas.length * 4;
+}
+window.marcoLegalPDF = marcoLegalPDF;
+
+/**
+ * Carga una imagen como Base64: primero intenta Firestore (si base64 pasada),
+ * si no, intenta el archivo del repo con fetch.
+ */
+async function cargarImagenBase64(nombreRepo, base64Firestore){
+  if(base64Firestore) return base64Firestore;
+  try{
+    const resp = await fetch(nombreRepo);
+    if(!resp.ok) return null;
+    const blob = await resp.blob();
+    return await new Promise((res,rej)=>{
+      const r = new FileReader();
+      r.onload = ()=>res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(blob);
+    });
+  }catch(e){
+    return null;
+  }
+}
+window.cargarImagenBase64 = cargarImagenBase64;
+
+/* ============================================================
+   INICIALIZACIÓN
+   ============================================================ */
+
+// Enter en el login
+document.addEventListener('DOMContentLoaded', ()=>{
+  const em = document.getElementById('loginEmail');
+  const pw = document.getElementById('loginPass');
+  if(em && pw){
+    [em,pw].forEach(el=>el.addEventListener('keydown', e=>{
+      if(e.key === 'Enter') iniciarSesion();
+    }));
+  }
+  console.log('%c SIGR-PC V3.0 — Módulo 1 cargado ','background:#0b2a4a;color:#fff;padding:4px 8px;border-radius:3px;');
+});
+</script>
 
 </body>
 </html>
