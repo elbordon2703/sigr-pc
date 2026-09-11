@@ -730,9 +730,7 @@ async function iniciarSesion(){
   try{
   await auth.signInWithEmailAndPassword(email, pass);
 // No hace falta hacer nada más: onAuthStateChanged se encarga del resto.
-    sessionStorage.setItem('sigr_sesion_activa','1');
-    await cargarPerfilUsuario(cred.user);
-    // onAuthStateChanged se encarga de mostrar la app
+        // onAuthStateChanged se encarga de mostrar la app
   }catch(e){
     console.error('Error login:', e);
     let msg = 'Error al iniciar sesión.';
