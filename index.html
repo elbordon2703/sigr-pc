@@ -625,7 +625,7 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="form-row">
             <div class="form-group">
               <label>Amenaza que representa *</label>
-              <textarea id="certAmenaza" placeholder="Ej: por sus extensas ramificaciones">por sus extensas ramificaciones</textarea>
+             <textarea id="certAmenaza" placeholder="Ej: por sus extensas ramificaciones"></textarea>
             </div>
           </div>
 
@@ -1296,11 +1296,10 @@ function leerFotoComprimida(inputId, maxAncho, calidad){
 }
 window.leerFotoComprimida = leerFotoComprimida;
 
-/* ---------- CARGAR INSPECTORES EN EL SELECT ---------- */
-function cargarInspectoresSelect(){
+/* ---------- CARGAR INSPECTORES EN EL SELECT ---------- */function cargarInspectoresSelect(){
   var inspectores = (window.SIGR && window.SIGR.personal)
     ? window.SIGR.personal.filter(function(p){
-        return p.activo !== false &&
+        return p.estado === 'activo' &&
           (p.responsabilidad === 'inspector' || p.responsabilidad === 'edanista');
       })
     : [];
@@ -1308,7 +1307,7 @@ function cargarInspectoresSelect(){
   var opciones = '<option value="">Seleccione...</option>';
   inspectores.forEach(function(p){
     var nombre = ((p.nombre || '') + ' ' + (p.apellido || '')).trim();
-    var rango  = p.rango ? p.rango + ' ' : '';
+    var rango  = p.jerarquia ? p.jerarquia + ' ' : '';
     opciones += '<option value="'+p.id+'" data-nombre="'+esc(rango + nombre)+'">'+esc(rango + nombre)+'</option>';
   });
 
@@ -1332,7 +1331,6 @@ function abrirModalCertificacion(){
   var elMuni = document.getElementById('certMunicipio'); if(elMuni) elMuni.value = 'Papelón';
   var elPara = document.getElementById('certParroquia'); if(elPara) elPara.value = '';
   var elEst  = document.getElementById('certEstado');    if(elEst)  elEst.value = 'Portuguesa';
-  var elAmen = document.getElementById('certAmenaza');   if(elAmen) elAmen.value = 'por sus extensas ramificaciones';
   var elRies = document.getElementById('certRiesgo');    if(elRies) elRies.value = '';
   var elFuen = document.getElementById('certFuenteSatelital'); if(elFuen) elFuen.value = 'Google Earth APP';
 
