@@ -2,231 +2,332 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SIGR-PC V3.0 — Protección Civil Municipio Papelón</title>
 <link rel="manifest" href="manifest">
 <meta name="theme-color" content="#0b2a4a">
 
-<!-- ============================================================
-     FIREBASE SDK (compat, sin módulos, para un solo archivo)
-     ============================================================ -->
+<!-- ===== FIREBASE SDK (compat) ===== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
-<!-- jsPDF para los módulos 2 (Gestión de Riesgo) -->
+<!-- ===== jsPDF (para módulos 2) ===== -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
 <style>
 /* ============================================================
-   VARIABLES INSTITUCIONALES (NO TOCAR)
+   VARIABLES INSTITUCIONALES
    ============================================================ */
 :root{
   --primary:#0b2a4a;
+  --primary-dark:#071d33;
+  --primary-light:#123a63;
   --secondary:#1677c8;
+  --secondary-light:#3b9ae0;
   --success:#19864b;
   --danger:#dc3545;
   --warning:#ffc107;
-  --bg:#f4f6f9;
+  --bg:#eef2f7;
   --card:#ffffff;
   --text:#1c1c1c;
   --muted:#6c757d;
   --border:#dee2e6;
-  --sidebar-w:230px;
-  --sidebar-w-mini:56px;
+  --sidebar-w:240px;
+  --sidebar-w-mini:60px;
+  --topbar-h:54px;
+  --tabs-h:40px;
+  --shadow-sm:0 1px 3px rgba(11,42,74,.08);
+  --shadow-md:0 4px 12px rgba(11,42,74,.10);
+  --shadow-lg:0 20px 50px rgba(0,0,0,.30);
+  --radius:10px;
 }
 
-*{box-sizing:border-box;margin:0;padding:0;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
 body{
-  font-family:Tahoma, Verdana, Segoe UI, sans-serif;
+  font-family:Tahoma, Verdana, "Segoe UI", sans-serif;
   font-size:12px;
   color:var(--text);
   background:var(--bg);
-  line-height:1.45;
+  line-height:1.5;
+  overflow-x:hidden;
 }
-p, .justify{text-align:justify;}
-button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;}
-input,select,textarea{font-family:inherit;font-size:inherit;}
+p, .justify, .text-justify{text-align:justify;}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;}
+
+/* Scrollbar fino */
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#b8c4d1;border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:#8fa0b3;}
 
 /* ============================================================
    LOGIN
    ============================================================ */
 #loginView{
   position:fixed;inset:0;
-  background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);
+  background:linear-gradient(135deg,var(--primary) 0%, var(--primary-light) 50%, var(--secondary) 100%);
   display:flex;align-items:center;justify-content:center;
   padding:16px;z-index:1000;
 }
 .login-card{
-  background:#fff;border-radius:10px;
-  box-shadow:0 20px 50px rgba(0,0,0,.3);
-  width:100%;max-width:380px;padding:28px 26px;
+  background:#fff;border-radius:14px;
+  box-shadow:var(--shadow-lg);
+  width:100%;max-width:400px;padding:30px 28px;
+  animation:fadeUp .35s ease;
 }
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.login-logos{
+  display:flex;justify-content:center;align-items:center;gap:18px;
+  margin-bottom:16px;
+}
+.login-logos img{max-height:58px;max-width:90px;object-fit:contain;}
 .login-card h1{
-  font-size:16px;color:var(--primary);
-  text-align:center;margin-bottom:4px;
+  font-size:18px;color:var(--primary);text-align:center;
+  font-weight:bold;letter-spacing:.5px;
 }
 .login-card h2{
-  font-size:11px;color:var(--muted);
-  text-align:center;font-weight:normal;margin-bottom:20px;
+  font-size:11px;color:var(--muted);text-align:center;
+  font-weight:normal;margin-bottom:22px;line-height:1.5;
 }
-.login-logos{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:16px;gap:8px;
-}
-.login-logos img{max-height:52px;object-fit:contain;}
 .login-card label{
   display:block;font-size:11px;color:var(--primary);
-  font-weight:bold;margin-bottom:4px;margin-top:10px;
+  font-weight:bold;margin-bottom:5px;margin-top:12px;
 }
 .login-card input{
-  width:100%;padding:9px 10px;border:1px solid var(--border);
-  border-radius:6px;font-size:12px;outline:none;
+  width:100%;padding:10px 12px;border:1px solid var(--border);
+  border-radius:8px;font-size:12px;outline:none;transition:.15s;
+  background:#fafbfc;
 }
-.login-card input:focus{border-color:var(--secondary);}
-.btn{
-  display:inline-block;padding:9px 14px;border-radius:6px;
-  font-size:12px;font-weight:bold;color:#fff;background:var(--secondary);
-  transition:.15s;text-align:center;
+.login-card input:focus{
+  border-color:var(--secondary);
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(22,119,200,.12);
 }
-.btn:hover{filter:brightness(1.1);}
-.btn:disabled{opacity:.5;cursor:not-allowed;}
-.btn-primary{background:var(--primary);}
-.btn-success{background:var(--success);}
-.btn-danger{background:var(--danger);}
-.btn-warning{background:var(--warning);color:#1c1c1c;}
-.btn-block{display:block;width:100%;}
-.btn-sm{padding:5px 9px;font-size:11px;}
 #loginError{
-  display:none;background:#f8d7da;color:#721c24;
-  border:1px solid #f5c6cb;padding:8px 10px;border-radius:6px;
-  font-size:11px;margin-top:12px;
+  display:none;background:#fde8e8;color:#9b1c1c;
+  border-left:3px solid var(--danger);
+  padding:9px 12px;border-radius:6px;
+  font-size:11px;margin-top:14px;
 }
 
 /* ============================================================
-   LAYOUT PRINCIPAL
+   BOTONES
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 16px;border-radius:8px;
+  font-size:12px;font-weight:bold;
+  background:var(--secondary);color:#fff;
+  transition:.15s;text-align:center;
+  border:1px solid transparent;
+}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.btn:active{transform:none;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-primary{background:var(--primary);}
+.btn-success{background:var(--success);}
+.btn-danger{background:var(--danger);}
+.btn-warning{background:var(--warning);color:#3d2f00;}
+.btn-ghost{background:transparent;color:var(--primary);border-color:var(--border);}
+.btn-ghost:hover{background:#f0f4f8;}
+.btn-block{display:flex;width:100%;}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:6px;}
+.btn-lg{padding:11px 22px;font-size:13px;}
+
+/* ============================================================
+   LAYOUT
    ============================================================ */
 #appView{display:none;min-height:100vh;}
 #appView.active{display:block;}
 
+/* TOPBAR */
 .topbar{
-  position:fixed;top:0;left:0;right:0;height:52px;
-  background:var(--primary);color:#fff;z-index:100;
+  position:fixed;top:0;left:0;right:0;height:var(--topbar-h);
+  background:linear-gradient(90deg,var(--primary) 0%, var(--primary-light) 100%);
+  color:#fff;z-index:100;
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 14px;box-shadow:0 2px 6px rgba(0,0,0,.15);
+  padding:0 16px;box-shadow:var(--shadow-md);
 }
 .topbar .brand{
-  display:flex;align-items:center;gap:10px;
-  font-size:13px;font-weight:bold;letter-spacing:.3px;
+  display:flex;align-items:center;gap:12px;
+  font-size:13px;font-weight:bold;letter-spacing:.4px;
 }
-.topbar .brand img{height:32px;}
+.topbar .brand img{height:34px;width:auto;}
+.topbar .brand .brand-text{white-space:nowrap;}
 .topbar .user-box{
-  display:flex;align-items:center;gap:10px;font-size:11px;
+  display:flex;align-items:center;gap:12px;font-size:11px;
 }
-.topbar .user-box .rol{
-  background:var(--secondary);padding:3px 8px;border-radius:12px;
-  font-size:10px;text-transform:uppercase;letter-spacing:.4px;
+.topbar .user-box .email{
+  opacity:.9;max-width:200px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;
 }
+.topbar .rol{
+  background:rgba(255,255,255,.18);
+  padding:4px 10px;border-radius:12px;
+  font-size:10px;text-transform:uppercase;letter-spacing:.5px;
+  font-weight:bold;
+}
+.topbar .btn-logout{
+  background:rgba(220,53,69,.9);color:#fff;
+  padding:6px 12px;border-radius:6px;font-size:11px;font-weight:bold;
+}
+.topbar .btn-logout:hover{background:var(--danger);}
 
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
+/* SIDEBAR */
 .sidebar{
-  position:fixed;top:52px;left:0;bottom:0;
-  width:var(--sidebar-w);background:var(--primary);
+  position:fixed;top:var(--topbar-h);left:0;bottom:0;
+  width:var(--sidebar-w);
+  background:var(--primary);
   color:#cfe1f5;overflow-y:auto;z-index:90;
-  transition:width .2s ease;padding-top:8px;
+  transition:width .2s ease;
+  padding:12px 0;
+  box-shadow:2px 0 8px rgba(0,0,0,.08);
 }
-.sidebar::-webkit-scrollbar{width:6px;}
-.sidebar::-webkit-scrollbar-thumb{background:#1e4d7d;border-radius:3px;}
 .nav-item{
   display:flex;align-items:center;gap:12px;
-  padding:10px 14px;color:#cfe1f5;text-decoration:none;
-  font-size:12px;border-left:3px solid transparent;
+  padding:11px 16px;margin:2px 8px;
+  color:#cfe1f5;text-decoration:none;
+  font-size:12px;border-radius:8px;
   transition:.15s;white-space:nowrap;cursor:pointer;
+  position:relative;
 }
-.nav-item:hover{background:#123a63;color:#fff;}
+.nav-item:hover{background:var(--primary-light);color:#fff;}
 .nav-item.active{
-  background:#123a63;color:#fff;
-  border-left-color:var(--secondary);font-weight:bold;
+  background:var(--secondary);color:#fff;
+  font-weight:bold;
+  box-shadow:0 4px 10px rgba(22,119,200,.35);
 }
-.nav-item.disabled{opacity:.45;cursor:not-allowed;}
+.nav-item.active::before{
+  content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);
+  width:4px;height:60%;background:var(--warning);border-radius:0 3px 3px 0;
+}
+.nav-item.disabled{opacity:.4;cursor:not-allowed;}
 .nav-item .nav-icon{
-  width:20px;text-align:center;flex-shrink:0;font-size:15px;
+  width:22px;text-align:center;flex-shrink:0;font-size:17px;line-height:1;
 }
+.nav-item .nav-label-full{display:inline;}
 .nav-item .nav-label-short{display:none;}
 
-/* ============================================================
-   CONTENIDO
-   ============================================================ */
+/* CONTENIDO */
 .content{
-  margin-left:var(--sidebar-w);margin-top:52px;
-  padding:20px;transition:margin-left .2s ease;
+  margin-left:var(--sidebar-w);margin-top:var(--topbar-h);
+  padding:22px;transition:margin-left .2s ease;
+  min-height:calc(100vh - var(--topbar-h));
 }
 .section{display:none;}
-.section.active{display:block;animation:fade .2s ease;}
-@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.section.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
+.page-header{
+  margin-bottom:18px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
 .page-title{
-  font-size:17px;color:var(--primary);font-weight:bold;
-  margin-bottom:4px;
+  font-size:20px;color:var(--primary);font-weight:bold;
+  margin-bottom:2px;
 }
 .page-sub{
-  font-size:11px;color:var(--muted);margin-bottom:18px;
+  font-size:11px;color:var(--muted);
 }
+
+/* ============================================================
+   TABS INTERNAS (sub-secciones)
+   ============================================================ */
+.tabs{
+  display:flex;gap:4px;flex-wrap:nowrap;
+  border-bottom:2px solid var(--border);
+  margin-bottom:18px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{
+  padding:9px 14px;font-size:12px;
+  color:var(--muted);font-weight:bold;
+  border-bottom:2px solid transparent;
+  margin-bottom:-2px;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:.15s;
+  border-radius:6px 6px 0 0;
+}
+.tab:hover{color:var(--primary);background:#f4f7fb;}
+.tab.active{
+  color:var(--primary);
+  border-bottom-color:var(--secondary);
+  background:#f4f7fb;
+}
+.tab-content{display:none;}
+.tab-content.active{display:block;animation:fadeIn .2s ease;}
 
 /* ============================================================
    CARDS DASHBOARD
    ============================================================ */
 .cards-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
   gap:14px;margin-bottom:20px;
 }
 .card{
-  background:var(--card);border-radius:10px;padding:16px;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  background:var(--card);border-radius:var(--radius);padding:16px 18px;
+  box-shadow:var(--shadow-sm);
   border-left:4px solid var(--secondary);
+  transition:.2s;
+  position:relative;overflow:hidden;
 }
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
 .card.success{border-left-color:var(--success);}
 .card.danger{border-left-color:var(--danger);}
 .card.warning{border-left-color:var(--warning);}
 .card.primary{border-left-color:var(--primary);}
+.card .card-icon{
+  position:absolute;right:12px;top:12px;
+  font-size:28px;opacity:.10;
+}
 .card .card-label{
   font-size:10px;color:var(--muted);text-transform:uppercase;
-  letter-spacing:.5px;margin-bottom:6px;
+  letter-spacing:.6px;margin-bottom:6px;font-weight:bold;
 }
 .card .card-value{
-  font-size:26px;font-weight:bold;color:var(--primary);
+  font-size:28px;font-weight:bold;color:var(--primary);
+  line-height:1.1;
 }
 .card .card-foot{
-  font-size:10px;color:var(--muted);margin-top:4px;
+  font-size:10px;color:var(--muted);margin-top:6px;
 }
 
 /* ============================================================
    TABLAS
    ============================================================ */
-.table-wrap{overflow-x:auto;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.table-wrap{
+  overflow-x:auto;background:#fff;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);
+}
 table{width:100%;border-collapse:collapse;font-size:11px;}
 thead th{
   background:var(--primary);color:#fff;text-align:left;
-  padding:9px 10px;font-weight:bold;font-size:11px;
+  padding:10px 12px;font-weight:bold;font-size:11px;
   white-space:nowrap;
+  position:sticky;top:0;z-index:1;
 }
-tbody td{padding:8px 10px;border-bottom:1px solid var(--border);}
-tbody tr:hover{background:#f8fafc;}
+tbody td{padding:9px 12px;border-bottom:1px solid #eef2f7;vertical-align:middle;}
+tbody tr:hover{background:#f7fafd;}
 tbody tr:last-child td{border-bottom:none;}
 
 /* ============================================================
-   BADGES DE ESTADO
+   BADGES (estados del personal — NO TOCAR los nombres)
    ============================================================ */
 .badge{
-  display:inline-block;padding:2px 8px;border-radius:10px;
+  display:inline-block;padding:3px 9px;border-radius:11px;
   font-size:10px;font-weight:bold;text-transform:uppercase;
-  letter-spacing:.3px;
+  letter-spacing:.3px;white-space:nowrap;
 }
 .badge.disponible{background:#d1f0dd;color:#0f5132;}
 .badge.en_servicio{background:#cfe2ff;color:#084298;}
@@ -239,75 +340,98 @@ tbody tr:last-child td{border-bottom:none;}
 .badge.apoyo_instituciones{background:#cff4fc;color:#055160;}
 .badge.apoyo_zoedan{background:#d1ecf1;color:#0c5460;}
 .badge.apoyo_pc_municipio{background:#d4edda;color:#155724;}
+.badge.activo{background:#d1f0dd;color:#0f5132;}
+.badge.pendiente{background:#fff3cd;color:#664d03;}
+.badge.cerrado{background:#e2e3e5;color:#41464b;}
 
 /* ============================================================
    MODALES
    ============================================================ */
 .modal{
   display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.55);z-index:200;
+  background:rgba(11,42,74,.60);z-index:200;
   align-items:flex-start;justify-content:center;
   padding:24px 12px;overflow-y:auto;
+  backdrop-filter:blur(2px);
 }
 .modal.active{display:flex;}
 .modal-content{
-  background:#fff;border-radius:10px;width:100%;max-width:640px;
-  box-shadow:0 20px 50px rgba(0,0,0,.35);
-  animation:modalIn .2s ease;
+  background:#fff;border-radius:12px;width:100%;max-width:680px;
+  box-shadow:var(--shadow-lg);
+  animation:modalIn .22s ease;
+  margin:auto;
 }
-@keyframes modalIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes modalIn{from{opacity:0;transform:translateY(-14px) scale(.98)}to{opacity:1;transform:none}}
 .modal-header{
-  background:var(--primary);color:#fff;
-  padding:12px 16px;border-radius:10px 10px 0 0;
+  background:linear-gradient(90deg,var(--primary),var(--primary-light));
+  color:#fff;
+  padding:13px 18px;border-radius:12px 12px 0 0;
   display:flex;justify-content:space-between;align-items:center;
 }
 .modal-header h3{font-size:14px;font-weight:bold;}
 .modal-header .close{
-  color:#fff;font-size:20px;line-height:1;padding:0 4px;
+  color:#fff;font-size:22px;line-height:1;
+  padding:0 6px;border-radius:6px;
+  transition:.15s;
 }
-.modal-body{padding:16px;max-height:70vh;overflow-y:auto;}
+.modal-header .close:hover{background:rgba(255,255,255,.15);}
+.modal-body{padding:18px;max-height:72vh;overflow-y:auto;}
 .modal-footer{
-  padding:12px 16px;border-top:1px solid var(--border);
+  padding:13px 18px;border-top:1px solid var(--border);
   display:flex;justify-content:flex-end;gap:8px;
+  flex-wrap:wrap;
 }
 
 /* ============================================================
    FORMULARIOS
    ============================================================ */
-.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
-.form-group{flex:1;min-width:160px;}
+.form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.form-group{flex:1;min-width:170px;}
 .form-group label{
   display:block;font-size:11px;color:var(--primary);
-  font-weight:bold;margin-bottom:4px;
+  font-weight:bold;margin-bottom:5px;
 }
 .form-group input,
 .form-group select,
 .form-group textarea{
-  width:100%;padding:7px 9px;border:1px solid var(--border);
-  border-radius:6px;outline:none;background:#fff;
+  width:100%;padding:8px 10px;border:1px solid var(--border);
+  border-radius:7px;outline:none;background:#fafbfc;
+  transition:.15s;
 }
 .form-group input:focus,
 .form-group select:focus,
-.form-group textarea:focus{border-color:var(--secondary);}
-.form-group textarea{resize:vertical;min-height:70px;}
+.form-group textarea:focus{
+  border-color:var(--secondary);background:#fff;
+  box-shadow:0 0 0 3px rgba(22,119,200,.12);
+}
+.form-group textarea{resize:vertical;min-height:80px;line-height:1.5;}
 
 /* ============================================================
-   RESPONSIVE (MÓVIL)
+   RESPONSIVE
    ============================================================ */
-@media (max-width:768px){
-  .sidebar{width:var(--sidebar-w-mini);}
+@media (max-width:820px){
+  .sidebar{width:var(--sidebar-w-mini);padding:10px 0;}
   .sidebar .nav-label-full{display:none;}
-  .sidebar .nav-label-short{display:inline;font-size:10px;}
+  .sidebar .nav-label-short{display:inline;font-size:10px;font-weight:bold;}
   .nav-item{
-    flex-direction:column;gap:2px;
-    padding:8px 4px;text-align:center;font-size:9px;
+    flex-direction:column;gap:3px;
+    padding:10px 4px;margin:2px 5px;
+    text-align:center;font-size:9px;
   }
-  .nav-item .nav-icon{font-size:17px;}
-  .content{margin-left:var(--sidebar-w-mini);padding:12px;}
-  .topbar .brand span.brand-text{display:none;}
+  .nav-item .nav-icon{font-size:19px;}
+  .nav-item.active::before{display:none;}
+  .content{margin-left:var(--sidebar-w-mini);padding:14px;}
+  .topbar .brand .brand-text{display:none;}
   .topbar .user-box .email{display:none;}
+  .page-title{font-size:17px;}
   .cards-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
-  .card .card-value{font-size:20px;}
+  .card{padding:12px 14px;}
+  .card .card-value{font-size:22px;}
+  .card .card-icon{font-size:22px;}
+  .modal{padding:10px;}
+  .modal-body{padding:14px;}
+  .form-row{gap:8px;}
+  .form-group{min-width:140px;}
 }
 @media (max-width:420px){
   .cards-grid{grid-template-columns:1fr;}
@@ -316,12 +440,19 @@ tbody tr:last-child td{border-bottom:none;}
 /* ============================================================
    UTILIDADES
    ============================================================ */
+.mt-6{margin-top:6px;}
 .mt-10{margin-top:10px;}
 .mt-20{margin-top:20px;}
+.mb-6{margin-bottom:6px;}
 .mb-10{margin-bottom:10px;}
+.mb-20{margin-bottom:20px;}
 .text-center{text-align:center;}
+.text-right{text-align:right;}
 .text-muted{color:var(--muted);}
 .hidden{display:none !important;}
+.flex{display:flex;}
+.flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.gap-8{gap:8px;}
 .loading{
   display:inline-block;width:14px;height:14px;
   border:2px solid rgba(255,255,255,.4);
@@ -329,6 +460,12 @@ tbody tr:last-child td{border-bottom:none;}
   animation:spin .7s linear infinite;vertical-align:middle;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+
+.empty-state{
+  text-align:center;padding:30px 20px;color:var(--muted);
+  font-size:12px;
+}
+.empty-state .icon{font-size:36px;opacity:.3;display:block;margin-bottom:8px;}
 </style>
 </head>
 <body>
@@ -353,7 +490,7 @@ tbody tr:last-child td{border-bottom:none;}
 
     <div id="loginError"></div>
 
-    <button class="btn btn-primary btn-block mt-20" id="btnLogin" onclick="iniciarSesion()">
+    <button class="btn btn-primary btn-block btn-lg mt-20" id="btnLogin" onclick="iniciarSesion()">
       Ingresar al sistema
     </button>
   </div>
@@ -373,76 +510,36 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="user-box">
       <span class="email" id="topEmail">—</span>
       <span class="rol" id="topRol">—</span>
-      <button class="btn btn-sm btn-danger" onclick="cerrarSesion()">Salir</button>
+      <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
     </div>
   </div>
 
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR (5 módulos) -->
   <aside class="sidebar" id="sidebar">
     <a class="nav-item active" data-target="dashboard" onclick="mostrarSeccion('dashboard')">
       <span class="nav-icon">📊</span>
       <span class="nav-label-full">Dashboard</span>
       <span class="nav-label-short">Dash</span>
     </a>
-    <a class="nav-item disabled" data-target="certificacion" data-modulo="2">
-      <span class="nav-icon">🌳</span>
-      <span class="nav-label-full">Certificación Árboles</span>
-      <span class="nav-label-short">Cert</span>
+    <a class="nav-item disabled" data-target="riesgo" data-modulo="2">
+      <span class="nav-icon">⚠️</span>
+      <span class="nav-label-full">Gestión de Riesgo</span>
+      <span class="nav-label-short">Ries</span>
     </a>
-    <a class="nav-item disabled" data-target="viviendas" data-modulo="2">
-      <span class="nav-icon">🏠</span>
-      <span class="nav-label-full">Viviendas</span>
-      <span class="nav-label-short">Vivi</span>
-    </a>
-    <a class="nav-item disabled" data-target="edan" data-modulo="2">
-      <span class="nav-icon">📋</span>
-      <span class="nav-label-full">EDAN</span>
-      <span class="nav-label-short">EDAN</span>
-    </a>
-    <a class="nav-item disabled" data-target="solicitudes" data-modulo="2">
-      <span class="nav-icon">📨</span>
-      <span class="nav-label-full">Solicitudes</span>
-      <span class="nav-label-short">Soli</span>
-    </a>
-    <a class="nav-item disabled" data-target="alertas" data-modulo="2">
-      <span class="nav-icon">🚨</span>
-      <span class="nav-label-full">Alertas Tempranas</span>
-      <span class="nav-label-short">Aler</span>
-    </a>
-    <a class="nav-item disabled" data-target="servicio" data-modulo="3">
+    <a class="nav-item disabled" data-target="operaciones" data-modulo="3">
       <span class="nav-icon">🛡️</span>
-      <span class="nav-label-full">Apertura de Servicio</span>
-      <span class="nav-label-short">Serv</span>
-    </a>
-    <a class="nav-item disabled" data-target="partes" data-modulo="3">
-      <span class="nav-icon">📝</span>
-      <span class="nav-label-full">Partes</span>
-      <span class="nav-label-short">Part</span>
-    </a>
-    <a class="nav-item disabled" data-target="cierres" data-modulo="3">
-      <span class="nav-icon">📦</span>
-      <span class="nav-label-full">Cierres</span>
-      <span class="nav-label-short">Cier</span>
+      <span class="nav-label-full">Operaciones</span>
+      <span class="nav-label-short">Oper</span>
     </a>
     <a class="nav-item disabled" data-target="personal" data-modulo="4">
       <span class="nav-icon">👥</span>
       <span class="nav-label-full">Personal</span>
       <span class="nav-label-short">Pers</span>
     </a>
-    <a class="nav-item disabled" data-target="grupos" data-modulo="4">
-      <span class="nav-icon">👨‍👩‍👧</span>
-      <span class="nav-label-full">Grupos</span>
-      <span class="nav-label-short">Grup</span>
-    </a>
-    <a class="nav-item disabled" data-target="vehiculos" data-modulo="4">
-      <span class="nav-icon">🚙</span>
-      <span class="nav-label-full">Vehículos</span>
-      <span class="nav-label-short">Vehi</span>
-    </a>
-    <a class="nav-item disabled" data-target="usuarios" data-modulo="5">
+    <a class="nav-item disabled" data-target="administracion" data-modulo="5">
       <span class="nav-icon">🔐</span>
-      <span class="nav-label-full">Usuarios</span>
-      <span class="nav-label-short">Usua</span>
+      <span class="nav-label-full">Administración</span>
+      <span class="nav-label-short">Admi</span>
     </a>
   </aside>
 
@@ -450,29 +547,35 @@ tbody tr:last-child td{border-bottom:none;}
   <main class="content">
 
     <!-- ======================================================
-         SECCIÓN DASHBOARD (activa siempre)
+         SECCIÓN DASHBOARD
          ====================================================== -->
     <section id="sec-dashboard" class="section active">
-      <div class="page-title">Panel de Control</div>
-      <div class="page-sub">Resumen general del sistema — Protección Civil Municipio Papelón</div>
+      <div class="page-header">
+        <div class="page-title">Panel de Control</div>
+        <div class="page-sub">Resumen general — Protección Civil Municipio Papelón</div>
+      </div>
 
       <div class="cards-grid">
         <div class="card primary">
-          <div class="card-label">Personal registrado</div>
+          <div class="card-icon">👥</div>
+          <div class="card-label">Personal activo</div>
           <div class="card-value" id="dashPersonal">0</div>
-          <div class="card-foot">Total de oficiales activos</div>
+          <div class="card-foot">Oficiales registrados</div>
         </div>
         <div class="card warning">
+          <div class="card-icon">📨</div>
           <div class="card-label">Solicitudes</div>
           <div class="card-value" id="dashSolicitudes">0</div>
           <div class="card-foot">Pendientes de gestión</div>
         </div>
         <div class="card danger">
+          <div class="card-icon">📋</div>
           <div class="card-label">EDAN</div>
           <div class="card-value" id="dashEdan">0</div>
           <div class="card-foot">Evaluaciones registradas</div>
         </div>
         <div class="card success">
+          <div class="card-icon">🚨</div>
           <div class="card-label">Alertas</div>
           <div class="card-value" id="dashAlertas">0</div>
           <div class="card-foot">Alertas tempranas activas</div>
@@ -481,11 +584,13 @@ tbody tr:last-child td{border-bottom:none;}
 
       <div class="cards-grid">
         <div class="card success">
+          <div class="card-icon">🛡️</div>
           <div class="card-label">Servicio activo</div>
           <div class="card-value" id="dashServicioActivo">—</div>
           <div class="card-foot">Estado actual del servicio</div>
         </div>
         <div class="card danger">
+          <div class="card-icon">⏱️</div>
           <div class="card-label">Alertas 72h</div>
           <div class="card-value" id="dashAlertas72">0</div>
           <div class="card-foot">Solicitudes con más de 72 horas</div>
@@ -493,48 +598,48 @@ tbody tr:last-child td{border-bottom:none;}
       </div>
 
       <div class="mt-20">
-        <div class="page-title" style="font-size:14px;">Módulos del sistema</div>
-        <div class="page-sub">Estado de carga de los módulos</div>
+        <div class="page-title" style="font-size:15px;">Estado de módulos del sistema</div>
+        <div class="page-sub mb-10">Carga progresiva de cada módulo</div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>#</th>
+                <th style="width:50px;">#</th>
                 <th>Módulo</th>
                 <th>Descripción</th>
-                <th>Estado</th>
+                <th style="width:110px;">Estado</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>1</td>
-                <td>Base + Login + Dashboard</td>
+                <td><strong>Base + Login + Dashboard</strong></td>
                 <td>Estructura, autenticación, panel</td>
                 <td><span class="badge en_servicio">Activo</span></td>
               </tr>
               <tr>
                 <td>2</td>
-                <td>Gestión de Riesgo</td>
+                <td><strong>Gestión de Riesgo</strong></td>
                 <td>Certificación, Viviendas, EDAN, Solicitudes, Alertas</td>
-                <td><span class="badge permiso" id="mod2Estado">Pendiente</span></td>
+                <td><span class="badge pendiente" id="mod2Estado">Pendiente</span></td>
               </tr>
               <tr>
                 <td>3</td>
-                <td>Operaciones</td>
+                <td><strong>Operaciones</strong></td>
                 <td>Servicio, Partes, Cierres</td>
-                <td><span class="badge permiso" id="mod3Estado">Pendiente</span></td>
+                <td><span class="badge pendiente" id="mod3Estado">Pendiente</span></td>
               </tr>
               <tr>
                 <td>4</td>
-                <td>Recursos</td>
+                <td><strong>Personal</strong></td>
                 <td>Personal, Grupos, Vehículos</td>
-                <td><span class="badge permiso" id="mod4Estado">Pendiente</span></td>
+                <td><span class="badge pendiente" id="mod4Estado">Pendiente</span></td>
               </tr>
               <tr>
                 <td>5</td>
-                <td>Administración</td>
+                <td><strong>Administración</strong></td>
                 <td>Usuarios (solo comandante)</td>
-                <td><span class="badge permiso" id="mod5Estado">Pendiente</span></td>
+                <td><span class="badge pendiente" id="mod5Estado">Pendiente</span></td>
               </tr>
             </tbody>
           </table>
@@ -544,7 +649,7 @@ tbody tr:last-child td{border-bottom:none;}
 
     <!-- ======================================================
          AQUÍ SE INSERTARÁN LOS MÓDULOS 2 AL 5
-         (cada módulo agrega sus <section> debajo de este comentario)
+         Cada módulo agrega su <section> con tabs internas.
          ====================================================== -->
     <!-- === MODULO 2 === -->
     <!-- === MODULO 3 === -->
@@ -556,7 +661,7 @@ tbody tr:last-child td{border-bottom:none;}
 
 <script>
 /* ============================================================
-   MÓDULO 1 — BASE + LOGIN + DASHBOARD
+   MÓDULO 1 — BASE + LOGIN + DASHBOARD (v2)
    ============================================================ */
 
 /* ---------- FIREBASE CONFIG (NO TOCAR) ---------- */
@@ -573,10 +678,13 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
+/* Opción B: pedir login cada vez (persistencia SESSION) */
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(()=>{});
+
 /* ---------- ESTADO GLOBAL ---------- */
 const SIGR = {
-  usuario: null,        // { email, nombre, apellido, rol, activo }
-  personal: [],         // caché de personal
+  usuario: null,
+  personal: [],
   grupos: [],
   vehiculos: [],
   selloB64: null,
@@ -588,10 +696,6 @@ window.SIGR = SIGR;
 /* ============================================================
    AUTENTICACIÓN
    ============================================================ */
-
-/**
- * Inicia sesión con Firebase Auth y verifica rol en Firestore.
- */
 async function iniciarSesion(){
   const email = document.getElementById('loginEmail').value.trim();
   const pass  = document.getElementById('loginPass').value;
@@ -628,11 +732,8 @@ async function iniciarSesion(){
     btn.textContent = 'Ingresar al sistema';
   }
 }
+window.iniciarSesion = iniciarSesion;
 
-/**
- * Carga el perfil del usuario desde Firestore (colección "usuarios").
- * Si no existe el doc, lo crea con rol "oficial" para no bloquear el sistema.
- */
 async function cargarPerfilUsuario(user){
   const ref  = db.collection('usuarios').doc(user.uid);
   const snap = await ref.get();
@@ -645,7 +746,6 @@ async function cargarPerfilUsuario(user){
     }
     SIGR.usuario = { uid:user.uid, email:user.email, ...data };
   }else{
-    // Si no existe, crear doc básico (solo pasa la primera vez con el comandante)
     const nuevo = {
       email: user.email,
       nombre: 'Comandante',
@@ -659,27 +759,18 @@ async function cargarPerfilUsuario(user){
   }
 }
 
-/**
- * Cierra sesión.
- */
 async function cerrarSesion(){
   if(!confirm('¿Desea cerrar la sesión?')) return;
   await auth.signOut();
 }
+window.cerrarSesion = cerrarSesion;
 
-/**
- * Observador de estado de autenticación.
- * Se dispara al cargar la página y cuando cambia la sesión.
- */
 auth.onAuthStateChanged(async (user)=>{
   if(user){
     try{
-      if(!SIGR.usuario){
-        await cargarPerfilUsuario(user);
-      }
+      if(!SIGR.usuario) await cargarPerfilUsuario(user);
       mostrarApp();
       await actualizarDashboard();
-      // Cargar datos base compartidos (los módulos 2-5 los usarán)
       await cargarDatosBase();
     }catch(e){
       console.error('Error perfil:', e);
@@ -693,12 +784,16 @@ auth.onAuthStateChanged(async (user)=>{
 });
 
 /* ============================================================
-   NAVEGACIÓN ENTRE VISTAS
+   NAVEGACIÓN
    ============================================================ */
-
 function mostrarLogin(){
   document.getElementById('loginView').style.display = 'flex';
   document.getElementById('appView').classList.remove('active');
+  // Limpiar campos por seguridad (opción B)
+  const em = document.getElementById('loginEmail');
+  const pw = document.getElementById('loginPass');
+  if(em) em.value = '';
+  if(pw) pw.value = '';
 }
 
 function mostrarApp(){
@@ -707,39 +802,44 @@ function mostrarApp(){
 
   const u = SIGR.usuario;
   document.getElementById('topEmail').textContent = u.email || '—';
-  document.getElementById('topRol').textContent   = (u.rol || '—').replace('_',' ');
+  document.getElementById('topRol').textContent   = (u.rol || '—').replace(/_/g,' ');
 }
 
-/**
- * Muestra la sección indicada. Los módulos 2-5 llaman a esta función.
- * Si la sección pertenece a un módulo no cargado, avisa.
- */
 function mostrarSeccion(target){
-  // Buscar la sección
   const sec = document.getElementById('sec-' + target);
   if(!sec){
     alert('Este módulo aún no está cargado en el sistema.');
     return;
   }
-  // Ocultar todas, mostrar la pedida
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   sec.classList.add('active');
 
-  // Resaltar en sidebar
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   const item = document.querySelector('.nav-item[data-target="'+target+'"]');
   if(item){
     item.classList.remove('disabled');
     item.classList.add('active');
   }
-  // Scroll arriba
   window.scrollTo({top:0,behavior:'smooth'});
 }
+window.mostrarSeccion = mostrarSeccion;
 
 /**
- * Habilita en el sidebar las opciones cuyos módulos ya están cargados.
- * Los módulos 2-5 llaman a esta función al terminar de registrarse.
+ * Muestra una tab interna dentro de un módulo.
+ * Uso: mostrarTab('riesgo','viviendas') → activa la tab viviendas dentro de sec-riesgo.
  */
+function mostrarTab(modulo, tab){
+  const sec = document.getElementById('sec-' + modulo);
+  if(!sec) return;
+  sec.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  sec.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  const tabEl = sec.querySelector('.tab[data-tab="'+tab+'"]');
+  const cont  = sec.querySelector('.tab-content[data-tab-content="'+tab+'"]');
+  if(tabEl) tabEl.classList.add('active');
+  if(cont)  cont.classList.add('active');
+}
+window.mostrarTab = mostrarTab;
+
 function habilitarModulo(numModulo){
   SIGR.modulosCargados[numModulo] = true;
   document.querySelectorAll('.nav-item[data-modulo="'+numModulo+'"]').forEach(n=>{
@@ -756,7 +856,6 @@ window.habilitarModulo = habilitarModulo;
 /* ============================================================
    DASHBOARD
    ============================================================ */
-
 async function actualizarDashboard(){
   try{
     const [personal, solicitudes, edan, alertas, servicio, solicitudes72] = await Promise.all([
@@ -775,7 +874,6 @@ async function actualizarDashboard(){
     document.getElementById('dashServicioActivo').textContent =
       (servicio.size > 0) ? 'SÍ' : 'NO';
 
-    // Alertas 72h: solicitudes pendientes con más de 72 horas
     let cont72 = 0;
     const ahora = Date.now();
     (solicitudes72.docs || []).forEach(d=>{
@@ -792,12 +890,8 @@ async function actualizarDashboard(){
 window.actualizarDashboard = actualizarDashboard;
 
 /* ============================================================
-   DATOS BASE COMPARTIDOS (los usarán los módulos 2-5)
+   DATOS BASE COMPARTIDOS
    ============================================================ */
-
-/**
- * Carga en caché: personal, grupos, vehículos, sello y pie de página.
- */
 async function cargarDatosBase(){
   try{
     const [p, g, v] = await Promise.all([
@@ -812,25 +906,20 @@ async function cargarDatosBase(){
     console.error('Error cargando datos base:', e);
   }
 
-  // Sello y pie de página institucional (para PDFs)
   try{
     const s = await db.collection('config').doc('sello').get();
     if(s.exists && s.data().imagen) SIGR.selloB64 = s.data().imagen;
-  }catch(e){ /* silencioso */ }
+  }catch(e){}
   try{
     const p = await db.collection('config').doc('pie_pagina').get();
     if(p.exists && p.data().imagen) SIGR.pieB64 = p.data().imagen;
-  }catch(e){ /* silencioso */ }
+  }catch(e){}
 }
 window.cargarDatosBase = cargarDatosBase;
 
 /* ============================================================
-   HELPERS GLOBALES (los usarán los módulos 2-5)
+   HELPERS GLOBALES
    ============================================================ */
-
-/**
- * Lee un archivo de imagen y devuelve Base64 (sin comprimir).
- */
 function leerFotoBase64(file){
   return new Promise((resolve,reject)=>{
     const r = new FileReader();
@@ -841,9 +930,6 @@ function leerFotoBase64(file){
 }
 window.leerFotoBase64 = leerFotoBase64;
 
-/**
- * Comprime una imagen a Base64. Por defecto: 300px ancho, JPEG 0.7.
- */
 function comprimirImagen(file, maxAncho=300, calidad=0.7){
   return new Promise((resolve,reject)=>{
     const r = new FileReader();
@@ -867,9 +953,6 @@ function comprimirImagen(file, maxAncho=300, calidad=0.7){
 }
 window.comprimirImagen = comprimirImagen;
 
-/**
- * Formatea fecha a dd/mm/yyyy.
- */
 function formatearFecha(d){
   if(!d) return '—';
   const f = (d.toDate)?d.toDate():new Date(d);
@@ -879,9 +962,6 @@ function formatearFecha(d){
 }
 window.formatearFecha = formatearFecha;
 
-/**
- * Formatea fecha y hora a dd/mm/yyyy hh:mm.
- */
 function formatearFechaHora(d){
   if(!d) return '—';
   const f = (d.toDate)?d.toDate():new Date(d);
@@ -893,12 +973,6 @@ function formatearFechaHora(d){
 }
 window.formatearFechaHora = formatearFechaHora;
 
-/**
- * Genera folio correlativo global (compartido entre Vivienda, EDAN y Certificación).
- * Formato: PC-XXX-YYYY-NNNN
- * Usa db.runTransaction() sobre contadores/folios_{año}.
- * Se asigna al generar el PDF, no al guardar.
- */
 async function generarFolio(tipo){
   const año = new Date().getFullYear();
   const ref  = db.collection('contadores').doc('folios_'+año);
@@ -919,9 +993,6 @@ async function generarFolio(tipo){
 }
 window.generarFolio = generarFolio;
 
-/**
- * Devuelve el array de inspectores (personal con responsabilidad inspector o edanista).
- */
 function getInspectores(){
   return SIGR.personal.filter(p =>
     p.activo !== false &&
@@ -930,42 +1001,47 @@ function getInspectores(){
 }
 window.getInspectores = getInspectores;
 
-/**
- * Devuelve el array de personal activo.
- */
 function getPersonalActivo(){
   return SIGR.personal.filter(p => p.activo !== false);
 }
 window.getPersonalActivo = getPersonalActivo;
 
-/**
- * Devuelve el array de vehículos activos.
- */
 function getVehiculosActivos(){
   return SIGR.vehiculos.filter(v => v.activo !== false);
 }
 window.getVehiculosActivos = getVehiculosActivos;
 
 /* ============================================================
-   HELPERS DE PDF (los usarán los módulos 2)
+   HELPERS DE PDF
    ============================================================ */
+async function cargarImagenBase64(nombreRepo, base64Firestore){
+  if(base64Firestore) return base64Firestore;
+  try{
+    const resp = await fetch(nombreRepo);
+    if(!resp.ok) return null;
+    const blob = await resp.blob();
+    return await new Promise((res,rej)=>{
+      const r = new FileReader();
+      r.onload = ()=>res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(blob);
+    });
+  }catch(e){
+    return null;
+  }
+}
+window.cargarImagenBase64 = cargarImagenBase64;
 
-/**
- * Dibuja el encabezado oficial en un PDF jsPDF.
- * Logo PC izquierda, logo Gobernación derecha, título centrado, subtítulo, fecha.
- * Devuelve la coordenada Y donde debe continuar el contenido.
- */
 async function encabezadoPDF(doc, titulo, subtitulo){
   const W = doc.internal.pageSize.getWidth();
   const fecha = new Date().toLocaleDateString('es-VE');
 
-  // Logos (intento Firestore, fallback a archivos del repo)
   try{
-    const logoPC  = await cargarImagenBase64('LOGO%20PC.png', SIGR.selloB64);
+    const logoPC  = await cargarImagenBase64('LOGO%20PC.png', null);
     const logoGob = await cargarImagenBase64('LOGO%20GOBERNACION.png', null);
     if(logoPC)  doc.addImage(logoPC,  'PNG', 12, 8, 22, 22);
     if(logoGob) doc.addImage(logoGob, 'PNG', W-34, 8, 22, 22);
-  }catch(e){ /* sin logos no se rompe el PDF */ }
+  }catch(e){}
 
   doc.setFont('helvetica','bold');
   doc.setFontSize(11);
@@ -1000,9 +1076,6 @@ async function encabezadoPDF(doc, titulo, subtitulo){
 }
 window.encabezadoPDF = encabezadoPDF;
 
-/**
- * Dibuja el recuadro con el folio oficial.
- */
 function recuadroFolioPDF(doc, folio, y){
   const W = doc.internal.pageSize.getWidth();
   doc.setDrawColor(11,42,74);
@@ -1017,11 +1090,6 @@ function recuadroFolioPDF(doc, folio, y){
 }
 window.recuadroFolioPDF = recuadroFolioPDF;
 
-/**
- * Agrega el pie de página institucional a TODAS las páginas del PDF.
- * Imagen centrada, "SIGR-PC | Protección Civil - Municipio Papelón" a la izq.,
- * "Página X de Y" a la der. Helvetica 7pt gris.
- */
 async function pieDePaginaPDF(doc){
   const total = doc.internal.getNumberOfPages();
   const W = doc.internal.pageSize.getWidth();
@@ -1029,21 +1097,17 @@ async function pieDePaginaPDF(doc){
 
   let imgPie = SIGR.pieB64;
   if(!imgPie){
-    try{
-      imgPie = await cargarImagenBase64('PIE%20DE%20PAGIAN2.png', null);
-    }catch(e){ /* sin imagen */ }
+    try{ imgPie = await cargarImagenBase64('PIE%20DE%20PAGIAN2.png', null); }catch(e){}
   }
 
   for(let i=1; i<=total; i++){
     doc.setPage(i);
-
     if(imgPie){
       try{
         const w = 60, h = 10;
         doc.addImage(imgPie, 'PNG', W/2 - w/2, H-14, w, h);
-      }catch(e){ /* silencioso */ }
+      }catch(e){}
     }
-
     doc.setFont('helvetica','normal');
     doc.setFontSize(7);
     doc.setTextColor(120,120,120);
@@ -1054,9 +1118,6 @@ async function pieDePaginaPDF(doc){
 }
 window.pieDePaginaPDF = pieDePaginaPDF;
 
-/**
- * Dibuja el marco legal (texto justificado, Helvetica 9pt).
- */
 function marcoLegalPDF(doc, texto, y){
   const W = doc.internal.pageSize.getWidth();
   const M = 12;
@@ -1068,33 +1129,9 @@ function marcoLegalPDF(doc, texto, y){
 }
 window.marcoLegalPDF = marcoLegalPDF;
 
-/**
- * Carga una imagen como Base64: primero intenta Firestore (si base64 pasada),
- * si no, intenta el archivo del repo con fetch.
- */
-async function cargarImagenBase64(nombreRepo, base64Firestore){
-  if(base64Firestore) return base64Firestore;
-  try{
-    const resp = await fetch(nombreRepo);
-    if(!resp.ok) return null;
-    const blob = await resp.blob();
-    return await new Promise((res,rej)=>{
-      const r = new FileReader();
-      r.onload = ()=>res(r.result);
-      r.onerror = rej;
-      r.readAsDataURL(blob);
-    });
-  }catch(e){
-    return null;
-  }
-}
-window.cargarImagenBase64 = cargarImagenBase64;
-
 /* ============================================================
-   INICIALIZACIÓN
+   INIT
    ============================================================ */
-
-// Enter en el login
 document.addEventListener('DOMContentLoaded', ()=>{
   const em = document.getElementById('loginEmail');
   const pw = document.getElementById('loginPass');
@@ -1103,9 +1140,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
       if(e.key === 'Enter') iniciarSesion();
     }));
   }
-  console.log('%c SIGR-PC V3.0 — Módulo 1 cargado ','background:#0b2a4a;color:#fff;padding:4px 8px;border-radius:3px;');
+  console.log('%c SIGR-PC V3.0 — Módulo 1 v2 cargado ','background:#0b2a4a;color:#fff;padding:4px 8px;border-radius:3px;');
 });
 </script>
+
+<!-- === MODULO 2 JS === -->
+<!-- === MODULO 3 JS === -->
+<!-- === MODULO 4 JS === -->
+<!-- === MODULO 5 JS === -->
 
 </body>
 </html>
