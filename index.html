@@ -1250,6 +1250,266 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <!-- === MODULO 2 JS === -->
+  <script>
+/* ╔══════════════════════════════════════════════════════════╗
+   ║  [M2 JS] CERTIFICACIÓN DE ÁRBOLES                         ║
+   ║  INICIO                                                    ║
+   ╚══════════════════════════════════════════════════════════╝ */
+
+/* ---------- UTILIDADES DEL MÓDULO ---------- */
+function abrirModal(id){
+  var m = document.getElementById(id);
+  if(m) m.classList.add('active');
+}
+window.abrirModal = abrirModal;
+
+function cerrarModal(id){
+  var m = document.getElementById(id);
+  if(m) m.classList.remove('active');
+}
+window.cerrarModal = cerrarModal;
+
+/* Cerrar modal al hacer clic en el fondo */
+document.addEventListener('click', function(e){
+  if(e.target.classList && e.target.classList.contains('modal')){
+    e.target.classList.remove('active');
+  }
+});
+
+/* Escapar HTML para mostrarlo seguro en pantalla */
+function esc(s){
+  if(s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+window.esc = esc;
+
+/* Leer un input file y devolver Base64 comprimido, o null si vacío */
+function leerFotoComprimida(inputId, maxAncho, calidad){
+  var input = document.getElementById(inputId);
+  if(!input || !input.files || input.files.length === 0) return Promise.resolve(null);
+  return comprimirImagen(input.files[0], maxAncho || 800, calidad || 0.7)
+    .catch(function(){ return null; });
+}
+window.leerFotoComprimida = leerFotoComprimida;
+
+/* ---------- CARGAR INSPECTORES EN EL SELECT ---------- */
+function cargarInspectoresSelect(){
+  var inspectores = (window.SIGR && window.SIGR.personal)
+    ? window.SIGR.personal.filter(function(p){
+        return p.activo !== false &&
+          (p.responsabilidad === 'inspector' || p.responsabilidad === 'edanista');
+      })
+    : [];
+
+  var opciones = '<option value="">Seleccione...</option>';
+  inspectores.forEach(function(p){
+    var nombre = ((p.nombre || '') + ' ' + (p.apellido || '')).trim();
+    var rango  = p.rango ? p.rango + ' ' : '';
+    opciones += '<option value="'+p.id+'" data-nombre="'+esc(rango + nombre)+'">'+esc(rango + nombre)+'</option>';
+  });
+
+  var sel = document.getElementById('certInspector');
+  if(sel) sel.innerHTML = opciones;
+}
+window.cargarInspectoresSelect = cargarInspectoresSelect;
+
+/* ---------- ABRIR MODAL CERTIFICACIÓN ---------- */
+function abrirModalCertificacion(){
+  // Limpiar campos de texto
+  ['certResponsable','certCedula','certTelefono','certDireccion','certEspecie',
+   'certAltura','certAncho','certInclinacion','certDirInclinacion',
+   'certFamilias','certPersonas','certLatLong','certUtm',
+   'certObservaciones','certRecomendaciones','certPie1','certPie2','certPie3','certPie4'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+
+  // Valores por defecto
+  var elMuni = document.getElementById('certMunicipio'); if(elMuni) elMuni.value = 'Papelón';
+  var elPara = document.getElementById('certParroquia'); if(elPara) elPara.value = '';
+  var elEst  = document.getElementById('certEstado');    if(elEst)  elEst.value = 'Portuguesa';
+  var elAmen = document.getElementById('certAmenaza');   if(elAmen) elAmen.value = 'por sus extensas ramificaciones';
+  var elRies = document.getElementById('certRiesgo');    if(elRies) elRies.value = '';
+  var elFuen = document.getElementById('certFuenteSatelital'); if(elFuen) elFuen.value = 'Google Earth APP';
+
+  // Fecha y hora actuales
+  var hoy = new Date();
+  var elFecha = document.getElementById('certFecha');
+  if(elFecha) elFecha.valueAsDate = hoy;
+  var elHora = document.getElementById('certHora');
+  if(elHora) elHora.value = String(hoy.getHours()).padStart(2,'0') + ':' + String(hoy.getMinutes()).padStart(2,'0');
+
+  // Limpiar inputs de archivos
+  ['certImgSatelital','certFoto1','certFoto2','certFoto3','certFoto4'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+
+  cargarInspectoresSelect();
+  abrirModal('modalCertificacion');
+}
+window.abrirModalCertificacion = abrirModalCertificacion;
+
+/* ---------- GUARDAR CERTIFICACIÓN ---------- */
+function guardarCertificacion(){
+  var responsable = (document.getElementById('certResponsable').value || '').trim();
+  var cedula      = (document.getElementById('certCedula').value || '').trim();
+  var direccion   = (document.getElementById('certDireccion').value || '').trim();
+  var parroquia   = document.getElementById('certParroquia').value;
+  var especie     = (document.getElementById('certEspecie').value || '').trim();
+  var riesgo      = document.getElementById('certRiesgo').value;
+  var inspSel     = document.getElementById('certInspector');
+  var inspId      = inspSel.value;
+  var inspNom     = inspId ? inspSel.options[inspSel.selectedIndex].getAttribute('data-nombre') : '';
+
+  if(!responsable || !cedula || !direccion || !parroquia || !especie || !riesgo || !inspId){
+    alert('Complete los campos obligatorios marcados con *.');
+    return;
+  }
+
+  var btn = document.getElementById('btnGuardarCert');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Guardando...';
+
+  // Procesar las 5 imágenes en paralelo (satelital + 4 fotos)
+  Promise.all([
+    leerFotoComprimida('certImgSatelital', 900, 0.7),
+    leerFotoComprimida('certFoto1', 900, 0.7),
+    leerFotoComprimida('certFoto2', 900, 0.7),
+    leerFotoComprimida('certFoto3', 900, 0.7),
+    leerFotoComprimida('certFoto4', 900, 0.7)
+  ]).then(function(imgs){
+    var doc = {
+      tipo: 'certificacion_arbol',
+      responsable: responsable,
+      cedula: cedula,
+      telefono: (document.getElementById('certTelefono').value || '').trim(),
+      direccion: direccion,
+      municipio: document.getElementById('certMunicipio').value,
+      parroquia: parroquia,
+      estado: document.getElementById('certEstado').value,
+      fecha: document.getElementById('certFecha').value || '',
+      hora: document.getElementById('certHora').value || '',
+      especie: especie,
+      altura: document.getElementById('certAltura').value,
+      ancho: document.getElementById('certAncho').value,
+      inclinacion: document.getElementById('certInclinacion').value,
+      direccion_inclinacion: (document.getElementById('certDirInclinacion').value || '').trim(),
+      amenaza: (document.getElementById('certAmenaza').value || '').trim(),
+      familias: document.getElementById('certFamilias').value,
+      personas: document.getElementById('certPersonas').value,
+      riesgo: riesgo,
+      lat_long: (document.getElementById('certLatLong').value || '').trim(),
+      utm: (document.getElementById('certUtm').value || '').trim(),
+      inspector_id: inspId,
+      inspector_nombre: inspNom,
+      observaciones: (document.getElementById('certObservaciones').value || '').trim(),
+      recomendaciones: (document.getElementById('certRecomendaciones').value || '').trim(),
+      img_satelital: imgs[0],
+      fuente_satelital: (document.getElementById('certFuenteSatelital').value || '').trim(),
+      foto1: imgs[1],
+      pie1: (document.getElementById('certPie1').value || '').trim(),
+      foto2: imgs[2],
+      pie2: (document.getElementById('certPie2').value || '').trim(),
+      foto3: imgs[3],
+      pie3: (document.getElementById('certPie3').value || '').trim(),
+      foto4: imgs[4],
+      pie4: (document.getElementById('certPie4').value || '').trim(),
+      folio: null,
+      creado: firebase.firestore.FieldValue.serverTimestamp(),
+      creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—'
+    };
+
+    return db.collection('certificaciones').add(doc);
+  }).then(function(){
+    cerrarModal('modalCertificacion');
+    return cargarCertificaciones();
+  }).catch(function(e){
+    console.error('Error guardando certificación:', e);
+    alert('Error al guardar: ' + (e.message || 'ver consola'));
+  }).finally(function(){
+    btn.disabled = false;
+    btn.textContent = 'Guardar';
+  });
+}
+window.guardarCertificacion = guardarCertificacion;
+
+/* ---------- CARGAR LISTA DE CERTIFICACIONES ---------- */
+function cargarCertificaciones(){
+  return db.collection('certificaciones').orderBy('creado','desc').limit(200).get()
+    .then(function(snap){
+      var lista = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      pintarCertificaciones(lista);
+    })
+    .catch(function(e){ console.error('Error cargando certificaciones:', e); });
+}
+window.cargarCertificaciones = cargarCertificaciones;
+
+function pintarCertificaciones(lista){
+  var tb = document.getElementById('tablaCertificaciones');
+  if(!tb) return;
+  if(!lista || lista.length === 0){
+    tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><span class="icon">🌳</span>Sin certificaciones registradas</div></td></tr>';
+    return;
+  }
+  var html = '';
+  lista.forEach(function(c){
+    html += '<tr>'
+      + '<td>'+(c.folio || '— pendiente —')+'</td>'
+      + '<td>'+formatearFecha(c.fecha)+'</td>'
+      + '<td>'+esc(c.responsable)+'</td>'
+      + '<td>'+esc(c.direccion)+'</td>'
+      + '<td>'+esc(c.especie)+'</td>'
+      + '<td>'+esc(c.riesgo)+'</td>'
+      + '<td>'
+        + '<button class="btn btn-sm btn-primary" onclick="generarPDFCertificacion(\''+c.id+'\')">PDF</button> '
+        + '<button class="btn btn-sm btn-danger" onclick="eliminarCertificacion(\''+c.id+'\')">Borrar</button>'
+      + '</td>'
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+}
+window.pintarCertificaciones = pintarCertificaciones;
+
+function eliminarCertificacion(id){
+  if(!confirm('¿Eliminar esta certificación?')) return;
+  db.collection('certificaciones').doc(id).delete()
+    .then(function(){ return cargarCertificaciones(); })
+    .catch(function(e){ console.error(e); alert('No se pudo eliminar.'); });
+}
+window.eliminarCertificacion = eliminarCertificacion;
+
+/* ---------- GENERAR PDF (placeholder hasta Bloque 3) ---------- */
+function generarPDFCertificacion(id){
+  alert('El PDF se activa en el siguiente bloque (BLOQUE 3).');
+}
+window.generarPDFCertificacion = generarPDFCertificacion;
+
+/* ---------- INICIALIZACIÓN DEL MÓDULO ---------- */
+(function initModulo2(){
+  function checkYcargar(){
+    var sec = document.getElementById('sec-riesgo');
+    if(!sec) return;
+    if(window.habilitarModulo) window.habilitarModulo(2);
+    cargarInspectoresSelect();
+    cargarCertificaciones();
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', checkYcargar);
+  }else{
+    checkYcargar();
+  }
+})();
+
+/* ╔══════════════════════════════════════════════════════════╗
+   ║  [M2 JS] CERTIFICACIÓN DE ÁRBOLES                         ║
+   ║  FIN                                                       ║
+   ╚══════════════════════════════════════════════════════════╝ */
+</script>
 <!-- === MODULO 3 JS === -->
 <!-- === MODULO 4 JS === -->
 <!-- === MODULO 5 JS === -->
