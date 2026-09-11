@@ -678,8 +678,22 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
-/* Opción B: pedir login cada vez (persistencia SESSION) */
-auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(()=>{});
+/* Opción B: pedir login cada vez.
+   Forzamos SESSION y limpiamos cualquier sesión LOCAL previa. */
+(function forzarLoginCadaVez(){
+  // 1) Cambiar persistencia a SESSION para los próximos logins
+  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(()=>{});
+
+  // 2) Si quedó una sesión LOCAL vieja guardada, la borramos
+  try{
+    const claves = Object.keys(localStorage);
+    claves.forEach(k=>{
+      if(k.indexOf('firebase:authUser') === 0){
+        localStorage.removeItem(k);
+      }
+    });
+  }catch(e){}
+})();
 
 /* ---------- ESTADO GLOBAL ---------- */
 const SIGR = {
@@ -715,6 +729,7 @@ async function iniciarSesion(){
 
   try{
     const cred = await auth.signInWithEmailAndPassword(email, pass);
+    sessionStorage.setItem('sigr_sesion_activa','1');
     await cargarPerfilUsuario(cred.user);
     // onAuthStateChanged se encarga de mostrar la app
   }catch(e){
@@ -761,11 +776,18 @@ async function cargarPerfilUsuario(user){
 
 async function cerrarSesion(){
   if(!confirm('¿Desea cerrar la sesión?')) return;
+  sessionStorage.removeItem('sigr_sesion_activa');
   await auth.signOut();
 }
 window.cerrarSesion = cerrarSesion;
 
 auth.onAuthStateChanged(async (user)=>{
+  // Opción B: si Firebase restauró una sesión vieja de localStorage, la cerramos.
+  if(user && !sessionStorage.getItem('sigr_sesion_activa')){
+    await auth.signOut();
+    return;
+  }
+
   if(user){
     try{
       if(!SIGR.usuario) await cargarPerfilUsuario(user);
@@ -782,7 +804,6 @@ auth.onAuthStateChanged(async (user)=>{
     mostrarLogin();
   }
 });
-
 /* ============================================================
    NAVEGACIÓN
    ============================================================ */
