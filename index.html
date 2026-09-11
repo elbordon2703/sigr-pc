@@ -680,11 +680,12 @@ const db   = firebase.firestore();
 
 /* Opción B: pedir login cada vez.
    Forzamos SESSION y limpiamos cualquier sesión LOCAL previa. */
-(function forzarLoginCadaVez(){
-  // 1) Cambiar persistencia a SESSION para los próximos logins
-  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+const db = firebase.firestore();
 
-  // 2) Si quedó una sesión LOCAL vieja guardada, la borramos
+/* Opción B: pedir login cada vez.
+   Forzamos SESSION y limpiamos cualquier sesión LOCAL previa. */
+(function forzarLoginCadaVez(){
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
   try{
     const claves = Object.keys(localStorage);
     claves.forEach(k=>{
@@ -694,7 +695,6 @@ const db   = firebase.firestore();
     });
   }catch(e){}
 })();
-
 /* ---------- ESTADO GLOBAL ---------- */
 const SIGR = {
   usuario: null,
