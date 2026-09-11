@@ -438,6 +438,544 @@ tbody tr:last-child td{border-bottom:none;}
     </section>
 
     <!-- === MODULO 2 === -->
+        <!-- ======================================================
+         MÓDULO 2 — GESTIÓN DE RIESGO
+         ====================================================== -->
+    <section id="sec-riesgo" class="section">
+      <div class="page-header">
+        <div class="page-title">Gestión de Riesgo</div>
+        <div class="page-sub">Certificación de árboles, viviendas, EDAN, solicitudes y alertas tempranas</div>
+      </div>
+
+      <!-- TABS INTERNAS -->
+      <div class="tabs">
+        <div class="tab active" data-tab="certificacion" onclick="mostrarTab('riesgo','certificacion')">Certificación Árboles</div>
+        <div class="tab" data-tab="viviendas"      onclick="mostrarTab('riesgo','viviendas')">Viviendas</div>
+        <div class="tab" data-tab="edan"           onclick="mostrarTab('riesgo','edan')">EDAN</div>
+        <div class="tab" data-tab="solicitudes"    onclick="mostrarTab('riesgo','solicitudes')">Solicitudes</div>
+        <div class="tab" data-tab="alertas"        onclick="mostrarTab('riesgo','alertas')">Alertas Tempranas</div>
+      </div>
+
+      <!-- ==================================================
+           TAB 1 — CERTIFICACIÓN DE ÁRBOLES
+           ================================================== -->
+      <div class="tab-content active" data-tab-content="certificacion">
+        <div class="flex-between mb-10">
+          <div class="page-title" style="font-size:15px;">Certificaciones registradas</div>
+          <button class="btn btn-primary" onclick="abrirModalCertificacion()">+ Nueva certificación</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Solicitante</th>
+                <th>Dirección</th>
+                <th>Inspector</th>
+                <th style="width:150px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaCertificaciones">
+              <tr><td colspan="6"><div class="empty-state"><span class="icon">🌳</span>Sin certificaciones registradas</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ==================================================
+           TAB 2 — VIVIENDAS
+           ================================================== -->
+      <div class="tab-content" data-tab-content="viviendas">
+        <div class="flex-between mb-10">
+          <div class="page-title" style="font-size:15px;">Viviendas evaluadas</div>
+          <button class="btn btn-primary" onclick="abrirModalVivienda()">+ Nueva vivienda</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Propietario</th>
+                <th>Dirección</th>
+                <th>Nivel de riesgo</th>
+                <th style="width:150px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaViviendas">
+              <tr><td colspan="6"><div class="empty-state"><span class="icon">🏠</span>Sin viviendas registradas</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ==================================================
+           TAB 3 — EDAN
+           ================================================== -->
+      <div class="tab-content" data-tab-content="edan">
+        <div class="flex-between mb-10">
+          <div class="page-title" style="font-size:15px;">Evaluaciones EDAN</div>
+          <button class="btn btn-primary" onclick="abrirModalEdan()">+ Nueva evaluación EDAN</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Evento</th>
+                <th>Sector</th>
+                <th>Evaluador</th>
+                <th style="width:150px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaEdan">
+              <tr><td colspan="6"><div class="empty-state"><span class="icon">📋</span>Sin evaluaciones EDAN registradas</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ==================================================
+           TAB 4 — SOLICITUDES
+           ================================================== -->
+      <div class="tab-content" data-tab-content="solicitudes">
+        <div class="flex-between mb-10">
+          <div class="page-title" style="font-size:15px;">Solicitudes recibidas</div>
+          <button class="btn btn-primary" onclick="abrirModalSolicitud()">+ Nueva solicitud</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Solicitante</th>
+                <th>Asunto</th>
+                <th>Estado</th>
+                <th>Horas</th>
+                <th style="width:180px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaSolicitudes">
+              <tr><td colspan="6"><div class="empty-state"><span class="icon">📨</span>Sin solicitudes registradas</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ==================================================
+           TAB 5 — ALERTAS TEMPRANAS
+           ================================================== -->
+      <div class="tab-content" data-tab-content="alertas">
+        <div class="flex-between mb-10">
+          <div class="page-title" style="font-size:15px;">Alertas tempranas</div>
+          <button class="btn btn-primary" onclick="abrirModalAlerta()">+ Nueva alerta</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Sector</th>
+                <th>Estado</th>
+                <th style="width:150px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaAlertas">
+              <tr><td colspan="6"><div class="empty-state"><span class="icon">🚨</span>Sin alertas registradas</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================
+         MODALES DEL MÓDULO 2
+         ====================================================== -->
+
+    <!-- MODAL CERTIFICACIÓN -->
+    <div class="modal" id="modalCertificacion">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Nueva Certificación de Árboles</h3>
+          <button class="close" onclick="cerrarModal('modalCertificacion')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Solicitante *</label>
+              <input type="text" id="certSolicitante" placeholder="Nombre y apellido">
+            </div>
+            <div class="form-group">
+              <label>Cédula</label>
+              <input type="text" id="certCedula" placeholder="V-00000000">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="text" id="certTelefono" placeholder="0414-0000000">
+            </div>
+            <div class="form-group">
+              <label>Fecha de inspección</label>
+              <input type="date" id="certFecha">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Dirección *</label>
+              <input type="text" id="certDireccion" placeholder="Sector, calle, casa">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Especie del árbol</label>
+              <input type="text" id="certEspecie" placeholder="Ej: Ceiba, Samán">
+            </div>
+            <div class="form-group">
+              <label>Altura aproximada (m)</label>
+              <input type="number" id="certAltura" placeholder="Ej: 8">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nivel de riesgo *</label>
+              <select id="certRiesgo">
+                <option value="">Seleccione...</option>
+                <option value="bajo">Bajo</option>
+                <option value="medio">Medio</option>
+                <option value="alto">Alto</option>
+                <option value="critico">Crítico</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Inspector responsable *</label>
+              <select id="certInspector"></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Observaciones</label>
+              <textarea id="certObservaciones" placeholder="Descripción del estado del árbol..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Recomendaciones</label>
+              <textarea id="certRecomendaciones" placeholder="Acciones sugeridas..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="cerrarModal('modalCertificacion')">Cancelar</button>
+          <button class="btn btn-primary" id="btnGuardarCert" onclick="guardarCertificacion()">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VIVIENDA -->
+    <div class="modal" id="modalVivienda">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Nueva Evaluación de Vivienda</h3>
+          <button class="close" onclick="cerrarModal('modalVivienda')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Propietario *</label>
+              <input type="text" id="vivPropietario" placeholder="Nombre y apellido">
+            </div>
+            <div class="form-group">
+              <label>Cédula</label>
+              <input type="text" id="vivCedula" placeholder="V-00000000">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="text" id="vivTelefono" placeholder="0414-0000000">
+            </div>
+            <div class="form-group">
+              <label>Fecha de inspección</label>
+              <input type="date" id="vivFecha">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Dirección *</label>
+              <input type="text" id="vivDireccion" placeholder="Sector, calle, casa">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tipo de vivienda</label>
+              <select id="vivTipo">
+                <option value="">Seleccione...</option>
+                <option value="casa">Casa</option>
+                <option value="apartamento">Apartamento</option>
+                <option value="rancho">Rancho</option>
+                <option value="refugio">Refugio</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Material predominante</label>
+              <select id="vivMaterial">
+                <option value="">Seleccione...</option>
+                <option value="bloque">Bloque / concreto</option>
+                <option value="adobe">Adobe</option>
+                <option value="bahareque">Bahareque</option>
+                <option value="madera">Madera</option>
+                <option value="zinc">Zinc / lámina</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>N° de habitantes</label>
+              <input type="number" id="vivHabitantes" placeholder="Ej: 4">
+            </div>
+            <div class="form-group">
+              <label>Nivel de riesgo *</label>
+              <select id="vivRiesgo">
+                <option value="">Seleccione...</option>
+                <option value="bajo">Bajo</option>
+                <option value="medio">Medio</option>
+                <option value="alto">Alto</option>
+                <option value="critico">Crítico</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Inspector responsable *</label>
+              <select id="vivInspector"></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Observaciones</label>
+              <textarea id="vivObservaciones" placeholder="Descripción del estado de la vivienda..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Recomendaciones</label>
+              <textarea id="vivRecomendaciones" placeholder="Acciones sugeridas..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="cerrarModal('modalVivienda')">Cancelar</button>
+          <button class="btn btn-primary" id="btnGuardarViv" onclick="guardarVivienda()">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL EDAN -->
+    <div class="modal" id="modalEdan">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Nueva Evaluación EDAN</h3>
+          <button class="close" onclick="cerrarModal('modalEdan')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Evento *</label>
+              <input type="text" id="edanEvento" placeholder="Ej: Inundación, deslizamiento">
+            </div>
+            <div class="form-group">
+              <label>Fecha del evento</label>
+              <input type="date" id="edanFecha">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Sector *</label>
+              <input type="text" id="edanSector" placeholder="Sector afectado">
+            </div>
+            <div class="form-group">
+              <label>Dirección</label>
+              <input type="text" id="edanDireccion" placeholder="Punto de referencia">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Familias afectadas</label>
+              <input type="number" id="edanFamilias" placeholder="Ej: 12">
+            </div>
+            <div class="form-group">
+              <label>Personas afectadas</label>
+              <input type="number" id="edanPersonas" placeholder="Ej: 45">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Viviendas afectadas</label>
+              <input type="number" id="edanViviendas" placeholder="Ej: 8">
+            </div>
+            <div class="form-group">
+              <label>Nivel de afectación *</label>
+              <select id="edanNivel">
+                <option value="">Seleccione...</option>
+                <option value="leve">Leve</option>
+                <option value="moderado">Moderado</option>
+                <option value="grave">Grave</option>
+                <option value="muy_grave">Muy grave</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Evaluador responsable *</label>
+              <select id="edanEvaluador"></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Descripción de daños</label>
+              <textarea id="edanDanos" placeholder="Detalle de los daños observados..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Acciones requeridas</label>
+              <textarea id="edanAcciones" placeholder="Respuesta requerida..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="cerrarModal('modalEdan')">Cancelar</button>
+          <button class="btn btn-primary" id="btnGuardarEdan" onclick="guardarEdan()">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL SOLICITUD -->
+    <div class="modal" id="modalSolicitud">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Nueva Solicitud</h3>
+          <button class="close" onclick="cerrarModal('modalSolicitud')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Solicitante *</label>
+              <input type="text" id="solSolicitante" placeholder="Nombre y apellido">
+            </div>
+            <div class="form-group">
+              <label>Cédula / RIF</label>
+              <input type="text" id="solCedula" placeholder="V-00000000">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="text" id="solTelefono" placeholder="0414-0000000">
+            </div>
+            <div class="form-group">
+              <label>Fecha de recibido</label>
+              <input type="date" id="solFecha">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Asunto *</label>
+              <input type="text" id="solAsunto" placeholder="Motivo de la solicitud">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Descripción *</label>
+              <textarea id="solDescripcion" placeholder="Detalle de la solicitud..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prioridad</label>
+              <select id="solPrioridad">
+                <option value="baja">Baja</option>
+                <option value="media" selected>Media</option>
+                <option value="alta">Alta</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="cerrarModal('modalSolicitud')">Cancelar</button>
+          <button class="btn btn-primary" id="btnGuardarSol" onclick="guardarSolicitud()">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ALERTA -->
+    <div class="modal" id="modalAlerta">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Nueva Alerta Temprana</h3>
+          <button class="close" onclick="cerrarModal('modalAlerta')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tipo de alerta *</label>
+              <select id="alerTipo">
+                <option value="">Seleccione...</option>
+                <option value="hidrometeorologica">Hidrometeorológica</option>
+                <option value="geologica">Geológica</option>
+                <option value="sanitaria">Sanitaria</option>
+                <option value="social">Social</option>
+                <option value="otra">Otra</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" id="alerFecha">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Sector *</label>
+              <input type="text" id="alerSector" placeholder="Sector afectado">
+            </div>
+            <div class="form-group">
+              <label>Nivel de alerta *</label>
+              <select id="alerNivel">
+                <option value="">Seleccione...</option>
+                <option value="verde">Verde</option>
+                <option value="amarilla">Amarilla</option>
+                <option value="naranja">Naranja</option>
+                <option value="roja">Roja</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Descripción *</label>
+              <textarea id="alerDescripcion" placeholder="Detalle de la alerta..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Acciones recomendadas</label>
+              <textarea id="alerAcciones" placeholder="Medidas a tomar..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="cerrarModal('modalAlerta')">Cancelar</button>
+          <button class="btn btn-primary" id="btnGuardarAler" onclick="guardarAlerta()">Guardar</button>
+        </div>
+      </div>
+    </div>
     <!-- === MODULO 3 === -->
     <!-- === MODULO 4 === -->
     <!-- === MODULO 5 === -->
@@ -940,6 +1478,914 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <!-- === MODULO 2 JS === -->
+  <script>
+/* ============================================================
+   MÓDULO 2 — GESTIÓN DE RIESGO
+   ============================================================ */
+
+/* ---------- ESTADO LOCAL DEL MÓDULO ---------- */
+var M2 = {
+  certificaciones: [],
+  viviendas: [],
+  edan: [],
+  solicitudes: [],
+  alertas: []
+};
+window.M2 = M2;
+
+/* ============================================================
+   UTILIDADES DE MODAL
+   ============================================================ */
+function abrirModal(id){
+  var m = document.getElementById(id);
+  if(m) m.classList.add('active');
+}
+window.abrirModal = abrirModal;
+
+function cerrarModal(id){
+  var m = document.getElementById(id);
+  if(m) m.classList.remove('active');
+}
+window.cerrarModal = cerrarModal;
+
+/* Cerrar modal al hacer clic fuera del content */
+document.addEventListener('click', function(e){
+  if(e.target.classList && e.target.classList.contains('modal')){
+    e.target.classList.remove('active');
+  }
+});
+
+/* ============================================================
+   CARGA DE INSPECTORES/EVALUADORES EN LOS SELECTS
+   ============================================================ */
+function cargarSelectoresPersonal(){
+  var inspectores = (window.SIGR && window.SIGR.personal) ? window.SIGR.personal.filter(function(p){
+    return p.activo !== false && (p.responsabilidad === 'inspector' || p.responsabilidad === 'edanista');
+  }) : [];
+
+  var personalActivo = (window.SIGR && window.SIGR.personal) ? window.SIGR.personal.filter(function(p){
+    return p.activo !== false;
+  }) : [];
+
+  var opciones = '<option value="">Seleccione...</option>';
+  inspectores.forEach(function(p){
+    var nombre = (p.nombre || '') + ' ' + (p.apellido || '');
+    opciones += '<option value="'+p.id+'" data-nombre="'+nombre.trim()+'">'+nombre.trim()+'</option>';
+  });
+
+  var opcionesTodos = '<option value="">Seleccione...</option>';
+  personalActivo.forEach(function(p){
+    var nombre = (p.nombre || '') + ' ' + (p.apellido || '');
+    opcionesTodos += '<option value="'+p.id+'" data-nombre="'+nombre.trim()+'">'+nombre.trim()+'</option>';
+  });
+
+  ['certInspector','vivInspector','edanEvaluador'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.innerHTML = opciones;
+  });
+}
+window.cargarSelectoresPersonal = cargarSelectoresPersonal;
+
+/* ============================================================
+   TAB 1 — CERTIFICACIÓN DE ÁRBOLES
+   ============================================================ */
+function abrirModalCertificacion(){
+  document.getElementById('certSolicitante').value = '';
+  document.getElementById('certCedula').value = '';
+  document.getElementById('certTelefono').value = '';
+  document.getElementById('certDireccion').value = '';
+  document.getElementById('certEspecie').value = '';
+  document.getElementById('certAltura').value = '';
+  document.getElementById('certRiesgo').value = '';
+  document.getElementById('certObservaciones').value = '';
+  document.getElementById('certRecomendaciones').value = '';
+  document.getElementById('certFecha').valueAsDate = new Date();
+  cargarSelectoresPersonal();
+  abrirModal('modalCertificacion');
+}
+window.abrirModalCertificacion = abrirModalCertificacion;
+
+function guardarCertificacion(){
+  var solicitante   = document.getElementById('certSolicitante').value.trim();
+  var direccion     = document.getElementById('certDireccion').value.trim();
+  var riesgo        = document.getElementById('certRiesgo').value;
+  var inspectorSel  = document.getElementById('certInspector');
+  var inspectorId   = inspectorSel.value;
+  var inspectorNom  = inspectorId ? inspectorSel.options[inspectorSel.selectedIndex].getAttribute('data-nombre') : '';
+
+  if(!solicitante || !direccion || !riesgo || !inspectorId){
+    alert('Complete los campos obligatorios: Solicitante, Dirección, Nivel de riesgo e Inspector.');
+    return;
+  }
+
+  var btn = document.getElementById('btnGuardarCert');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Guardando...';
+
+  var doc = {
+    solicitante: solicitante,
+    cedula: document.getElementById('certCedula').value.trim(),
+    telefono: document.getElementById('certTelefono').value.trim(),
+    fecha: document.getElementById('certFecha').value || new Date().toISOString().slice(0,10),
+    direccion: direccion,
+    especie: document.getElementById('certEspecie').value.trim(),
+    altura: document.getElementById('certAltura').value,
+    riesgo: riesgo,
+    inspector_id: inspectorId,
+    inspector_nombre: inspectorNom,
+    observaciones: document.getElementById('certObservaciones').value.trim(),
+    recomendaciones: document.getElementById('certRecomendaciones').value.trim(),
+    folio: null,
+    creado: firebase.firestore.FieldValue.serverTimestamp(),
+    creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—'
+  };
+
+  db.collection('certificaciones').add(doc)
+    .then(function(){
+      cerrarModal('modalCertificacion');
+      return cargarCertificaciones();
+    })
+    .catch(function(e){
+      console.error('Error guardando certificación:', e);
+      alert('Error al guardar. Verifique la consola.');
+    })
+    .finally(function(){
+      btn.disabled = false;
+      btn.textContent = 'Guardar';
+    });
+}
+window.guardarCertificacion = guardarCertificacion;
+
+function cargarCertificaciones(){
+  return db.collection('certificaciones').orderBy('creado','desc').limit(200).get()
+    .then(function(snap){
+      M2.certificaciones = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      pintarCertificaciones();
+    })
+    .catch(function(e){ console.error('Error cargando certificaciones:', e); });
+}
+window.cargarCertificaciones = cargarCertificaciones;
+
+function pintarCertificaciones(){
+  var tb = document.getElementById('tablaCertificaciones');
+  if(!tb) return;
+  if(M2.certificaciones.length === 0){
+    tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><span class="icon">🌳</span>Sin certificaciones registradas</div></td></tr>';
+    return;
+  }
+  var html = '';
+  M2.certificaciones.forEach(function(c){
+    html += '<tr>'
+      + '<td>'+(c.folio || '— pendiente —')+'</td>'
+      + '<td>'+formatearFecha(c.fecha)+'</td>'
+      + '<td>'+esc(c.solicitante)+'</td>'
+      + '<td>'+esc(c.direccion)+'</td>'
+      + '<td>'+esc(c.inspector_nombre)+'</td>'
+      + '<td>'
+        + '<button class="btn btn-sm btn-primary" onclick="generarPDFCertificacion(\''+c.id+'\')">PDF</button> '
+        + '<button class="btn btn-sm btn-danger" onclick="eliminarCertificacion(\''+c.id+'\')">Borrar</button>'
+      + '</td>'
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+}
+window.pintarCertificaciones = pintarCertificaciones;
+
+function eliminarCertificacion(id){
+  if(!confirm('¿Eliminar esta certificación?')) return;
+  db.collection('certificaciones').doc(id).delete()
+    .then(function(){ return cargarCertificaciones(); })
+    .catch(function(e){ console.error(e); alert('No se pudo eliminar.'); });
+}
+window.eliminarCertificacion = eliminarCertificacion;
+
+/* ============================================================
+   TAB 2 — VIVIENDAS
+   ============================================================ */
+function abrirModalVivienda(){
+  ['vivPropietario','vivCedula','vivTelefono','vivDireccion','vivTipo','vivMaterial','vivHabitantes','vivRiesgo','vivObservaciones','vivRecomendaciones'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.getElementById('vivFecha').valueAsDate = new Date();
+  cargarSelectoresPersonal();
+  abrirModal('modalVivienda');
+}
+window.abrirModalVivienda = abrirModalVivienda;
+
+function guardarVivienda(){
+  var propietario  = document.getElementById('vivPropietario').value.trim();
+  var direccion    = document.getElementById('vivDireccion').value.trim();
+  var riesgo       = document.getElementById('vivRiesgo').value;
+  var inspectorSel = document.getElementById('vivInspector');
+  var inspectorId  = inspectorSel.value;
+  var inspectorNom = inspectorId ? inspectorSel.options[inspectorSel.selectedIndex].getAttribute('data-nombre') : '';
+
+  if(!propietario || !direccion || !riesgo || !inspectorId){
+    alert('Complete los campos obligatorios: Propietario, Dirección, Nivel de riesgo e Inspector.');
+    return;
+  }
+
+  var btn = document.getElementById('btnGuardarViv');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Guardando...';
+
+  var doc = {
+    propietario: propietario,
+    cedula: document.getElementById('vivCedula').value.trim(),
+    telefono: document.getElementById('vivTelefono').value.trim(),
+    fecha: document.getElementById('vivFecha').value || new Date().toISOString().slice(0,10),
+    direccion: direccion,
+    tipo: document.getElementById('vivTipo').value,
+    material: document.getElementById('vivMaterial').value,
+    habitantes: document.getElementById('vivHabitantes').value,
+    riesgo: riesgo,
+    inspector_id: inspectorId,
+    inspector_nombre: inspectorNom,
+    observaciones: document.getElementById('vivObservaciones').value.trim(),
+    recomendaciones: document.getElementById('vivRecomendaciones').value.trim(),
+    folio: null,
+    creado: firebase.firestore.FieldValue.serverTimestamp(),
+    creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—'
+  };
+
+  db.collection('viviendas').add(doc)
+    .then(function(){
+      cerrarModal('modalVivienda');
+      return cargarViviendas();
+    })
+    .catch(function(e){
+      console.error('Error guardando vivienda:', e);
+      alert('Error al guardar. Verifique la consola.');
+    })
+    .finally(function(){
+      btn.disabled = false;
+      btn.textContent = 'Guardar';
+    });
+}
+window.guardarVivienda = guardarVivienda;
+
+function cargarViviendas(){
+  return db.collection('viviendas').orderBy('creado','desc').limit(200).get()
+    .then(function(snap){
+      M2.viviendas = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      pintarViviendas();
+    })
+    .catch(function(e){ console.error('Error cargando viviendas:', e); });
+}
+window.cargarViviendas = cargarViviendas;
+
+function pintarViviendas(){
+  var tb = document.getElementById('tablaViviendas');
+  if(!tb) return;
+  if(M2.viviendas.length === 0){
+    tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><span class="icon">🏠</span>Sin viviendas registradas</div></td></tr>';
+    return;
+  }
+  var html = '';
+  M2.viviendas.forEach(function(v){
+    html += '<tr>'
+      + '<td>'+(v.folio || '— pendiente —')+'</td>'
+      + '<td>'+formatearFecha(v.fecha)+'</td>'
+      + '<td>'+esc(v.propietario)+'</td>'
+      + '<td>'+esc(v.direccion)+'</td>'
+      + '<td>'+esc(v.riesgo)+'</td>'
+      + '<td>'
+        + '<button class="btn btn-sm btn-primary" onclick="generarPDFVivienda(\''+v.id+'\')">PDF</button> '
+        + '<button class="btn btn-sm btn-danger" onclick="eliminarVivienda(\''+v.id+'\')">Borrar</button>'
+      + '</td>'
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+}
+window.pintarViviendas = pintarViviendas;
+
+function eliminarVivienda(id){
+  if(!confirm('¿Eliminar esta vivienda?')) return;
+  db.collection('viviendas').doc(id).delete()
+    .then(function(){ return cargarViviendas(); })
+    .catch(function(e){ console.error(e); alert('No se pudo eliminar.'); });
+}
+window.eliminarVivienda = eliminarVivienda;
+
+/* ============================================================
+   TAB 3 — EDAN
+   ============================================================ */
+function abrirModalEdan(){
+  ['edanEvento','edanSector','edanDireccion','edanFamilias','edanPersonas','edanViviendas','edanNivel','edanDanos','edanAcciones'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.getElementById('edanFecha').valueAsDate = new Date();
+  cargarSelectoresPersonal();
+  abrirModal('modalEdan');
+}
+window.abrirModalEdan = abrirModalEdan;
+
+function guardarEdan(){
+  var evento    = document.getElementById('edanEvento').value.trim();
+  var sector    = document.getElementById('edanSector').value.trim();
+  var nivel     = document.getElementById('edanNivel').value;
+  var evalSel   = document.getElementById('edanEvaluador');
+  var evalId    = evalSel.value;
+  var evalNom   = evalId ? evalSel.options[evalSel.selectedIndex].getAttribute('data-nombre') : '';
+
+  if(!evento || !sector || !nivel || !evalId){
+    alert('Complete los campos obligatorios: Evento, Sector, Nivel de afectación y Evaluador.');
+    return;
+  }
+
+  var btn = document.getElementById('btnGuardarEdan');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Guardando...';
+
+  var doc = {
+    evento: evento,
+    fecha: document.getElementById('edanFecha').value || new Date().toISOString().slice(0,10),
+    sector: sector,
+    direccion: document.getElementById('edanDireccion').value.trim(),
+    familias: document.getElementById('edanFamilias').value,
+    personas: document.getElementById('edanPersonas').value,
+    viviendas: document.getElementById('edanViviendas').value,
+    nivel: nivel,
+    evaluador_id: evalId,
+    evaluador_nombre: evalNom,
+    danos: document.getElementById('edanDanos').value.trim(),
+    acciones: document.getElementById('edanAcciones').value.trim(),
+    folio: null,
+    creado: firebase.firestore.FieldValue.serverTimestamp(),
+    creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—'
+  };
+
+  db.collection('edan').add(doc)
+    .then(function(){
+      cerrarModal('modalEdan');
+      return cargarEdan();
+    })
+    .catch(function(e){
+      console.error('Error guardando EDAN:', e);
+      alert('Error al guardar. Verifique la consola.');
+    })
+    .finally(function(){
+      btn.disabled = false;
+      btn.textContent = 'Guardar';
+    });
+}
+window.guardarEdan = guardarEdan;
+
+function cargarEdan(){
+  return db.collection('edan').orderBy('creado','desc').limit(200).get()
+    .then(function(snap){
+      M2.edan = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      pintarEdan();
+    })
+    .catch(function(e){ console.error('Error cargando EDAN:', e); });
+}
+window.cargarEdan = cargarEdan;
+
+function pintarEdan(){
+  var tb = document.getElementById('tablaEdan');
+  if(!tb) return;
+  if(M2.edan.length === 0){
+    tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><span class="icon">📋</span>Sin evaluaciones EDAN registradas</div></td></tr>';
+    return;
+  }
+  var html = '';
+  M2.edan.forEach(function(e){
+    html += '<tr>'
+      + '<td>'+(e.folio || '— pendiente —')+'</td>'
+      + '<td>'+formatearFecha(e.fecha)+'</td>'
+      + '<td>'+esc(e.evento)+'</td>'
+      + '<td>'+esc(e.sector)+'</td>'
+      + '<td>'+esc(e.evaluador_nombre)+'</td>'
+      + '<td>'
+        + '<button class="btn btn-sm btn-primary" onclick="generarPDFEdan(\''+e.id+'\')">PDF</button> '
+        + '<button class="btn btn-sm btn-danger" onclick="eliminarEdan(\''+e.id+'\')">Borrar</button>'
+      + '</td>'
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+}
+window.pintarEdan = pintarEdan;
+
+function eliminarEdan(id){
+  if(!confirm('¿Eliminar esta evaluación EDAN?')) return;
+  db.collection('edan').doc(id).delete()
+    .then(function(){ return cargarEdan(); })
+    .catch(function(e){ console.error(e); alert('No se pudo eliminar.'); });
+}
+window.eliminarEdan = eliminarEdan;
+
+/* ============================================================
+   TAB 4 — SOLICITUDES
+   ============================================================ */
+function abrirModalSolicitud(){
+  ['solSolicitante','solCedula','solTelefono','solAsunto','solDescripcion'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.getElementById('solPrioridad').value = 'media';
+  document.getElementById('solFecha').valueAsDate = new Date();
+  abrirModal('modalSolicitud');
+}
+window.abrirModalSolicitud = abrirModalSolicitud;
+
+function guardarSolicitud(){
+  var solicitante = document.getElementById('solSolicitante').value.trim();
+  var asunto      = document.getElementById('solAsunto').value.trim();
+  var descripcion = document.getElementById('solDescripcion').value.trim();
+
+  if(!solicitante || !asunto || !descripcion){
+    alert('Complete los campos obligatorios: Solicitante, Asunto y Descripción.');
+    return;
+  }
+
+  var btn = document.getElementById('btnGuardarSol');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Guardando...';
+
+  var doc = {
+    solicitante: solicitante,
+    cedula: document.getElementById('solCedula').value.trim(),
+    telefono: document.getElementById('solTelefono').value.trim(),
+    fecha: document.getElementById('solFecha').value || new Date().toISOString().slice(0,10),
+    asunto: asunto,
+    descripcion: descripcion,
+    prioridad: document.getElementById('solPrioridad').value,
+    estado: 'pendiente',
+    fecha_creacion: firebase.firestore.FieldValue.serverTimestamp(),
+    creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—'
+  };
+
+  db.collection('solicitudes').add(doc)
+    .then(function(){
+      cerrarModal('modalSolicitud');
+      return cargarSolicitudes();
+    })
+    .catch(function(e){
+      console.error('Error guardando solicitud:', e);
+      alert('Error al guardar. Verifique la consola.');
+    })
+    .finally(function(){
+      btn.disabled = false;
+      btn.textContent = 'Guardar';
+    });
+}
+window.guardarSolicitud = guardarSolicitud;
+
+function cargarSolicitudes(){
+  return db.collection('solicitudes').orderBy('fecha_creacion','desc').limit(200).get()
+    .then(function(snap){
+      M2.solicitudes = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      pintarSolicitudes();
+    })
+    .catch(function(e){ console.error('Error cargando solicitudes:', e); });
+}
+window.cargarSolicitudes = cargarSolicitudes;
+
+function pintarSolicitudes(){
+  var tb = document.getElementById('tablaSolicitudes');
+  if(!tb) return;
+  if(M2.solicitudes.length === 0){
+    tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><span class="icon">📨</span>Sin solicitudes registradas</div></td></tr>';
+    return;
+  }
+  var html = '';
+  var ahora = Date.now();
+  M2.solicitudes.forEach(function(s){
+    var f = s.fecha_creacion && s.fecha_creacion.toDate ? s.fecha_creacion.toDate() : null;
+    var horas = f ? Math.floor((ahora - f.getTime()) / 3600000) : 0;
+    var alerta72 = (s.estado === 'pendiente' && horas >= 72) ? ' style="background:#fff3cd;"' : '';
+    var estadoBadge = s.estado === 'pendiente'
+      ? '<span class="badge pendiente">Pendiente</span>'
+      : '<span class="badge cerrado">Gestionada</span>';
+    html += '<tr'+alerta72+'>'
+      + '<td>'+formatearFecha(s.fecha)+'</td>'
+      + '<td>'+esc(s.solicitante)+'</td>'
+      + '<td>'+esc(s.asunto)+'</td>'
+      + '<td>'+estadoBadge+'</td>'
+      + '<td>'+horas+' h</td>'
+      + '<td>'
+        + (s.estado === 'pendiente' ? '<button class="btn btn-sm btn-success" onclick="gestionarSolicitud(\''+s.id+'\')">Gestionar</button> ' : '')
+        + '<button class="btn btn-sm btn-danger" onclick="eliminarSolicitud(\''+s.id+'\')">Borrar</button>'
+      + '</td>'
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+}
+window.pintarSolicitudes = pintarSolicitudes;
+
+function gestionarSolicitud(id){
+  if(!confirm('¿Marcar esta solicitud como gestionada?')) return;
+  db.collection('solicitudes').doc(id).update({
+    estado: 'gestionada',
+    fecha_gestion: firebase.firestore.FieldValue.serverTimestamp(),
+    gestionado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—'
+  }).then(function(){ return cargarSolicitudes(); })
+    .catch(function(e){ console.error(e); alert('No se pudo actualizar.'); });
+}
+window.gestionarSolicitud = gestionarSolicitud;
+
+function eliminarSolicitud(id){
+  if(!confirm('¿Eliminar esta solicitud?')) return;
+  db.collection('solicitudes').doc(id).delete()
+    .then(function(){ return cargarSolicitudes(); })
+    .catch(function(e){ console.error(e); alert('No se pudo eliminar.'); });
+}
+window.eliminarSolicitud = eliminarSolicitud;
+
+/* ============================================================
+   TAB 5 — ALERTAS TEMPRANAS
+   ============================================================ */
+function abrirModalAlerta(){
+  ['alerTipo','alerSector','alerNivel','alerDescripcion','alerAcciones'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.getElementById('alerFecha').valueAsDate = new Date();
+  abrirModal('modalAlerta');
+}
+window.abrirModalAlerta = abrirModalAlerta;
+
+function guardarAlerta(){
+  var tipo        = document.getElementById('alerTipo').value;
+  var sector      = document.getElementById('alerSector').value.trim();
+  var nivel       = document.getElementById('alerNivel').value;
+  var descripcion = document.getElementById('alerDescripcion').value.trim();
+
+  if(!tipo || !sector || !nivel || !descripcion){
+    alert('Complete los campos obligatorios: Tipo, Sector, Nivel y Descripción.');
+    return;
+  }
+
+  var btn = document.getElementById('btnGuardarAler');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Guardando...';
+
+  var doc = {
+    tipo: tipo,
+    fecha: document.getElementById('alerFecha').value || new Date().toISOString().slice(0,10),
+    sector: sector,
+    nivel: nivel,
+    descripcion: descripcion,
+    acciones: document.getElementById('alerAcciones').value.trim(),
+    activa: true,
+    creado: firebase.firestore.FieldValue.serverTimestamp(),
+    creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—'
+  };
+
+  db.collection('alertas').add(doc)
+    .then(function(){
+      cerrarModal('modalAlerta');
+      return cargarAlertas();
+    })
+    .catch(function(e){
+      console.error('Error guardando alerta:', e);
+      alert('Error al guardar. Verifique la consola.');
+    })
+    .finally(function(){
+      btn.disabled = false;
+      btn.textContent = 'Guardar';
+    });
+}
+window.guardarAlerta = guardarAlerta;
+
+function cargarAlertas(){
+  return db.collection('alertas').orderBy('creado','desc').limit(200).get()
+    .then(function(snap){
+      M2.alertas = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      pintarAlertas();
+    })
+    .catch(function(e){ console.error('Error cargando alertas:', e); });
+}
+window.cargarAlertas = cargarAlertas;
+
+function pintarAlertas(){
+  var tb = document.getElementById('tablaAlertas');
+  if(!tb) return;
+  if(M2.alertas.length === 0){
+    tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><span class="icon">🚨</span>Sin alertas registradas</div></td></tr>';
+    return;
+  }
+  var html = '';
+  M2.alertas.forEach(function(a){
+    var estadoBadge = a.activa !== false
+      ? '<span class="badge activo">Activa</span>'
+      : '<span class="badge cerrado">Inactiva</span>';
+    html += '<tr>'
+      + '<td>'+formatearFecha(a.fecha)+'</td>'
+      + '<td>'+esc(a.tipo)+'</td>'
+      + '<td>'+esc(a.descripcion)+'</td>'
+      + '<td>'+esc(a.sector)+'</td>'
+      + '<td>'+estadoBadge+'</td>'
+      + '<td>'
+        + (a.activa !== false ? '<button class="btn btn-sm btn-warning" onclick="desactivarAlerta(\''+a.id+'\')">Desactivar</button> ' : '')
+        + '<button class="btn btn-sm btn-danger" onclick="eliminarAlerta(\''+a.id+'\')">Borrar</button>'
+      + '</td>'
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+}
+window.pintarAlertas = pintarAlertas;
+
+function desactivarAlerta(id){
+  if(!confirm('¿Marcar esta alerta como inactiva?')) return;
+  db.collection('alertas').doc(id).update({ activa: false })
+    .then(function(){ return cargarAlertas(); })
+    .catch(function(e){ console.error(e); alert('No se pudo actualizar.'); });
+}
+window.desactivarAlerta = desactivarAlerta;
+
+function eliminarAlerta(id){
+  if(!confirm('¿Eliminar esta alerta?')) return;
+  db.collection('alertas').doc(id).delete()
+    .then(function(){ return cargarAlertas(); })
+    .catch(function(e){ console.error(e); alert('No se pudo eliminar.'); });
+}
+window.eliminarAlerta = eliminarAlerta;
+
+/* ============================================================
+   GENERACIÓN DE PDFs (con folio correlativo)
+   ============================================================ */
+
+/* --- PDF CERTIFICACIÓN --- */
+function generarPDFCertificacion(id){
+  var c = M2.certificaciones.find(function(x){ return x.id === id; });
+  if(!c){ alert('Certificación no encontrada.'); return; }
+
+  var asignarFolio = c.folio
+    ? Promise.resolve(c.folio)
+    : generarFolio('CERT').then(function(f){
+        return db.collection('certificaciones').doc(id).update({ folio: f }).then(function(){
+          c.folio = f;
+          return f;
+        });
+      });
+
+  asignarFolio.then(function(folio){
+    var doc = new window.jspdf.jsPDF({ unit:'mm', format:'letter' });
+    return encabezadoPDF(doc, 'Certificación de Árboles', 'Evaluación técnica de riesgo vegetal').then(function(y){
+      y = recuadroFolioPDF(doc, folio, y);
+
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.text('DATOS DEL SOLICITANTE', 12, y);
+      y += 5;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.text('Solicitante: '+ (c.solicitante || '—'), 12, y); y += 4.5;
+      doc.text('Cédula: '+ (c.cedula || '—'), 12, y);
+      doc.text('Teléfono: '+ (c.telefono || '—'), 100, y); y += 4.5;
+      doc.text('Fecha de inspección: '+ formatearFecha(c.fecha), 12, y); y += 4.5;
+      doc.text('Dirección: '+ (c.direccion || '—'), 12, y); y += 7;
+
+      doc.setFont('helvetica','bold');
+      doc.text('DATOS DEL ÁRBOL', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      doc.text('Especie: '+ (c.especie || '—'), 12, y);
+      doc.text('Altura aprox.: '+ (c.altura ? c.altura+' m' : '—'), 100, y); y += 4.5;
+      doc.text('Nivel de riesgo: '+ (c.riesgo || '—').toUpperCase(), 12, y); y += 7;
+
+      doc.setFont('helvetica','bold');
+      doc.text('OBSERVACIONES', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      var obs = c.observaciones || 'Sin observaciones.';
+      var lineasObs = doc.splitTextToSize(obs, 186);
+      doc.text(lineasObs, 12, y, {align:'justify', maxWidth:186});
+      y += lineasObs.length * 4 + 3;
+
+      doc.setFont('helvetica','bold');
+      doc.text('RECOMENDACIONES', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      var rec = c.recomendaciones || 'Sin recomendaciones.';
+      var lineasRec = doc.splitTextToSize(rec, 186);
+      doc.text(lineasRec, 12, y, {align:'justify', maxWidth:186});
+      y += lineasRec.length * 4 + 8;
+
+      // Firma
+      var inspector = window.SIGR.personal.find(function(p){ return p.id === c.inspector_id; });
+      if(inspector && inspector.firma){
+        try{ doc.addImage(inspector.firma, 'JPEG', 30, y, 45, 18); }catch(e){}
+      }
+      doc.setDrawColor(0,0,0);
+      doc.setLineWidth(0.3);
+      doc.line(28, y+20, 92, y+20);
+      doc.setFontSize(8);
+      doc.text(c.inspector_nombre || 'Inspector', 60, y+24, {align:'center'});
+      doc.text('Inspector responsable', 60, y+28, {align:'center'});
+
+      // Sello
+      if(window.SIGR.selloB64){
+        try{ doc.addImage(window.SIGR.selloB64, 'PNG', 130, y, 40, 40); }catch(e){}
+      }
+
+      return pieDePaginaPDF(doc).then(function(){
+        doc.save('Certificacion_'+folio+'.pdf');
+      });
+    });
+  }).catch(function(e){
+    console.error('Error generando PDF certificación:', e);
+    alert('Error al generar el PDF. Verifique la consola.');
+  });
+}
+window.generarPDFCertificacion = generarPDFCertificacion;
+
+/* --- PDF VIVIENDA --- */
+function generarPDFVivienda(id){
+  var v = M2.viviendas.find(function(x){ return x.id === id; });
+  if(!v){ alert('Vivienda no encontrada.'); return; }
+
+  var asignarFolio = v.folio
+    ? Promise.resolve(v.folio)
+    : generarFolio('VIV').then(function(f){
+        return db.collection('viviendas').doc(id).update({ folio: f }).then(function(){
+          v.folio = f;
+          return f;
+        });
+      });
+
+  asignarFolio.then(function(folio){
+    var doc = new window.jspdf.jsPDF({ unit:'mm', format:'letter' });
+    return encabezadoPDF(doc, 'Evaluación de Vivienda', 'Inspección técnica de riesgo habitacional').then(function(y){
+      y = recuadroFolioPDF(doc, folio, y);
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(9);
+      doc.text('DATOS DEL PROPIETARIO', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      doc.text('Propietario: '+ (v.propietario || '—'), 12, y); y += 4.5;
+      doc.text('Cédula: '+ (v.cedula || '—'), 12, y);
+      doc.text('Teléfono: '+ (v.telefono || '—'), 100, y); y += 4.5;
+      doc.text('Fecha de inspección: '+ formatearFecha(v.fecha), 12, y); y += 4.5;
+      doc.text('Dirección: '+ (v.direccion || '—'), 12, y); y += 7;
+
+      doc.setFont('helvetica','bold');
+      doc.text('DATOS DE LA VIVIENDA', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      doc.text('Tipo: '+ (v.tipo || '—'), 12, y);
+      doc.text('Material: '+ (v.material || '—'), 100, y); y += 4.5;
+      doc.text('Habitantes: '+ (v.habitantes || '—'), 12, y);
+      doc.text('Nivel de riesgo: '+ (v.riesgo || '—').toUpperCase(), 100, y); y += 7;
+
+      doc.setFont('helvetica','bold');
+      doc.text('OBSERVACIONES', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      var obs = v.observaciones || 'Sin observaciones.';
+      var lObs = doc.splitTextToSize(obs, 186);
+      doc.text(lObs, 12, y, {align:'justify', maxWidth:186});
+      y += lObs.length * 4 + 3;
+
+      doc.setFont('helvetica','bold');
+      doc.text('RECOMENDACIONES', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      var rec = v.recomendaciones || 'Sin recomendaciones.';
+      var lRec = doc.splitTextToSize(rec, 186);
+      doc.text(lRec, 12, y, {align:'justify', maxWidth:186});
+      y += lRec.length * 4 + 8;
+
+      // Marco legal
+      var marco = 'La presente evaluación se realiza en el marco de la Ley de Gestión Integral de Riesgos Socio-Naturales y Tecnológicos, y conforme a las atribuciones de Protección Civil del Municipio Papelón, Estado Portuguesa, con el objeto de determinar el nivel de riesgo de la vivienda evaluada y establecer las recomendaciones técnicas pertinentes para la protección de la vida y los bienes de sus ocupantes.';
+      y = marcoLegalPDF(doc, marco, y) + 6;
+
+      // Firma
+      var inspector = window.SIGR.personal.find(function(p){ return p.id === v.inspector_id; });
+      if(inspector && inspector.firma){
+        try{ doc.addImage(inspector.firma, 'JPEG', 30, y, 45, 18); }catch(e){}
+      }
+      doc.setDrawColor(0,0,0); doc.setLineWidth(0.3);
+      doc.line(28, y+20, 92, y+20);
+      doc.setFontSize(8);
+      doc.text(v.inspector_nombre || 'Inspector', 60, y+24, {align:'center'});
+      doc.text('Inspector responsable', 60, y+28, {align:'center'});
+
+      if(window.SIGR.selloB64){
+        try{ doc.addImage(window.SIGR.selloB64, 'PNG', 130, y, 40, 40); }catch(e){}
+      }
+
+      return pieDePaginaPDF(doc).then(function(){
+        doc.save('Vivienda_'+folio+'.pdf');
+      });
+    });
+  }).catch(function(e){
+    console.error('Error generando PDF vivienda:', e);
+    alert('Error al generar el PDF. Verifique la consola.');
+  });
+}
+window.generarPDFVivienda = generarPDFVivienda;
+
+/* --- PDF EDAN --- */
+function generarPDFEdan(id){
+  var e = M2.edan.find(function(x){ return x.id === id; });
+  if(!e){ alert('EDAN no encontrado.'); return; }
+
+  var asignarFolio = e.folio
+    ? Promise.resolve(e.folio)
+    : generarFolio('EDAN').then(function(f){
+        return db.collection('edan').doc(id).update({ folio: f }).then(function(){
+          e.folio = f;
+          return f;
+        });
+      });
+
+  asignarFolio.then(function(folio){
+    var doc = new window.jspdf.jsPDF({ unit:'mm', format:'letter' });
+    return encabezadoPDF(doc, 'Evaluación EDAN', 'Evaluación de Daños y Análisis de Necesidades').then(function(y){
+      y = recuadroFolioPDF(doc, folio, y);
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(9);
+      doc.text('DATOS DEL EVENTO', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      doc.text('Evento: '+ (e.evento || '—'), 12, y); y += 4.5;
+      doc.text('Fecha: '+ formatearFecha(e.fecha), 12, y);
+      doc.text('Sector: '+ (e.sector || '—'), 100, y); y += 4.5;
+      doc.text('Dirección: '+ (e.direccion || '—'), 12, y); y += 7;
+
+      doc.setFont('helvetica','bold');
+      doc.text('AFECTACIÓN', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      doc.text('Familias afectadas: '+ (e.familias || 0), 12, y);
+      doc.text('Personas afectadas: '+ (e.personas || 0), 80, y);
+      doc.text('Viviendas afectadas: '+ (e.viviendas || 0), 140, y); y += 4.5;
+      doc.text('Nivel de afectación: '+ (e.nivel || '—').toUpperCase(), 12, y); y += 7;
+
+      doc.setFont('helvetica','bold');
+      doc.text('DESCRIPCIÓN DE DAÑOS', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      var d = e.danos || 'Sin descripción.';
+      var lD = doc.splitTextToSize(d, 186);
+      doc.text(lD, 12, y, {align:'justify', maxWidth:186});
+      y += lD.length * 4 + 3;
+
+      doc.setFont('helvetica','bold');
+      doc.text('ACCIONES REQUERIDAS', 12, y); y += 5;
+      doc.setFont('helvetica','normal');
+      var a = e.acciones || 'Sin acciones especificadas.';
+      var lA = doc.splitTextToSize(a, 186);
+      doc.text(lA, 12, y, {align:'justify', maxWidth:186});
+      y += lA.length * 4 + 8;
+
+      var inspector = window.SIGR.personal.find(function(p){ return p.id === e.evaluador_id; });
+      if(inspector && inspector.firma){
+        try{ doc.addImage(inspector.firma, 'JPEG', 30, y, 45, 18); }catch(e2){}
+      }
+      doc.setDrawColor(0,0,0); doc.setLineWidth(0.3);
+      doc.line(28, y+20, 92, y+20);
+      doc.setFontSize(8);
+      doc.text(e.evaluador_nombre || 'Evaluador', 60, y+24, {align:'center'});
+      doc.text('Evaluador responsable', 60, y+28, {align:'center'});
+
+      if(window.SIGR.selloB64){
+        try{ doc.addImage(window.SIGR.selloB64, 'PNG', 130, y, 40, 40); }catch(e2){}
+      }
+
+      return pieDePaginaPDF(doc).then(function(){
+        doc.save('EDAN_'+folio+'.pdf');
+      });
+    });
+  }).catch(function(e2){
+    console.error('Error generando PDF EDAN:', e2);
+    alert('Error al generar el PDF. Verifique la consola.');
+  });
+}
+window.generarPDFEdan = generarPDFEdan;
+
+/* ============================================================
+   HELPER: escapar HTML
+   ============================================================ */
+function esc(s){
+  if(s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+window.esc = esc;
+
+/* ============================================================
+   HOOK: cuando el usuario entra a "Gestión de Riesgo",
+   cargar los datos y habilitar el módulo.
+   ============================================================ */
+(function initModulo2(){
+  function checkYcargar(){
+    var sec = document.getElementById('sec-riesgo');
+    if(!sec) return;
+    // Habilitar el módulo en el sidebar
+    if(window.habilitarModulo) window.habilitarModulo(2);
+    // Cargar los datos de todas las tabs
+    cargarSelectoresPersonal();
+    cargarCertificaciones();
+    cargarViviendas();
+    cargarEdan();
+    cargarSolicitudes();
+    cargarAlertas();
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', checkYcargar);
+  }else{
+    checkYcargar();
+  }
+})();
+</script>
 <!-- === MODULO 3 JS === -->
 <!-- === MODULO 4 JS === -->
 <!-- === MODULO 5 JS === -->
