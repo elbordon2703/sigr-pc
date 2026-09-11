@@ -1441,6 +1441,7 @@ function cargarCertificaciones(){
   return db.collection('certificaciones').orderBy('creado','desc').limit(200).get()
     .then(function(snap){
       var lista = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      window.__certificacionesCache = lista;
       pintarCertificaciones(lista);
     })
     .catch(function(e){ console.error('Error cargando certificaciones:', e); });
@@ -1481,11 +1482,348 @@ function eliminarCertificacion(id){
 }
 window.eliminarCertificacion = eliminarCertificacion;
 
-/* ---------- GENERAR PDF (placeholder hasta Bloque 3) ---------- */
+/* ╔══════════════════════════════════════════════════════════╗
+   ║  [M2 JS] PDF CERTIFICACIÓN DE ÁRBOLES                     ║
+   ║  INICIO                                                    ║
+   ╚══════════════════════════════════════════════════════════╝ */
+
+/* Función auxiliar: convierte "HH:MM" (24h) a "HH:MM a. m." / "p. m." */
+function formatearHora12(hora24){
+  if(!hora24) return '—';
+  var partes = hora24.split(':');
+  if(partes.length < 2) return hora24;
+  var h = parseInt(partes[0], 10);
+  var m = partes[1];
+  var sufijo = h >= 12 ? 'p. m.' : 'a. m.';
+  var h12 = h % 12;
+  if(h12 === 0) h12 = 12;
+  return String(h12).padStart(2,'0') + ':' + m + ' ' + sufijo;
+}
+window.formatearHora12 = formatearHora12;
+
+/* Función auxiliar: dibuja el encabezado del PDF con el logo del sello si existe */
+async function encabezadoCertificacionPDF(doc, folio){
+  var W = doc.internal.pageSize.getWidth();
+  var M = 12;
+
+  // Logos
+  try{
+    var logoPC  = await cargarImagenBase64('LOGO%20PC.png', null);
+    var logoGob = await cargarImagenBase64('LOGO%20GOBERNACION.png', null);
+    if(logoPC)  doc.addImage(logoPC,  'PNG', M, 8, 22, 22);
+    if(logoGob) doc.addImage(logoGob, 'PNG', W-34, 8, 22, 22);
+  }catch(e){}
+
+  // Títulos centrados
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  doc.setTextColor(11,42,74);
+  doc.text('PROTECCIÓN CIVIL — MUNICIPIO PAPELÓN', W/2, 16, {align:'center'});
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.text('Estado Portuguesa — Venezuela', W/2, 21, {align:'center'});
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  doc.text('CERTIFICACIÓN DE ÁRBOLES', W/2, 30, {align:'center'});
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.text('Evaluación técnica de riesgo vegetal', W/2, 35, {align:'center'});
+
+  // Recuadro de folio (arriba a la derecha)
+  var folioX = W - 90;
+  var folioY = 40;
+  doc.setDrawColor(11,42,74);
+  doc.setLineWidth(0.8);
+  doc.roundedRect(folioX, folioY, 78, 10, 2, 2);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  doc.setTextColor(11,42,74);
+  doc.text(folio, folioX + 39, folioY + 6.8, {align:'center'});
+
+  // Línea separadora
+  doc.setDrawColor(11,42,74);
+  doc.setLineWidth(0.6);
+  doc.line(M, 55, W-M, 55);
+
+  doc.setTextColor(0,0,0);
+  return 62;
+}
+
+/* ---------- GENERAR PDF CERTIFICACIÓN ---------- */
 function generarPDFCertificacion(id){
-  alert('El PDF se activa en el siguiente bloque (BLOQUE 3).');
+  var lista = window.__certificacionesCache || [];
+  var c = null;
+  for(var i = 0; i < lista.length; i++){
+    if(lista[i].id === id){ c = lista[i]; break; }
+  }
+  if(!c){
+    alert('Certificación no encontrada. Recargue la lista.');
+    return;
+  }
+
+  var btn = event && event.target ? event.target : null;
+  if(btn){ btn.disabled = true; btn.textContent = 'Generando...'; }
+
+  var promesaFolio = c.folio
+    ? Promise.resolve(c.folio)
+    : generarFolio('CERT').then(function(f){
+        return db.collection('certificaciones').doc(id).update({ folio: f }).then(function(){
+          c.folio = f;
+          return f;
+        });
+      });
+
+  promesaFolio.then(function(folio){
+    var doc = new window.jspdf.jsPDF({ unit:'mm', format:'letter' });
+    var W = doc.internal.pageSize.getWidth();
+    var H = doc.internal.pageSize.getHeight();
+    var M = 12;
+
+    return encabezadoCertificacionPDF(doc, folio).then(function(y){
+      // Fecha y hora debajo del folio (línea separada, 9pt)
+      var fechaTxt = formatearFecha(c.fecha);
+      var horaTxt  = formatearHora12(c.hora);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.setTextColor(60,60,60);
+      doc.text('Fecha: ' + fechaTxt + '  —  Hora: ' + horaTxt + ' HLV', W - M, 57, {align:'right'});
+      doc.setTextColor(0,0,0);
+
+      // ---- MARCO LEGAL ----
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.text('MARCO LEGAL:', M, y);
+      y += 5;
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      var marco = 'La Dirección General del Instituto de Protección Civil y Administración de Desastres del Estado Portuguesa (INPRADEP), a través de la Coordinación de Gestión Integral de Riesgo (G.I.R), y en uso de las atribuciones conferidas en el Artículo 55 de la Constitución de la República Bolivariana de Venezuela, en concordancia con el decreto de fuerza de Ley N° 1.557, Artículo 3 Numeral 2 de la Ley de Protección Civil y Administración de Desastres, Artículo 22 Numeral 4 y Artículo 29 de la Ley de Gestión Integral de Riesgo Socio-naturales y Tecnológicas, CERTIFICA:';
+      var lMarco = doc.splitTextToSize(marco, W - M*2);
+      doc.text(lMarco, M, y, {align:'justify', maxWidth: W - M*2});
+      y += lMarco.length * 4.2 + 4;
+
+      // ---- DIRECCIÓN / MUNICIPIO / PARROQUIA / ESTADO ----
+      doc.setFont('helvetica','bold');
+      doc.text('DIRECCIÓN:', M, y);
+      doc.setFont('helvetica','normal');
+      doc.text(c.direccion || '—', M + 22, y);
+      y += 4.5;
+
+      doc.setFont('helvetica','bold');
+      doc.text('MUNICIPIO:', M, y);
+      doc.setFont('helvetica','normal');
+      doc.text(c.municipio || 'Papelón', M + 22, y);
+      doc.setFont('helvetica','bold');
+      doc.text('PARROQUIA:', M + 70, y);
+      doc.setFont('helvetica','normal');
+      doc.text(c.parroquia || '—', M + 94, y);
+      doc.setFont('helvetica','bold');
+      doc.text('ESTADO:', M + 140, y);
+      doc.setFont('helvetica','normal');
+      doc.text(c.estado || 'Portuguesa', M + 158, y);
+      y += 4.5;
+
+      doc.setFont('helvetica','bold');
+      doc.text('RESPONSABLE:', M, y);
+      doc.setFont('helvetica','normal');
+      doc.text((c.responsable || '—') + '  —  C.I: ' + (c.cedula || '—') + '  —  TLF: ' + (c.telefono || '—'), M + 28, y);
+      y += 7;
+
+      // ---- CARACTERÍSTICAS DEL ÁRBOL ----
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10);
+      doc.setTextColor(11,42,74);
+      doc.text('CARACTERÍSTICAS DEL ÁRBOL', M, y);
+      doc.setTextColor(0,0,0);
+      y += 5;
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      var desc = (c.especie || '—') + ', posee una altura aproximada de ' +
+                 (c.altura || '—') + ' metros, ancho ' + (c.ancho || '—') +
+                 ' metros, con inclinación de ' + (c.inclinacion || '—') +
+                 '° grados ' + (c.direccion_inclinacion || '') +
+                 ', representa una amenaza ' + (c.amenaza || '—') + '.';
+      var lDesc = doc.splitTextToSize(desc, W - M*2);
+      doc.text(lDesc, M, y, {align:'justify', maxWidth: W - M*2});
+      y += lDesc.length * 4.2 + 4;
+
+      // ---- BENEFICIARIOS ----
+      doc.setFont('helvetica','bold');
+      doc.text('FAMILIAS BENEFICIADAS:', M, y);
+      doc.setFont('helvetica','normal');
+      doc.text(String(c.familias || '0'), M + 46, y);
+      doc.setFont('helvetica','bold');
+      doc.text('PERSONAS BENEFICIADAS:', M + 70, y);
+      doc.setFont('helvetica','normal');
+      doc.text(String(c.personas || '0'), M + 118, y);
+      y += 4.5;
+
+      doc.setFont('helvetica','bold');
+      doc.text('CLASIFICACIÓN DE RIESGO:', M, y);
+      doc.setFont('helvetica','normal');
+      doc.text((c.riesgo || '—').toUpperCase(), M + 54, y);
+      y += 7;
+
+      // ---- COORDENADAS ----
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10);
+      doc.setTextColor(11,42,74);
+      doc.text('COORDENADAS', M, y);
+      doc.setTextColor(0,0,0);
+      y += 5;
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.text('Lat / Long: ' + (c.lat_long || '—'), M, y);
+      y += 4.5;
+      doc.text('UTM: ' + (c.utm || '—'), M, y);
+      y += 7;
+
+      // ---- OBSERVACIONES ----
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10);
+      doc.setTextColor(11,42,74);
+      doc.text('OBSERVACIONES', M, y);
+      doc.setTextColor(0,0,0);
+      y += 5;
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      var obs = c.observaciones || 'Sin observaciones.';
+      var lObs = doc.splitTextToSize(obs, W - M*2);
+      doc.text(lObs, M, y, {align:'justify', maxWidth: W - M*2});
+      y += lObs.length * 4.2 + 3;
+
+      // ---- RECOMENDACIONES ----
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10);
+      doc.setTextColor(11,42,74);
+      doc.text('RECOMENDACIONES', M, y);
+      doc.setTextColor(0,0,0);
+      y += 5;
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      var rec = c.recomendaciones || 'Sin recomendaciones.';
+      var lRec = doc.splitTextToSize(rec, W - M*2);
+      doc.text(lRec, M, y, {align:'justify', maxWidth: W - M*2});
+      y += lRec.length * 4.2 + 8;
+
+      // ---- FIRMA Y SELLO ----
+      if(y > H - 80){
+        doc.addPage();
+        y = 20;
+      }
+
+      var inspector = null;
+      for(var k = 0; k < (window.SIGR.personal || []).length; k++){
+        if(window.SIGR.personal[k].id === c.inspector_id){
+          inspector = window.SIGR.personal[k];
+          break;
+        }
+      }
+
+      // Firma del inspector
+      if(inspector && inspector.firma){
+        try{ doc.addImage(inspector.firma, 'JPEG', 25, y, 50, 18); }catch(e){}
+      }
+      doc.setDrawColor(0,0,0);
+      doc.setLineWidth(0.3);
+      doc.line(25, y+22, 95, y+22);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8);
+      doc.text(c.inspector_nombre || 'Inspector', 60, y+26, {align:'center'});
+      doc.text('Inspector de Riesgo', 60, y+30, {align:'center'});
+
+      // Sello
+      if(window.SIGR.selloB64){
+        try{ doc.addImage(window.SIGR.selloB64, 'PNG', 130, y, 42, 42); }catch(e){}
+      }
+
+      // ---- FOTOS EN PÁGINAS SIGUIENTES ----
+      var fotos = [
+        {img: c.foto1, pie: c.pie1},
+        {img: c.foto2, pie: c.pie2},
+        {img: c.foto3, pie: c.pie3},
+        {img: c.foto4, pie: c.pie4}
+      ].filter(function(f){ return f.img; });
+
+      if(fotos.length > 0){
+        doc.addPage();
+        var yF = 20;
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(11);
+        doc.setTextColor(11,42,74);
+        doc.text('INFORME FOTOGRÁFICO', W/2, yF, {align:'center'});
+        doc.setTextColor(0,0,0);
+        yF += 8;
+
+        var fotoAncho = (W - M*2 - 6) / 2;
+        var fotoAlto  = fotoAncho * 0.75;
+
+        for(var fi = 0; fi < fotos.length; fi++){
+          var col = fi % 2;
+          var x = M + col * (fotoAncho + 6);
+          if(col === 0 && fi > 0) yF += fotoAlto + 12;
+          if(yF + fotoAlto > H - 25){
+            doc.addPage();
+            yF = 20;
+          }
+          try{
+            doc.addImage(fotos[fi].img, 'JPEG', x, yF, fotoAncho, fotoAlto);
+            doc.setDrawColor(180,180,180);
+            doc.setLineWidth(0.2);
+            doc.rect(x, yF, fotoAncho, fotoAlto);
+          }catch(e){}
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(8);
+          doc.text(fotos[fi].pie || '', x + fotoAncho/2, yF + fotoAlto + 4, {align:'center', maxWidth: fotoAncho});
+        }
+      }
+
+      // ---- IMAGEN SATELITAL ----
+      if(c.img_satelital){
+        doc.addPage();
+        var yS = 20;
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(11);
+        doc.setTextColor(11,42,74);
+        doc.text('IMAGEN SATELITAL', W/2, yS, {align:'center'});
+        doc.setTextColor(0,0,0);
+        yS += 8;
+
+        try{
+          doc.addImage(c.img_satelital, 'JPEG', M, yS, W - M*2, (W - M*2) * 0.6);
+        }catch(e){}
+
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(8);
+        doc.text('Fuente: ' + (c.fuente_satelital || 'Google Earth'), M, yS + (W - M*2)*0.6 + 5);
+      }
+
+      // ---- PIE DE PÁGINA EN TODAS LAS PÁGINAS ----
+      return pieDePaginaPDF(doc).then(function(){
+        doc.save('Certificacion_' + folio + '.pdf');
+      });
+
+    });
+  }).catch(function(e){
+    console.error('Error generando PDF certificación:', e);
+    alert('Error al generar el PDF: ' + (e.message || 'ver consola'));
+  }).finally(function(){
+    if(btn){ btn.disabled = false; btn.textContent = 'PDF'; }
+  });
 }
 window.generarPDFCertificacion = generarPDFCertificacion;
+
+/* ╔══════════════════════════════════════════════════════════╗
+   ║  [M2 JS] PDF CERTIFICACIÓN DE ÁRBOLES                     ║
+   ║  FIN                                                       ║
+   ╚══════════════════════════════════════════════════════════╝ */
 
 /* ---------- INICIALIZACIÓN DEL MÓDULO ---------- */
 (function initModulo2(){
