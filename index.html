@@ -445,6 +445,309 @@ tbody tr:last-child td{border-bottom:none;}
     </section>
 
     <!-- === MODULO 2 === -->
+        <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  [M2] SECCIÓN GESTIÓN DE RIESGO                          ║
+         ║  INICIO                                                    ║
+         ╚══════════════════════════════════════════════════════════╝ -->
+    <section id="sec-riesgo" class="section">
+      <div class="page-header">
+        <div class="page-title">Gestión de Riesgo</div>
+        <div class="page-sub">Certificación de árboles, viviendas, EDAN, solicitudes y alertas tempranas</div>
+      </div>
+
+      <!-- Tabs internas -->
+      <div class="tabs">
+        <div class="tab active" data-tab="certificacion" onclick="mostrarTab('riesgo','certificacion')">Certificación Árboles</div>
+        <div class="tab" data-tab="viviendas"      onclick="mostrarTab('riesgo','viviendas')">Viviendas</div>
+        <div class="tab" data-tab="edan"           onclick="mostrarTab('riesgo','edan')">EDAN</div>
+        <div class="tab" data-tab="solicitudes"    onclick="mostrarTab('riesgo','solicitudes')">Solicitudes</div>
+        <div class="tab" data-tab="alertas"        onclick="mostrarTab('riesgo','alertas')">Alertas Tempranas</div>
+      </div>
+
+      <!-- TAB 1 — CERTIFICACIÓN DE ÁRBOLES -->
+      <div class="tab-content active" data-tab-content="certificacion">
+        <div class="flex-between mb-10">
+          <div class="page-title" style="font-size:15px;">Certificaciones registradas</div>
+          <button class="btn btn-primary" onclick="abrirModalCertificacion()">+ Nueva certificación</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Responsable</th>
+                <th>Dirección</th>
+                <th>Especie</th>
+                <th>Riesgo</th>
+                <th style="width:160px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaCertificaciones">
+              <tr><td colspan="7"><div class="empty-state"><span class="icon">🌳</span>Sin certificaciones registradas</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2 — VIVIENDAS (pendiente) -->
+      <div class="tab-content" data-tab-content="viviendas">
+        <div class="empty-state">
+          <span class="icon">🏠</span>
+          Módulo Viviendas — se carga en el siguiente bloque.
+        </div>
+      </div>
+
+      <!-- TAB 3 — EDAN (pendiente) -->
+      <div class="tab-content" data-tab-content="edan">
+        <div class="empty-state">
+          <span class="icon">📋</span>
+          Módulo EDAN — se carga en el siguiente bloque.
+        </div>
+      </div>
+
+      <!-- TAB 4 — SOLICITUDES (pendiente) -->
+      <div class="tab-content" data-tab-content="solicitudes">
+        <div class="empty-state">
+          <span class="icon">📨</span>
+          Módulo Solicitudes — se carga en el siguiente bloque.
+        </div>
+      </div>
+
+      <!-- TAB 5 — ALERTAS (pendiente) -->
+      <div class="tab-content" data-tab-content="alertas">
+        <div class="empty-state">
+          <span class="icon">🚨</span>
+          Módulo Alertas Tempranas — se carga en el siguiente bloque.
+        </div>
+      </div>
+
+    </section>
+    <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  [M2] SECCIÓN GESTIÓN DE RIESGO                          ║
+         ║  FIN                                                       ║
+         ╚══════════════════════════════════════════════════════════╝ -->
+
+
+    <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  [M2] MODAL CERTIFICACIÓN DE ÁRBOLES                      ║
+         ║  INICIO                                                    ║
+         ╚══════════════════════════════════════════════════════════╝ -->
+    <div class="modal" id="modalCertificacion">
+      <div class="modal-content" style="max-width:820px;">
+        <div class="modal-header">
+          <h3>Certificación de Árboles</h3>
+          <button class="close" onclick="cerrarModal('modalCertificacion')">&times;</button>
+        </div>
+        <div class="modal-body">
+
+          <div class="form-section-title">Ubicación</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2;">
+              <label>Dirección *</label>
+              <input type="text" id="certDireccion" placeholder="Casco de Papelón, Barrio Cementerio calle 5 carrera 1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Municipio *</label>
+              <select id="certMunicipio">
+                <option value="Papelón" selected>Papelón</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Parroquia *</label>
+              <select id="certParroquia">
+                <option value="">Seleccione...</option>
+                <option value="Papelón">Papelón</option>
+                <option value="Caño Delgadito">Caño Delgadito</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Estado *</label>
+              <input type="text" id="certEstado" value="Portuguesa" readonly>
+            </div>
+          </div>
+
+          <div class="form-section-title">Responsable</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre y apellido *</label>
+              <input type="text" id="certResponsable" placeholder="Ej: Silvia Milla">
+            </div>
+            <div class="form-group">
+              <label>Cédula *</label>
+              <input type="text" id="certCedula" placeholder="V-00.000.000">
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="text" id="certTelefono" placeholder="0414-0000000">
+            </div>
+          </div>
+
+          <div class="form-section-title">Fecha y hora de inspección</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha *</label>
+              <input type="date" id="certFecha">
+            </div>
+            <div class="form-group">
+              <label>Hora (HLV) *</label>
+              <input type="time" id="certHora">
+            </div>
+          </div>
+
+          <div class="form-section-title">Características del árbol</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Especie *</label>
+              <input type="text" id="certEspecie" placeholder="Ej: Roble (Quercus robur)">
+            </div>
+            <div class="form-group">
+              <label>Altura aproximada (m) *</label>
+              <input type="number" id="certAltura" step="0.01" placeholder="Ej: 50">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ancho (m) *</label>
+              <input type="number" id="certAncho" step="0.01" placeholder="Ej: 2.10">
+            </div>
+            <div class="form-group">
+              <label>Inclinación (grados) *</label>
+              <input type="number" id="certInclinacion" step="1" placeholder="Ej: 40">
+            </div>
+            <div class="form-group">
+              <label>Dirección de inclinación *</label>
+              <input type="text" id="certDirInclinacion" placeholder="Ej: hacia la vivienda">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Amenaza que representa *</label>
+              <textarea id="certAmenaza" placeholder="Ej: por sus extensas ramificaciones">por sus extensas ramificaciones</textarea>
+            </div>
+          </div>
+
+          <div class="form-section-title">Beneficiarios</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Familias beneficiadas *</label>
+              <input type="number" id="certFamilias" min="0" placeholder="Ej: 1">
+            </div>
+            <div class="form-group">
+              <label>Personas beneficiadas *</label>
+              <input type="number" id="certPersonas" min="0" placeholder="Ej: 3">
+            </div>
+            <div class="form-group">
+              <label>Clasificación del riesgo *</label>
+              <select id="certRiesgo">
+                <option value="">Seleccione...</option>
+                <option value="Leve">Leve</option>
+                <option value="Moderado">Moderado</option>
+                <option value="Alto">Alto</option>
+                <option value="Muy alto">Muy alto</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section-title">Coordenadas</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Lat / Long (decimal) *</label>
+              <input type="text" id="certLatLong" placeholder="8.943075, -69.4649617">
+            </div>
+            <div class="form-group">
+              <label>UTM (Este / Norte / Zona) *</label>
+              <input type="text" id="certUtm" placeholder="448885.704E 988590.959N 19P">
+            </div>
+          </div>
+
+          <div class="form-section-title">Inspector actuante</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Inspector *</label>
+              <select id="certInspector"></select>
+            </div>
+          </div>
+
+          <div class="form-section-title">Observaciones y recomendaciones</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Observaciones</label>
+              <textarea id="certObservaciones" placeholder="Descripción del estado del árbol..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Recomendaciones</label>
+              <textarea id="certRecomendaciones" placeholder="Acciones sugeridas..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-section-title">Evidencia fotográfica</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Imagen satelital (referencial, opcional)</label>
+              <input type="file" id="certImgSatelital" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Fuente</label>
+              <input type="text" id="certFuenteSatelital" value="Google Earth APP">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto 1</label>
+              <input type="file" id="certFoto1" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Pie de foto 1</label>
+              <input type="text" id="certPie1" placeholder="Descripción">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto 2</label>
+              <input type="file" id="certFoto2" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Pie de foto 2</label>
+              <input type="text" id="certPie2" placeholder="Descripción">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto 3</label>
+              <input type="file" id="certFoto3" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Pie de foto 3</label>
+              <input type="text" id="certPie3" placeholder="Descripción">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto 4</label>
+              <input type="file" id="certFoto4" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Pie de foto 4</label>
+              <input type="text" id="certPie4" placeholder="Descripción">
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="cerrarModal('modalCertificacion')">Cancelar</button>
+          <button class="btn btn-primary" id="btnGuardarCert" onclick="guardarCertificacion()">Guardar</button>
+        </div>
+      </div>
+    </div>
+    <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  [M2] MODAL CERTIFICACIÓN DE ÁRBOLES                      ║
+         ║  FIN                                                       ║
+         ╚══════════════════════════════════════════════════════════╝ -->
     <!-- === MODULO 3 === -->
     <!-- === MODULO 4 === -->
     <!-- === MODULO 5 === -->
