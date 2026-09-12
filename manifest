@@ -6,19 +6,19 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0b2a4a",
+  "background_color": "#ffffff",
   "theme_color": "#0b2a4a",
   "lang": "es-VE",
   "icons": [
     {
-      "src": "LOGO%20PC.png",
-      "sizes": "any",
+      "src": "icono-192.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "LOGO%20PC.png",
-      "sizes": "any",
+      "src": "icono-192.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
