@@ -1911,16 +1911,30 @@ window.generarPDFCertificacion = generarPDFCertificacion;
 /* ---------- INICIALIZACIÓN DEL MÓDULO ---------- */
 (function initModulo2(){
   function checkYcargar(){
+    // Solo cargar si el usuario está logueado
+    if(!window.SIGR || !window.SIGR.usuario) return;
     var sec = document.getElementById('sec-riesgo');
     if(!sec) return;
     if(window.habilitarModulo) window.habilitarModulo(2);
     cargarInspectoresSelect();
     cargarCertificaciones();
   }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', checkYcargar);
-  }else{
+
+  // Esperar a que el login termine antes de inicializar
+  if(window.SIGR && window.SIGR.usuario){
     checkYcargar();
+  }else{
+    // Reintentar cada 500ms hasta que el usuario esté logueado
+    var intentos = 0;
+    var intervalo = setInterval(function(){
+      intentos++;
+      if(window.SIGR && window.SIGR.usuario){
+        clearInterval(intervalo);
+        checkYcargar();
+      }
+      // Dejar de intentar después de 30 segundos
+      if(intentos > 60) clearInterval(intervalo);
+    }, 500);
   }
 })();
 
