@@ -1,3 +1,14 @@
+{
+  "name": "SIGR-PC V3.0 — Protección Civil Papelón",
+  "short_name": "SIGR-PC",
+  "description": "Sistema de Gestión Integral de Riesgo — Protección Civil Municipio Papelón",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b2a4a",
+  "theme_color": "#0b2a4a",
+  "lang": "es-VE",
   "icons": [
     {
       "src": "LOGO%20PC.png",
@@ -6,3 +17,4 @@
       "purpose": "any"
     }
   ]
+}
