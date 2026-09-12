@@ -1766,10 +1766,24 @@ function generarPDFCertificacion(id){
       doc.text(c.inspector_nombre || 'Inspector', 60, y+26, {align:'center'});
       doc.text('Inspector de Riesgo', 60, y+30, {align:'center'});
 
-              // Sello institucional (a la derecha de la firma, cuadrado y alineado)
+                  // Sello institucional (a la derecha de la firma, mantiene proporción)
       if(window.SIGR.selloB64){
         try{
-          doc.addImage(window.SIGR.selloB64, 'PNG', 138, y + 2, 36, 36);
+          var selloProps = doc.getImageProperties(window.SIGR.selloB64);
+          var selloAnchoMax = 38;
+          var selloAltoMax  = 38;
+          var selloRatio = selloProps.width / selloProps.height;
+          var selloW, selloH;
+          if(selloRatio >= 1){
+            selloW = selloAnchoMax;
+            selloH = selloAnchoMax / selloRatio;
+          }else{
+            selloH = selloAltoMax;
+            selloW = selloAltoMax * selloRatio;
+          }
+          var selloX = 136 + (selloAnchoMax - selloW) / 2;
+          var selloY = y + 2 + (selloAltoMax - selloH) / 2;
+          doc.addImage(window.SIGR.selloB64, 'PNG', selloX, selloY, selloW, selloH);
         }catch(e){
           console.warn('No se pudo dibujar el sello:', e);
         }
