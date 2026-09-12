@@ -1774,6 +1774,15 @@ function generarPDFCertificacion(id){
           console.warn('No se pudo dibujar el sello:', e);
         }
       }
+
+            // ---- LISTA DE FOTOS ----
+      var fotos = [
+        {img: c.foto1, pie: c.pie1},
+        {img: c.foto2, pie: c.pie2},
+        {img: c.foto3, pie: c.pie3},
+        {img: c.foto4, pie: c.pie4}
+      ].filter(function(f){ return f.img; });
+
            // ---- INFORME FOTOGRÁFICO ----
       if(fotos.length > 0){
         doc.addPage();
