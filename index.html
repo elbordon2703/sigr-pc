@@ -1525,16 +1525,10 @@ window.eliminarCertificacion = eliminarCertificacion;
    ╚══════════════════════════════════════════════════════════╝ */
 
 /* Función auxiliar: convierte "HH:MM" (24h) a "HH:MM a. m." / "p. m." */
+/* Devuelve la hora en formato militar HH:MM */
 function formatearHora12(hora24){
   if(!hora24) return '—';
-  var partes = hora24.split(':');
-  if(partes.length < 2) return hora24;
-  var h = parseInt(partes[0], 10);
-  var m = partes[1];
-  var sufijo = h >= 12 ? 'p. m.' : 'a. m.';
-  var h12 = h % 12;
-  if(h12 === 0) h12 = 12;
-  return String(h12).padStart(2,'0') + ':' + m + ' ' + sufijo;
+  return hora24;
 }
 window.formatearHora12 = formatearHora12;
 
@@ -1547,8 +1541,8 @@ async function encabezadoCertificacionPDF(doc, folio){
   try{
     var logoPC  = await cargarImagenBase64('LOGO%20PC.png', null);
     var logoGob = await cargarImagenBase64('LOGO%20GOBERNACION.png', null);
-    if(logoPC)  doc.addImage(logoPC,  'PNG', M, 8, 22, 22);
-    if(logoGob) doc.addImage(logoGob, 'PNG', W-34, 8, 22, 22);
+       if(logoPC)  doc.addImage(logoPC,  'PNG', M, 8, 22, 22);
+       if(logoGob) doc.addImage(logoGob, 'PNG', W-46, 8, 34, 22);
   }catch(e){}
 
   // Títulos centrados
@@ -1565,11 +1559,7 @@ async function encabezadoCertificacionPDF(doc, folio){
   doc.setFontSize(12);
   doc.text('CERTIFICACIÓN DE ÁRBOLES', W/2, 30, {align:'center'});
 
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(9);
-  doc.text('Evaluación técnica de riesgo vegetal', W/2, 35, {align:'center'});
-
-  // Recuadro de folio (arriba a la derecha)
+    // Recuadro de folio (arriba a la derecha)
   var folioX = W - 90;
   var folioY = 40;
   doc.setDrawColor(11,42,74);
@@ -1764,7 +1754,7 @@ function generarPDFCertificacion(id){
         }
       }
 
-      // Firma del inspector
+            // Firma del inspector
       if(inspector && inspector.firma){
         try{ doc.addImage(inspector.firma, 'JPEG', 25, y, 50, 18); }catch(e){}
       }
@@ -1776,71 +1766,89 @@ function generarPDFCertificacion(id){
       doc.text(c.inspector_nombre || 'Inspector', 60, y+26, {align:'center'});
       doc.text('Inspector de Riesgo', 60, y+30, {align:'center'});
 
-          // Sello institucional (a la derecha de la firma, alineado)
+              // Sello institucional (a la derecha de la firma, cuadrado y alineado)
       if(window.SIGR.selloB64){
-        try{ doc.addImage(window.SIGR.selloB64, 'PNG', 135, y - 2, 38, 38); }catch(e){}
+        try{
+          doc.addImage(window.SIGR.selloB64, 'PNG', 138, y + 2, 36, 36);
+        }catch(e){
+          console.warn('No se pudo dibujar el sello:', e);
+        }
       }
-      // ---- FOTOS EN PÁGINAS SIGUIENTES ----
-      var fotos = [
-        {img: c.foto1, pie: c.pie1},
-        {img: c.foto2, pie: c.pie2},
-        {img: c.foto3, pie: c.pie3},
-        {img: c.foto4, pie: c.pie4}
-      ].filter(function(f){ return f.img; });
-
+           // ---- INFORME FOTOGRÁFICO ----
       if(fotos.length > 0){
         doc.addPage();
-        var yF = 20;
+        var yF = 22;
         doc.setFont('helvetica','bold');
         doc.setFontSize(11);
         doc.setTextColor(11,42,74);
         doc.text('INFORME FOTOGRÁFICO', W/2, yF, {align:'center'});
         doc.setTextColor(0,0,0);
-        yF += 8;
+        yF += 10;
 
         var fotoAncho = (W - M*2 - 6) / 2;
         var fotoAlto  = fotoAncho * 0.75;
+        var pieAlto   = 8;
+        var bloqueAlto = fotoAlto + pieAlto;
 
         for(var fi = 0; fi < fotos.length; fi++){
           var col = fi % 2;
           var x = M + col * (fotoAncho + 6);
-          if(col === 0 && fi > 0) yF += fotoAlto + 12;
-          if(yF + fotoAlto > H - 25){
+
+          if(col === 0 && fi > 0) yF += bloqueAlto + 4;
+
+          if(yF + bloqueAlto > H - 20){
             doc.addPage();
-            yF = 20;
+            yF = 22;
           }
+
           try{
             doc.addImage(fotos[fi].img, 'JPEG', x, yF, fotoAncho, fotoAlto);
             doc.setDrawColor(180,180,180);
             doc.setLineWidth(0.2);
             doc.rect(x, yF, fotoAncho, fotoAlto);
           }catch(e){}
-          doc.setFont('helvetica','normal');
-          doc.setFontSize(8);
-          doc.text(fotos[fi].pie || '', x + fotoAncho/2, yF + fotoAlto + 4, {align:'center', maxWidth: fotoAncho});
+
+          var pie = fotos[fi].pie || '';
+          if(pie){
+            doc.setFont('helvetica','normal');
+            doc.setFontSize(8);
+            var lPie = doc.splitTextToSize(pie, fotoAncho);
+            doc.text(lPie.slice(0,2), x + fotoAncho/2, yF + fotoAlto + 4, {align:'center'});
+          }
         }
       }
 
       // ---- IMAGEN SATELITAL ----
       if(c.img_satelital){
         doc.addPage();
-        var yS = 20;
+        var yS = 22;
         doc.setFont('helvetica','bold');
         doc.setFontSize(11);
         doc.setTextColor(11,42,74);
         doc.text('IMAGEN SATELITAL', W/2, yS, {align:'center'});
         doc.setTextColor(0,0,0);
-        yS += 8;
+        yS += 10;
+
+        var satAncho = W - M*2;
+        var satAlto  = satAncho * 0.65;
+        if(yS + satAlto > H - 25){
+          satAlto = H - 25 - yS;
+          satAncho = satAlto / 0.65;
+        }
+        var satX = (W - satAncho) / 2;
 
         try{
-          doc.addImage(c.img_satelital, 'JPEG', M, yS, W - M*2, (W - M*2) * 0.6);
-        }catch(e){}
+          doc.addImage(c.img_satelital, 'JPEG', satX, yS, satAncho, satAlto);
+          doc.setDrawColor(180,180,180);
+          doc.setLineWidth(0.2);
+          doc.rect(satX, yS, satAncho, satAlto);
+        }catch(e){ console.warn('No se pudo dibujar imagen satelital:', e); }
 
         doc.setFont('helvetica','normal');
         doc.setFontSize(8);
-        doc.text('Fuente: ' + (c.fuente_satelital || 'Google Earth'), M, yS + (W - M*2)*0.6 + 5);
+        doc.text('Fuente: ' + (c.fuente_satelital || 'Google Earth'), satX, yS + satAlto + 5);
       }
-
+      
       // ---- PIE DE PÁGINA EN TODAS LAS PÁGINAS ----
       return pieDePaginaPDF(doc).then(function(){
         doc.save('Certificacion_' + folio + '.pdf');
