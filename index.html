@@ -270,6 +270,16 @@ tbody tr:last-child td{border-bottom:none;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty-state{text-align:center;padding:30px 20px;color:var(--muted);font-size:12px;}
 .empty-state .icon{font-size:36px;opacity:.3;display:block;margin-bottom:8px;}
+  .indicador-online,
+.indicador-offline{
+  font-size:10px;
+  font-weight:bold;
+  padding:3px 8px;
+  border-radius:10px;
+  margin-right:8px;
+}
+.indicador-online{ color:#8ef7b3; }
+.indicador-offline{ color:#ffb3b3; }
   .form-section-title{
   font-size:12px;
   font-weight:bold;
@@ -315,6 +325,7 @@ tbody tr:last-child td{border-bottom:none;}
     </div>
     <div class="user-box">
       <span class="email" id="topEmail">—</span>
+            <span id="indicadorConexion" class="indicador-online">● En línea</span>
       <span class="rol" id="topRol">—</span>
       <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
     </div>
@@ -816,14 +827,51 @@ function iniciarSesion(){
   btn.innerHTML = '<span class="loading"></span> Verificando...';
 
   auth.signInWithEmailAndPassword(email, pass)
+    .then(function(cred){
+      return LOGIN_OFFLINE.obtener(email).then(function(cache){
+        return LOGIN_OFFLINE.guardar(
+          email,
+          cred.user.uid,
+          cache ? cache.nombre : '',
+          cache ? cache.rol : 'oficial'
+        );
+      });
+    })
     .catch(function(e){
-      console.error('Error login:', e);
+      console.error('Error login online:', e);
+      if(!navigator.onLine){
+        return LOGIN_OFFLINE.existe(email).then(function(existe){
+          if(existe){
+            return LOGIN_OFFLINE.obtener(email).then(function(cache){
+              window.SIGR.usuario = {
+                uid: cache.uid,
+                email: cache.email,
+                nombre: cache.nombre,
+                apellido: '',
+                rol: cache.rol,
+                activo: true,
+                _offline: true
+              };
+              mostrarApp();
+              actualizarIndicadorOnline();
+              cargarDatosBase();
+              return;
+            });
+          }
+          throw new Error('offline-no-cache');
+        });
+      }
+      throw e;
+    })
+    .catch(function(e){
       var msg = 'Error al iniciar sesión.';
       if(e.code === 'auth/user-not-found')      msg = 'Usuario no encontrado.';
       if(e.code === 'auth/wrong-password')      msg = 'Contraseña incorrecta.';
       if(e.code === 'auth/invalid-email')       msg = 'Correo inválido.';
       if(e.code === 'auth/too-many-requests')   msg = 'Demasiados intentos. Intente más tarde.';
       if(e.code === 'auth/invalid-credential')  msg = 'Credenciales inválidas.';
+      if(e.message === 'offline-no-cache')      msg = 'Sin conexión. Este usuario no se ha logueado antes en este dispositivo.';
+      if(!navigator.onLine && msg === 'Error al iniciar sesión.') msg = 'Sin conexión y no hay sesión guardada.';
       err.textContent = msg;
       err.style.display = 'block';
     })
@@ -845,6 +893,13 @@ function cargarPerfilUsuario(user){
         });
       }
       window.SIGR.usuario = Object.assign({ uid:user.uid, email:user.email }, data);
+            // Guardar cache local para login offline
+      LOGIN_OFFLINE.guardar(
+        user.email,
+        user.uid,
+        (data.nombre || '') + ' ' + (data.apellido || ''),
+        data.rol || 'oficial'
+      );
     }else{
       var nuevo = {
         email: user.email,
@@ -1298,8 +1353,238 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     });
   }
+    // Inicializar IndexedDB y detección de conexión
+  DBLocal.abrir().then(function(){
+    actualizarIndicadorOnline();
+    // Procesar cola cada 60 segundos si hay red
+    setInterval(function(){
+      if(navigator.onLine) SYNC_QUEUE.procesar();
+    }, 60000);
+  }).catch(function(e){
+    console.warn('No se pudo abrir IndexedDB:', e);
+  });
+
   console.log('%c SIGR-PC V3.0 — Módulo 1 cargado ','background:#0b2a4a;color:#fff;padding:4px 8px;border-radius:3px;');
 });
+</script>
+  <script>
+/* ╔══════════════════════════════════════════════════════════╗
+   ║  [BLOQUE 3] INDEXEDDB + LOGIN OFFLINE + SYNC QUEUE        ║
+   ║  INICIO                                                    ║
+   ╚══════════════════════════════════════════════════════════╝ */
+
+/* ============================================================
+   BASE DE DATOS LOCAL (IndexedDB)
+   ============================================================ */
+var DBLocal = {
+  db: null,
+  nombre: 'sigr_pc_local',
+  version: 1,
+  stores: ['certificaciones', 'viviendas', 'edan', 'personal_cache', 'usuarios_cache', 'sync_queue']
+};
+
+DBLocal.abrir = function(){
+  return new Promise(function(resolve, reject){
+    if(DBLocal.db) return resolve(DBLocal.db);
+    var req = indexedDB.open(DBLocal.nombre, DBLocal.version);
+    req.onupgradeneeded = function(e){
+      var db = e.target.result;
+      DBLocal.stores.forEach(function(store){
+        if(!db.objectStoreNames.contains(store)){
+          db.createObjectStore(store, { keyPath: 'id' });
+        }
+      });
+    };
+    req.onsuccess = function(e){
+      DBLocal.db = e.target.result;
+      console.log('[DBLocal] Base abierta. Stores:', Array.from(DBLocal.db.objectStoreNames));
+      resolve(DBLocal.db);
+    };
+    req.onerror = function(e){
+      console.error('[DBLocal] Error al abrir:', e);
+      reject(e);
+    };
+  });
+};
+
+DBLocal.guardar = function(store, registro){
+  return DBLocal.abrir().then(function(db){
+    return new Promise(function(resolve, reject){
+      var tx = db.transaction(store, 'readwrite');
+      var os = tx.objectStore(store);
+      if(!registro.id){
+        registro.id = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+      }
+      registro._localModificado = Date.now();
+      os.put(registro);
+      tx.oncomplete = function(){ resolve(registro); };
+      tx.onerror = function(e){ reject(e); };
+    });
+  });
+};
+
+DBLocal.leer = function(store, id){
+  return DBLocal.abrir().then(function(db){
+    return new Promise(function(resolve, reject){
+      var tx = db.transaction(store, 'readonly');
+      var req = tx.objectStore(store).get(id);
+      req.onsuccess = function(){ resolve(req.result || null); };
+      req.onerror = function(e){ reject(e); };
+    });
+  });
+};
+
+DBLocal.listar = function(store){
+  return DBLocal.abrir().then(function(db){
+    return new Promise(function(resolve, reject){
+      var tx = db.transaction(store, 'readonly');
+      var req = tx.objectStore(store).getAll();
+      req.onsuccess = function(){
+        var lista = req.result || [];
+        lista.sort(function(a,b){
+          return (b._localModificado || 0) - (a._localModificado || 0);
+        });
+        resolve(lista);
+      };
+      req.onerror = function(e){ reject(e); };
+    });
+  });
+};
+
+DBLocal.borrar = function(store, id){
+  return DBLocal.abrir().then(function(db){
+    return new Promise(function(resolve, reject){
+      var tx = db.transaction(store, 'readwrite');
+      tx.objectStore(store).delete(id);
+      tx.oncomplete = function(){ resolve(true); };
+      tx.onerror = function(e){ reject(e); };
+    });
+  });
+};
+
+DBLocal.vaciar = function(store){
+  return DBLocal.abrir().then(function(db){
+    return new Promise(function(resolve, reject){
+      var tx = db.transaction(store, 'readwrite');
+      tx.objectStore(store).clear();
+      tx.oncomplete = function(){ resolve(true); };
+      tx.onerror = function(e){ reject(e); };
+    });
+  });
+};
+
+window.DBLocal = DBLocal;
+
+/* ============================================================
+   LOGIN OFFLINE — Cache de credenciales
+   ============================================================ */
+var LOGIN_OFFLINE = {
+  guardar: function(email, uid, nombre, rol){
+    var datos = {
+      email: email,
+      uid: uid,
+      nombre: nombre || '',
+      rol: rol || 'oficial',
+      ultimoLogin: Date.now()
+    };
+    return DBLocal.guardar('usuarios_cache', Object.assign({id: email}, datos));
+  },
+  existe: function(email){
+    return DBLocal.leer('usuarios_cache', email).then(function(u){ return !!u; });
+  },
+  obtener: function(email){
+    return DBLocal.leer('usuarios_cache', email);
+  },
+  ultimo: function(){
+    return DBLocal.listar('usuarios_cache').then(function(lista){
+      if(!lista || lista.length === 0) return null;
+      lista.sort(function(a,b){ return (b.ultimoLogin||0) - (a.ultimoLogin||0); });
+      return lista[0];
+    });
+  }
+};
+window.LOGIN_OFFLINE = LOGIN_OFFLINE;
+
+/* ============================================================
+   COLA DE SINCRONIZACIÓN
+   ============================================================ */
+var SYNC_QUEUE = {
+  agregar: function(operacion){
+    operacion.id = 'op_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+    operacion.creado = Date.now();
+    operacion.intentos = 0;
+    return DBLocal.guardar('sync_queue', operacion);
+  },
+  listar: function(){
+    return DBLocal.listar('sync_queue');
+  },
+  borrar: function(id){
+    return DBLocal.borrar('sync_queue', id);
+  },
+  procesar: function(){
+    if(!navigator.onLine) return Promise.resolve({ok:0, fallos:0});
+    return SYNC_QUEUE.listar().then(function(ops){
+      if(ops.length === 0) return {ok:0, fallos:0};
+      console.log('[SYNC] Procesando ' + ops.length + ' operaciones...');
+      var ok = 0, fallos = 0;
+      return ops.reduce(function(promesa, op){
+        return promesa.then(function(){
+          return SYNC_QUEUE.ejecutar(op).then(function(){
+            ok++;
+            return SYNC_QUEUE.borrar(op.id);
+          }).catch(function(e){
+            fallos++;
+            console.warn('[SYNC] Falló op ' + op.id + ':', e);
+          });
+        });
+      }, Promise.resolve()).then(function(){
+        console.log('[SYNC] Completado: ' + ok + ' ok, ' + fallos + ' fallos');
+        return {ok: ok, fallos: fallos};
+      });
+    });
+  },
+  ejecutar: function(op){
+    if(op.tipo === 'crear_certificacion'){
+      return db.collection('certificaciones').add(op.datos);
+    }
+    if(op.tipo === 'actualizar_folio_certificacion'){
+      return db.collection('certificaciones').doc(op.firebaseId).update({ folio: op.folio });
+    }
+    return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
+  }
+};
+window.SYNC_QUEUE = SYNC_QUEUE;
+
+/* ============================================================
+   DETECCIÓN DE CONEXIÓN
+   ============================================================ */
+function actualizarIndicadorOnline(){
+  var indicador = document.getElementById('indicadorConexion');
+  if(!indicador) return;
+  if(navigator.onLine){
+    indicador.className = 'indicador-online';
+    indicador.textContent = '● En línea';
+  }else{
+    indicador.className = 'indicador-offline';
+    indicador.textContent = '● Sin conexión';
+  }
+}
+window.actualizarIndicadorOnline = actualizarIndicadorOnline;
+
+window.addEventListener('online', function(){
+  console.log('[RED] En línea');
+  actualizarIndicadorOnline();
+  setTimeout(function(){ SYNC_QUEUE.procesar(); }, 1000);
+});
+
+window.addEventListener('offline', function(){
+  console.log('[RED] Sin conexión');
+  actualizarIndicadorOnline();
+});
+
+/* ╔══════════════════════════════════════════════════════════╗
+   ║  [BLOQUE 3] FIN                                            ║
+   ╚══════════════════════════════════════════════════════════╝ */
 </script>
 
 <!-- === MODULO 2 JS === -->
