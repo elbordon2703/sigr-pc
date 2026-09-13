@@ -3,7 +3,7 @@
    ============================================================ */
 
 const CACHE_NOMBRE = 'sigr-pc-v3';
-const CACHE_VERSION = '2026-09-13-02'
+const CACHE_VERSION = '2026-09-13-99'
 
 /* Archivos que se cachean al instalar (la app completa) */
 const ARCHIVOS_APP = [
