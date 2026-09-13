@@ -76,11 +76,14 @@ self.addEventListener('fetch', function(event){
           });
         }
         return response;
-      }).catch(function(){
+           }).catch(function(){
         // Si no hay red y no está en caché, devolver index.html como fallback
         if(event.request.destination === 'document'){
-          return caches.match('./index.html');
+          return caches.match('./index.html').then(function(r){
+            return r || new Response('Offline', {status: 503, statusText: 'Offline'});
+          });
         }
+        return new Response('', {status: 503, statusText: 'Offline'});
       });
     })
   );
