@@ -1565,9 +1565,30 @@ var SYNC_QUEUE = {
       });
     });
   },
-  ejecutar: function(op){
+   ejecutar: function(op){
     if(op.tipo === 'crear_certificacion'){
-      return db.collection('certificaciones').add(op.datos);
+      // Preparar el doc para Firebase
+      var docFirebase = Object.assign({}, op.datos);
+      delete docFirebase.id;
+      delete docFirebase._localModificado;
+      delete docFirebase._sincronizado;
+      delete docFirebase._origen;
+      delete docFirebase.fecha_creacion_local;
+      delete docFirebase.folio_local;
+      delete docFirebase.firebase_id;
+      docFirebase.creado = firebase.firestore.FieldValue.serverTimestamp();
+
+      return db.collection('certificaciones').add(docFirebase).then(function(ref){
+        // Actualizar el registro local con el ID de Firebase
+        return DBLocal.leer('certificaciones', op.localId).then(function(reg){
+          if(reg){
+            reg.firebase_id = ref.id;
+            reg._sincronizado = true;
+            reg._origen = 'firebase';
+            return DBLocal.guardar('certificaciones', reg);
+          }
+        });
+      });
     }
     if(op.tipo === 'actualizar_folio_certificacion'){
       return db.collection('certificaciones').doc(op.firebaseId).update({ folio: op.folio });
@@ -1733,14 +1754,13 @@ function guardarCertificacion(){
   btn.disabled = true;
   btn.innerHTML = '<span class="loading"></span> Guardando...';
 
-  // Procesar las 5 imágenes en paralelo (satelital + 4 fotos)
+  // Procesar las 3 imágenes en paralelo (satelital + 2 fotos)
   Promise.all([
-    leerFotoComprimida('certImgSatelital', 900, 0.7),
-    leerFotoComprimida('certFoto1', 900, 0.7),
-    leerFotoComprimida('certFoto2', 900, 0.7),
-    leerFotoComprimida('certFoto3', 900, 0.7),
-    leerFotoComprimida('certFoto4', 900, 0.7)
+    leerFotoComprimida('certImgSatelital', 800, 0.65),
+    leerFotoComprimida('certFoto1', 700, 0.55),
+    leerFotoComprimida('certFoto2', 700, 0.55)
   ]).then(function(imgs){
+    // Armar el objeto con los datos
     var doc = {
       tipo: 'certificacion_arbol',
       responsable: responsable,
@@ -1773,19 +1793,41 @@ function guardarCertificacion(){
       pie1: (document.getElementById('certPie1').value || '').trim(),
       foto2: imgs[2],
       pie2: (document.getElementById('certPie2').value || '').trim(),
-      foto3: imgs[3],
-      pie3: (document.getElementById('certPie3').value || '').trim(),
-      foto4: imgs[4],
-      pie4: (document.getElementById('certPie4').value || '').trim(),
       folio: null,
-      creado: firebase.firestore.FieldValue.serverTimestamp(),
-      creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—'
+      folio_local: null,
+      _sincronizado: false,
+      _origen: 'local',
+      creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—',
+      creado: new Date().toISOString(),
+      fecha_creacion_local: Date.now()
     };
 
-    return db.collection('certificaciones').add(doc);
+    // PASO 1: Guardar en IndexedDB local (inmediato)
+    return DBLocal.guardar('certificaciones', doc).then(function(registroLocal){
+      console.log('[CERT] Guardado local:', registroLocal.id);
+
+      // Cerrar el modal y recargar la tabla al instante
+      cerrarModal('modalCertificacion');
+      cargarCertificaciones();
+
+      // PASO 2: Intentar subir a Firebase
+      if(navigator.onLine){
+        // Hay red: subir en segundo plano
+        return subirCertificacionAFirebase(registroLocal);
+      }else{
+        // Sin red: encolar en SYNC_QUEUE
+        console.log('[CERT] Sin red, encolando para sincronizar después');
+        return SYNC_QUEUE.agregar({
+          tipo: 'crear_certificacion',
+          localId: registroLocal.id,
+          datos: registroLocal
+        }).then(function(){
+          console.log('[CERT] Encolado en sync_queue');
+        });
+      }
+    });
   }).then(function(){
-    cerrarModal('modalCertificacion');
-    return cargarCertificaciones();
+    // Éxito total
   }).catch(function(e){
     console.error('Error guardando certificación:', e);
     alert('Error al guardar: ' + (e.message || 'ver consola'));
@@ -1795,6 +1837,44 @@ function guardarCertificacion(){
   });
 }
 window.guardarCertificacion = guardarCertificacion;
+
+/* ---------- Subir una certificación local a Firebase ---------- */
+function subirCertificacionAFirebase(registroLocal){
+  // Preparar el doc para Firebase: quitar campos internos
+  var docFirebase = Object.assign({}, registroLocal);
+  delete docFirebase.id;
+  delete docFirebase._localModificado;
+  delete docFirebase._sincronizado;
+  delete docFirebase._origen;
+  delete docFirebase.fecha_creacion_local;
+  delete docFirebase.folio_local;
+  // Mantener "creado" como timestamp del servidor
+  docFirebase.creado = firebase.firestore.FieldValue.serverTimestamp();
+
+  return db.collection('certificaciones').add(docFirebase).then(function(ref){
+    console.log('[CERT] Subido a Firebase con ID:', ref.id);
+
+    // Actualizar el registro local con el ID de Firebase
+    var actualizado = Object.assign({}, registroLocal, {
+      firebase_id: ref.id,
+      _sincronizado: true,
+      _origen: 'firebase'
+    });
+    return DBLocal.guardar('certificaciones', actualizado);
+  }).then(function(){
+    // Recargar la tabla para mostrar el cambio
+    cargarCertificaciones();
+  }).catch(function(e){
+    // Si falla la subida, encolar para más tarde
+    console.warn('[CERT] Falló subir a Firebase, encolando:', e);
+    return SYNC_QUEUE.agregar({
+      tipo: 'crear_certificacion',
+      localId: registroLocal.id,
+      datos: registroLocal
+    });
+  });
+}
+window.subirCertificacionAFirebase = subirCertificacionAFirebase;
 
 /* ---------- CARGAR LISTA DE CERTIFICACIONES ---------- */
 function cargarCertificaciones(){
