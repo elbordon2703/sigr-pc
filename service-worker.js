@@ -3,7 +3,7 @@
    ============================================================ */
 
 const CACHE_NOMBRE = 'sigr-pc-v3';
-const CACHE_VERSION = '2026-09-13-01'
+const CACHE_VERSION = '2026-09-13-99'
 
 /* Archivos que se cachean al instalar (la app completa) */
 const ARCHIVOS_APP = [
@@ -29,9 +29,12 @@ self.addEventListener('install', function(event){
   event.waitUntil(
     caches.open(CACHE_NOMBRE + '-' + CACHE_VERSION)
       .then(function(cache){
-        return cache.addAll(ARCHIVOS_APP).catch(function(err){
-          console.warn('[SW] Algunos archivos no se pudieron cachear:', err);
-        });
+        // Cachear de a uno para que un fallo no aborte todo
+        return Promise.all(ARCHIVOS_APP.map(function(url){
+          return cache.add(url).catch(function(err){
+            console.warn('[SW] No se pudo cachear:', url, err);
+          });
+        }));
       })
       .then(function(){ return self.skipWaiting(); })
   );
