@@ -3,7 +3,7 @@
    ============================================================ */
 
 const CACHE_NOMBRE = 'sigr-pc-v3';
-const CACHE_VERSION = '2026-09-13-01';
+const CACHE_VERSION = '2026-09-13-02'
 
 /* Archivos que se cachean al instalar (la app completa) */
 const ARCHIVOS_APP = [
@@ -14,6 +14,7 @@ const ARCHIVOS_APP = [
   './LOGO%20GOBERNACION.png',
   './PIE%20DE%20PAGIAN2.png',
   './SELLO.png',
+  './icono-192.png',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',
