@@ -808,8 +808,7 @@ window.SIGR = {
 
 /* ============================================================
    AUTENTICACIÓN
-   ============================================================ */
-function iniciarSesion(){
+   ============================================================ */function iniciarSesion(){
   var email = document.getElementById('loginEmail').value.trim();
   var pass  = document.getElementById('loginPass').value;
   var err   = document.getElementById('loginError');
@@ -839,7 +838,30 @@ function iniciarSesion(){
     })
     .catch(function(e){
       console.error('Error login online:', e);
-      if(!navigator.onLine){
+
+      // Detección ampliada: cualquier error que suene a red activa modo offline
+      var esErrorDeRed = false;
+      if(!navigator.onLine) esErrorDeRed = true;
+      if(e && e.code){
+        if(e.code === 'auth/network-request-failed' ||
+           e.code === 'auth/timeout' ||
+           e.code === 'auth/internal-error' ||
+           e.code === 'auth/web-storage-unsupported'){
+          esErrorDeRed = true;
+        }
+      }
+      if(e && e.message){
+        var m = String(e.message).toLowerCase();
+        if(m.indexOf('network') !== -1 ||
+           m.indexOf('internet') !== -1 ||
+           m.indexOf('unreachable') !== -1 ||
+           m.indexOf('timeout') !== -1 ||
+           m.indexOf('connection') !== -1){
+          esErrorDeRed = true;
+        }
+      }
+
+      if(esErrorDeRed){
         return LOGIN_OFFLINE.existe(email).then(function(existe){
           if(existe){
             return LOGIN_OFFLINE.obtener(email).then(function(cache){
@@ -853,8 +875,8 @@ function iniciarSesion(){
                 _offline: true
               };
               mostrarApp();
-              actualizarIndicadorOnline();
-              cargarDatosBase();
+              if(window.actualizarIndicadorOnline) actualizarIndicadorOnline();
+              if(window.cargarDatosBase) cargarDatosBase();
               return;
             });
           }
