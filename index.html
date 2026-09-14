@@ -1074,16 +1074,41 @@ window.actualizarDashboard = actualizarDashboard;
    DATOS BASE
    ============================================================ */
 function cargarDatosBase(){
-  return Promise.all([
-    db.collection('personal').get().catch(function(){return {docs:[]};}),
-    db.collection('grupos').get().catch(function(){return {docs:[]};}),
-    db.collection('vehiculos').get().catch(function(){return {docs:[]};})
-  ]).then(function(res){
-    window.SIGR.personal  = res[0].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
-    window.SIGR.grupos    = res[1].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
-    window.SIGR.vehiculos = res[2].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
+  // PASO 1: Intentar leer del cache local primero (rápido, sin red)
+  return DBLocal.leer('personal_cache', '__lista__').then(function(cache){
+    if(cache && cache.items && cache.items.length > 0){
+      window.SIGR.personal = cache.items;
+      console.log('[DBLocal] Personal cargado desde cache:', cache.items.length);
+      // Refrescar selectores con los datos locales
+      if(window.cargarInspectoresSelect) cargarInspectoresSelect();
+    }
+    return cache;
+  }).catch(function(){ return null; })
+  .then(function(){
+    // PASO 2: Si hay red, actualizar desde Firebase
+    if(!navigator.onLine) return null;
 
-    /* Sello institucional */
+    return Promise.all([
+      db.collection('personal').get().catch(function(){return {docs:[]};}),
+      db.collection('grupos').get().catch(function(){return {docs:[]};}),
+      db.collection('vehiculos').get().catch(function(){return {docs:[]};})
+    ]).then(function(res){
+      window.SIGR.personal  = res[0].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
+      window.SIGR.grupos    = res[1].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
+      window.SIGR.vehiculos = res[2].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
+
+      // Guardar el personal en IndexedDB para uso offline
+      return DBLocal.guardar('personal_cache', {
+        id: '__lista__',
+        items: window.SIGR.personal
+      }).then(function(){
+        console.log('[DBLocal] Personal guardado en cache:', window.SIGR.personal.length);
+        // Refrescar selectores con datos frescos
+        if(window.cargarInspectoresSelect) cargarInspectoresSelect();
+      });
+    });
+  }).then(function(){
+    // Sello institucional
     return db.collection('config').doc('sello').get()
       .catch(function(){ return null; })
       .then(function(snap){
@@ -1103,9 +1128,8 @@ function cargarDatosBase(){
             });
           });
       });
-  })
-  .then(function(){
-    /* Pie de página institucional */
+  }).then(function(){
+    // Pie de página
     return db.collection('config').doc('pie_pagina').get()
       .catch(function(){ return null; })
       .then(function(snap){
@@ -1125,8 +1149,7 @@ function cargarDatosBase(){
             });
           });
       });
-  })
-  .catch(function(e){
+  }).catch(function(e){
     console.error('Error cargando datos base:', e);
   });
 }
