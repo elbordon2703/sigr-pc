@@ -1731,7 +1731,7 @@ function abrirModalCertificacion(){
   ['certResponsable','certCedula','certTelefono','certDireccion','certEspecie',
    'certAltura','certAncho','certInclinacion','certDirInclinacion',
    'certFamilias','certPersonas','certLatLong','certUtm',
-   'certObservaciones','certRecomendaciones','certPie1','certPie2','certPie3','certPie4'].forEach(function(id){
+   'certObservaciones','certRecomendaciones','certPie1','certPie2'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.value = '';
   });
@@ -1740,6 +1740,7 @@ function abrirModalCertificacion(){
   var elMuni = document.getElementById('certMunicipio'); if(elMuni) elMuni.value = 'Papelón';
   var elPara = document.getElementById('certParroquia'); if(elPara) elPara.value = '';
   var elEst  = document.getElementById('certEstado');    if(elEst)  elEst.value = 'Portuguesa';
+  var elAmen = document.getElementById('certAmenaza');   if(elAmen) elAmen.value = '';
   var elRies = document.getElementById('certRiesgo');    if(elRies) elRies.value = '';
   var elFuen = document.getElementById('certFuenteSatelital'); if(elFuen) elFuen.value = 'Google Earth APP';
 
@@ -1751,13 +1752,48 @@ function abrirModalCertificacion(){
   if(elHora) elHora.value = String(hoy.getHours()).padStart(2,'0') + ':' + String(hoy.getMinutes()).padStart(2,'0');
 
   // Limpiar inputs de archivos
-  ['certImgSatelital','certFoto1','certFoto2','certFoto3','certFoto4'].forEach(function(id){
+  ['certImgSatelital','certFoto1','certFoto2'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.value = '';
   });
 
-  cargarInspectoresSelect();
-  abrirModal('modalCertificacion');
+  // CARGAR INSPECTORES (con fallback a IndexedDB)
+  function abrirConInspectores(){
+    cargarInspectoresSelect();
+    // Verificar si quedó vacío
+    var sel = document.getElementById('certInspector');
+    if(sel && (!sel.options || sel.options.length <= 1)){
+      // El select está vacío, intentar leer de IndexedDB
+      console.log('[CERT] Select vacío, leyendo personal de IndexedDB...');
+      return DBLocal.leer('personal_cache', '__lista__').then(function(c){
+        if(c && c.items && c.items.length > 0){
+          window.SIGR.personal = c.items;
+          console.log('[CERT] Personal cargado de IndexedDB:', c.items.length);
+          cargarInspectoresSelect();
+        }
+        abrirModal('modalCertificacion');
+      }).catch(function(){
+        abrirModal('modalCertificacion');
+      });
+    }
+    abrirModal('modalCertificacion');
+  }
+
+  // Si ya tenemos personal en memoria, usar eso
+  if(window.SIGR && window.SIGR.personal && window.SIGR.personal.length > 0){
+    abrirConInspectores();
+  }else{
+    // Si no, leer de IndexedDB primero
+    DBLocal.leer('personal_cache', '__lista__').then(function(c){
+      if(c && c.items && c.items.length > 0){
+        window.SIGR.personal = c.items;
+        console.log('[CERT] Personal cargado de IndexedDB (previo):', c.items.length);
+      }
+      abrirConInspectores();
+    }).catch(function(){
+      abrirConInspectores();
+    });
+  }
 }
 window.abrirModalCertificacion = abrirModalCertificacion;
 
