@@ -1701,10 +1701,15 @@ function leerFotoComprimida(inputId, maxAncho, calidad){
 window.leerFotoComprimida = leerFotoComprimida;
 
 /* ---------- CARGAR INSPECTORES EN EL SELECT ---------- */function cargarInspectoresSelect(){
-  var inspectores = (window.SIGR && window.SIGR.personal)
+   var inspectores = (window.SIGR && window.SIGR.personal)
     ? window.SIGR.personal.filter(function(p){
-        return p.estado === 'activo' &&
-          (p.responsabilidad === 'inspector' || p.responsabilidad === 'edanista');
+        if(p.estado !== 'activo') return false;
+        // Si tiene responsabilidad asignada, respetarla
+        if(p.responsabilidad){
+          return p.responsabilidad === 'inspector' || p.responsabilidad === 'edanista';
+        }
+        // Si NO tiene responsabilidad, incluir (mientras no se cargue el módulo Personal)
+        return true;
       })
     : [];
 
