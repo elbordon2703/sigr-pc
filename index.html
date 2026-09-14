@@ -874,10 +874,22 @@ window.SIGR = {
                 activo: true,
                 _offline: true
               };
-              mostrarApp();
-              if(window.actualizarIndicadorOnline) actualizarIndicadorOnline();
-              if(window.cargarDatosBase) cargarDatosBase();
-              return;
+
+              // ANTES de mostrar la app, cargar el personal del cache
+              return DBLocal.leer('personal_cache', '__lista__').then(function(pc){
+                if(pc && pc.items && pc.items.length > 0){
+                  window.SIGR.personal = pc.items;
+                  console.log('[LOGIN OFFLINE] Personal cargado del cache:', pc.items.length);
+                }else{
+                  console.warn('[LOGIN OFFLINE] No hay personal en cache');
+                }
+              }).then(function(){
+                // Ahora sí, mostrar la app
+                mostrarApp();
+                if(window.actualizarIndicadorOnline) actualizarIndicadorOnline();
+                if(window.cargarDatosBase) cargarDatosBase();
+                return;
+              });
             });
           }
           throw new Error('offline-no-cache');
