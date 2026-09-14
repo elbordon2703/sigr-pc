@@ -1906,13 +1906,65 @@ window.subirCertificacionAFirebase = subirCertificacionAFirebase;
 
 /* ---------- CARGAR LISTA DE CERTIFICACIONES ---------- */
 function cargarCertificaciones(){
-  return db.collection('certificaciones').orderBy('creado','desc').limit(200).get()
-    .then(function(snap){
-      var lista = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-      window.__certificacionesCache = lista;
-      pintarCertificaciones(lista);
-    })
-    .catch(function(e){ console.error('Error cargando certificaciones:', e); });
+  // PASO 1: Leer del cache local (siempre, sin red)
+  return DBLocal.listar('certificaciones').then(function(listaLocal){
+    window.__certificacionesCache = listaLocal;
+    pintarCertificaciones(listaLocal);
+    console.log('[CERT] Mostrando', listaLocal.length, 'certificaciones locales');
+
+    // PASO 2: Si hay red Y usuario logueado, traer de Firebase
+    if(!navigator.onLine) return;
+    if(!window.SIGR.usuario) return;
+
+    return db.collection('certificaciones').orderBy('creado','desc').limit(200).get()
+      .then(function(snap){
+        var deFirebase = snap.docs.map(function(d){
+          return Object.assign({id: 'fb_' + d.id, firebase_id: d.id}, d.data());
+        });
+        console.log('[CERT] Traídas', deFirebase.length, 'certificaciones de Firebase');
+
+        // PASO 3: Combinar sin duplicados
+        // Prioridad: si una local tiene firebase_id, ya está en Firebase → no duplicar
+        var mapa = {};
+        // Primero las locales
+        listaLocal.forEach(function(c){
+          var clave = c.firebase_id || c.id;
+          mapa[clave] = c;
+        });
+        // Después las de Firebase (sobrescriben si ya existen)
+        deFirebase.forEach(function(c){
+          var clave = c.firebase_id;
+          mapa[clave] = c;
+        });
+        var listaCombinada = Object.values(mapa);
+        // Ordenar por fecha de modificación
+        listaCombinada.sort(function(a,b){
+          return (b._localModificado || 0) - (a._localModificado || 0);
+        });
+
+        // PASO 4: Actualizar cache local con las de Firebase que no estaban
+        var promesas = deFirebase.map(function(c){
+          // Solo guardar localmente si no existe
+          return DBLocal.leer('certificaciones', c.id).then(function(existe){
+            if(existe) return null;
+            return DBLocal.guardar('certificaciones', Object.assign({}, c, {
+              id: c.id,
+              _origen: 'firebase',
+              _sincronizado: true
+            }));
+          });
+        });
+        return Promise.all(promesas).then(function(){
+          window.__certificacionesCache = listaCombinada;
+          pintarCertificaciones(listaCombinada);
+        });
+      })
+      .catch(function(e){
+        console.warn('[CERT] No se pudo traer de Firebase:', e);
+      });
+  }).catch(function(e){
+    console.error('[CERT] Error cargando locales:', e);
+  });
 }
 window.cargarCertificaciones = cargarCertificaciones;
 
@@ -2326,8 +2378,6 @@ window.generarPDFCertificacion = generarPDFCertificacion;
 /* ---------- INICIALIZACIÓN DEL MÓDULO ---------- */
 (function initModulo2(){
   function checkYcargar(){
-    // Solo cargar si el usuario está logueado
-    if(!window.SIGR || !window.SIGR.usuario) return;
     var sec = document.getElementById('sec-riesgo');
     if(!sec) return;
     if(window.habilitarModulo) window.habilitarModulo(2);
@@ -2335,22 +2385,16 @@ window.generarPDFCertificacion = generarPDFCertificacion;
     cargarCertificaciones();
   }
 
-  // Esperar a que el login termine antes de inicializar
-  if(window.SIGR && window.SIGR.usuario){
-    checkYcargar();
-  }else{
-    // Reintentar cada 500ms hasta que el usuario esté logueado
-    var intentos = 0;
-    var intervalo = setInterval(function(){
-      intentos++;
-      if(window.SIGR && window.SIGR.usuario){
-        clearInterval(intervalo);
-        checkYcargar();
-      }
-      // Dejar de intentar después de 30 segundos
-      if(intentos > 60) clearInterval(intervalo);
-    }, 500);
-  }
+  // Esperar a que el usuario esté logueado
+  var intentos = 0;
+  var intervalo = setInterval(function(){
+    intentos++;
+    if(window.SIGR && window.SIGR.usuario){
+      clearInterval(intervalo);
+      checkYcargar();
+    }
+    if(intentos > 60) clearInterval(intervalo);
+  }, 500);
 })();
 
 /* ╔══════════════════════════════════════════════════════════╗
