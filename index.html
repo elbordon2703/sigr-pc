@@ -2137,12 +2137,25 @@ function generarPDFCertificacion(id){
   var btn = event && event.target ? event.target : null;
   if(btn){ btn.disabled = true; btn.textContent = 'Generando...'; }
 
-  var promesaFolio = c.folio
+   var promesaFolio = c.folio
     ? Promise.resolve(c.folio)
     : generarFolio('CERT').then(function(f){
-        return db.collection('certificaciones').doc(id).update({ folio: f }).then(function(){
+        // Si la certificación NO está en Firebase → folio LOCAL provisional
+        if(!c.firebase_id){
+          var folioLocal = f.replace('PC-', 'LOCAL-');
+          c.folio = folioLocal;
+          return DBLocal.guardar('certificaciones', c).then(function(){
+            console.log('[CERT PDF] Folio LOCAL asignado (offline):', folioLocal);
+            return folioLocal;
+          });
+        }
+        // Si SÍ está en Firebase → usar firebase_id (NO id local)
+        return db.collection('certificaciones').doc(c.firebase_id).update({ folio: f }).then(function(){
           c.folio = f;
-          return f;
+          return DBLocal.guardar('certificaciones', c).then(function(){
+            console.log('[CERT PDF] Folio oficial asignado:', f);
+            return f;
+          });
         });
       });
 
