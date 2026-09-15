@@ -1411,14 +1411,26 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
     // Inicializar IndexedDB y detección de conexión
-  DBLocal.abrir().then(function(){
+   DBLocal.abrir().then(function(){
     actualizarIndicadorOnline();
+
+    // *** CARGAR PERSONAL DEL CACHE AL ARRANCAR ***
+    return DBLocal.leer('personal_cache', '__lista__').then(function(c){
+      if(c && c.items && c.items.length > 0){
+        window.SIGR.personal = c.items;
+        console.log('[INIT] Personal cargado de IndexedDB:', c.items.length);
+        if(window.cargarInspectoresSelect) cargarInspectoresSelect();
+      }else{
+        console.warn('[INIT] No hay personal en IndexedDB todavía (se cargará tras login online)');
+      }
+    });
+  }).then(function(){
     // Procesar cola cada 60 segundos si hay red
     setInterval(function(){
       if(navigator.onLine) SYNC_QUEUE.procesar();
     }, 60000);
   }).catch(function(e){
-    console.warn('No se pudo abrir IndexedDB:', e);
+    console.warn('No se pudo inicializar:', e);
   });
 
   console.log('%c SIGR-PC V3.0 — Módulo 1 cargado ','background:#0b2a4a;color:#fff;padding:4px 8px;border-radius:3px;');
