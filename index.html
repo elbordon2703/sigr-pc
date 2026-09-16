@@ -1282,6 +1282,11 @@ function formatearFechaHora(d){
 window.formatearFechaHora = formatearFechaHora;
 
 function generarFolio(tipo){
+  // Si no hay red, rechazar inmediatamente (no intentar transacción)
+  if(!navigator.onLine){
+    return Promise.reject(new Error('SIN_RED'));
+  }
+
   var año = new Date().getFullYear();
   var ref  = db.collection('contadores').doc('folios_'+año);
   return db.runTransaction(function(tx){
@@ -1299,6 +1304,12 @@ function generarFolio(tipo){
   }).then(function(nro){
     var nnnn = String(nro).padStart(4,'0');
     return 'PC-'+tipo+'-'+año+'-'+nnnn;
+  }).catch(function(e){
+    // Convertir error de red en un error claro
+    if(e && e.message && e.message.indexOf('Connection failed') !== -1){
+      throw new Error('SIN_RED');
+    }
+    throw e;
   });
 }
 window.generarFolio = generarFolio;
@@ -2194,8 +2205,9 @@ function generarPDFCertificacion(id){
   }
 
   // ---- VERIFICACIÓN 1: ¿Hay conexión? ----
-  if(!navigator.onLine){
+  if(!navigator.onLine || !window.SIGR.usuario || window.SIGR.usuario._offline){
     alert('Esta certificación se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
+    if(btn){ btn.disabled = false; btn.textContent = 'PDF'; }
     return;
   }
 
@@ -2497,9 +2509,13 @@ function generarPDFCertificacion(id){
         doc.save('Certificacion_' + folio + '.pdf');
       });
     });
-  }).catch(function(e){
+}).catch(function(e){
     console.error('Error generando PDF certificación:', e);
-    alert('Error al generar el PDF: ' + (e.message || 'ver consola'));
+    if(e && e.message === 'SIN_RED'){
+      alert('Esta certificación se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
+    }else{
+      alert('Error al generar el PDF: ' + (e.message || 'ver consola'));
+    }
   }).finally(function(){
     if(btn){ btn.disabled = false; btn.textContent = 'PDF'; }
   });
