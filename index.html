@@ -1966,61 +1966,58 @@ window.subirCertificacionAFirebase = subirCertificacionAFirebase;
 
 /* ---------- CARGAR LISTA DE CERTIFICACIONES ---------- */
 function cargarCertificaciones(){
-  // PASO 1: Leer del cache local (siempre, sin red)
+  // PASO 1: Leer del cache local
   return DBLocal.listar('certificaciones').then(function(listaLocal){
-    window.__certificacionesCache = listaLocal;
-    pintarCertificaciones(listaLocal);
-    console.log('[CERT] Mostrando', listaLocal.length, 'certificaciones locales');
-
-    // PASO 2: Si hay red Y usuario logueado, traer de Firebase
-    if(!navigator.onLine) return;
-    if(!window.SIGR.usuario) return;
+    // PASO 2: Si hay red y usuario logueado, traer de Firebase
+    if(!navigator.onLine || !window.SIGR.usuario){
+      window.__certificacionesCache = listaLocal;
+      pintarCertificaciones(listaLocal);
+      console.log('[CERT] Mostrando', listaLocal.length, 'certificaciones locales (sin red)');
+      return;
+    }
 
     return db.collection('certificaciones').orderBy('creado','desc').limit(200).get()
       .then(function(snap){
         var deFirebase = snap.docs.map(function(d){
-          return Object.assign({id: 'fb_' + d.id, firebase_id: d.id}, d.data());
+          return Object.assign({}, d.data(), {
+            id: 'fb_' + d.id,
+            firebase_id: d.id
+          });
         });
         console.log('[CERT] Traídas', deFirebase.length, 'certificaciones de Firebase');
 
-        // PASO 3: Combinar sin duplicados
-        // Prioridad: si una local tiene firebase_id, ya está en Firebase → no duplicar
-        var mapa = {};
-        // Primero las locales
-        listaLocal.forEach(function(c){
-          var clave = c.firebase_id || c.id;
-          mapa[clave] = c;
-        });
-        // Después las de Firebase (sobrescriben si ya existen)
-        deFirebase.forEach(function(c){
-          var clave = c.firebase_id;
-          mapa[clave] = c;
-        });
-        var listaCombinada = Object.values(mapa);
-        // Ordenar por fecha de modificación
-        listaCombinada.sort(function(a,b){
-          return (b._localModificado || 0) - (a._localModificado || 0);
+        // PASO 3: ELIMINAR locales que ya tienen su versión en Firebase
+        // Un local se considera duplicado si su firebase_id está en la lista de Firebase
+        var idsFirebase = {};
+        deFirebase.forEach(function(c){ idsFirebase[c.firebase_id] = true; });
+
+        // Guardar en IndexedDB todos los de Firebase (sobrescriben si existen)
+        var promesasGuardar = deFirebase.map(function(c){
+          return DBLocal.guardar('certificaciones', c);
         });
 
-        // PASO 4: Actualizar cache local con las de Firebase que no estaban
-        var promesas = deFirebase.map(function(c){
-          // Solo guardar localmente si no existe
-          return DBLocal.leer('certificaciones', c.id).then(function(existe){
-            if(existe) return null;
-            return DBLocal.guardar('certificaciones', Object.assign({}, c, {
-              id: c.id,
-              _origen: 'firebase',
-              _sincronizado: true
-            }));
-          });
+        // Borrar los locales que ya están en Firebase (evitar duplicados)
+        var promesasBorrar = [];
+        listaLocal.forEach(function(local){
+          if(local.firebase_id && idsFirebase[local.firebase_id] && local.id !== ('fb_' + local.firebase_id)){
+            // Este local es un duplicado, borrarlo
+            promesasBorrar.push(DBLocal.borrar('certificaciones', local.id));
+          }
         });
-        return Promise.all(promesas).then(function(){
-          window.__certificacionesCache = listaCombinada;
-          pintarCertificaciones(listaCombinada);
+
+        return Promise.all(promesasGuardar.concat(promesasBorrar)).then(function(){
+          // PASO 4: Volver a leer TODO de IndexedDB (ya sin duplicados)
+          return DBLocal.listar('certificaciones').then(function(listaFinal){
+            window.__certificacionesCache = listaFinal;
+            pintarCertificaciones(listaFinal);
+            console.log('[CERT] Mostrando', listaFinal.length, 'certificaciones (sin duplicados)');
+          });
         });
       })
       .catch(function(e){
-        console.warn('[CERT] No se pudo traer de Firebase:', e);
+        console.warn('[CERT] Error de Firebase, mostrando solo locales:', e);
+        window.__certificacionesCache = listaLocal;
+        pintarCertificaciones(listaLocal);
       });
   }).catch(function(e){
     console.error('[CERT] Error cargando locales:', e);
