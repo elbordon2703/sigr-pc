@@ -1104,20 +1104,29 @@ function cargarDatosBase(){
       db.collection('personal').get().catch(function(){return {docs:[]};}),
       db.collection('grupos').get().catch(function(){return {docs:[]};}),
       db.collection('vehiculos').get().catch(function(){return {docs:[]};})
-    ]).then(function(res){
-      window.SIGR.personal  = res[0].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
-      window.SIGR.grupos    = res[1].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
-      window.SIGR.vehiculos = res[2].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
+       ]).then(function(res){
+      var personalNuevo  = res[0].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
+      var gruposNuevo    = res[1].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
+      var vehiculosNuevo = res[2].docs.map(function(d){return Object.assign({id:d.id}, d.data());});
 
-      // Guardar el personal en IndexedDB para uso offline
-      return DBLocal.guardar('personal_cache', {
-        id: '__lista__',
-        items: window.SIGR.personal
-      }).then(function(){
-        console.log('[DBLocal] Personal guardado en cache:', window.SIGR.personal.length);
-        // Refrescar selectores con datos frescos
+      // ⚠️ SOLO sobreescribir si hay datos nuevos reales
+      // Si Firebase devolvió 0 (porque no hay red), NO tocar el cache
+      if(personalNuevo.length > 0){
+        window.SIGR.personal = personalNuevo;
+        console.log('[DBLocal] Personal actualizado desde Firebase:', personalNuevo.length);
+        return DBLocal.guardar('personal_cache', {
+          id: '__lista__',
+          items: personalNuevo
+        }).then(function(){
+          console.log('[DBLocal] Personal guardado en cache:', personalNuevo.length);
+          if(window.cargarInspectoresSelect) cargarInspectoresSelect();
+        });
+      }else{
+        console.warn('[DBLocal] Firebase devolvió 0 personal, manteniendo cache actual');
+        // Refrescar el selector con lo que haya en memoria
         if(window.cargarInspectoresSelect) cargarInspectoresSelect();
-      });
+        return null;
+      }
     });
   }).then(function(){
     // Sello institucional
