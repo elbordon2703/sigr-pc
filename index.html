@@ -2195,6 +2195,7 @@ async function encabezadoCertificacionPDF(doc, folio){
 /* ---------- GENERAR PDF CERTIFICACIÓN ---------- */
 function generarPDFCertificacion(id){
   var lista = window.__certificacionesCache || [];
+    var btn = (typeof event !== 'undefined' && event && event.target) ? event.target : null;
   var c = null;
   for(var i = 0; i < lista.length; i++){
     if(lista[i].id === id){ c = lista[i]; break; }
@@ -2220,8 +2221,7 @@ function generarPDFCertificacion(id){
 
   // ---- VERIFICACIÓN 3: ¿Ya tiene folio? ----
   // Si no tiene folio, hay que asignarlo (esto solo funciona online)
-  var btn = (typeof event !== 'undefined' && event && event.target) ? event.target : null;
-  if(btn){ btn.disabled = true; btn.textContent = 'Generando...'; }
+   if(btn){ btn.disabled = true; btn.textContent = 'Generando...'; }
 
   var promesaFolio = c.folio
     ? Promise.resolve(c.folio)
