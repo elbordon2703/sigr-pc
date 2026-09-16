@@ -2193,26 +2193,31 @@ function generarPDFCertificacion(id){
     return;
   }
 
-  var btn = event && event.target ? event.target : null;
+  // ---- VERIFICACIÓN 1: ¿Hay conexión? ----
+  if(!navigator.onLine){
+    alert('Esta certificación se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
+    return;
+  }
+
+  // ---- VERIFICACIÓN 2: ¿Está sincronizada con Firebase? ----
+  var tieneFirebase = c.firebase_id && c.firebase_id.length > 0;
+  if(!tieneFirebase){
+    alert('Esta certificación aún no se ha sincronizado con el servidor.\n\nEspere unos segundos a que se complete la sincronización y vuelva a intentar.');
+    return;
+  }
+
+  // ---- VERIFICACIÓN 3: ¿Ya tiene folio? ----
+  // Si no tiene folio, hay que asignarlo (esto solo funciona online)
+  var btn = (typeof event !== 'undefined' && event && event.target) ? event.target : null;
   if(btn){ btn.disabled = true; btn.textContent = 'Generando...'; }
 
-   var promesaFolio = c.folio
+  var promesaFolio = c.folio
     ? Promise.resolve(c.folio)
     : generarFolio('CERT').then(function(f){
-        // Si la certificación NO está en Firebase → folio LOCAL provisional
-        if(!c.firebase_id){
-          var folioLocal = f.replace('PC-', 'LOCAL-');
-          c.folio = folioLocal;
-          return DBLocal.guardar('certificaciones', c).then(function(){
-            console.log('[CERT PDF] Folio LOCAL asignado (offline):', folioLocal);
-            return folioLocal;
-          });
-        }
-              // Si SÍ está en Firebase → limpiar prefijo fb_ antes de usar
+        // Limpiar prefijo fb_ si está mal guardado
         var idFirebase = c.firebase_id;
         if(idFirebase && idFirebase.indexOf('fb_') === 0){
           idFirebase = idFirebase.substring(3);
-          console.log('[CERT PDF] Limpiando prefijo fb_:', idFirebase);
         }
         return db.collection('certificaciones').doc(idFirebase).update({ folio: f }).then(function(){
           c.folio = f;
@@ -2221,19 +2226,8 @@ function generarPDFCertificacion(id){
             console.log('[CERT PDF] Folio oficial asignado:', f);
             return f;
           });
-        }).catch(function(e){
-          // Si Firebase rechaza, usar folio LOCAL como fallback
-          console.warn('[CERT PDF] No se pudo actualizar Firebase, usando LOCAL:', e.message);
-          var folioLocal = 'LOCAL-' + f.replace('PC-', '');
-          c.folio = folioLocal;
-          return DBLocal.guardar('certificaciones', c).then(function(){
-            console.log('[CERT PDF] Folio LOCAL asignado (fallback):', folioLocal);
-          return folioLocal;
-          });
         });
       });
-
-  promesaFolio.then(function(folio){
 
   promesaFolio.then(function(folio){
     var doc = new window.jspdf.jsPDF({ unit:'mm', format:'letter' });
@@ -2242,7 +2236,7 @@ function generarPDFCertificacion(id){
     var M = 12;
 
     return encabezadoCertificacionPDF(doc, folio).then(function(y){
-           // Fecha y hora debajo del folio (línea separada, 9pt)
+      // Fecha y hora debajo del folio
       var fechaTxt = formatearFecha(c.fecha);
       var horaTxt  = formatearHora12(c.hora);
       doc.setFont('helvetica','normal');
@@ -2386,7 +2380,7 @@ function generarPDFCertificacion(id){
         }
       }
 
-            // Firma del inspector
+      // Firma del inspector
       if(inspector && inspector.firma){
         try{ doc.addImage(inspector.firma, 'JPEG', 25, y, 50, 18); }catch(e){}
       }
@@ -2398,7 +2392,7 @@ function generarPDFCertificacion(id){
       doc.text(c.inspector_nombre || 'Inspector', 60, y+26, {align:'center'});
       doc.text('Inspector de Riesgo', 60, y+30, {align:'center'});
 
-                  // Sello institucional (a la derecha de la firma, mantiene proporción)
+      // Sello institucional
       if(window.SIGR.selloB64){
         try{
           var selloProps = doc.getImageProperties(window.SIGR.selloB64);
@@ -2429,7 +2423,7 @@ function generarPDFCertificacion(id){
         {img: c.foto4, pie: c.pie4}
       ].filter(function(f){ return f.img; });
 
-           // ---- INFORME FOTOGRÁFICO ----
+      // ---- INFORME FOTOGRÁFICO ----
       if(fotos.length > 0){
         doc.addPage();
         var yF = 22;
@@ -2448,21 +2442,17 @@ function generarPDFCertificacion(id){
         for(var fi = 0; fi < fotos.length; fi++){
           var col = fi % 2;
           var x = M + col * (fotoAncho + 6);
-
           if(col === 0 && fi > 0) yF += bloqueAlto + 4;
-
           if(yF + bloqueAlto > H - 20){
             doc.addPage();
             yF = 22;
           }
-
           try{
             doc.addImage(fotos[fi].img, 'JPEG', x, yF, fotoAncho, fotoAlto);
             doc.setDrawColor(180,180,180);
             doc.setLineWidth(0.2);
             doc.rect(x, yF, fotoAncho, fotoAlto);
           }catch(e){}
-
           var pie = fotos[fi].pie || '';
           if(pie){
             doc.setFont('helvetica','normal');
@@ -2491,26 +2481,23 @@ function generarPDFCertificacion(id){
           satAncho = satAlto / 0.65;
         }
         var satX = (W - satAncho) / 2;
-
         try{
           doc.addImage(c.img_satelital, 'JPEG', satX, yS, satAncho, satAlto);
           doc.setDrawColor(180,180,180);
           doc.setLineWidth(0.2);
           doc.rect(satX, yS, satAncho, satAlto);
         }catch(e){ console.warn('No se pudo dibujar imagen satelital:', e); }
-
         doc.setFont('helvetica','normal');
         doc.setFontSize(8);
         doc.text('Fuente: ' + (c.fuente_satelital || 'Google Earth'), satX, yS + satAlto + 5);
       }
-      
-      // ---- PIE DE PÁGINA EN TODAS LAS PÁGINAS ----
-                return pieDePaginaPDF(doc).then(function(){
+
+      // ---- PIE DE PÁGINA ----
+      return pieDePaginaPDF(doc).then(function(){
         doc.save('Certificacion_' + folio + '.pdf');
       });
     });
-  });
-}).catch(function(e){
+  }).catch(function(e){
     console.error('Error generando PDF certificación:', e);
     alert('Error al generar el PDF: ' + (e.message || 'ver consola'));
   }).finally(function(){
