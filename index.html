@@ -2146,15 +2146,29 @@ function generarPDFCertificacion(id){
             return folioLocal;
           });
         }
-        // Si SÍ está en Firebase → usar firebase_id (NO id local)
-        return db.collection('certificaciones').doc(c.firebase_id).update({ folio: f }).then(function(){
+              // Si SÍ está en Firebase → limpiar prefijo fb_ antes de usar
+        var idFirebase = c.firebase_id;
+        if(idFirebase && idFirebase.indexOf('fb_') === 0){
+          idFirebase = idFirebase.substring(3);
+          console.log('[CERT PDF] Limpiando prefijo fb_:', idFirebase);
+        }
+        return db.collection('certificaciones').doc(idFirebase).update({ folio: f }).then(function(){
           c.folio = f;
+          c.firebase_id = idFirebase;
           return DBLocal.guardar('certificaciones', c).then(function(){
             console.log('[CERT PDF] Folio oficial asignado:', f);
             return f;
           });
+        }).catch(function(e){
+          // Si Firebase rechaza, usar folio LOCAL como fallback
+          console.warn('[CERT PDF] No se pudo actualizar Firebase, usando LOCAL:', e.message);
+          var folioLocal = 'LOCAL-' + f.replace('PC-', '');
+          c.folio = folioLocal;
+          return DBLocal.guardar('certificaciones', c).then(function(){
+            console.log('[CERT PDF] Folio LOCAL asignado (fallback):', folioLocal);
+            return folioLocal;
+          });
         });
-      });
 
   promesaFolio.then(function(folio){
     var doc = new window.jspdf.jsPDF({ unit:'mm', format:'letter' });
