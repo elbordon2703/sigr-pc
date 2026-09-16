@@ -2302,18 +2302,12 @@ function generarPDFCertificacionInterno(id){
     return;
   }
 
-     // ---- VERIFICACIÓN 1: ¿Hay conexión REAL? (fetch con timeout) ----
-  if(btn){ btn.disabled = true; btn.textContent = 'Verificando...'; }
-  hayRedReal().then(function(hay){
-    if(!hay){
-      if(btn){ btn.disabled = false; btn.textContent = 'PDF'; }
-      alert('Esta certificación se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
-      return;
-    }
-    // Hay red → seguimos con el flujo normal (verificaciones 2 y 3)
-    continuarGeneracionPDFCertificacion(c, btn);
-  });
-  return;
+ function generarPDFCertificacionInterno(id){
+  var lista = window.__certificacionesCache || [];
+  var btn = ...;
+  var c = null;
+  for(var i = 0; i < lista.length; i++){ ... }
+  if(!c){ alert(...); return; }
 
   // ---- VERIFICACIÓN 2: ¿Está sincronizada con Firebase? ----
   var tieneFirebase = c.firebase_id && c.firebase_id.length > 0;
