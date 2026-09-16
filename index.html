@@ -2443,12 +2443,12 @@ function generarPDFCertificacion(id){
       }
       
       // ---- PIE DE PÁGINA EN TODAS LAS PÁGINAS ----
-      return pieDePaginaPDF(doc).then(function(){
+                return pieDePaginaPDF(doc).then(function(){
         doc.save('Certificacion_' + folio + '.pdf');
       });
-
     });
-  }).catch(function(e){
+  });
+}).catch(function(e){
     console.error('Error generando PDF certificación:', e);
     alert('Error al generar el PDF: ' + (e.message || 'ver consola'));
   }).finally(function(){
