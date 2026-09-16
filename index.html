@@ -1775,8 +1775,8 @@ function abrirModalCertificacion(){
   var elHora = document.getElementById('certHora');
   if(elHora) elHora.value = String(hoy.getHours()).padStart(2,'0') + ':' + String(hoy.getMinutes()).padStart(2,'0');
 
-  // Limpiar inputs de archivos
-  ['certImgSatelital','certFoto1','certFoto2'].forEach(function(id){
+   // Limpiar inputs de archivos
+  ['certImgSatelital','certFoto1','certFoto2','certFoto3','certFoto4'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.value = '';
   });
@@ -1842,11 +1842,13 @@ function guardarCertificacion(){
   btn.disabled = true;
   btn.innerHTML = '<span class="loading"></span> Guardando...';
 
-  // Procesar las 3 imágenes en paralelo (satelital + 2 fotos)
+   // Procesar las 5 imágenes en paralelo (satelital + 4 fotos)
   Promise.all([
     leerFotoComprimida('certImgSatelital', 800, 0.65),
     leerFotoComprimida('certFoto1', 700, 0.55),
-    leerFotoComprimida('certFoto2', 700, 0.55)
+    leerFotoComprimida('certFoto2', 700, 0.55),
+    leerFotoComprimida('certFoto3', 700, 0.55),
+    leerFotoComprimida('certFoto4', 700, 0.55)
   ]).then(function(imgs){
     // Armar el objeto con los datos
     var doc = {
@@ -1877,10 +1879,14 @@ function guardarCertificacion(){
       recomendaciones: (document.getElementById('certRecomendaciones').value || '').trim(),
       img_satelital: imgs[0],
       fuente_satelital: (document.getElementById('certFuenteSatelital').value || '').trim(),
-      foto1: imgs[1],
+          foto1: imgs[1],
       pie1: (document.getElementById('certPie1').value || '').trim(),
       foto2: imgs[2],
       pie2: (document.getElementById('certPie2').value || '').trim(),
+      foto3: imgs[3],
+      pie3: (document.getElementById('certPie3').value || '').trim(),
+      foto4: imgs[4],
+      pie4: (document.getElementById('certPie4').value || '').trim(),
       folio: null,
       folio_local: null,
       _sincronizado: false,
@@ -2359,7 +2365,7 @@ function generarPDFCertificacion(id){
         }
       }
 
-            // ---- LISTA DE FOTOS ----
+      // ---- LISTA DE FOTOS ----
       var fotos = [
         {img: c.foto1, pie: c.pie1},
         {img: c.foto2, pie: c.pie2},
