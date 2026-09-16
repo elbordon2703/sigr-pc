@@ -2166,9 +2166,12 @@ function generarPDFCertificacion(id){
           c.folio = folioLocal;
           return DBLocal.guardar('certificaciones', c).then(function(){
             console.log('[CERT PDF] Folio LOCAL asignado (fallback):', folioLocal);
-            return folioLocal;
+          return folioLocal;
           });
         });
+      });
+
+  promesaFolio.then(function(folio){
 
   promesaFolio.then(function(folio){
     var doc = new window.jspdf.jsPDF({ unit:'mm', format:'letter' });
