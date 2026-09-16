@@ -2302,13 +2302,6 @@ function generarPDFCertificacionInterno(id){
     return;
   }
 
- function generarPDFCertificacionInterno(id){
-  var lista = window.__certificacionesCache || [];
-  var btn = ...;
-  var c = null;
-  for(var i = 0; i < lista.length; i++){ ... }
-  if(!c){ alert(...); return; }
-
   // ---- VERIFICACIÓN 2: ¿Está sincronizada con Firebase? ----
   var tieneFirebase = c.firebase_id && c.firebase_id.length > 0;
   if(!tieneFirebase){
