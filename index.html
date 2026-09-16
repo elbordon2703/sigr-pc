@@ -1315,6 +1315,43 @@ function hayRedReal(){
   });
 }
 window.hayRedReal = hayRedReal;
+  // ---- DETECCIÓN DE RED REAL (no confiar en navigator.onLine ni en _offline) ----
+function hayRedReal(){
+  return new Promise(function(resolve){
+    var timeout = setTimeout(function(){ resolve(false); }, 2500);
+    // Recurso liviano de Firebase. Si responde, hay red. Si falla, no hay red.
+    fetch('https://firestore.googleapis.com/generate_204?cachebust=' + Date.now(), {
+      method: 'GET',
+      mode: 'no-cors',
+      cache: 'no-store'
+    }).then(function(){
+      clearTimeout(timeout);
+      resolve(true);
+    }).catch(function(){
+      clearTimeout(timeout);
+      resolve(false);
+    });
+  });
+}
+window.hayRedReal = hayRedReal;
+  // ---- DETECCIÓN DE RED REAL (no confiar en navigator.onLine ni en _offline) ----
+function hayRedReal(){
+  return new Promise(function(resolve){
+    var timeout = setTimeout(function(){ resolve(false); }, 2500);
+    fetch('https://firestore.googleapis.com/generate_204?cachebust=' + Date.now(), {
+      method: 'GET',
+      mode: 'no-cors',
+      cache: 'no-store'
+    }).then(function(){
+      clearTimeout(timeout);
+      resolve(true);
+    }).catch(function(){
+      clearTimeout(timeout);
+      resolve(false);
+    });
+  });
+}
+window.hayRedReal = hayRedReal;
 
 function generarFolio(tipo){
   var año = new Date().getFullYear();
@@ -2253,7 +2290,7 @@ async function encabezadoCertificacionPDF(doc, folio){
 }
 
 /* ---------- GENERAR PDF CERTIFICACIÓN ---------- */
-function generarPDFCertificacion(id){
+function generarPDFCertificacionInterno(id){
   var lista = window.__certificacionesCache || [];
     var btn = (typeof event !== 'undefined' && event && event.target) ? event.target : null;
   var c = null;
@@ -2265,12 +2302,18 @@ function generarPDFCertificacion(id){
     return;
   }
 
-   // ---- VERIFICACIÓN 1: ¿Hay conexión REAL? ----
-  if(window.SIGR.usuario && window.SIGR.usuario._offline){
-    alert('Esta certificación se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
-    if(btn){ btn.disabled = false; btn.textContent = 'PDF'; }
-    return;
-  }
+     // ---- VERIFICACIÓN 1: ¿Hay conexión REAL? (fetch con timeout) ----
+  if(btn){ btn.disabled = true; btn.textContent = 'Verificando...'; }
+  hayRedReal().then(function(hay){
+    if(!hay){
+      if(btn){ btn.disabled = false; btn.textContent = 'PDF'; }
+      alert('Esta certificación se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
+      return;
+    }
+    // Hay red → seguimos con el flujo normal (verificaciones 2 y 3)
+    continuarGeneracionPDFCertificacion(c, btn);
+  });
+  return;
 
   // ---- VERIFICACIÓN 2: ¿Está sincronizada con Firebase? ----
   var tieneFirebase = c.firebase_id && c.firebase_id.length > 0;
@@ -2578,6 +2621,26 @@ function generarPDFCertificacion(id){
     }
   }).finally(function(){
     if(btn){ btn.disabled = false; btn.textContent = 'PDF'; }
+  });
+}
+window.generarPDFCertificacionInterno = generarPDFCertificacionInterno;
+    // ---- WRAPPER: verifica red REAL antes de generar el PDF ----
+function generarPDFCertificacion(id){
+  // Localizar el registro para saber si ya tiene folio
+  var lista = window.__certificacionesCache || [];
+  var c = null;
+  for(var i = 0; i < lista.length; i++){
+    if(lista[i].id === id){ c = lista[i]; break; }
+  }
+
+  // Si no hay red real → salir con mensaje, sin tocar Firestore
+  hayRedReal().then(function(hay){
+    if(!hay){
+      alert('Esta certificación se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
+      return;
+    }
+    // Hay red real → llamar a la función interna (la que ya funciona online)
+    generarPDFCertificacionInterno(id);
   });
 }
 window.generarPDFCertificacion = generarPDFCertificacion;
