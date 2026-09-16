@@ -1280,12 +1280,72 @@ function formatearFechaHora(d){
   return dd+'/'+mm+'/'+f.getFullYear()+' '+hh+':'+mi;
 }
 window.formatearFechaHora = formatearFechaHora;
+  /* Verifica conexión REAL haciendo un ping a un servidor */
+function hayRedReal(){
+  return new Promise(function(resolve){
+    // Timeout de 2 segundos
+    var timeoutId = setTimeout(function(){ resolve(false); }, 2000);
+    // Ping al servidor de Firebase (no requiere autenticación)
+    fetch('https://firestore.googleapis.com/', { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
+      .then(function(){
+        clearTimeout(timeoutId);
+        resolve(true);
+      })
+      .catch(function(){
+        clearTimeout(timeoutId);
+        resolve(false);
+      });
+  });
+}
+window.hayRedReal = hayRedReal;
+
+/* Verifica conexión REAL haciendo un ping a un servidor */
+function hayRedReal(){
+  return new Promise(function(resolve){
+    var timeoutId = setTimeout(function(){ resolve(false); }, 2000);
+    fetch('https://firestore.googleapis.com/', { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
+      .then(function(){
+        clearTimeout(timeoutId);
+        resolve(true);
+      })
+      .catch(function(){
+        clearTimeout(timeoutId);
+        resolve(false);
+      });
+  });
+}
+window.hayRedReal = hayRedReal;
 
 function generarFolio(tipo){
-  // Si no hay red, rechazar inmediatamente (no intentar transacción)
-  if(!navigator.onLine){
-    return Promise.reject(new Error('SIN_RED'));
-  }
+  var año = new Date().getFullYear();
+  var ref  = db.collection('contadores').doc('folios_'+año);
+  return db.runTransaction(function(tx){
+    return tx.get(ref).then(function(snap){
+      var actual = 0;
+      if(snap.exists) actual = snap.data().ultimo || 0;
+      actual++;
+      if(snap.exists){
+        tx.update(ref, { ultimo: actual, actualizado: firebase.firestore.FieldValue.serverTimestamp() });
+      }else{
+        tx.set(ref, { ultimo: actual, año: año, creado: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+      return actual;
+    });
+  }).then(function(nro){
+    var nnnn = String(nro).padStart(4,'0');
+    return 'PC-'+tipo+'-'+año+'-'+nnnn;
+  }).catch(function(e){
+    if(e && e.message && (e.message.indexOf('Connection failed') !== -1 ||
+                          e.message.indexOf('unavailable') !== -1 ||
+                          e.message.indexOf('network') !== -1)){
+      throw new Error('SIN_RED');
+    }
+    throw e;
+  });
+}
+window.generarFolio = generarFolio;
+
+function generarFolioInterno(tipo){
 
   var año = new Date().getFullYear();
   var ref  = db.collection('contadores').doc('folios_'+año);
@@ -2205,8 +2265,8 @@ function generarPDFCertificacion(id){
     return;
   }
 
-  // ---- VERIFICACIÓN 1: ¿Hay conexión? ----
-  if(!navigator.onLine || !window.SIGR.usuario || window.SIGR.usuario._offline){
+   // ---- VERIFICACIÓN 1: ¿Hay conexión REAL? ----
+  if(window.SIGR.usuario && window.SIGR.usuario._offline){
     alert('Esta certificación se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
     if(btn){ btn.disabled = false; btn.textContent = 'PDF'; }
     return;
