@@ -917,24 +917,30 @@ window.SIGR = {
 window.iniciarSesion = iniciarSesion;
 
 function cargarPerfilUsuario(user){
-  var ref  = db.collection('usuarios').doc(user.uid);
-  return ref.get().then(function(snap){
-    if(snap.exists){
-      var data = snap.data();
-      if(data.activo === false){
-        return auth.signOut().then(function(){
-          throw new Error('Usuario inactivo. Contacte al comandante.');
-        });
+  var ref = db.collection('usuarios').doc(user.uid);
+
+  return ref.get()
+    .then(function(snap){
+      if(snap.exists){
+        var data = snap.data();
+        if(data.activo === false){
+          return auth.signOut().then(function(){
+            throw new Error('Usuario inactivo. Contacte al comandante.');
+          });
+        }
+        window.SIGR.usuario = Object.assign({ uid:user.uid, email:user.email }, data);
+        // Guardar cache local para login offline
+        if(window.LOGIN_OFFLINE){
+          LOGIN_OFFLINE.guardar(
+            user.email,
+            user.uid,
+            (data.nombre || '') + ' ' + (data.apellido || ''),
+            data.rol || 'oficial'
+          );
+        }
+        return;
       }
-      window.SIGR.usuario = Object.assign({ uid:user.uid, email:user.email }, data);
-            // Guardar cache local para login offline
-      LOGIN_OFFLINE.guardar(
-        user.email,
-        user.uid,
-        (data.nombre || '') + ' ' + (data.apellido || ''),
-        data.rol || 'oficial'
-      );
-    }else{
+      // Doc no existe → crear
       var nuevo = {
         email: user.email,
         nombre: 'Comandante',
@@ -946,8 +952,49 @@ function cargarPerfilUsuario(user){
       return ref.set(nuevo).then(function(){
         window.SIGR.usuario = Object.assign({ uid:user.uid, email:user.email }, nuevo);
       });
-    }
-  });
+    })
+    .catch(function(e){
+      // Si Firestore falla (offline), usar el cache local
+      console.warn('[PERFIL] No se pudo leer de Firebase, usando cache:', e.message);
+      if(window.LOGIN_OFFLINE){
+        return LOGIN_OFFLINE.obtener(user.email).then(function(cache){
+          if(cache){
+            window.SIGR.usuario = {
+              uid: cache.uid,
+              email: cache.email,
+              nombre: cache.nombre,
+              apellido: '',
+              rol: cache.rol,
+              activo: true,
+              _offline: true
+            };
+            console.log('[PERFIL] Perfil cargado desde cache local');
+            return;
+          }
+          // No hay cache → crear uno mínimo para no bloquear
+          window.SIGR.usuario = {
+            uid: user.uid,
+            email: user.email,
+            nombre: 'Usuario',
+            apellido: '',
+            rol: 'oficial',
+            activo: true,
+            _offline: true
+          };
+          console.log('[PERFIL] Perfil mínimo creado (sin cache)');
+        });
+      }
+      // Si no hay LOGIN_OFFLINE, dejar un perfil mínimo
+      window.SIGR.usuario = {
+        uid: user.uid,
+        email: user.email,
+        nombre: 'Usuario',
+        apellido: '',
+        rol: 'oficial',
+        activo: true,
+        _offline: true
+      };
+    });
 }
 
 function cerrarSesion(){
