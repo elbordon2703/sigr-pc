@@ -3133,6 +3133,112 @@ function subirViviendaAFirebase(registroLocal){
   });
 }
 window.subirViviendaAFirebase = subirViviendaAFirebase;
+    // ---- Cargar Viviendas (offline-first) ----
+function cargarViviendas(){
+  return DBLocal.listar('viviendas').then(function(listaLocal){
+    if(!navigator.onLine || !window.SIGR.usuario){
+      window.__viviendasCache = listaLocal;
+      pintarViviendas(listaLocal);
+      console.log('[VIV] Mostrando', listaLocal.length, 'viviendas locales (sin red)');
+      return;
+    }
+
+    return db.collection('viviendas').orderBy('creado','desc').limit(200).get()
+      .then(function(snap){
+        var deFirebase = snap.docs.map(function(d){
+          return Object.assign({}, d.data(), {
+            id: 'fb_' + d.id,
+            firebase_id: d.id
+          });
+        });
+        console.log('[VIV] Traídas', deFirebase.length, 'viviendas de Firebase');
+
+        var idsFirebase = {};
+        deFirebase.forEach(function(v){ idsFirebase[v.firebase_id] = true; });
+
+        var promesasGuardar = deFirebase.map(function(v){
+          return DBLocal.guardar('viviendas', v);
+        });
+
+        var promesasBorrar = [];
+        listaLocal.forEach(function(local){
+          if(local.firebase_id && idsFirebase[local.firebase_id] && local.id !== ('fb_' + local.firebase_id)){
+            promesasBorrar.push(DBLocal.borrar('viviendas', local.id));
+          }
+        });
+
+        return Promise.all(promesasGuardar.concat(promesasBorrar)).then(function(){
+          return DBLocal.listar('viviendas').then(function(listaFinal){
+            window.__viviendasCache = listaFinal;
+            pintarViviendas(listaFinal);
+            console.log('[VIV] Mostrando', listaFinal.length, 'viviendas (sin duplicados)');
+          });
+        });
+      })
+      .catch(function(e){
+        console.warn('[VIV] Error de Firebase, mostrando solo locales:', e);
+        window.__viviendasCache = listaLocal;
+        pintarViviendas(listaLocal);
+      });
+  }).catch(function(e){
+    console.error('[VIV] Error cargando locales:', e);
+  });
+}
+window.cargarViviendas = cargarViviendas;
+
+// ---- Pintar tabla de Viviendas ----
+function pintarViviendas(lista){
+  var tb = document.getElementById('tablaViviendas');
+  if(!tb) return;
+  if(!lista || lista.length === 0){
+    tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><span class="icon">🏠</span>Sin viviendas registradas</div></td></tr>';
+    return;
+  }
+  var html = '';
+  lista.forEach(function(v){
+    html += '<tr>'
+      + '<td>'+(v.folio || '— pendiente —')+'</td>'
+      + '<td>'+formatearFecha(v.fecha)+'</td>'
+      + '<td>'+esc(v.responsable)+'</td>'
+      + '<td>'+esc(v.direccion)+'</td>'
+      + '<td>'+esc(v.riesgo)+'</td>'
+      + '<td>'
+        + '<button class="btn btn-sm btn-primary" onclick="generarPDFVivienda(\''+v.id+'\')">PDF</button> '
+        + '<button class="btn btn-sm btn-danger" onclick="eliminarVivienda(\''+v.id+'\')">Borrar</button>'
+      + '</td>'
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+}
+window.pintarViviendas = pintarViviendas;
+
+// ---- Eliminar Vivienda ----
+function eliminarVivienda(id){
+  if(!confirm('¿Eliminar esta vivienda?')) return;
+
+  // Si es un registro local (no sincronizado), borrar solo de IndexedDB
+  if(!id || id.indexOf('fb_') !== 0){
+    return DBLocal.borrar('viviendas', id).then(function(){
+      return cargarViviendas();
+    }).catch(function(e){
+      console.error('[VIV] Error eliminando local:', e);
+      alert('No se pudo eliminar.');
+    });
+  }
+
+  // Si es de Firebase, borrar de Firebase también
+  var fbId = id.substring(3);
+  return db.collection('viviendas').doc(fbId).delete()
+    .then(function(){
+      return DBLocal.borrar('viviendas', id);
+    })
+    .then(function(){ return cargarViviendas(); })
+    .catch(function(e){
+      console.error('[VIV] Error eliminando Firebase:', e);
+      alert('No se pudo eliminar.');
+    });
+}
+window.eliminarVivienda = eliminarVivienda;
 <!-- === MODULO 4 JS === -->
 <!-- === MODULO 5 JS === -->
 
