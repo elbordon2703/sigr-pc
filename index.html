@@ -2517,7 +2517,7 @@ function generarPDFCertificacionInterno(id){
         }
       }
 
-      // ---- LISTA DE FOTOS ----
+      // ---- INFORME FOTOGRÁFICO (una sola hoja: satelital + 4 fotos) ----
       var fotos = [
         {img: c.foto1, pie: c.pie1},
         {img: c.foto2, pie: c.pie2},
@@ -2525,8 +2525,7 @@ function generarPDFCertificacionInterno(id){
         {img: c.foto4, pie: c.pie4}
       ].filter(function(f){ return f.img; });
 
-      // ---- INFORME FOTOGRÁFICO ----
-      if(fotos.length > 0){
+      if(c.img_satelital || fotos.length > 0){
         doc.addPage();
         var yF = 22;
         doc.setFont('helvetica','bold');
@@ -2536,62 +2535,51 @@ function generarPDFCertificacionInterno(id){
         doc.setTextColor(0,0,0);
         yF += 10;
 
-        var fotoAncho = (W - M*2 - 6) / 2;
-        var fotoAlto  = fotoAncho * 0.75;
-        var pieAlto   = 8;
-        var bloqueAlto = fotoAlto + pieAlto;
-
-        for(var fi = 0; fi < fotos.length; fi++){
-          var col = fi % 2;
-          var x = M + col * (fotoAncho + 6);
-          if(col === 0 && fi > 0) yF += bloqueAlto + 4;
-          if(yF + bloqueAlto > H - 20){
-            doc.addPage();
-            yF = 22;
-          }
+        // ---- IMAGEN SATELITAL (arriba, centrada, ancho completo) ----
+        if(c.img_satelital){
+          var satAncho = W - M*2;
+          var satAlto  = satAncho * 0.65;
+          var satX = M;
           try{
-            doc.addImage(fotos[fi].img, 'JPEG', x, yF, fotoAncho, fotoAlto);
+            doc.addImage(c.img_satelital, 'JPEG', satX, yF, satAncho, satAlto);
             doc.setDrawColor(180,180,180);
             doc.setLineWidth(0.2);
-            doc.rect(x, yF, fotoAncho, fotoAlto);
-          }catch(e){}
-          var pie = fotos[fi].pie || '';
-          if(pie){
-            doc.setFont('helvetica','normal');
-            doc.setFontSize(8);
-            var lPie = doc.splitTextToSize(pie, fotoAncho);
-            doc.text(lPie.slice(0,2), x + fotoAncho/2, yF + fotoAlto + 4, {align:'center'});
+            doc.rect(satX, yF, satAncho, satAlto);
+          }catch(e){ console.warn('No se pudo dibujar imagen satelital:', e); }
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(8);
+          doc.text('Fuente: ' + (c.fuente_satelital || 'Google Earth'), satX + satAncho/2, yF + satAlto + 4, {align:'center'});
+          yF += satAlto + 10;
+        }
+
+        // ---- 4 FOTOS en 2 columnas × 2 filas, mismo tamaño ----
+        if(fotos.length > 0){
+          var fotoAncho = (W - M*2 - 6) / 2;
+          var fotoAlto  = fotoAncho * 0.75;
+          var pieAlto   = 8;
+          var bloqueAlto = fotoAlto + pieAlto;
+
+          for(var fi = 0; fi < fotos.length; fi++){
+            var col = fi % 2;
+            var x = M + col * (fotoAncho + 6);
+            if(col === 0 && fi > 0) yF += bloqueAlto + 4;
+
+            try{
+              doc.addImage(fotos[fi].img, 'JPEG', x, yF, fotoAncho, fotoAlto);
+              doc.setDrawColor(180,180,180);
+              doc.setLineWidth(0.2);
+              doc.rect(x, yF, fotoAncho, fotoAlto);
+            }catch(e){}
+
+            var pie = fotos[fi].pie || '';
+            if(pie){
+              doc.setFont('helvetica','normal');
+              doc.setFontSize(8);
+              var lPie = doc.splitTextToSize(pie, fotoAncho);
+              doc.text(lPie.slice(0,2), x + fotoAncho/2, yF + fotoAlto + 4, {align:'center'});
+            }
           }
         }
-      }
-
-      // ---- IMAGEN SATELITAL ----
-      if(c.img_satelital){
-        doc.addPage();
-        var yS = 22;
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(11);
-        doc.setTextColor(11,42,74);
-        doc.text('IMAGEN SATELITAL', W/2, yS, {align:'center'});
-        doc.setTextColor(0,0,0);
-        yS += 10;
-
-        var satAncho = W - M*2;
-        var satAlto  = satAncho * 0.65;
-        if(yS + satAlto > H - 25){
-          satAlto = H - 25 - yS;
-          satAncho = satAlto / 0.65;
-        }
-        var satX = (W - satAncho) / 2;
-        try{
-          doc.addImage(c.img_satelital, 'JPEG', satX, yS, satAncho, satAlto);
-          doc.setDrawColor(180,180,180);
-          doc.setLineWidth(0.2);
-          doc.rect(satX, yS, satAncho, satAlto);
-        }catch(e){ console.warn('No se pudo dibujar imagen satelital:', e); }
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(8);
-        doc.text('Fuente: ' + (c.fuente_satelital || 'Google Earth'), satX, yS + satAlto + 5);
       }
 
       // ---- PIE DE PÁGINA ----
