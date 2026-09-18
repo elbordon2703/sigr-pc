@@ -2009,10 +2009,10 @@ function guardarCertificacion(){
    // Procesar las 5 imágenes en paralelo (satelital + 4 fotos)
   Promise.all([
     leerFotoComprimida('certImgSatelital', 800, 0.65),
-    leerFotoComprimida('certFoto1', 700, 0.55),
-    leerFotoComprimida('certFoto2', 700, 0.55),
-    leerFotoComprimida('certFoto3', 700, 0.55),
-    leerFotoComprimida('certFoto4', 700, 0.55)
+    leerFotoComprimida('certFoto1', 600, 0.50),
+    leerFotoComprimida('certFoto2', 600, 0.50),
+    leerFotoComprimida('certFoto3', 600, 0.50),
+    leerFotoComprimida('certFoto4', 600, 0.50)
   ]).then(function(imgs){
     // Armar el objeto con los datos
     var doc = {
