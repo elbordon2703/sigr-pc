@@ -2517,7 +2517,7 @@ function generarPDFCertificacionInterno(id){
         }
       }
 
-      // ---- INFORME FOTOGRÁFICO (una sola hoja: satelital + 4 fotos) ----
+            // ---- INFORME FOTOGRÁFICO (una sola hoja: satelital + 4 fotos) ----
       var fotos = [
         {img: c.foto1, pie: c.pie1},
         {img: c.foto2, pie: c.pie2},
@@ -2535,10 +2535,10 @@ function generarPDFCertificacionInterno(id){
         doc.setTextColor(0,0,0);
         yF += 10;
 
-        // ---- IMAGEN SATELITAL (arriba, centrada, ancho completo) ----
+        // ---- IMAGEN SATELITAL (arriba, centrada, alto fijo 75mm) ----
         if(c.img_satelital){
-          var satAncho = W - M*2;
-          var satAlto  = satAncho * 0.65;
+          var satAncho = W - M*2;      // 192 mm
+          var satAlto  = 75;            // alto fijo
           var satX = M;
           try{
             doc.addImage(c.img_satelital, 'JPEG', satX, yF, satAncho, satAlto);
@@ -2552,10 +2552,10 @@ function generarPDFCertificacionInterno(id){
           yF += satAlto + 10;
         }
 
-        // ---- 4 FOTOS en 2 columnas × 2 filas, mismo tamaño ----
+        // ---- 4 FOTOS en 2 columnas × 2 filas, alto fijo 48mm ----
         if(fotos.length > 0){
-          var fotoAncho = (W - M*2 - 6) / 2;
-          var fotoAlto  = fotoAncho * 0.75;
+          var fotoAncho = (W - M*2 - 6) / 2;   // 93 mm
+          var fotoAlto  = 48;                   // alto fijo
           var pieAlto   = 8;
           var bloqueAlto = fotoAlto + pieAlto;
 
