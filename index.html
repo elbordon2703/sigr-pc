@@ -3131,7 +3131,8 @@ function subirViviendaAFirebase(registroLocal){
     });
   });
 }
-window.subirViviendaAFirebase = subirViviendaAFirebase;
+}
+    window.subirViviendaAFirebase = subirViviendaAFirebase;
     // ---- Cargar Viviendas (offline-first) ----
 function cargarViviendas(){
   return DBLocal.listar('viviendas').then(function(listaLocal){
