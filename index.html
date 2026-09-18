@@ -2070,6 +2070,29 @@ var SYNC_QUEUE = {
     if(op.tipo === 'actualizar_folio_certificacion'){
       return db.collection('certificaciones').doc(op.firebaseId).update({ folio: op.folio });
     }
+         if(op.tipo === 'crear_vivienda'){
+      var docViv = Object.assign({}, op.datos);
+      delete docViv.id;
+      delete docViv._localModificado;
+      delete docViv._sincronizado;
+      delete docViv._origen;
+      delete docViv.fecha_creacion_local;
+      delete docViv.folio_local;
+      delete docViv.firebase_id;
+      docViv.creado = firebase.firestore.FieldValue.serverTimestamp();
+
+      return db.collection('viviendas').add(docViv).then(function(ref){
+        return DBLocal.leer('viviendas', op.localId).then(function(reg){
+          if(reg){
+            reg.firebase_id = ref.id;
+            reg._sincronizado = true;
+            reg._origen = 'firebase';
+            return DBLocal.guardar('viviendas', reg);
+          }
+        });
+      });
+    }
+
     return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
   }
 };
@@ -2919,6 +2942,197 @@ window.generarPDFCertificacion = generarPDFCertificacion;
    ╚══════════════════════════════════════════════════════════╝ */
 </script>
 <!-- === MODULO 3 JS === -->
+  /* ============================================================
+   [M3] VIVIENDAS — OFFLINE-FIRST
+   ============================================================ */
+
+// ---- Cargar inspectores en el select de Vivienda ----
+function cargarInspectoresSelectViv(){
+  var inspectores = (window.SIGR && window.SIGR.personal)
+    ? window.SIGR.personal.filter(function(p){
+        if(p.estado !== 'activo') return false;
+        if(p.responsabilidad){
+          return p.responsabilidad === 'inspector' || p.responsabilidad === 'edanista';
+        }
+        return true;
+      })
+    : [];
+
+  var opciones = '<option value="">Seleccione...</option>';
+  inspectores.forEach(function(p){
+    var nombre = ((p.nombre || '') + ' ' + (p.apellido || '')).trim();
+    var rango  = p.jerarquia ? p.jerarquia + ' ' : '';
+    opciones += '<option value="'+p.id+'" data-nombre="'+esc(rango + nombre)+'">'+esc(rango + nombre)+'</option>';
+  });
+
+  var sel = document.getElementById('vivInspector');
+  if(sel) sel.innerHTML = opciones;
+}
+window.cargarInspectoresSelectViv = cargarInspectoresSelectViv;
+
+// ---- Abrir modal de Vivienda ----
+function abrirModalVivienda(){
+  cargarInspectoresSelectViv();
+
+  var sel = document.getElementById('vivInspector');
+  if(sel && (!sel.options || sel.options.length <= 1)){
+    // Select vacío → leer personal de IndexedDB
+    DBLocal.leer('personal_cache', '__lista__').then(function(c){
+      if(c && c.items && c.items.length > 0){
+        window.SIGR.personal = c.items;
+        cargarInspectoresSelectViv();
+      }
+      abrirModal('modalVivienda');
+    }).catch(function(){
+      abrirModal('modalVivienda');
+    });
+  }else{
+    abrirModal('modalVivienda');
+  }
+}
+window.abrirModalVivienda = abrirModalVivienda;
+
+// ---- Guardar Vivienda (offline-first) ----
+function guardarVivienda(){
+  var tipoCed = document.getElementById('vivTipoCedula').value || 'V-';
+  var numCed  = (document.getElementById('vivCedula').value || '').trim();
+  var responsable = (document.getElementById('vivResponsable').value || '').trim();
+  var cedula      = tipoCed + numCed;
+  var direccion   = (document.getElementById('vivDireccion').value || '').trim();
+  var parroquia   = document.getElementById('vivParroquia').value;
+  var tipo        = document.getElementById('vivTipo').value;
+  var riesgo      = document.getElementById('vivRiesgo').value;
+  var inspSel     = document.getElementById('vivInspector');
+  var inspId      = inspSel.value;
+  var inspNom     = inspId ? inspSel.options[inspSel.selectedIndex].getAttribute('data-nombre') : '';
+
+  if(!responsable || !numCed || !direccion || !parroquia || !tipo || !riesgo || !inspId){
+    alert('Complete los campos obligatorios marcados con *.');
+    return;
+  }
+
+  var btn = document.getElementById('btnGuardarViv');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Guardando...';
+
+  // Procesar las 5 imágenes en paralelo (satelital + 4 fotos)
+  Promise.all([
+    leerFotoComprimida('vivImgSatelital', 800, 0.65),
+    leerFotoComprimida('vivFoto1', 600, 0.50),
+    leerFotoComprimida('vivFoto2', 600, 0.50),
+    leerFotoComprimida('vivFoto3', 600, 0.50),
+    leerFotoComprimida('vivFoto4', 600, 0.50)
+  ]).then(function(imgs){
+    var doc = {
+      tipo: 'vivienda',
+      responsable: responsable,
+      cedula: cedula,
+      telefono: (document.getElementById('vivTelefono').value || '').trim(),
+      direccion: direccion,
+      municipio: document.getElementById('vivMunicipio').value,
+      parroquia: parroquia,
+      estado: document.getElementById('vivEstado').value,
+      fecha: document.getElementById('vivFecha').value || '',
+      hora: document.getElementById('vivHora').value || '',
+      tipo_vivienda: tipo,
+      habitaciones: document.getElementById('vivHabitaciones').value,
+      banos: document.getElementById('vivBanos').value,
+      salas: document.getElementById('vivSalas').value,
+      cocinas: document.getElementById('vivCocinas').value,
+      constructivas: (document.getElementById('vivConstructivas').value || '').trim(),
+      dano: (document.getElementById('vivDano').value || '').trim(),
+      lat_long: (document.getElementById('vivLatLong').value || '').trim(),
+      utm: (document.getElementById('vivUtm').value || '').trim(),
+      familias: document.getElementById('vivFamilias').value,
+      personas: document.getElementById('vivPersonas').value,
+      riesgo: riesgo,
+      recomendaciones: (document.getElementById('vivRecomendaciones').value || '').trim(),
+      inspector_id: inspId,
+      inspector_nombre: inspNom,
+      img_satelital: imgs[0],
+      fuente_satelital: (document.getElementById('vivFuenteSatelital').value || '').trim(),
+      foto1: imgs[1],
+      pie1: (document.getElementById('vivPie1').value || '').trim(),
+      foto2: imgs[2],
+      pie2: (document.getElementById('vivPie2').value || '').trim(),
+      foto3: imgs[3],
+      pie3: (document.getElementById('vivPie3').value || '').trim(),
+      foto4: imgs[4],
+      pie4: (document.getElementById('vivPie4').value || '').trim(),
+      folio: null,
+      folio_local: null,
+      _sincronizado: false,
+      _origen: 'local',
+      creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—',
+      creado: new Date().toISOString(),
+      fecha_creacion_local: Date.now()
+    };
+
+    // PASO 1: Guardar en IndexedDB local (inmediato)
+    return DBLocal.guardar('viviendas', doc).then(function(registroLocal){
+      console.log('[VIV] Guardado local:', registroLocal.id);
+
+      cerrarModal('modalVivienda');
+      cargarViviendas();
+
+      // PASO 2: Intentar subir a Firebase
+      if(navigator.onLine){
+        return subirViviendaAFirebase(registroLocal);
+      }else{
+        console.log('[VIV] Sin red, encolando para sincronizar después');
+        return SYNC_QUEUE.agregar({
+          tipo: 'crear_vivienda',
+          localId: registroLocal.id,
+          datos: registroLocal
+        }).then(function(){
+          console.log('[VIV] Encolado en sync_queue');
+        });
+      }
+    });
+  }).then(function(){
+    // Éxito total
+  }).catch(function(e){
+    console.error('Error guardando vivienda:', e);
+    alert('Error al guardar: ' + (e.message || 'ver consola'));
+  }).finally(function(){
+    btn.disabled = false;
+    btn.textContent = 'Guardar';
+  });
+}
+window.guardarVivienda = guardarVivienda;
+
+// ---- Subir Vivienda a Firebase ----
+function subirViviendaAFirebase(registroLocal){
+  var docFirebase = Object.assign({}, registroLocal);
+  delete docFirebase.id;
+  delete docFirebase._localModificado;
+  delete docFirebase._sincronizado;
+  delete docFirebase._origen;
+  delete docFirebase.fecha_creacion_local;
+  delete docFirebase.folio_local;
+  docFirebase.creado = firebase.firestore.FieldValue.serverTimestamp();
+
+  return db.collection('viviendas').add(docFirebase).then(function(ref){
+    console.log('[VIV] Subido a Firebase con ID:', ref.id);
+
+    var actualizado = Object.assign({}, registroLocal, {
+      firebase_id: ref.id,
+      _sincronizado: true,
+      _origen: 'firebase'
+    });
+    return DBLocal.guardar('viviendas', actualizado);
+  }).then(function(){
+    cargarViviendas();
+  }).catch(function(e){
+    console.warn('[VIV] Falló subir a Firebase, encolando:', e);
+    return SYNC_QUEUE.agregar({
+      tipo: 'crear_vivienda',
+      localId: registroLocal.id,
+      datos: registroLocal
+    });
+  });
+}
+window.subirViviendaAFirebase = subirViviendaAFirebase;
 <!-- === MODULO 4 JS === -->
 <!-- === MODULO 5 JS === -->
 
