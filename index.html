@@ -763,6 +763,272 @@ tbody tr:last-child td{border-bottom:none;}
          ║  FIN                                                       ║
          ╚══════════════════════════════════════════════════════════╝ -->
     <!-- === MODULO 3 === -->
+        <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  [M3] SECCIÓN VIVIENDAS                                   ║
+         ║  INICIO                                                    ║
+         ╚══════════════════════════════════════════════════════════╝ -->
+    <section id="seccionViviendas" class="seccion" style="display:none;">
+      <div class="section-header">
+        <h2>🏠 Viviendas</h2>
+        <button class="btn btn-primary" onclick="abrirModalVivienda()">+ Nueva Vivienda</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Fecha</th>
+              <th>Responsable</th>
+              <th>Dirección</th>
+              <th>Riesgo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaViviendas">
+            <tr><td colspan="6"><div class="empty-state"><span class="icon">🏠</span>Sin viviendas registradas</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  [M3] SECCIÓN VIVIENDAS                                   ║
+         ║  FIN                                                       ║
+         ╚══════════════════════════════════════════════════════════╝ -->
+
+    <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  [M3] MODAL VIVIENDA                                      ║
+         ║  INICIO                                                    ║
+         ╚══════════════════════════════════════════════════════════╝ -->
+    <div class="modal" id="modalVivienda">
+      <div class="modal-content" style="max-width:820px;">
+        <div class="modal-header">
+          <h3>Inspección a Vivienda</h3>
+          <button class="close" onclick="cerrarModal('modalVivienda')">&times;</button>
+        </div>
+        <div class="modal-body">
+
+          <div class="form-section-title">Ubicación</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2;">
+              <label>Dirección *</label>
+              <input type="text" id="vivDireccion" placeholder="Casco central de Papelón, Barrio Pueblo Dulce, calle ppal.">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Municipio *</label>
+              <select id="vivMunicipio">
+                <option value="Papelón" selected>Papelón</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Parroquia *</label>
+              <select id="vivParroquia">
+                <option value="">Seleccione...</option>
+                <option value="Papelón">Papelón</option>
+                <option value="Caño Delgadito">Caño Delgadito</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Estado *</label>
+              <input type="text" id="vivEstado" value="Portuguesa" readonly>
+            </div>
+          </div>
+
+          <div class="form-section-title">Responsable (solicitante)</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2;">
+              <label>Nombre y apellido *</label>
+              <input type="text" id="vivResponsable" placeholder="Ej: Angelo Franco Leo Ricciardella">
+            </div>
+            <div class="form-group">
+              <label>Tipo C.I. *</label>
+              <select id="vivTipoCedula">
+                <option value="V-">V-</option>
+                <option value="E-">E-</option>
+                <option value="J-">J-</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Número de C.I. *</label>
+              <input type="text" id="vivCedula" placeholder="00.000.000">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="text" id="vivTelefono" placeholder="0414-0000000">
+            </div>
+          </div>
+
+          <div class="form-section-title">Fecha y hora de inspección</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha *</label>
+              <input type="date" id="vivFecha">
+            </div>
+            <div class="form-group">
+              <label>Hora (HLV) *</label>
+              <input type="time" id="vivHora">
+            </div>
+          </div>
+
+          <div class="form-section-title">Características de la estructura</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tipo de vivienda *</label>
+              <select id="vivTipo">
+                <option value="">Seleccione...</option>
+                <option value="A">A — Bloque, ladrillo y cemento</option>
+                <option value="B">B — Adobe</option>
+                <option value="C">C — Tablas y/o Zinc</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Habitaciones *</label>
+              <input type="number" id="vivHabitaciones" min="0" placeholder="Ej: 2">
+            </div>
+            <div class="form-group">
+              <label>Baños *</label>
+              <input type="number" id="vivBanos" min="0" placeholder="Ej: 1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Salas *</label>
+              <input type="number" id="vivSalas" min="0" placeholder="Ej: 1">
+            </div>
+            <div class="form-group">
+              <label>Cocinas *</label>
+              <input type="number" id="vivCocinas" min="0" placeholder="Ej: 1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Características constructivas *</label>
+              <textarea id="vivConstructivas" placeholder="Ej: portería de bloques, vigas estructurales en la cubierta del techo, láminas de acerolit, piso de cemento..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Descripción del daño *</label>
+              <textarea id="vivDano" placeholder="Ej: Las paredes presentan grietas y fisuras en paredes y piso, no se observan vigas ni columnas..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-section-title">Coordenadas</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Lat / Long (decimal) *</label>
+              <input type="text" id="vivLatLong" placeholder="8.944838 / -69.455209">
+            </div>
+            <div class="form-group">
+              <label>UTM (Este / Norte / Zona) *</label>
+              <input type="text" id="vivUtm" placeholder="448885.704E 988590.959N 19P">
+            </div>
+          </div>
+
+          <div class="form-section-title">Beneficiarios</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Familias beneficiadas *</label>
+              <input type="number" id="vivFamilias" min="0" placeholder="Ej: 1">
+            </div>
+            <div class="form-group">
+              <label>Personas beneficiadas *</label>
+              <input type="number" id="vivPersonas" min="0" placeholder="Ej: 2">
+            </div>
+            <div class="form-group">
+              <label>Clasificación del riesgo *</label>
+              <select id="vivRiesgo">
+                <option value="">Seleccione...</option>
+                <option value="Leve">Leve</option>
+                <option value="Moderado">Moderado</option>
+                <option value="Alto">Alto</option>
+                <option value="Muy alto">Muy alto</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section-title">Recomendaciones</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Recomendaciones *</label>
+              <textarea id="vivRecomendaciones" placeholder="1. Realizar el encamisado o construcción de vigas y columnas.&#10;2. Refuerzo de fundaciones..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-section-title">Inspector actuante</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Inspector *</label>
+              <select id="vivInspector"></select>
+            </div>
+          </div>
+
+          <div class="form-section-title">Evidencia fotográfica</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Imagen satelital (referencial)</label>
+              <input type="file" id="vivImgSatelital" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Fuente</label>
+              <input type="text" id="vivFuenteSatelital" value="Google Earth APP">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto 1</label>
+              <input type="file" id="vivFoto1" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Pie de foto 1</label>
+              <input type="text" id="vivPie1" placeholder="Descripción">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto 2</label>
+              <input type="file" id="vivFoto2" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Pie de foto 2</label>
+              <input type="text" id="vivPie2" placeholder="Descripción">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto 3</label>
+              <input type="file" id="vivFoto3" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Pie de foto 3</label>
+              <input type="text" id="vivPie3" placeholder="Descripción">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto 4</label>
+              <input type="file" id="vivFoto4" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Pie de foto 4</label>
+              <input type="text" id="vivPie4" placeholder="Descripción">
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="cerrarModal('modalVivienda')">Cancelar</button>
+          <button class="btn btn-primary" id="btnGuardarViv" onclick="guardarVivienda()">Guardar</button>
+        </div>
+      </div>
+    </div>
+    <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  [M3] MODAL VIVIENDA                                      ║
+         ║  FIN                                                       ║
+         ╚══════════════════════════════════════════════════════════╝ -->
     <!-- === MODULO 4 === -->
     <!-- === MODULO 5 === -->
 
