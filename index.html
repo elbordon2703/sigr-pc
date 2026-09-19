@@ -503,6 +503,30 @@ tbody tr:last-child td{border-bottom:none;}
           </table>
         </div>
       </div>
+            <!-- TAB 2 — VIVIENDAS -->
+      <div class="tab-content" data-tab-content="viviendas">
+        <div class="flex-between mb-10">
+          <div class="page-title" style="font-size:15px;">Viviendas registradas</div>
+          <button class="btn btn-primary" onclick="abrirModalVivienda()">+ Nueva vivienda</button>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Responsable</th>
+                <th>Dirección</th>
+                <th>Riesgo</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaViviendas">
+              <tr><td colspan="6"><div class="empty-state"><span class="icon">🏠</span>Sin viviendas registradas</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
           <!-- TAB 3 — EDAN (pendiente) -->
       <div class="tab-content" data-tab-content="edan">
@@ -754,40 +778,7 @@ tbody tr:last-child td{border-bottom:none;}
          ║  [M2] MODAL CERTIFICACIÓN DE ÁRBOLES                      ║
          ║  FIN                                                       ║
          ╚══════════════════════════════════════════════════════════╝ -->
-    <!-- === MODULO 3 === -->
-        <!-- ╔══════════════════════════════════════════════════════════╗
-         ║  [M3] SECCIÓN VIVIENDAS                                   ║
-         ║  INICIO                                                    ║
-         ╚══════════════════════════════════════════════════════════╝ -->
-      <!-- TAB 2 — VIVIENDAS -->
-      <div class="tab-content" data-tab-content="viviendas">
-        <div class="flex-between mb-10">
-          <div class="page-title" style="font-size:15px;">Viviendas registradas</div>
-          <button class="btn btn-primary" onclick="abrirModalVivienda()">+ Nueva vivienda</button>
-        </div>
-        <div class="table-wrap">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Folio</th>
-                <th>Fecha</th>
-                <th>Responsable</th>
-                <th>Dirección</th>
-                <th>Riesgo</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tablaViviendas">
-              <tr><td colspan="6"><div class="empty-state"><span class="icon">🏠</span>Sin viviendas registradas</div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    <!-- ╔══════════════════════════════════════════════════════════╗
-         ║  [M3] SECCIÓN VIVIENDAS                                   ║
-         ║  FIN                                                       ║
-         ╚══════════════════════════════════════════════════════════╝ -->
-
+  
     <!-- ╔══════════════════════════════════════════════════════════╗
          ║  [M3] MODAL VIVIENDA                                      ║
          ║  INICIO                                                    ║
