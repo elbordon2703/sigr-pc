@@ -3390,6 +3390,380 @@ function eliminarVivienda(id){
 window.eliminarVivienda = eliminarVivienda;
     
 /* ============================================================
+   [M3] EDAN — GESTIÓN DE VIVIENDAS Y FAMILIAS
+   ============================================================ */
+
+// ---- Cargar inspectores en el select de EDAN ----
+function cargarInspectoresSelectEDAN(){
+  var inspectores = (window.SIGR && window.SIGR.personal)
+    ? window.SIGR.personal.filter(function(p){
+        if(p.estado !== 'activo') return false;
+        if(p.responsabilidad){
+          return p.responsabilidad === 'inspector' || p.responsabilidad === 'edanista';
+        }
+        return true;
+      })
+    : [];
+
+  var opciones = '<option value="">Seleccione...</option>';
+  inspectores.forEach(function(p){
+    var nombre = ((p.nombre || '') + ' ' + (p.apellido || '')).trim();
+    var rango  = p.jerarquia ? p.jerarquia + ' ' : '';
+    opciones += '<option value="'+p.id+'" data-nombre="'+esc(rango + nombre)+'">'+esc(rango + nombre)+'</option>';
+  });
+
+  var sel = document.getElementById('edanElaboradoPor');
+  if(sel) sel.innerHTML = opciones;
+}
+window.cargarInspectoresSelectEDAN = cargarInspectoresSelectEDAN;
+
+// ---- Abrir modal EDAN ----
+function abrirModalEDAN(){
+  // Fecha y hora automáticas
+  var hoy = new Date();
+  var yyyy = hoy.getFullYear();
+  var mm = String(hoy.getMonth()+1).padStart(2,'0');
+  var dd = String(hoy.getDate()).padStart(2,'0');
+  var hh = String(hoy.getHours()).padStart(2,'0');
+  var mi = String(hoy.getMinutes()).padStart(2,'0');
+
+  var elFecha = document.getElementById('edanFecha');
+  var elHora  = document.getElementById('edanHora');
+  if(elFecha) elFecha.value = yyyy + '-' + mm + '-' + dd;
+  if(elHora)  elHora.value  = hh + ':' + mi;
+
+  // Limpiar contenedor de viviendas
+  var cont = document.getElementById('edanViviendasContainer');
+  if(cont) cont.innerHTML = '';
+
+  // Limpiar totales
+  var tot = document.getElementById('edanTotalesContainer');
+  if(tot) tot.innerHTML = '<div style="color:#888;font-style:italic;">Sin viviendas registradas aún.</div>';
+
+  // Cargar inspectores
+  cargarInspectoresSelectEDAN();
+
+  var sel = document.getElementById('edanElaboradoPor');
+  if(sel && (!sel.options || sel.options.length <= 1)){
+    DBLocal.leer('personal_cache', '__lista__').then(function(c){
+      if(c && c.items && c.items.length > 0){
+        window.SIGR.personal = c.items;
+        cargarInspectoresSelectEDAN();
+      }
+      abrirModal('modalEDAN');
+    }).catch(function(){
+      abrirModal('modalEDAN');
+    });
+  }else{
+    abrirModal('modalEDAN');
+  }
+}
+window.abrirModalEDAN = abrirModalEDAN;
+
+// ---- Agregar una vivienda al contenedor ----
+function agregarViviendaEDAN(){
+  var cont = document.getElementById('edanViviendasContainer');
+  if(!cont) return;
+
+  var vivIdx = cont.querySelectorAll('.edan-vivienda').length;
+
+  var html = ''
+    + '<div class="edan-vivienda" data-viv="'+vivIdx+'" style="border:1px solid #0b2a4a;border-radius:8px;padding:10px;margin-bottom:12px;background:#f9fbfd;">'
+
+    +   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+    +     '<strong style="color:#0b2a4a;font-size:13px;">🏠 VIVIENDA <span class="viv-num">'+(vivIdx+1)+'</span></strong>'
+    +     '<button type="button" class="btn btn-sm btn-danger" onclick="eliminarViviendaEDAN('+vivIdx+')">Eliminar vivienda</button>'
+    +   '</div>'
+
+    +   '<div class="form-row">'
+    +     '<div class="form-group" style="flex:2;">'
+    +       '<label>Dirección *</label>'
+    +       '<input type="text" class="vivDireccion" placeholder="Ej: Sector Guerrilandia I, calle principal">'
+    +     '</div>'
+    +   '</div>'
+
+    +   '<div class="form-row">'
+    +     '<div class="form-group">'
+    +       '<label>Tipo *</label>'
+    +       '<select class="vivTipo">'
+    +         '<option value="">Seleccione...</option>'
+    +         '<option value="A">A — Bloque, ladrillo y cemento</option>'
+    +         '<option value="B">B — Adobe</option>'
+    +         '<option value="C">C — Tablas y/o Zinc</option>'
+    +       '</select>'
+    +     '</div>'
+    +     '<div class="form-group">'
+    +       '<label>Habitable *</label>'
+    +       '<select class="vivHabitable">'
+    +         '<option value="SI">Sí</option>'
+    +         '<option value="NO">No</option>'
+    +       '</select>'
+    +     '</div>'
+    +     '<div class="form-group">'
+    +       '<label>Destruida *</label>'
+    +       '<select class="vivDestruida">'
+    +         '<option value="NO">No</option>'
+    +         '<option value="SI">Sí</option>'
+    +       '</select>'
+    +     '</div>'
+    +     '<div class="form-group">'
+    +       '<label>Riesgo *</label>'
+    +       '<select class="vivRiesgoEDAN">'
+    +         '<option value="">Seleccione...</option>'
+    +         '<option value="Leve">Leve</option>'
+    +         '<option value="Moderado">Moderado</option>'
+    +         '<option value="Alto">Alto</option>'
+    +         '<option value="Muy alto">Muy alto</option>'
+    +       '</select>'
+    +     '</div>'
+    +   '</div>'
+
+    +   '<div class="form-row">'
+    +     '<div class="form-group">'
+    +       '<label>Material de construcción *</label>'
+    +       '<textarea class="vivMaterial" placeholder="Ej: Paredes de guafa y bahareque, columnas de madera..."></textarea>'
+    +     '</div>'
+    +   '</div>'
+
+    +   '<div class="form-row">'
+    +     '<div class="form-group">'
+    +       '<label>Condición de la vivienda *</label>'
+    +       '<textarea class="vivCondicion" placeholder="Ej: vivienda afectada por el desbordamiento del río..."></textarea>'
+    +     '</div>'
+    +   '</div>'
+
+    +   '<div class="form-row">'
+    +     '<div class="form-group">'
+    +       '<label>Lat / Long</label>'
+    +       '<input type="text" class="vivLatLong" placeholder="8.943075, -69.4649617">'
+    +     '</div>'
+    +     '<div class="form-group">'
+    +       '<label>UTM</label>'
+    +       '<input type="text" class="vivUtm" placeholder="448885E 988590N 19P">'
+    +     '</div>'
+    +   '</div>'
+
+    +   '<div class="form-row">'
+    +     '<div class="form-group">'
+    +       '<label>Foto de la vivienda</label>'
+    +       '<input type="file" class="vivFoto" accept="image/*" capture="environment">'
+    +     '</div>'
+    +     '<div class="form-group">'
+    +       '<label>Pie de foto</label>'
+    +       '<input type="text" class="vivPieFoto" placeholder="Descripción">'
+    +     '</div>'
+    +   '</div>'
+
+    +   '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed #b8c4d4;">'
+    +     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+    +       '<strong style="color:#0b2a4a;font-size:12px;">👥 Familias en esta vivienda</strong>'
+    +     '</div>'
+    +     '<div class="edan-familias" data-viv="'+vivIdx+'"></div>'
+    +     '<button type="button" class="btn btn-ghost" onclick="agregarFamiliaEDAN('+vivIdx+')" style="width:100%;margin-top:6px;">+ Agregar familia</button>'
+    +   '</div>'
+
+    + '</div>';
+
+  cont.insertAdjacentHTML('beforeend', html);
+  recalcularTotalesEDAN();
+}
+window.agregarViviendaEDAN = agregarViviendaEDAN;
+
+// ---- Agregar una familia a una vivienda ----
+function agregarFamiliaEDAN(vivIdx){
+  var cont = document.querySelector('.edan-familias[data-viv="'+vivIdx+'"]');
+  if(!cont) return;
+
+  var famIdx = cont.querySelectorAll('.edan-familia').length;
+
+  var html = ''
+    + '<div class="edan-familia" data-viv="'+vivIdx+'" data-fam="'+famIdx+'" style="border:1px solid #d0d7e2;border-radius:6px;padding:8px;margin-bottom:8px;background:#ffffff;">'
+
+    +   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+    +     '<strong style="color:#0b2a4a;font-size:12px;">FAMILIA <span class="fam-num">'+(famIdx+1)+'</span></strong>'
+    +     '<button type="button" class="btn btn-sm btn-danger" onclick="eliminarFamiliaEDAN('+vivIdx+','+famIdx+')">Eliminar</button>'
+    +   '</div>'
+
+    +   '<div class="form-row">'
+    +     '<div class="form-group" style="flex:2;">'
+    +       '<label>Nombre y apellidos del responsable *</label>'
+    +       '<input type="text" class="famResponsable" placeholder="Ej: Juan Pérez">'
+    +     '</div>'
+    +     '<div class="form-group">'
+    +       '<label>C.I. *</label>'
+    +       '<select class="famTipoCedula" style="max-width:70px;">'
+    +         '<option value="V-">V-</option>'
+    +         '<option value="E-">E-</option>'
+    +         '<option value="J-">J-</option>'
+    +       '</select>'
+    +     '</div>'
+    +     '<div class="form-group">'
+    +       '<label>Número *</label>'
+    +       '<input type="text" class="famCedula" placeholder="00.000.000">'
+    +     '</div>'
+    +   '</div>'
+
+    +   '<div style="font-size:11px;color:#555;margin:8px 0 4px 0;font-weight:bold;">Integrantes de la familia</div>'
+
+    +   '<div class="form-row">'
+    +     '<div class="form-group"><label>Adultos mayores M</label><input type="number" class="famAM_M" min="0" value="0"></div>'
+    +     '<div class="form-group"><label>Adultos mayores F</label><input type="number" class="famAM_F" min="0" value="0"></div>'
+    +   '</div>'
+    +   '<div class="form-row">'
+    +     '<div class="form-group"><label>Adultos M</label><input type="number" class="famA_M" min="0" value="0"></div>'
+    +     '<div class="form-group"><label>Adultos F</label><input type="number" class="famA_F" min="0" value="0"></div>'
+    +   '</div>'
+    +   '<div class="form-row">'
+    +     '<div class="form-group"><label>Adolescentes M</label><input type="number" class="famAd_M" min="0" value="0"></div>'
+    +     '<div class="form-group"><label>Adolescentes F</label><input type="number" class="famAd_F" min="0" value="0"></div>'
+    +   '</div>'
+    +   '<div class="form-row">'
+    +     '<div class="form-group"><label>Niños M</label><input type="number" class="famN_M" min="0" value="0"></div>'
+    +     '<div class="form-group"><label>Niños F</label><input type="number" class="famN_F" min="0" value="0"></div>'
+    +   '</div>'
+    +   '<div class="form-row">'
+    +     '<div class="form-group"><label>Niños lactantes M</label><input type="number" class="famL_M" min="0" value="0"></div>'
+    +     '<div class="form-group"><label>Niños lactantes F</label><input type="number" class="famL_F" min="0" value="0"></div>'
+    +   '</div>'
+
+    +   '<div style="font-size:11px;color:#555;margin:8px 0 4px 0;font-weight:bold;">Necesidades</div>'
+
+    +   '<div class="form-row">'
+    +     '<div class="form-group"><label>Alimentos</label><input type="number" class="famAlimentos" min="0" value="0"></div>'
+    +     '<div class="form-group"><label>Colchón</label><input type="number" class="famColchon" min="0" value="0"></div>'
+    +   '</div>'
+    +   '<div class="form-row">'
+    +     '<div class="form-group">'
+    +       '<label>Otros especifique</label>'
+    +       '<textarea class="famOtros" placeholder="Ej: medicinas, atención especial, discapacidad..."></textarea>'
+    +     '</div>'
+    +   '</div>'
+
+    + '</div>';
+
+  cont.insertAdjacentHTML('beforeend', html);
+  recalcularTotalesEDAN();
+}
+window.agregarFamiliaEDAN = agregarFamiliaEDAN;
+
+// ---- Eliminar una vivienda ----
+function eliminarViviendaEDAN(vivIdx){
+  if(!confirm('¿Eliminar esta vivienda y todas sus familias?')) return;
+  var v = document.querySelector('.edan-vivienda[data-viv="'+vivIdx+'"]');
+  if(v) v.remove();
+  renumerarViviendasFamiliasEDAN();
+  recalcularTotalesEDAN();
+}
+window.eliminarViviendaEDAN = eliminarViviendaEDAN;
+
+// ---- Eliminar una familia ----
+function eliminarFamiliaEDAN(vivIdx, famIdx){
+  if(!confirm('¿Eliminar esta familia?')) return;
+  var f = document.querySelector('.edan-familia[data-viv="'+vivIdx+'"][data-fam="'+famIdx+'"]');
+  if(f) f.remove();
+  renumerarViviendasFamiliasEDAN();
+  recalcularTotalesEDAN();
+}
+window.eliminarFamiliaEDAN = eliminarFamiliaEDAN;
+
+// ---- Renumerar viviendas y familias ----
+function renumerarViviendasFamiliasEDAN(){
+  var viviendas = document.querySelectorAll('.edan-vivienda');
+  viviendas.forEach(function(v, i){
+    v.setAttribute('data-viv', i);
+    var num = v.querySelector('.viv-num');
+    if(num) num.textContent = (i + 1);
+
+    // Actualizar data-viv y onclick de los hijos
+    var famCont = v.querySelector('.edan-familias');
+    if(famCont) famCont.setAttribute('data-viv', i);
+
+    // Renumerar familias dentro de esta vivienda
+    var familias = v.querySelectorAll('.edan-familia');
+    familias.forEach(function(f, j){
+      f.setAttribute('data-viv', i);
+      f.setAttribute('data-fam', j);
+      var fnum = f.querySelector('.fam-num');
+      if(fnum) fnum.textContent = (j + 1);
+    });
+
+    // Actualizar botón "+ Agregar familia"
+    var btnFam = v.querySelector('button[onclick^="agregarFamiliaEDAN"]');
+    if(btnFam) btnFam.setAttribute('onclick', 'agregarFamiliaEDAN('+i+')');
+
+    // Actualizar botones "Eliminar" de las familias
+    familias.forEach(function(f, j){
+      var btnElim = f.querySelector('button[onclick^="eliminarFamiliaEDAN"]');
+      if(btnElim) btnElim.setAttribute('onclick', 'eliminarFamiliaEDAN('+i+','+j+')');
+    });
+
+    // Actualizar botón "Eliminar vivienda"
+    var btnElimViv = v.querySelector('button[onclick^="eliminarViviendaEDAN"]');
+    if(btnElimViv) btnElimViv.setAttribute('onclick', 'eliminarViviendaEDAN('+i+')');
+  });
+}
+window.renumerarViviendasFamiliasEDAN = renumerarViviendasFamiliasEDAN;
+
+// ---- Recalcular totales en vivo ----
+function recalcularTotalesEDAN(){
+  var cont = document.getElementById('edanTotalesContainer');
+  if(!cont) return;
+
+  var viviendas = document.querySelectorAll('.edan-vivienda');
+  var totalViv = viviendas.length;
+  var totalFam = 0;
+  var totalPersonas = 0;
+
+  var am_M = 0, am_F = 0;
+  var a_M  = 0, a_F  = 0;
+  var ad_M = 0, ad_F = 0;
+  var n_M  = 0, n_F  = 0;
+  var l_M  = 0, l_F  = 0;
+
+  viviendas.forEach(function(v){
+    var familias = v.querySelectorAll('.edan-familia');
+    totalFam += familias.length;
+    familias.forEach(function(f){
+      var vals = function(cls){ var e = f.querySelector('.'+cls); return e ? (parseInt(e.value)||0) : 0; };
+      am_M += vals('famAM_M'); am_F += vals('famAM_F');
+      a_M  += vals('famA_M');  a_F  += vals('famA_F');
+      ad_M += vals('famAd_M'); ad_F += vals('famAd_F');
+      n_M  += vals('famN_M');  n_F  += vals('famN_F');
+      l_M  += vals('famL_M');  l_F  += vals('famL_F');
+    });
+  });
+
+  totalPersonas = am_M + am_F + a_M + a_F + ad_M + ad_F + n_M + n_F + l_M + l_F;
+
+  if(totalViv === 0){
+    cont.innerHTML = '<div style="color:#888;font-style:italic;">Sin viviendas registradas aún.</div>';
+    return;
+  }
+
+  var html = ''
+    + '<div style="margin-bottom:6px;"><strong>Viviendas:</strong> ' + totalViv + ' &nbsp;|&nbsp; <strong>Familias:</strong> ' + totalFam + ' &nbsp;|&nbsp; <strong>Personas:</strong> ' + totalPersonas + '</div>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:11px;">'
+    +   '<thead><tr style="background:#0b2a4a;color:#fff;">'
+    +     '<th style="padding:3px;text-align:left;">Grupo etario</th>'
+    +     '<th style="padding:3px;text-align:center;">M</th>'
+    +     '<th style="padding:3px;text-align:center;">F</th>'
+    +     '<th style="padding:3px;text-align:center;">Total</th>'
+    +   '</tr></thead>'
+    +   '<tbody>'
+    +     '<tr><td style="padding:2px 3px;">Adultos mayores (60+)</td><td style="text-align:center;">'+am_M+'</td><td style="text-align:center;">'+am_F+'</td><td style="text-align:center;">'+(am_M+am_F)+'</td></tr>'
+    +     '<tr style="background:#eef2f7;"><td style="padding:2px 3px;">Adultos (18-59)</td><td style="text-align:center;">'+a_M+'</td><td style="text-align:center;">'+a_F+'</td><td style="text-align:center;">'+(a_M+a_F)+'</td></tr>'
+    +     '<tr><td style="padding:2px 3px;">Adolescentes (12-17)</td><td style="text-align:center;">'+ad_M+'</td><td style="text-align:center;">'+ad_F+'</td><td style="text-align:center;">'+(ad_M+ad_F)+'</td></tr>'
+    +     '<tr style="background:#eef2f7;"><td style="padding:2px 3px;">Niños (2-11)</td><td style="text-align:center;">'+n_M+'</td><td style="text-align:center;">'+n_F+'</td><td style="text-align:center;">'+(n_M+n_F)+'</td></tr>'
+    +     '<tr><td style="padding:2px 3px;">Niños lactantes (0-1)</td><td style="text-align:center;">'+l_M+'</td><td style="text-align:center;">'+l_F+'</td><td style="text-align:center;">'+(l_M+l_F)+'</td></tr>'
+    +     '<tr style="background:#0b2a4a;color:#fff;font-weight:bold;"><td style="padding:3px;">TOTAL</td><td style="text-align:center;">'+(am_M+a_M+ad_M+n_M+l_M)+'</td><td style="text-align:center;">'+(am_F+a_F+ad_F+n_F+l_F)+'</td><td style="text-align:center;">'+totalPersonas+'</td></tr>'
+    +   '</tbody>'
+    + '</table>';
+
+  cont.innerHTML = html;
+}
+window.recalcularTotalesEDAN = recalcularTotalesEDAN;
+    
+/* ============================================================
    [M3] VIVIENDAS — PDF OFICIAL
    ============================================================ */
 
