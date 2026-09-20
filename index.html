@@ -4184,6 +4184,355 @@ function eliminarEDAN(id){
 window.eliminarEDAN = eliminarEDAN;
     
 /* ============================================================
+   [M3] EDAN — PDF PLANILLA
+   ============================================================ */
+
+// ---- Wrapper con verificación de red ----
+function generarPDFPlanillaEDAN(id){
+  var lista = window.__edanCache || [];
+  var btn = (typeof event !== 'undefined' && event && event.target) ? event.target : null;
+  var e = null;
+  for(var i = 0; i < lista.length; i++){
+    if(lista[i].id === id){ e = lista[i]; break; }
+  }
+  if(!e){
+    alert('EDAN no encontrado. Recargue la lista.');
+    return;
+  }
+
+  hayRedReal().then(function(hay){
+    if(!hay && !e.folio){
+      if(btn){ btn.disabled = false; btn.textContent = 'Planilla'; }
+      alert('Este EDAN se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
+      return;
+    }
+    generarPDFPlanillaEDANInterno(e, btn);
+  });
+}
+window.generarPDFPlanillaEDAN = generarPDFPlanillaEDAN;
+
+// ---- Generar PDF Planilla (interno) ----
+function generarPDFPlanillaEDANInterno(e, btn){
+  if(btn){ btn.disabled = true; btn.textContent = 'Generando...'; }
+
+  var promesaFolio = e.folio
+    ? Promise.resolve(e.folio)
+    : generarFolio('EDAN').then(function(f){
+        var idFirebase = e.firebase_id;
+        if(idFirebase && idFirebase.indexOf('fb_') === 0){
+          idFirebase = idFirebase.substring(3);
+        }
+        return db.collection('edan').doc(idFirebase).update({ folio: f }).then(function(){
+          e.folio = f;
+          e.firebase_id = idFirebase;
+          return DBLocal.guardar('edan', e).then(function(){
+            console.log('[EDAN PDF] Folio oficial asignado:', f);
+            return f;
+          });
+        });
+      });
+
+  promesaFolio.then(function(folio){
+    var doc = new window.jspdf.jsPDF({ unit:'mm', format:'letter', orientation:'landscape' });
+    var W = doc.internal.pageSize.getWidth();
+    var H = doc.internal.pageSize.getHeight();
+    var M = 10;
+
+    // ---- Encabezado ----
+    return cargarImagenBase64('LOGO%20PC.png', null).then(function(logoPC){
+      return cargarImagenBase64('LOGO%20GOBERNACION.png', null).then(function(logoGob){
+        try{
+          if(logoPC)  doc.addImage(logoPC,  'PNG', M, 6, 18, 18);
+          if(logoGob) doc.addImage(logoGob, 'PNG', W-42, 6, 28, 18);
+        }catch(err){}
+
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(10);
+        doc.setTextColor(11,42,74);
+        doc.text('PROTECCIÓN CIVIL — MUNICIPIO PAPELÓN', W/2, 12, {align:'center'});
+
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(8);
+        doc.text('Estado Portuguesa — Venezuela', W/2, 16, {align:'center'});
+
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(11);
+        doc.text('RECOLECCIÓN DE INFORMACIÓN — EDAN', W/2, 23, {align:'center'});
+
+        // Folio
+        var folioX = W - 80;
+        var folioY = 28;
+        doc.setDrawColor(11,42,74);
+        doc.setLineWidth(0.6);
+        doc.roundedRect(folioX, folioY, 68, 8, 1.5, 1.5);
+        doc.setFontSize(9);
+        doc.text(folio, folioX + 34, folioY + 5.5, {align:'center'});
+
+        // Línea separadora
+        doc.setDrawColor(11,42,74);
+        doc.setLineWidth(0.4);
+        doc.line(M, 40, W-M, 40);
+
+        doc.setTextColor(0,0,0);
+        var y = 46;
+
+        // ---- Datos del evento ----
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(9);
+        doc.text('FECHA: ', M, y);
+        doc.setFont('helvetica','normal');
+        doc.text(formatearFecha(e.fecha) + '   ', M + 15, y);
+        doc.setFont('helvetica','bold');
+        doc.text('HORA: ', M + 42, y);
+        doc.setFont('helvetica','normal');
+        doc.text(formatearHora12(e.hora) + ' HLV', M + 56, y);
+        y += 5;
+
+        doc.setFont('helvetica','bold');
+        doc.text('ELABORADO POR: ', M, y);
+        doc.setFont('helvetica','normal');
+        doc.text((e.elaborado_por_nombre || '—'), M + 32, y);
+        doc.setFont('helvetica','bold');
+        doc.text('EVENTO: ', M + 100, y);
+        doc.setFont('helvetica','normal');
+        doc.text((e.evento || '—'), M + 116, y);
+        y += 5;
+
+        doc.setFont('helvetica','bold');
+        doc.text('MUNICIPIO: ', M, y);
+        doc.setFont('helvetica','normal');
+        doc.text((e.municipio || 'Papelón'), M + 24, y);
+        doc.setFont('helvetica','bold');
+        doc.text('POBLACIÓN: ', M + 55, y);
+        doc.setFont('helvetica','normal');
+        doc.text((e.poblacion || '—'), M + 77, y);
+        doc.setFont('helvetica','bold');
+        doc.text('SECTOR: ', M + 120, y);
+        doc.setFont('helvetica','normal');
+        doc.text((e.sector || '—'), M + 138, y);
+        doc.setFont('helvetica','bold');
+        doc.text('CALLE: ', M + 180, y);
+        doc.setFont('helvetica','normal');
+        doc.text((e.calle || '—'), M + 195, y);
+        y += 8;
+
+        // ---- TABLA ----
+        // Armar filas: recorrer viviendas y familias
+        var filas = [];
+        (e.viviendas || []).forEach(function(v){
+          (v.familias || []).forEach(function(f){
+            filas.push({ viv: v, fam: f });
+          });
+        });
+
+        // Si no hay filas, al menos mostrar una fila vacía
+        if(filas.length === 0){
+          filas.push({ viv: {}, fam: {} });
+        }
+
+        // Definir columnas: [titulo, ancho, grupo]
+        // Agrupación visual: Integrantes / Estado / Necesidades
+        var colWidths = [
+          10,   // Nº FAM
+          38,   // Nombre
+          8, 8,   // AM M/F
+          8, 8,   // A M/F
+          8, 8,   // Ad M/F
+          8, 8,   // N M/F
+          8, 8,   // L M/F
+          8, 10, 10,  // Tipo, Habitable, Destruida
+          10, 10, 28  // Alimentos, Colchón, Otros
+        ];
+
+        var totalWidth = colWidths.reduce(function(a,b){ return a+b; }, 0);
+        var escala = (W - M*2) / totalWidth;
+        var cols = colWidths.map(function(w){ return w * escala; });
+
+        var yTabla = y;
+
+        // ---- FILA DE GRUPOS (encabezado superior) ----
+        doc.setFillColor(11,42,74);
+        doc.setTextColor(255,255,255);
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(7);
+
+        // Encabezado agrupado
+        var x = M;
+        // Nº FAM (abarca 2 filas)
+        doc.rect(x, yTabla, cols[0], 10, 'F');
+        doc.text('Nº', x + cols[0]/2, yTabla + 4, {align:'center'});
+        doc.text('FAM', x + cols[0]/2, yTabla + 7.5, {align:'center'});
+        x += cols[0];
+
+        // Nombre (abarca 2 filas)
+        doc.rect(x, yTabla, cols[1], 10, 'F');
+        doc.text('NOMBRE Y APELLIDOS', x + cols[1]/2, yTabla + 4, {align:'center'});
+        doc.text('DEL RESPONSABLE', x + cols[1]/2, yTabla + 7.5, {align:'center'});
+        x += cols[1];
+
+        // Integrantes (abarca 10 columnas)
+        var anchoInt = cols[2]+cols[3]+cols[4]+cols[5]+cols[6]+cols[7]+cols[8]+cols[9]+cols[10]+cols[11];
+        doc.rect(x, yTabla, anchoInt, 5, 'F');
+        doc.text('INTEGRANTES DE LA FAMILIA', x + anchoInt/2, yTabla + 3.5, {align:'center'});
+        x += anchoInt;
+
+        // Estado vivienda (abarca 3 columnas)
+        var anchoEst = cols[12]+cols[13]+cols[14];
+        doc.rect(x, yTabla, anchoEst, 5, 'F');
+        doc.text('ESTADO DE LA VIVIENDA', x + anchoEst/2, yTabla + 3.5, {align:'center'});
+        x += anchoEst;
+
+        // Necesidades (abarca 3 columnas)
+        var anchoNec = cols[15]+cols[16]+cols[17];
+        doc.rect(x, yTabla, anchoNec, 5, 'F');
+        doc.text('NECESIDADES', x + anchoNec/2, yTabla + 3.5, {align:'center'});
+
+        yTabla += 5;
+
+        // ---- FILA DE SUB-ENCABEZADOS ----
+        doc.setFillColor(22,63,110);
+        doc.setTextColor(255,255,255);
+        doc.setFontSize(6);
+
+        x = M + cols[0] + cols[1];
+        var subLabels = [
+          'AM M','AM F','A M','A F','Ad M','Ad F','N M','N F','L M','L F'
+        ];
+        for(var si = 0; si < 10; si++){
+          doc.rect(x, yTabla, cols[2+si], 5, 'F');
+          doc.text(subLabels[si], x + cols[2+si]/2, yTabla + 3.4, {align:'center'});
+          x += cols[2+si];
+        }
+        // Estado
+        ['Tipo','Habt.','Destr.'].forEach(function(t, i){
+          doc.rect(x, yTabla, cols[12+i], 5, 'F');
+          doc.text(t, x + cols[12+i]/2, yTabla + 3.4, {align:'center'});
+          x += cols[12+i];
+        });
+        // Necesidades
+        ['Alim.','Colch.','Otros'].forEach(function(t, i){
+          doc.rect(x, yTabla, cols[15+i], 5, 'F');
+          doc.text(t, x + cols[15+i]/2, yTabla + 3.4, {align:'center'});
+          x += cols[15+i];
+        });
+
+        yTabla += 5;
+        doc.setTextColor(0,0,0);
+
+        // ---- FILAS DE FAMILIAS ----
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(7);
+
+        var numFam = 1;
+        filas.forEach(function(fila, idx){
+          if(yTabla > H - 30){
+            doc.addPage('letter','landscape');
+            yTabla = 20;
+          }
+
+          var bg = (idx % 2 === 0) ? [245,247,250] : [255,255,255];
+          doc.setFillColor(bg[0],bg[1],bg[2]);
+          doc.rect(M, yTabla, W - M*2, 6, 'F');
+
+          var xx = M;
+          var v = fila.viv, f = fila.fam;
+
+          // Nº FAM
+          doc.text(String(numFam), xx + cols[0]/2, yTabla + 4, {align:'center'});
+          xx += cols[0];
+
+          // Nombre
+          var nombre = (f.responsable || '—');
+          if(nombre.length > 30) nombre = nombre.substring(0,28) + '…';
+          doc.text(nombre, xx + 1, yTabla + 4);
+          xx += cols[1];
+
+          // Integrantes
+          var vals = [
+            f.am_M||0, f.am_F||0,
+            f.a_M||0,  f.a_F||0,
+            f.ad_M||0, f.ad_F||0,
+            f.n_M||0,  f.n_F||0,
+            f.l_M||0,  f.l_F||0
+          ];
+          for(var vi = 0; vi < 10; vi++){
+            doc.text(String(vals[vi]), xx + cols[2+vi]/2, yTabla + 4, {align:'center'});
+            xx += cols[2+vi];
+          }
+
+          // Estado vivienda
+          doc.text(String(v.tipo || '—'), xx + cols[12]/2, yTabla + 4, {align:'center'});
+          xx += cols[12];
+          doc.text(String(v.habitable || '—'), xx + cols[13]/2, yTabla + 4, {align:'center'});
+          xx += cols[13];
+          doc.text(String(v.destruida || '—'), xx + cols[14]/2, yTabla + 4, {align:'center'});
+          xx += cols[14];
+
+          // Necesidades
+          doc.text(String(f.alimentos||0), xx + cols[15]/2, yTabla + 4, {align:'center'});
+          xx += cols[15];
+          doc.text(String(f.colchon||0), xx + cols[16]/2, yTabla + 4, {align:'center'});
+          xx += cols[16];
+          var otros = (f.otros || '');
+          if(otros.length > 20) otros = otros.substring(0,18) + '…';
+          doc.text(otros, xx + 1, yTabla + 4);
+
+          // Línea inferior
+          doc.setDrawColor(200,205,212);
+          doc.setLineWidth(0.15);
+          doc.line(M, yTabla + 6, W - M, yTabla + 6);
+
+          yTabla += 6;
+          numFam++;
+        });
+
+        // ---- TOTALES ----
+        yTabla += 4;
+        if(yTabla > H - 20) { doc.addPage('letter','landscape'); yTabla = 20; }
+
+        var t = e.totales || {};
+        doc.setFillColor(11,42,74);
+        doc.rect(M, yTabla, W - M*2, 7, 'F');
+        doc.setTextColor(255,255,255);
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(7);
+
+        var totalM = (t.am_M||0)+(t.a_M||0)+(t.ad_M||0)+(t.n_M||0)+(t.l_M||0);
+        var totalF = (t.am_F||0)+(t.a_F||0)+(t.ad_F||0)+(t.n_F||0)+(t.l_F||0);
+        var totalPer = totalM + totalF;
+
+        doc.text('TOTALES:  Viviendas: ' + (e.viviendas||[]).length + '   |   Familias: ' + (numFam-1) + '   |   Personas: ' + totalPer + '   (M: ' + totalM + ' / F: ' + totalF + ')', M + 2, yTabla + 4.5);
+
+        doc.setTextColor(0,0,0);
+        yTabla += 12;
+
+        // Referencia de tipos de vivienda
+        doc.setFont('helvetica','italic');
+        doc.setFontSize(7);
+        doc.text('TIPO DE VIVIENDA:   A = Bloque, ladrillo y cemento   |   B = Adobe   |   C = Tablas y/o Zinc', M, yTabla);
+        yTabla += 4;
+        doc.text('HABT. = Habitable   |   DESTR. = Destruida', M, yTabla);
+
+        // ---- PIE DE PÁGINA ----
+        return pieDePaginaPDF(doc).then(function(){
+          doc.save('Planilla_EDAN_' + folio + '.pdf');
+        });
+      });
+    });
+  }).catch(function(err){
+    console.error('Error generando Planilla EDAN:', err);
+    if(err && err.message === 'SIN_RED'){
+      alert('Este EDAN se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.');
+    }else{
+      alert('Error al generar el PDF: ' + (err.message || 'ver consola'));
+    }
+  }).finally(function(){
+    if(btn){ btn.disabled = false; btn.textContent = 'Planilla'; }
+  });
+}
+window.generarPDFPlanillaEDANInterno = generarPDFPlanillaEDANInterno;
+    
+/* ============================================================
    [M3] VIVIENDAS — PDF OFICIAL
    ============================================================ */
 
