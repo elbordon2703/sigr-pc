@@ -3478,10 +3478,14 @@ function agregarViviendaEDAN(){
   var html = ''
     + '<div class="edan-vivienda" data-viv="'+vivIdx+'" style="border:1px solid #0b2a4a;border-radius:8px;padding:10px;margin-bottom:12px;background:#f9fbfd;">'
 
-    +   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+       +   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
     +     '<strong style="color:#0b2a4a;font-size:13px;">🏠 VIVIENDA <span class="viv-num">'+(vivIdx+1)+'</span></strong>'
-    +     '<button type="button" class="btn btn-sm btn-danger" onclick="eliminarViviendaEDAN('+vivIdx+')">Eliminar vivienda</button>'
+    +     '<div>'
+    +       '<button type="button" class="btn btn-sm btn-ghost" onclick="toggleColapsarViviendaEDAN('+vivIdx+')" id="btnColapsarViv'+vivIdx+'">▼ Colapsar</button>'
+    +       '<button type="button" class="btn btn-sm btn-danger" onclick="eliminarViviendaEDAN('+vivIdx+')" style="margin-left:4px;">Eliminar</button>'
+    +     '</div>'
     +   '</div>'
+    +   '<div class="viv-contenido">'
 
     +   '<div class="form-row">'
     +     '<div class="form-group" style="flex:2;">'
@@ -3562,14 +3566,14 @@ function agregarViviendaEDAN(){
     +     '</div>'
     +   '</div>'
 
-    +   '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed #b8c4d4;">'
+       +   '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed #b8c4d4;">'
     +     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
     +       '<strong style="color:#0b2a4a;font-size:12px;">👥 Familias en esta vivienda</strong>'
     +     '</div>'
     +     '<div class="edan-familias" data-viv="'+vivIdx+'"></div>'
     +     '<button type="button" class="btn btn-ghost" onclick="agregarFamiliaEDAN('+vivIdx+')" style="width:100%;margin-top:6px;">+ Agregar familia</button>'
     +   '</div>'
-
+    +   '</div>'
     + '</div>';
 
   cont.insertAdjacentHTML('beforeend', html);
