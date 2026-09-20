@@ -3775,6 +3775,255 @@ function recalcularTotalesEDAN(){
 }
 window.recalcularTotalesEDAN = recalcularTotalesEDAN;
     
+// ---- Colapsar / expandir vivienda ----
+function toggleColapsarViviendaEDAN(vivIdx){
+  var v = document.querySelector('.edan-vivienda[data-viv="'+vivIdx+'"]');
+  if(!v) return;
+  var contenido = v.querySelector('.viv-contenido');
+  var btn = document.getElementById('btnColapsarViv'+vivIdx);
+  if(!contenido) return;
+
+  if(contenido.style.display === 'none'){
+    contenido.style.display = '';
+    if(btn) btn.textContent = '▼ Colapsar';
+  }else{
+    contenido.style.display = 'none';
+    if(btn) btn.textContent = '▶ Expandir';
+  }
+}
+window.toggleColapsarViviendaEDAN = toggleColapsarViviendaEDAN;
+
+// ---- Recolectar los datos del formulario (evento + viviendas + familias + fotos) ----
+function recolectarDatosEDAN(){
+  // Fotos: comprimir satelital y todas las viviendas
+  var promesas = [];
+  var satInput = document.getElementById('edanImgSatelital');
+  promesas.push(leerFotoComprimidaDeInput(satInput, 800, 0.65));
+
+  var vivs = document.querySelectorAll('.edan-vivienda');
+  vivs.forEach(function(v){
+    var inputFoto = v.querySelector('.vivFoto');
+    promesas.push(leerFotoComprimidaDeInput(inputFoto, 600, 0.50));
+  });
+
+  return Promise.all(promesas).then(function(imgs){
+    var imgSatelital = imgs[0];
+    var imgVivs = imgs.slice(1);
+
+    var viviendas = [];
+    vivs.forEach(function(v, vi){
+      var familias = [];
+      v.querySelectorAll('.edan-familia').forEach(function(f){
+        var val = function(cls){ var e = f.querySelector('.'+cls); return e ? e.value : ''; };
+        var num = function(cls){ var e = f.querySelector('.'+cls); return e ? (parseInt(e.value)||0) : 0; };
+        familias.push({
+          num_familia: familias.length + 1,
+          responsable: (val('famResponsable') || '').trim(),
+          tipo_cedula: val('famTipoCedula'),
+          cedula: (val('famCedula') || '').trim(),
+          am_M: num('famAM_M'), am_F: num('famAM_F'),
+          a_M:  num('famA_M'),  a_F:  num('famA_F'),
+          ad_M: num('famAd_M'), ad_F: num('famAd_F'),
+          n_M:  num('famN_M'),  n_F:  num('famN_F'),
+          l_M:  num('famL_M'),  l_F:  num('famL_F'),
+          alimentos: num('famAlimentos'),
+          colchon:   num('famColchon'),
+          otros:     (val('famOtros') || '').trim()
+        });
+      });
+
+      var valV = function(cls){ var e = v.querySelector('.'+cls); return e ? e.value : ''; };
+      viviendas.push({
+        num_vivienda: vi + 1,
+        direccion: (valV('vivDireccion') || '').trim(),
+        tipo: valV('vivTipo'),
+        habitable: valV('vivHabitable'),
+        destruida: valV('vivDestruida'),
+        riesgo: valV('vivRiesgoEDAN'),
+        material: (valV('vivMaterial') || '').trim(),
+        condicion: (valV('vivCondicion') || '').trim(),
+        lat_long: (valV('vivLatLong') || '').trim(),
+        utm: (valV('vivUtm') || '').trim(),
+        foto: imgVivs[vi],
+        pie_foto: (valV('vivPieFoto') || '').trim(),
+        familias: familias
+      });
+    });
+
+    // Totales
+    var tot = { am_M:0, am_F:0, a_M:0, a_F:0, ad_M:0, ad_F:0, n_M:0, n_F:0, l_M:0, l_F:0 };
+    viviendas.forEach(function(v){
+      v.familias.forEach(function(f){
+        tot.am_M += f.am_M; tot.am_F += f.am_F;
+        tot.a_M  += f.a_M;  tot.a_F  += f.a_F;
+        tot.ad_M += f.ad_M; tot.ad_F += f.ad_F;
+        tot.n_M  += f.n_M;  tot.n_F  += f.n_F;
+        tot.l_M  += f.l_M;  tot.l_F  += f.l_F;
+      });
+    });
+
+    var elabSel = document.getElementById('edanElaboradoPor');
+    var elabId = elabSel ? elabSel.value : '';
+    var elabNom = (elabSel && elabId) ? elabSel.options[elabSel.selectedIndex].getAttribute('data-nombre') : '';
+
+    return {
+      tipo: 'edan',
+      fecha: document.getElementById('edanFecha').value || '',
+      hora: document.getElementById('edanHora').value || '',
+      elaborado_por_id: elabId,
+      elaborado_por_nombre: elabNom,
+      evento: (document.getElementById('edanEvento').value || '').trim(),
+      municipio: document.getElementById('edanMunicipio').value,
+      parroquia: document.getElementById('edanParroquia').value,
+      estado: document.getElementById('edanEstado').value,
+      poblacion: (document.getElementById('edanPoblacion').value || '').trim(),
+      sector: (document.getElementById('edanSector').value || '').trim(),
+      calle: (document.getElementById('edanCalle').value || '').trim(),
+      lat_long: (document.getElementById('edanLatLong').value || '').trim(),
+      utm: (document.getElementById('edanUtm').value || '').trim(),
+      img_satelital: imgSatelital,
+      fuente_satelital: (document.getElementById('edanFuenteSatelital').value || '').trim(),
+      riesgo: document.getElementById('edanRiesgo').value,
+      viviendas: viviendas,
+      totales: tot,
+      folio: null,
+      folio_local: null,
+      _sincronizado: false,
+      _origen: 'local',
+      creado_por: window.SIGR.usuario ? window.SIGR.usuario.email : '—',
+      creado: new Date().toISOString(),
+      fecha_creacion_local: Date.now()
+    };
+  });
+}
+window.recolectarDatosEDAN = recolectarDatosEDAN;
+
+// ---- Guardar EDAN (offline-first) ----
+function guardarEDAN(){
+  var evento = (document.getElementById('edanEvento').value || '').trim();
+  var parroquia = document.getElementById('edanParroquia').value;
+  var elabId = document.getElementById('edanElaboradoPor').value;
+  var riesgo = document.getElementById('edanRiesgo').value;
+
+  if(!evento || !parroquia || !elabId || !riesgo){
+    alert('Complete los campos obligatorios del evento marcados con *.');
+    return;
+  }
+
+  var vivs = document.querySelectorAll('.edan-vivienda');
+  if(vivs.length === 0){
+    alert('Debe agregar al menos una vivienda.');
+    return;
+  }
+
+  // Validar cada vivienda
+  var errorViv = false;
+  vivs.forEach(function(v){
+    var dir = (v.querySelector('.vivDireccion').value || '').trim();
+    var tipo = v.querySelector('.vivTipo').value;
+    var mat = (v.querySelector('.vivMaterial').value || '').trim();
+    var con = (v.querySelector('.vivCondicion').value || '').trim();
+    if(!dir || !tipo || !mat || !con){
+      errorViv = true;
+    }
+    var fams = v.querySelectorAll('.edan-familia');
+    if(fams.length === 0){
+      alert('Cada vivienda debe tener al menos una familia.');
+      errorViv = true;
+    }
+    fams.forEach(function(f){
+      var resp = (f.querySelector('.famResponsable').value || '').trim();
+      var ced = (f.querySelector('.famCedula').value || '').trim();
+      if(!resp || !ced){
+        alert('Complete el responsable y la cédula en cada familia.');
+        errorViv = true;
+      }
+    });
+  });
+  if(errorViv) return;
+
+  var btn = document.getElementById('btnGuardarEDAN');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Guardando...';
+
+  recolectarDatosEDAN().then(function(doc){
+    return DBLocal.guardar('edan', doc).then(function(registroLocal){
+      console.log('[EDAN] Guardado local:', registroLocal.id);
+
+      cerrarModal('modalEDAN');
+      if(typeof cargarEDAN === 'function') cargarEDAN();
+
+      if(navigator.onLine){
+        return subirEDANAFirebase(registroLocal);
+      }else{
+        console.log('[EDAN] Sin red, encolando para sincronizar después');
+        return SYNC_QUEUE.agregar({
+          tipo: 'crear_edan',
+          localId: registroLocal.id,
+          datos: registroLocal
+        });
+      }
+    });
+  }).then(function(){
+    // Éxito
+  }).catch(function(e){
+    console.error('Error guardando EDAN:', e);
+    alert('Error al guardar: ' + (e.message || 'ver consola'));
+  }).finally(function(){
+    btn.disabled = false;
+    btn.textContent = 'Guardar';
+  });
+}
+window.guardarEDAN = guardarEDAN;
+
+// ---- Subir EDAN a Firebase (evento + viviendas en subcolección) ----
+function subirEDANAFirebase(registroLocal){
+  // Preparar el doc del evento (sin viviendas ni foto satelital gigante)
+  var docEvento = Object.assign({}, registroLocal);
+  delete docEvento.id;
+  delete docEvento._localModificado;
+  delete docEvento._sincronizado;
+  delete docEvento._origen;
+  delete docEvento.fecha_creacion_local;
+  delete docEvento.folio_local;
+  delete docEvento.viviendas; // van en subcolección
+  docEvento.creado = firebase.firestore.FieldValue.serverTimestamp();
+
+  // Guardar el evento
+  return db.collection('edan').add(docEvento).then(function(refEvento){
+    var eventoId = refEvento.id;
+    console.log('[EDAN] Evento subido:', eventoId);
+
+    // Subir cada vivienda en subcolección
+    var viviendas = registroLocal.viviendas || [];
+    var promesasViv = viviendas.map(function(v){
+      var docViv = Object.assign({}, v);
+      docViv.creado = firebase.firestore.FieldValue.serverTimestamp();
+      return db.collection('edan').doc(eventoId).collection('viviendas').add(docViv);
+    });
+
+    return Promise.all(promesasViv).then(function(){
+      // Actualizar el registro local
+      var actualizado = Object.assign({}, registroLocal, {
+        firebase_id: eventoId,
+        _sincronizado: true,
+        _origen: 'firebase'
+      });
+      return DBLocal.guardar('edan', actualizado);
+    });
+  }).then(function(){
+    if(typeof cargarEDAN === 'function') cargarEDAN();
+  }).catch(function(e){
+    console.warn('[EDAN] Falló subir a Firebase, encolando:', e);
+    return SYNC_QUEUE.agregar({
+      tipo: 'crear_edan',
+      localId: registroLocal.id,
+      datos: registroLocal
+    });
+  });
+}
+window.subirEDANAFirebase = subirEDANAFirebase;
+    
 /* ============================================================
    [M3] VIVIENDAS — PDF OFICIAL
    ============================================================ */
