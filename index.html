@@ -2327,6 +2327,13 @@ function leerFotoComprimida(inputId, maxAncho, calidad){
     .catch(function(){ return null; });
 }
 window.leerFotoComprimida = leerFotoComprimida;
+    /* Leer un input file (elemento directo) y devolver Base64 comprimido */
+function leerFotoComprimidaDeInput(inputEl, maxAncho, calidad){
+  if(!inputEl || !inputEl.files || inputEl.files.length === 0) return Promise.resolve(null);
+  return comprimirImagen(inputEl.files[0], maxAncho || 800, calidad || 0.7)
+    .catch(function(){ return null; });
+}
+window.leerFotoComprimidaDeInput = leerFotoComprimidaDeInput;
 
 /* ---------- CARGAR INSPECTORES EN EL SELECT ---------- */function cargarInspectoresSelect(){
    var inspectores = (window.SIGR && window.SIGR.personal)
