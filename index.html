@@ -4058,6 +4058,131 @@ function subirEDANAFirebase(registroLocal){
 }
 window.subirEDANAFirebase = subirEDANAFirebase;
     
+// ---- Cargar EDAN (offline-first) ----
+function cargarEDAN(){
+  return DBLocal.listar('edan').then(function(listaLocal){
+    if(!navigator.onLine || !window.SIGR.usuario){
+      window.__edanCache = listaLocal;
+      pintarEDAN(listaLocal);
+      console.log('[EDAN] Mostrando', listaLocal.length, 'EDAN locales (sin red)');
+      return;
+    }
+
+    return db.collection('edan').orderBy('creado','desc').limit(200).get()
+      .then(function(snap){
+        var deFirebase = snap.docs.map(function(d){
+          return Object.assign({}, d.data(), {
+            id: 'fb_' + d.id,
+            firebase_id: d.id
+          });
+        });
+        console.log('[EDAN] Traídos', deFirebase.length, 'EDAN de Firebase');
+
+        var idsFirebase = {};
+        deFirebase.forEach(function(e){ idsFirebase[e.firebase_id] = true; });
+
+        var promesasGuardar = deFirebase.map(function(e){
+          return DBLocal.guardar('edan', e);
+        });
+
+        var promesasBorrar = [];
+        listaLocal.forEach(function(local){
+          if(local.firebase_id && idsFirebase[local.firebase_id] && local.id !== ('fb_' + local.firebase_id)){
+            promesasBorrar.push(DBLocal.borrar('edan', local.id));
+          }
+        });
+
+        return Promise.all(promesasGuardar.concat(promesasBorrar)).then(function(){
+          return DBLocal.listar('edan').then(function(listaFinal){
+            window.__edanCache = listaFinal;
+            pintarEDAN(listaFinal);
+            console.log('[EDAN] Mostrando', listaFinal.length, 'EDAN (sin duplicados)');
+          });
+        });
+      })
+      .catch(function(e){
+        console.warn('[EDAN] Error de Firebase, mostrando solo locales:', e);
+        window.__edanCache = listaLocal;
+        pintarEDAN(listaLocal);
+      });
+  }).catch(function(e){
+    console.error('[EDAN] Error cargando locales:', e);
+  });
+}
+window.cargarEDAN = cargarEDAN;
+
+// ---- Pintar tabla de EDAN ----
+function pintarEDAN(lista){
+  var tb = document.getElementById('tablaEDAN');
+  if(!tb) return;
+  if(!lista || lista.length === 0){
+    tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><span class="icon">📋</span>Sin evaluaciones EDAN registradas</div></td></tr>';
+    return;
+  }
+  var html = '';
+  lista.forEach(function(e){
+    var numViv = (e.viviendas && e.viviendas.length) ? e.viviendas.length : 0;
+    var numPer = 0;
+    if(e.totales){
+      numPer = (e.totales.am_M||0)+(e.totales.am_F||0)
+             + (e.totales.a_M||0)+(e.totales.a_F||0)
+             + (e.totales.ad_M||0)+(e.totales.ad_F||0)
+             + (e.totales.n_M||0)+(e.totales.n_F||0)
+             + (e.totales.l_M||0)+(e.totales.l_F||0);
+    }
+    html += '<tr>'
+      + '<td>'+(e.folio || '— pendiente —')+'</td>'
+      + '<td>'+formatearFecha(e.fecha)+'</td>'
+      + '<td>'+esc(e.evento)+'</td>'
+      + '<td>'+esc(e.sector)+'</td>'
+      + '<td>'+numViv+'</td>'
+      + '<td>'+numPer+'</td>'
+      + '<td>'
+        + '<button class="btn btn-sm btn-primary" onclick="generarPDFPlanillaEDAN(\''+e.id+'\')">Planilla</button> '
+        + '<button class="btn btn-sm btn-primary" onclick="generarPDFInformeEDAN(\''+e.id+'\')">Informe</button> '
+        + '<button class="btn btn-sm btn-danger" onclick="eliminarEDAN(\''+e.id+'\')">Borrar</button>'
+      + '</td>'
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+}
+window.pintarEDAN = pintarEDAN;
+
+// ---- Eliminar EDAN (evento + subcolección de viviendas) ----
+function eliminarEDAN(id){
+  if(!confirm('¿Eliminar este EDAN y todas sus viviendas?')) return;
+
+  // Si es un registro local (no sincronizado), borrar solo de IndexedDB
+  if(!id || id.indexOf('fb_') !== 0){
+    return DBLocal.borrar('edan', id).then(function(){
+      return cargarEDAN();
+    }).catch(function(e){
+      console.error('[EDAN] Error eliminando local:', e);
+      alert('No se pudo eliminar.');
+    });
+  }
+
+  // Si es de Firebase, borrar el evento + la subcolección de viviendas
+  var fbId = id.substring(3);
+  return db.collection('edan').doc(fbId).collection('viviendas').get()
+    .then(function(snap){
+      var promesas = snap.docs.map(function(d){ return d.ref.delete(); });
+      return Promise.all(promesas);
+    })
+    .then(function(){
+      return db.collection('edan').doc(fbId).delete();
+    })
+    .then(function(){
+      return DBLocal.borrar('edan', id);
+    })
+    .then(function(){ return cargarEDAN(); })
+    .catch(function(e){
+      console.error('[EDAN] Error eliminando Firebase:', e);
+      alert('No se pudo eliminar.');
+    });
+}
+window.eliminarEDAN = eliminarEDAN;
+    
 /* ============================================================
    [M3] VIVIENDAS — PDF OFICIAL
    ============================================================ */
