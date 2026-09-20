@@ -528,13 +528,170 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
-          <!-- TAB 3 — EDAN (pendiente) -->
+            <!-- TAB 3 — EDAN -->
       <div class="tab-content" data-tab-content="edan">
-        <div class="empty-state">
-          <span class="icon">📋</span>
-          Módulo EDAN — se carga en el siguiente bloque.
+        <div class="flex-between mb-10">
+          <div class="page-title" style="font-size:15px;">Evaluaciones EDAN registradas</div>
+          <button class="btn btn-primary" onclick="abrirModalEDAN()">+ Nuevo EDAN</button>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Evento</th>
+                <th>Sector</th>
+                <th>Viviendas</th>
+                <th>Personas</th>
+                <th style="width:180px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaEDAN">
+              <tr><td colspan="7"><div class="empty-state"><span class="icon">📋</span>Sin evaluaciones EDAN registradas</div></td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
+            <!-- ╔══════════════════════════════════════════════════════════╗
+           ║  [M3] MODAL EDAN — EVENTO                                 ║
+           ║  INICIO (Parte 1A)                                        ║
+           ╚══════════════════════════════════════════════════════════╝ -->
+      <div class="modal" id="modalEDAN">
+        <div class="modal-content" style="max-width:900px;">
+          <div class="modal-header">
+            <h3>Evaluación EDAN</h3>
+            <button class="close" onclick="cerrarModal('modalEDAN')">&times;</button>
+          </div>
+          <div class="modal-body">
+
+            <!-- ==================== DATOS DEL EVENTO ==================== -->
+            <div class="form-section-title">📋 Datos del evento</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Fecha *</label>
+                <input type="date" id="edanFecha">
+              </div>
+              <div class="form-group">
+                <label>Hora (HLV) *</label>
+                <input type="time" id="edanHora">
+              </div>
+              <div class="form-group">
+                <label>Elaborado por *</label>
+                <select id="edanElaboradoPor"></select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Evento *</label>
+                <textarea id="edanEvento" placeholder="Ej: desbordamiento del río Guanare, debido a efectos Hidrometeorológicos presentados..."></textarea>
+              </div>
+            </div>
+
+            <!-- ==================== UBICACIÓN ==================== -->
+            <div class="form-section-title">📍 Ubicación</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Municipio *</label>
+                <select id="edanMunicipio">
+                  <option value="Papelón" selected>Papelón</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Parroquia *</label>
+                <select id="edanParroquia">
+                  <option value="">Seleccione...</option>
+                  <option value="Papelón">Papelón</option>
+                  <option value="Caño Delgadito">Caño Delgadito</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Estado *</label>
+                <input type="text" id="edanEstado" value="Portuguesa" readonly>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Población *</label>
+                <input type="text" id="edanPoblacion" placeholder="Ej: Guerrilandia">
+              </div>
+              <div class="form-group">
+                <label>Sector *</label>
+                <input type="text" id="edanSector" placeholder="Ej: Sector I">
+              </div>
+              <div class="form-group">
+                <label>Calle *</label>
+                <input type="text" id="edanCalle" placeholder="Ej: Calle Principal">
+              </div>
+            </div>
+
+            <!-- ==================== COORDENADAS Y SATELITAL ==================== -->
+            <div class="form-section-title">🗺️ Coordenadas e imagen satelital</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Lat / Long (decimal) *</label>
+                <input type="text" id="edanLatLong" placeholder="8.943075, -69.4649617">
+              </div>
+              <div class="form-group">
+                <label>UTM (Este / Norte / Zona) *</label>
+                <input type="text" id="edanUtm" placeholder="448885.704E 988590.959N 19P">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Imagen satelital (referencial)</label>
+                <input type="file" id="edanImgSatelital" accept="image/*" capture="environment">
+              </div>
+              <div class="form-group">
+                <label>Fuente</label>
+                <input type="text" id="edanFuenteSatelital" value="Google Earth APP">
+              </div>
+            </div>
+
+            <!-- ==================== RIESGO ==================== -->
+            <div class="form-section-title">⚠️ Clasificación de riesgo del evento</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Clasificación *</label>
+                <select id="edanRiesgo">
+                  <option value="">Seleccione...</option>
+                  <option value="Leve">Leve</option>
+                  <option value="Moderado">Moderado</option>
+                  <option value="Alto">Alto</option>
+                  <option value="Muy alto">Muy alto</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- ==================== VIVIENDAS Y FAMILIAS ==================== -->
+            <div class="form-section-title">🏠 Viviendas y familias censadas</div>
+
+            <div id="edanViviendasContainer">
+              <!-- Aquí se agregan dinámicamente las viviendas y familias -->
+            </div>
+
+            <div style="margin-top:12px;">
+              <button type="button" class="btn btn-ghost" onclick="agregarViviendaEDAN()" style="width:100%;">+ Agregar vivienda</button>
+            </div>
+
+            <!-- ==================== TOTALES ==================== -->
+            <div class="form-section-title">📊 Totales del evento</div>
+            <div id="edanTotalesContainer" style="background:#f5f7fa;border:1px solid #d0d7e2;border-radius:6px;padding:10px;font-size:12px;">
+              <!-- Aquí se pintan los totales dinámicamente -->
+              <div style="color:#888;font-style:italic;">Sin viviendas registradas aún.</div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="cerrarModal('modalEDAN')">Cancelar</button>
+            <button class="btn btn-primary" id="btnGuardarEDAN" onclick="guardarEDAN()">Guardar</button>
+          </div>
+        </div>
+      </div>
+      <!-- ╔══════════════════════════════════════════════════════════╗
+           ║  [M3] MODAL EDAN                                          ║
+           ║  FIN                                                       ║
+           ╚══════════════════════════════════════════════════════════╝ -->
 
       <!-- TAB 4 — SOLICITUDES (pendiente) -->
       <div class="tab-content" data-tab-content="solicitudes">
