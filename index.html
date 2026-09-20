@@ -2243,6 +2243,40 @@ var SYNC_QUEUE = {
         });
       });
     }
+         if(op.tipo === 'crear_edan'){
+      var docEdan = Object.assign({}, op.datos);
+      var viviendasEdan = docEdan.viviendas || [];
+      delete docEdan.id;
+      delete docEdan._localModificado;
+      delete docEdan._sincronizado;
+      delete docEdan._origen;
+      delete docEdan.fecha_creacion_local;
+      delete docEdan.folio_local;
+      delete docEdan.firebase_id;
+      delete docEdan.viviendas;
+      docEdan.creado = firebase.firestore.FieldValue.serverTimestamp();
+
+      return db.collection('edan').add(docEdan).then(function(refEvento){
+        var promesasViv = viviendasEdan.map(function(v){
+          var dv = Object.assign({}, v);
+          dv.creado = firebase.firestore.FieldValue.serverTimestamp();
+          return db.collection('edan').doc(refEvento.id).collection('viviendas').add(dv);
+        });
+        return Promise.all(promesasViv).then(function(){
+          return DBLocal.leer('edan', op.localId).then(function(reg){
+            if(reg){
+              reg.firebase_id = refEvento.id;
+              reg._sincronizado = true;
+              reg._origen = 'firebase';
+              return DBLocal.guardar('edan', reg);
+            }
+          });
+        });
+      });
+    }
+    if(op.tipo === 'actualizar_folio_edan'){
+      return db.collection('edan').doc(op.firebaseId).update({ folio: op.folio });
+    }
 
     return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
   }
