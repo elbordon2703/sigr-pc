@@ -4320,8 +4320,7 @@ function generarPDFPlanillaEDANInterno(e, btn){
         doc.setFont('helvetica','normal');
         doc.text((e.calle || '—'), M + 195, y);
         y += 8;
-
-        // ---- TABLA ----
+                // ---- TABLA ----
         // Armar filas: recorrer viviendas y familias
         var filas = [];
         (e.viviendas || []).forEach(function(v){
@@ -4329,130 +4328,145 @@ function generarPDFPlanillaEDANInterno(e, btn){
             filas.push({ viv: v, fam: f });
           });
         });
-
-        // Si no hay filas, al menos mostrar una fila vacía
         if(filas.length === 0){
           filas.push({ viv: {}, fam: {} });
         }
 
-        // Definir columnas: [titulo, ancho, grupo]
-        // Agrupación visual: Integrantes / Estado / Necesidades
-        var colWidths = [
-          10,   // Nº FAM
-          38,   // Nombre
-          8, 8,   // AM M/F
-          8, 8,   // A M/F
-          8, 8,   // Ad M/F
-          8, 8,   // N M/F
-          8, 8,   // L M/F
-          8, 10, 10,  // Tipo, Habitable, Destruida
-          10, 10, 28  // Alimentos, Colchón, Otros
-        ];
+        // --- Definir anchos de columna (en mm, total = 259) ---
+        var anchoNFam     = 8;
+        var anchoNombre   = 55;
+        var anchoSubEt    = 8;
+        var anchoTipo     = 10;
+        var anchoHabt     = 12;
+        var anchoDestr    = 12;
+        var anchoAlim     = 12;
+        var anchoColch    = 12;
+        var anchoOtros    = 58;
 
-        var totalWidth = colWidths.reduce(function(a,b){ return a+b; }, 0);
-        var escala = (W - M*2) / totalWidth;
-        var cols = colWidths.map(function(w){ return w * escala; });
+        var anchoIntegrantes = anchoSubEt * 10;
+        var anchoEstado      = anchoTipo + anchoHabt + anchoDestr;
+        var anchoNecesidades = anchoAlim + anchoColch + anchoOtros;
+        var anchoTotal       = anchoNFam + anchoNombre + anchoIntegrantes + anchoEstado + anchoNecesidades;
 
-        var yTabla = y;
+        // --- Función auxiliar: dibuja el encabezado de la tabla ---
+        function dibujarEncabezadoTabla(yIni){
+          var x = M;
 
-        // ---- FILA DE GRUPOS (encabezado superior) ----
-        doc.setFillColor(11,42,74);
-        doc.setTextColor(255,255,255);
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(7);
+          // FILA DE GRUPOS
+          doc.setFillColor(11,42,74);
+          doc.setTextColor(255,255,255);
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(7);
 
-        // Encabezado agrupado
-        var x = M;
-        // Nº FAM (abarca 2 filas)
-        doc.rect(x, yTabla, cols[0], 10, 'F');
-        doc.text('Nº', x + cols[0]/2, yTabla + 4, {align:'center'});
-        doc.text('FAM', x + cols[0]/2, yTabla + 7.5, {align:'center'});
-        x += cols[0];
+          // Nº FAM (2 filas)
+          doc.rect(x, yIni, anchoNFam, 10, 'F');
+          doc.text('Nº', x + anchoNFam/2, yIni + 4, {align:'center'});
+          doc.text('FAM', x + anchoNFam/2, yIni + 7.5, {align:'center'});
+          x += anchoNFam;
 
-        // Nombre (abarca 2 filas)
-        doc.rect(x, yTabla, cols[1], 10, 'F');
-        doc.text('NOMBRE Y APELLIDOS', x + cols[1]/2, yTabla + 4, {align:'center'});
-        doc.text('DEL RESPONSABLE', x + cols[1]/2, yTabla + 7.5, {align:'center'});
-        x += cols[1];
+          // Nombre (2 filas)
+          doc.rect(x, yIni, anchoNombre, 10, 'F');
+          doc.text('NOMBRE Y APELLIDOS', x + anchoNombre/2, yIni + 4, {align:'center'});
+          doc.text('RESPONSABLE DE LA FAMILIA', x + anchoNombre/2, yIni + 7.5, {align:'center'});
+          x += anchoNombre;
 
-        // Integrantes (abarca 10 columnas)
-        var anchoInt = cols[2]+cols[3]+cols[4]+cols[5]+cols[6]+cols[7]+cols[8]+cols[9]+cols[10]+cols[11];
-        doc.rect(x, yTabla, anchoInt, 5, 'F');
-        doc.text('INTEGRANTES DE LA FAMILIA', x + anchoInt/2, yTabla + 3.5, {align:'center'});
-        x += anchoInt;
+          // INTEGRANTE DE LA FAMILIA
+          doc.rect(x, yIni, anchoIntegrantes, 5, 'F');
+          doc.text('INTEGRANTE DE LA FAMILIA', x + anchoIntegrantes/2, yIni + 3.5, {align:'center'});
+          x += anchoIntegrantes;
 
-        // Estado vivienda (abarca 3 columnas)
-        var anchoEst = cols[12]+cols[13]+cols[14];
-        doc.rect(x, yTabla, anchoEst, 5, 'F');
-        doc.text('ESTADO DE LA VIVIENDA', x + anchoEst/2, yTabla + 3.5, {align:'center'});
-        x += anchoEst;
+          // ESTADO DE LA VIVIENDA
+          doc.rect(x, yIni, anchoEstado, 5, 'F');
+          doc.text('ESTADO DE LA VIVIENDA', x + anchoEstado/2, yIni + 3.5, {align:'center'});
+          x += anchoEstado;
 
-        // Necesidades (abarca 3 columnas)
-        var anchoNec = cols[15]+cols[16]+cols[17];
-        doc.rect(x, yTabla, anchoNec, 5, 'F');
-        doc.text('NECESIDADES', x + anchoNec/2, yTabla + 3.5, {align:'center'});
+          // NECESIDADES
+          doc.rect(x, yIni, anchoNecesidades, 5, 'F');
+          doc.text('NECESIDADES', x + anchoNecesidades/2, yIni + 3.5, {align:'center'});
 
-        yTabla += 5;
+          var ySub = yIni + 5;
 
-        // ---- FILA DE SUB-ENCABEZADOS ----
-        doc.setFillColor(22,63,110);
-        doc.setTextColor(255,255,255);
-        doc.setFontSize(6);
+          // FILA DE SUB-ENCABEZADOS
+          doc.setFillColor(22,63,110);
 
-        x = M + cols[0] + cols[1];
-        var subLabels = [
-          'AM M','AM F','A M','A F','Ad M','Ad F','N M','N F','L M','L F'
-        ];
-        for(var si = 0; si < 10; si++){
-          doc.rect(x, yTabla, cols[2+si], 5, 'F');
-          doc.text(subLabels[si], x + cols[2+si]/2, yTabla + 3.4, {align:'center'});
-          x += cols[2+si];
+          x = M + anchoNFam + anchoNombre;
+
+          var etiquetas = [
+            'AM M','AM F',
+            'A M','A F',
+            'Ad M','Ad F',
+            'N M','N F',
+            'L M','L F'
+          ];
+          etiquetas.forEach(function(t){
+            doc.rect(x, ySub, anchoSubEt, 5, 'F');
+            doc.text(t, x + anchoSubEt/2, ySub + 3.4, {align:'center'});
+            x += anchoSubEt;
+          });
+
+          ['TIPO','HABIT','DESTR.'].forEach(function(t, i){
+            var w = [anchoTipo, anchoHabt, anchoDestr][i];
+            doc.rect(x, ySub, w, 5, 'F');
+            doc.text(t, x + w/2, ySub + 3.4, {align:'center'});
+            x += w;
+          });
+
+          ['ALIMENTOS','COLCHÓN','OTROS ESPECIFIQUE'].forEach(function(t, i){
+            var w = [anchoAlim, anchoColch, anchoOtros][i];
+            doc.rect(x, ySub, w, 5, 'F');
+            doc.text(t, x + w/2, ySub + 3.4, {align:'center'});
+            x += w;
+          });
+
+          doc.setTextColor(0,0,0);
+          return yIni + 10;
         }
-        // Estado
-        ['Tipo','Habt.','Destr.'].forEach(function(t, i){
-          doc.rect(x, yTabla, cols[12+i], 5, 'F');
-          doc.text(t, x + cols[12+i]/2, yTabla + 3.4, {align:'center'});
-          x += cols[12+i];
-        });
-        // Necesidades
-        ['Alim.','Colch.','Otros'].forEach(function(t, i){
-          doc.rect(x, yTabla, cols[15+i], 5, 'F');
-          doc.text(t, x + cols[15+i]/2, yTabla + 3.4, {align:'center'});
-          x += cols[15+i];
-        });
 
-        yTabla += 5;
-        doc.setTextColor(0,0,0);
-
-        // ---- FILAS DE FAMILIAS ----
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(7);
+        // --- Dibujar encabezado y filas ---
+        var yTabla = dibujarEncabezadoTabla(y);
 
         var numFam = 1;
+        var filasPorHoja = 10;
+        var filasEnEstaHoja = 0;
+
         filas.forEach(function(fila, idx){
+          if(filasEnEstaHoja >= filasPorHoja){
+            doc.addPage('letter','landscape');
+            yTabla = dibujarEncabezadoTabla(20);
+            filasEnEstaHoja = 0;
+          }
+
           if(yTabla > H - 30){
             doc.addPage('letter','landscape');
-            yTabla = 20;
+            yTabla = dibujarEncabezadoTabla(20);
+            filasEnEstaHoja = 0;
           }
 
           var bg = (idx % 2 === 0) ? [245,247,250] : [255,255,255];
           doc.setFillColor(bg[0],bg[1],bg[2]);
-          doc.rect(M, yTabla, W - M*2, 6, 'F');
+          doc.rect(M, yTabla, anchoTotal, 8, 'F');
+
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(7);
 
           var xx = M;
           var v = fila.viv, f = fila.fam;
 
-          // Nº FAM
-          doc.text(String(numFam), xx + cols[0]/2, yTabla + 4, {align:'center'});
-          xx += cols[0];
+          doc.text(String(numFam), xx + anchoNFam/2, yTabla + 4.5, {align:'center'});
+          xx += anchoNFam;
 
-          // Nombre
           var nombre = (f.responsable || '—');
-          if(nombre.length > 30) nombre = nombre.substring(0,28) + '…';
-          doc.text(nombre, xx + 1, yTabla + 4);
-          xx += cols[1];
+          if(nombre.length > 34) nombre = nombre.substring(0,32) + '…';
+          doc.text(nombre, xx + 1, yTabla + 3);
+          if(f.telefono){
+            doc.setFontSize(6);
+            doc.setTextColor(90,90,90);
+            doc.text('Tlf: ' + f.telefono, xx + 1, yTabla + 6);
+            doc.setTextColor(0,0,0);
+            doc.setFontSize(7);
+          }
+          xx += anchoNombre;
 
-          // Integrantes
           var vals = [
             f.am_M||0, f.am_F||0,
             f.a_M||0,  f.a_F||0,
@@ -4461,43 +4475,44 @@ function generarPDFPlanillaEDANInterno(e, btn){
             f.l_M||0,  f.l_F||0
           ];
           for(var vi = 0; vi < 10; vi++){
-            doc.text(String(vals[vi]), xx + cols[2+vi]/2, yTabla + 4, {align:'center'});
-            xx += cols[2+vi];
+            doc.text(String(vals[vi]), xx + anchoSubEt/2, yTabla + 4.5, {align:'center'});
+            xx += anchoSubEt;
           }
 
-          // Estado vivienda
-          doc.text(String(v.tipo || '—'), xx + cols[12]/2, yTabla + 4, {align:'center'});
-          xx += cols[12];
-          doc.text(String(v.habitable || '—'), xx + cols[13]/2, yTabla + 4, {align:'center'});
-          xx += cols[13];
-          doc.text(String(v.destruida || '—'), xx + cols[14]/2, yTabla + 4, {align:'center'});
-          xx += cols[14];
+          doc.text(String(v.tipo || '—'), xx + anchoTipo/2, yTabla + 4.5, {align:'center'});
+          xx += anchoTipo;
+          doc.text(String(v.habitable || '—'), xx + anchoHabt/2, yTabla + 4.5, {align:'center'});
+          xx += anchoHabt;
+          doc.text(String(v.destruida || '—'), xx + anchoDestr/2, yTabla + 4.5, {align:'center'});
+          xx += anchoDestr;
 
-          // Necesidades
-          doc.text(String(f.alimentos||0), xx + cols[15]/2, yTabla + 4, {align:'center'});
-          xx += cols[15];
-          doc.text(String(f.colchon||0), xx + cols[16]/2, yTabla + 4, {align:'center'});
-          xx += cols[16];
+          doc.text(String(f.alimentos||0), xx + anchoAlim/2, yTabla + 4.5, {align:'center'});
+          xx += anchoAlim;
+          doc.text(String(f.colchon||0), xx + anchoColch/2, yTabla + 4.5, {align:'center'});
+          xx += anchoColch;
           var otros = (f.otros || '');
-          if(otros.length > 20) otros = otros.substring(0,18) + '…';
-          doc.text(otros, xx + 1, yTabla + 4);
+          if(otros.length > 30) otros = otros.substring(0,28) + '…';
+          doc.text(otros, xx + 1, yTabla + 4.5);
 
-          // Línea inferior
           doc.setDrawColor(200,205,212);
           doc.setLineWidth(0.15);
-          doc.line(M, yTabla + 6, W - M, yTabla + 6);
+          doc.line(M, yTabla + 8, M + anchoTotal, yTabla + 8);
 
-          yTabla += 6;
+          yTabla += 8;
           numFam++;
+          filasEnEstaHoja++;
         });
 
         // ---- TOTALES ----
         yTabla += 4;
-        if(yTabla > H - 20) { doc.addPage('letter','landscape'); yTabla = 20; }
+        if(yTabla > H - 20){
+          doc.addPage('letter','landscape');
+          yTabla = 20;
+        }
 
         var t = e.totales || {};
         doc.setFillColor(11,42,74);
-        doc.rect(M, yTabla, W - M*2, 7, 'F');
+        doc.rect(M, yTabla, anchoTotal, 7, 'F');
         doc.setTextColor(255,255,255);
         doc.setFont('helvetica','bold');
         doc.setFontSize(7);
@@ -4511,12 +4526,11 @@ function generarPDFPlanillaEDANInterno(e, btn){
         doc.setTextColor(0,0,0);
         yTabla += 12;
 
-        // Referencia de tipos de vivienda
         doc.setFont('helvetica','italic');
         doc.setFontSize(7);
         doc.text('TIPO DE VIVIENDA:   A = Bloque, ladrillo y cemento   |   B = Adobe   |   C = Tablas y/o Zinc', M, yTabla);
         yTabla += 4;
-        doc.text('HABT. = Habitable   |   DESTR. = Destruida', M, yTabla);
+        doc.text('HABIT = Habitable   |   DESTR. = Destruida', M, yTabla);
 
         // ---- PIE DE PÁGINA ----
         return pieDePaginaPDF(doc).then(function(){
