@@ -4452,8 +4452,12 @@ function generarPDFPlanillaEDANInterno(e, btn){
           }
 
           var bg = (idx % 2 === 0) ? [245,247,250] : [255,255,255];
-          doc.setFillColor(bg[0],bg[1],bg[2]);
-          doc.rect(M, yTabla, anchoTotal, 8, 'F');
+doc.setFillColor(bg[0],bg[1],bg[2]);
+doc.setDrawColor(bg[0],bg[1],bg[2]);
+doc.setLineWidth(8);
+doc.line(M, yTabla + 4, M + anchoTotal, yTabla + 4);
+doc.setLineWidth(0.15);
+doc.setDrawColor(0,0,0);
 
           doc.setFont('helvetica','normal');
           doc.setFontSize(7);
