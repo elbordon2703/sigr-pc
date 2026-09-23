@@ -4075,33 +4075,49 @@ function cargarEDAN(){
 
     return db.collection('edan').orderBy('creado','desc').limit(200).get()
       .then(function(snap){
-        var deFirebase = snap.docs.map(function(d){
-          return Object.assign({}, d.data(), {
-            id: 'fb_' + d.id,
-            firebase_id: d.id
+        var docsEventos = snap.docs;
+
+        // Cargar las viviendas de cada evento (subcolección)
+        var promesasViv = docsEventos.map(function(d){
+          return db.collection('edan').doc(d.id).collection('viviendas').get()
+            .then(function(snapViv){
+              var viviendas = snapViv.docs.map(function(dv){
+                return Object.assign({}, dv.data(), { id: 'fbv_' + dv.id, firebase_id: dv.id });
+              });
+              return { evento: d, viviendas: viviendas };
+            });
+        });
+
+        return Promise.all(promesasViv).then(function(resultados){
+          var deFirebase = resultados.map(function(r){
+            return Object.assign({}, r.evento.data(), {
+              id: 'fb_' + r.evento.id,
+              firebase_id: r.evento.id,
+              viviendas: r.viviendas
+            });
           });
-        });
-        console.log('[EDAN] Traídos', deFirebase.length, 'EDAN de Firebase');
+          console.log('[EDAN] Traídos', deFirebase.length, 'EDAN de Firebase (con viviendas)');
 
-        var idsFirebase = {};
-        deFirebase.forEach(function(e){ idsFirebase[e.firebase_id] = true; });
+          var idsFirebase = {};
+          deFirebase.forEach(function(e){ idsFirebase[e.firebase_id] = true; });
 
-        var promesasGuardar = deFirebase.map(function(e){
-          return DBLocal.guardar('edan', e);
-        });
+          var promesasGuardar = deFirebase.map(function(e){
+            return DBLocal.guardar('edan', e);
+          });
 
-        var promesasBorrar = [];
-        listaLocal.forEach(function(local){
-          if(local.firebase_id && idsFirebase[local.firebase_id] && local.id !== ('fb_' + local.firebase_id)){
-            promesasBorrar.push(DBLocal.borrar('edan', local.id));
-          }
-        });
+          var promesasBorrar = [];
+          listaLocal.forEach(function(local){
+            if(local.firebase_id && idsFirebase[local.firebase_id] && local.id !== ('fb_' + local.firebase_id)){
+              promesasBorrar.push(DBLocal.borrar('edan', local.id));
+            }
+          });
 
-        return Promise.all(promesasGuardar.concat(promesasBorrar)).then(function(){
-          return DBLocal.listar('edan').then(function(listaFinal){
-            window.__edanCache = listaFinal;
-            pintarEDAN(listaFinal);
-            console.log('[EDAN] Mostrando', listaFinal.length, 'EDAN (sin duplicados)');
+          return Promise.all(promesasGuardar.concat(promesasBorrar)).then(function(){
+            return DBLocal.listar('edan').then(function(listaFinal){
+              window.__edanCache = listaFinal;
+              pintarEDAN(listaFinal);
+              console.log('[EDAN] Mostrando', listaFinal.length, 'EDAN (sin duplicados)');
+            });
           });
         });
       })
