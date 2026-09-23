@@ -4352,43 +4352,52 @@ function generarPDFPlanillaEDANInterno(e, btn){
         function dibujarEncabezadoTabla(yIni){
           var x = M;
 
+          // --- Helper: rellenar un rectángulo con líneas verticales (workaround jsPDF) ---
+          function rellenarRect(x1, y1, w, h, color){
+            doc.setDrawColor(color[0], color[1], color[2]);
+            doc.setLineWidth(0.4);
+            for(var i = 0; i < w; i += 0.35){
+              doc.line(x1 + i, y1, x1 + i, y1 + h);
+            }
+            doc.setLineWidth(0.15);
+            doc.setDrawColor(0,0,0);
+            doc.rect(x1, y1, w, h);
+          }
+
           // FILA DE GRUPOS
-          doc.setFillColor(11,42,74);
           doc.setTextColor(255,255,255);
           doc.setFont('helvetica','bold');
           doc.setFontSize(7);
 
           // Nº FAM (2 filas)
-          doc.rect(x, yIni, anchoNFam, 10, 'F');
+          rellenarRect(x, yIni, anchoNFam, 10, [11,42,74]);
           doc.text('Nº', x + anchoNFam/2, yIni + 4, {align:'center'});
           doc.text('FAM', x + anchoNFam/2, yIni + 7.5, {align:'center'});
           x += anchoNFam;
 
           // Nombre (2 filas)
-          doc.rect(x, yIni, anchoNombre, 10, 'F');
+          rellenarRect(x, yIni, anchoNombre, 10, [11,42,74]);
           doc.text('NOMBRE Y APELLIDOS', x + anchoNombre/2, yIni + 4, {align:'center'});
           doc.text('RESPONSABLE DE LA FAMILIA', x + anchoNombre/2, yIni + 7.5, {align:'center'});
           x += anchoNombre;
 
           // INTEGRANTE DE LA FAMILIA
-          doc.rect(x, yIni, anchoIntegrantes, 5, 'F');
+          rellenarRect(x, yIni, anchoIntegrantes, 5, [11,42,74]);
           doc.text('INTEGRANTE DE LA FAMILIA', x + anchoIntegrantes/2, yIni + 3.5, {align:'center'});
           x += anchoIntegrantes;
 
           // ESTADO DE LA VIVIENDA
-          doc.rect(x, yIni, anchoEstado, 5, 'F');
+          rellenarRect(x, yIni, anchoEstado, 5, [11,42,74]);
           doc.text('ESTADO DE LA VIVIENDA', x + anchoEstado/2, yIni + 3.5, {align:'center'});
           x += anchoEstado;
 
           // NECESIDADES
-          doc.rect(x, yIni, anchoNecesidades, 5, 'F');
+          rellenarRect(x, yIni, anchoNecesidades, 5, [11,42,74]);
           doc.text('NECESIDADES', x + anchoNecesidades/2, yIni + 3.5, {align:'center'});
 
           var ySub = yIni + 5;
 
           // FILA DE SUB-ENCABEZADOS
-          doc.setFillColor(22,63,110);
-
           x = M + anchoNFam + anchoNombre;
 
           var etiquetas = [
@@ -4399,21 +4408,21 @@ function generarPDFPlanillaEDANInterno(e, btn){
             'L M','L F'
           ];
           etiquetas.forEach(function(t){
-            doc.rect(x, ySub, anchoSubEt, 5, 'F');
+            rellenarRect(x, ySub, anchoSubEt, 5, [22,63,110]);
             doc.text(t, x + anchoSubEt/2, ySub + 3.4, {align:'center'});
             x += anchoSubEt;
           });
 
           ['TIPO','HABIT','DESTR.'].forEach(function(t, i){
             var w = [anchoTipo, anchoHabt, anchoDestr][i];
-            doc.rect(x, ySub, w, 5, 'F');
+            rellenarRect(x, ySub, w, 5, [22,63,110]);
             doc.text(t, x + w/2, ySub + 3.4, {align:'center'});
             x += w;
           });
 
           ['ALIMENTOS','COLCHÓN','OTROS ESPECIFIQUE'].forEach(function(t, i){
             var w = [anchoAlim, anchoColch, anchoOtros][i];
-            doc.rect(x, ySub, w, 5, 'F');
+            rellenarRect(x, ySub, w, 5, [22,63,110]);
             doc.text(t, x + w/2, ySub + 3.4, {align:'center'});
             x += w;
           });
