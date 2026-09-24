@@ -4453,15 +4453,14 @@ function generarPDFInformeEDANInterno(e, btn){
     var M = 12;
 
     return encabezadoInformeEDANPDF(doc, folio).then(function(y){
-      // ---- PARA / ASUNTO / DE ----
+      
+      // ---- PARA / DE / ASUNTO ----
       doc.setFont('helvetica','bold');
       doc.setFontSize(9);
 
       var para   = (e.informe_para || '—').split('\n');
-      var asunto = (e.informe_asunto || '—').split('\n');
       var de     = (e.informe_de || '—').split('\n');
-
-      var yIni = y;
+      var asunto = (e.informe_asunto || '—').split('\n');
 
       // PARA
       doc.text('PARA:', M, y);
@@ -4471,15 +4470,6 @@ function generarPDFInformeEDANInterno(e, btn){
       }
       y += Math.max(para.length, 1) * 4 + 2;
 
-      // ASUNTO
-      doc.setFont('helvetica','bold');
-      doc.text('ASUNTO:', M, y);
-      doc.setFont('helvetica','normal');
-      for(var j = 0; j < asunto.length; j++){
-        doc.text(asunto[j], M + 22, y + j * 4);
-      }
-      y += Math.max(asunto.length, 1) * 4 + 2;
-
       // DE
       doc.setFont('helvetica','bold');
       doc.text('DE:', M, y);
@@ -4487,7 +4477,16 @@ function generarPDFInformeEDANInterno(e, btn){
       for(var k = 0; k < de.length; k++){
         doc.text(de[k], M + 12, y + k * 4);
       }
-      y += Math.max(de.length, 1) * 4 + 6;
+      y += Math.max(de.length, 1) * 4 + 2;
+
+      // ASUNTO
+      doc.setFont('helvetica','bold');
+      doc.text('ASUNTO:', M, y);
+      doc.setFont('helvetica','normal');
+      for(var j = 0; j < asunto.length; j++){
+        doc.text(asunto[j], M + 22, y + j * 4);
+      }
+      y += Math.max(asunto.length, 1) * 4 + 6;
 
       // ---- FECHA DE LA INSPECCIÓN ----
       doc.setFont('helvetica','bold');
