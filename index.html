@@ -693,6 +693,64 @@ tbody tr:last-child td{border-bottom:none;}
            ║  FIN                                                       ║
            ╚══════════════════════════════════════════════════════════╝ -->
 
+            <!-- ╔══════════════════════════════════════════════════════════╗
+           ║  [M3] MODAL INFORME EDAN                                  ║
+           ║  INICIO                                                    ║
+           ╚══════════════════════════════════════════════════════════╝ -->
+      <div class="modal" id="modalInformeEDAN">
+        <div class="modal-content" style="max-width:700px;">
+          <div class="modal-header">
+            <h3>Informe EDAN</h3>
+            <button class="close" onclick="cerrarModal('modalInformeEDAN')">&times;</button>
+          </div>
+          <div class="modal-body">
+
+            <div style="background:#f5f7fa;border-left:3px solid #1677c8;padding:8px 12px;border-radius:4px;margin-bottom:12px;font-size:12px;color:#555;">
+              Revise y corrija los campos del informe antes de generar el PDF.
+            </div>
+
+            <div class="form-section-title">Datos del informe</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>PARA *</label>
+                <textarea id="informePara" placeholder="Ej: Ciudadano RENE DIAZ&#10;Alcalde del Municipio Papelón" style="min-height:50px;"></textarea>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>ASUNTO *</label>
+                <textarea id="informeAsunto" placeholder="Ej: Informe de evaluación de riesgo&#10;de viviendas afectadas" style="min-height:50px;"></textarea>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>DE *</label>
+                <textarea id="informeDe" placeholder="Ej: Coordinación de Gestión Integral de Riesgo&#10;Municipio Papelón" style="min-height:50px;"></textarea>
+              </div>
+            </div>
+
+            <div class="form-section-title">Objetivo general</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Objetivo general *</label>
+                <textarea id="informeObjetivo" placeholder="Ej: Evaluación de Riesgo a las viviendas ubicadas en la población: Sector X, Municipio Papelón, Estado Portuguesa." style="min-height:80px;"></textarea>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="cerrarModal('modalInformeEDAN')">Cancelar</button>
+            <button class="btn btn-primary" id="btnGenerarInformeEDAN" onclick="generarInformeEDAN()">Generar Informe PDF</button>
+          </div>
+        </div>
+      </div>
+      <!-- ╔══════════════════════════════════════════════════════════╗
+           ║  [M3] MODAL INFORME EDAN                                  ║
+           ║  FIN                                                       ║
+           ╚══════════════════════════════════════════════════════════╝ -->
       <!-- TAB 4 — SOLICITUDES (pendiente) -->
       <div class="tab-content" data-tab-content="solicitudes">
         <div class="empty-state">
