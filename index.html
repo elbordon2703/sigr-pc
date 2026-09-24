@@ -4462,11 +4462,13 @@ function generarPDFInformeEDANInterno(e, btn){
       var de     = (e.informe_de || '—').split('\n');
       var asunto = (e.informe_asunto || '—').split('\n');
 
+      var COL = M + 25;
+
       // PARA
       doc.text('PARA:', M, y);
       doc.setFont('helvetica','normal');
       for(var i = 0; i < para.length; i++){
-        doc.text(para[i], M + 18, y + i * 4);
+        doc.text(para[i], COL, y + i * 4);
       }
       y += Math.max(para.length, 1) * 4 + 2;
 
@@ -4475,7 +4477,7 @@ function generarPDFInformeEDANInterno(e, btn){
       doc.text('DE:', M, y);
       doc.setFont('helvetica','normal');
       for(var k = 0; k < de.length; k++){
-        doc.text(de[k], M + 12, y + k * 4);
+        doc.text(de[k], COL, y + k * 4);
       }
       y += Math.max(de.length, 1) * 4 + 2;
 
@@ -4484,7 +4486,7 @@ function generarPDFInformeEDANInterno(e, btn){
       doc.text('ASUNTO:', M, y);
       doc.setFont('helvetica','normal');
       for(var j = 0; j < asunto.length; j++){
-        doc.text(asunto[j], M + 22, y + j * 4);
+        doc.text(asunto[j], COL, y + j * 4);
       }
       y += Math.max(asunto.length, 1) * 4 + 6;
 
