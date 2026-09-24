@@ -4263,6 +4263,109 @@ function eliminarEDAN(id){
 window.eliminarEDAN = eliminarEDAN;
     
 /* ============================================================
+   [M3] EDAN — INFORME
+   ============================================================ */
+
+// ---- Abrir modal de Informe EDAN ----
+function abrirModalInformeEDAN(id){
+  var lista = window.__edanCache || [];
+  var e = null;
+  for(var i = 0; i < lista.length; i++){
+    if(lista[i].id === id){ e = lista[i]; break; }
+  }
+  if(!e){
+    alert('EDAN no encontrado. Recargue la lista.');
+    return;
+  }
+
+  window.__informeEDANActual = e;
+
+  // Cargar valores guardados (si existen)
+  document.getElementById('informePara').value = e.informe_para || '';
+  document.getElementById('informeAsunto').value = e.informe_asunto || '';
+  document.getElementById('informeDe').value = e.informe_de || '';
+  document.getElementById('informeObjetivo').value = e.informe_objetivo || '';
+
+  abrirModal('modalInformeEDAN');
+}
+window.abrirModalInformeEDAN = abrirModalInformeEDAN;
+
+// ---- Guardar campos del Informe (en el registro del EDAN) ----
+function guardarCamposInformeEDAN(id, para, asunto, de, objetivo){
+  var lista = window.__edanCache || [];
+  var e = null;
+  for(var i = 0; i < lista.length; i++){
+    if(lista[i].id === id){ e = lista[i]; break; }
+  }
+  if(!e) return Promise.reject(new Error('EDAN no encontrado'));
+
+  // Actualizar el objeto local
+  e.informe_para = para;
+  e.informe_asunto = asunto;
+  e.informe_de = de;
+  e.informe_objetivo = objetivo;
+
+  // Guardar en IndexedDB
+  return DBLocal.guardar('edan', e).then(function(){
+    // Si el EDAN está sincronizado, actualizar también en Firebase
+    if(e.firebase_id){
+      var idFb = e.firebase_id;
+      if(idFb.indexOf('fb_') === 0) idFb = idFb.substring(3);
+      return db.collection('edan').doc(idFb).update({
+        informe_para: para,
+        informe_asunto: asunto,
+        informe_de: de,
+        informe_objetivo: objetivo
+      });
+    }
+  }).then(function(){
+    console.log('[EDAN] Campos del informe guardados');
+  }).catch(function(err){
+    console.warn('[EDAN] No se pudieron guardar los campos del informe:', err);
+  });
+}
+window.guardarCamposInformeEDAN = guardarCamposInformeEDAN;
+
+// ---- Generar Informe (guardar campos + llamar al PDF) ----
+function generarInformeEDAN(){
+  var e = window.__informeEDANActual;
+  if(!e){
+    alert('No hay EDAN seleccionado.');
+    return;
+  }
+
+  var para     = (document.getElementById('informePara').value || '').trim();
+  var asunto   = (document.getElementById('informeAsunto').value || '').trim();
+  var de       = (document.getElementById('informeDe').value || '').trim();
+  var objetivo = (document.getElementById('informeObjetivo').value || '').trim();
+
+  if(!para || !asunto || !de || !objetivo){
+    alert('Complete todos los campos del informe (PARA, ASUNTO, DE, Objetivo general).');
+    return;
+  }
+
+  var btn = document.getElementById('btnGenerarInformeEDAN');
+  if(btn){ btn.disabled = true; btn.textContent = 'Generando...'; }
+
+  // Guardar los campos y luego generar el PDF
+  guardarCamposInformeEDAN(e.id, para, asunto, de, objetivo).then(function(){
+    cerrarModal('modalInformeEDAN');
+    // Llamar a la función que genera el PDF (definida en el Bloque 5B)
+    if(typeof generarPDFInformeEDANInterno === 'function'){
+      generarPDFInformeEDANInterno(e, btn);
+    }else{
+      alert('La generación del PDF aún no está implementada (Bloque 5B).');
+      if(btn){ btn.disabled = false; btn.textContent = 'Generar Informe PDF'; }
+    }
+  }).catch(function(err){
+    console.error('Error generando informe:', err);
+    alert('Error: ' + (err.message || 'ver consola'));
+    if(btn){ btn.disabled = false; btn.textContent = 'Generar Informe PDF'; }
+  });
+}
+window.generarInformeEDAN = generarInformeEDAN;
+    
+/* ============================================================
    [M3] EDAN — PDF PLANILLA
    ============================================================ */
 
