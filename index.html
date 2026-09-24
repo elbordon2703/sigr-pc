@@ -4712,10 +4712,10 @@ function generarPDFInformeEDANInterno(e, btn){
             doc.setTextColor(0,0,0);
             yT += 5;
 
-            doc.setFillColor(245,247,250);
-            doc.rect(M, yT, W - M*2, 6, 'F');
+            rellenarRectInforme(doc, M, yT, W - M*2, 6, [245,247,250]);
             doc.setFont('helvetica','normal');
             doc.setFontSize(8);
+            doc.setTextColor(0,0,0);
             doc.text('Alimentos: ' + (f.alimentos||0) + '   |   Colchón: ' + (f.colchon||0) + '   |   Otros: ' + (f.otros || '—'), M + 2, yT + 4);
             yT += 9;
 
