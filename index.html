@@ -4366,6 +4366,411 @@ function generarInformeEDAN(){
 window.generarInformeEDAN = generarInformeEDAN;
     
 /* ============================================================
+   [M3] EDAN — PDF INFORME
+   ============================================================ */
+
+// ---- Encabezado del PDF de Informe EDAN ----
+async function encabezadoInformeEDANPDF(doc, folio){
+  var W = doc.internal.pageSize.getWidth();
+  var M = 12;
+
+  try{
+    var logoPC  = await cargarImagenBase64('LOGO%20PC.png', null);
+    var logoGob = await cargarImagenBase64('LOGO%20GOBERNACION.png', null);
+    if(logoPC)  doc.addImage(logoPC,  'PNG', M, 8, 20, 20);
+    if(logoGob) doc.addImage(logoGob, 'PNG', W-42, 8, 30, 20);
+  }catch(e){}
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  doc.setTextColor(11,42,74);
+  doc.text('PROTECCIÓN CIVIL — MUNICIPIO PAPELÓN', W/2, 15, {align:'center'});
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.text('Estado Portuguesa — Venezuela', W/2, 19, {align:'center'});
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  doc.text('EVALUACIÓN DE DAÑOS Y ANÁLISIS DE NECESIDADES (EDAN)', W/2, 27, {align:'center'});
+
+  // Folio
+  var folioX = W - 70;
+  var folioY = 32;
+  doc.setDrawColor(11,42,74);
+  doc.setLineWidth(0.6);
+  doc.roundedRect(folioX, folioY, 58, 8, 1.5, 1.5);
+  doc.setFontSize(8);
+  doc.text(folio, folioX + 29, folioY + 5.5, {align:'center'});
+
+  doc.setDrawColor(11,42,74);
+  doc.setLineWidth(0.4);
+  doc.line(M, 44, W-M, 44);
+
+  doc.setTextColor(0,0,0);
+  return 50;
+}
+window.encabezadoInformeEDANPDF = encabezadoInformeEDANPDF;
+
+// ---- Helper: rellenar rectángulo con líneas (workaround jsPDF) ----
+function rellenarRectInforme(doc, x1, y1, w, h, color){
+  doc.setDrawColor(color[0], color[1], color[2]);
+  doc.setLineWidth(0.4);
+  for(var i = 0; i < w; i += 0.35){
+    doc.line(x1 + i, y1, x1 + i, y1 + h);
+  }
+  doc.setLineWidth(0.15);
+  doc.setDrawColor(0,0,0);
+  doc.rect(x1, y1, w, h);
+}
+window.rellenarRectInforme = rellenarRectInforme;
+
+// ---- Generar PDF del Informe EDAN ----
+function generarPDFInformeEDANInterno(e, btn){
+  if(btn){ btn.disabled = true; btn.textContent = 'Generando...'; }
+
+  var promesaFolio = e.folio
+    ? Promise.resolve(e.folio)
+    : generarFolio('EDAN').then(function(f){
+        var idFirebase = e.firebase_id;
+        if(idFirebase && idFirebase.indexOf('fb_') === 0){
+          idFirebase = idFirebase.substring(3);
+        }
+        return db.collection('edan').doc(idFirebase).update({ folio: f }).then(function(){
+          e.folio = f;
+          e.firebase_id = idFirebase;
+          return DBLocal.guardar('edan', e).then(function(){
+            console.log('[EDAN INFORME] Folio oficial asignado:', f);
+            return f;
+          });
+        });
+      });
+
+  promesaFolio.then(function(folio){
+    var doc = new window.jspdf.jsPDF({ unit:'mm', format:'letter', orientation:'portrait' });
+    var W = doc.internal.pageSize.getWidth();
+    var H = doc.internal.pageSize.getHeight();
+    var M = 12;
+
+    return encabezadoInformeEDANPDF(doc, folio).then(function(y){
+      // ---- PARA / ASUNTO / DE ----
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+
+      var para   = (e.informe_para || '—').split('\n');
+      var asunto = (e.informe_asunto || '—').split('\n');
+      var de     = (e.informe_de || '—').split('\n');
+
+      var yIni = y;
+
+      // PARA
+      doc.text('PARA:', M, y);
+      doc.setFont('helvetica','normal');
+      for(var i = 0; i < para.length; i++){
+        doc.text(para[i], M + 18, y + i * 4);
+      }
+      y += Math.max(para.length, 1) * 4 + 2;
+
+      // ASUNTO
+      doc.setFont('helvetica','bold');
+      doc.text('ASUNTO:', M, y);
+      doc.setFont('helvetica','normal');
+      for(var j = 0; j < asunto.length; j++){
+        doc.text(asunto[j], M + 22, y + j * 4);
+      }
+      y += Math.max(asunto.length, 1) * 4 + 2;
+
+      // DE
+      doc.setFont('helvetica','bold');
+      doc.text('DE:', M, y);
+      doc.setFont('helvetica','normal');
+      for(var k = 0; k < de.length; k++){
+        doc.text(de[k], M + 12, y + k * 4);
+      }
+      y += Math.max(de.length, 1) * 4 + 6;
+
+      // ---- FECHA DE LA INSPECCIÓN ----
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.text('FECHA DE LA INSPECCIÓN:', M, y);
+      doc.setFont('helvetica','normal');
+      doc.text(formatearFecha(e.fecha) + ' a las ' + formatearHora12(e.hora) + ' HLV', M + 58, y);
+      y += 8;
+
+      // ---- OBJETIVO GENERAL ----
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.setTextColor(11,42,74);
+      doc.text('OBJETIVO GENERAL DE LA EVALUACIÓN DE RIESGO:', M, y);
+      doc.setTextColor(0,0,0);
+      y += 5;
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      var objetivo = e.informe_objetivo || '—';
+      var lObj = doc.splitTextToSize(objetivo, W - M*2);
+      doc.text(lObj, M, y, {align:'justify', maxWidth: W - M*2});
+      y += lObj.length * 4.2 + 4;
+
+      // ---- OBJETIVOS ESPECÍFICOS ----
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(11,42,74);
+      doc.text('OBJETIVOS ESPECÍFICOS:', M, y);
+      doc.setTextColor(0,0,0);
+      y += 5;
+
+      doc.setFont('helvetica','normal');
+      var objetivos = [
+        'Estandarizar los criterios e información consignada, a través del instrumento.',
+        'Inspeccionar visualmente reportando la apariencia general de los daños producidos por fallas, tipos de defectos visibles, situación de los puntos más importantes de la vivienda.',
+        'Emitir recomendaciones técnicas.'
+      ];
+      objetivos.forEach(function(o){
+        var lO = doc.splitTextToSize('• ' + o, W - M*2);
+        doc.text(lO, M, y, {align:'justify', maxWidth: W - M*2});
+        y += lO.length * 4.2 + 1;
+      });
+      y += 3;
+
+      // ---- COORDENADAS ----
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(11,42,74);
+      doc.text('COORDENADAS UTM E / N:', M, y);
+      doc.setTextColor(0,0,0);
+      y += 5;
+
+      doc.setFont('helvetica','normal');
+      doc.text((e.utm || '—'), M, y);
+      y += 8;
+
+      // ---- INSPECTOR ACTUANTE + FIRMA ----
+      if(y > H - 60){
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(11,42,74);
+      doc.text('INSPECTOR ACTUANTE:', M, y);
+      doc.setTextColor(0,0,0);
+      y += 5;
+
+      // Buscar datos del inspector
+      var inspector = null;
+      for(var ii = 0; ii < (window.SIGR.personal || []).length; ii++){
+        if(window.SIGR.personal[ii].id === e.elaborado_por_id){
+          inspector = window.SIGR.personal[ii];
+          break;
+        }
+      }
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.text((e.elaborado_por_nombre || '—'), M, y);
+      y += 5;
+
+      // Firma
+      if(inspector && inspector.firma){
+        try{ doc.addImage(inspector.firma, 'JPEG', M, y + 2, 50, 18); }catch(err){}
+      }
+      doc.setDrawColor(0,0,0);
+      doc.setLineWidth(0.3);
+      doc.line(M, y + 22, M + 70, y + 22);
+      doc.setFontSize(8);
+      doc.text('Inspector de Riesgo', M + 35, y + 26, {align:'center'});
+
+      // Sello a la derecha
+      if(window.SIGR.selloB64){
+        try{
+          var selloProps = doc.getImageProperties(window.SIGR.selloB64);
+          var selloAnchoMax = 32;
+          var selloAltoMax = 32;
+          var selloRatio = selloProps.width / selloProps.height;
+          var selloW, selloH;
+          if(selloRatio >= 1){
+            selloW = selloAnchoMax;
+            selloH = selloAnchoMax / selloRatio;
+          }else{
+            selloH = selloAltoMax;
+            selloW = selloAltoMax * selloRatio;
+          }
+          var selloX = W - M - selloAnchoMax;
+          doc.addImage(window.SIGR.selloB64, 'PNG', selloX, y, selloW, selloH);
+        }catch(err){
+          console.warn('No se pudo dibujar el sello:', err);
+        }
+      }
+
+      // ---- TRABAJO DE CAMPO (a partir de la segunda hoja) ----
+      var viviendas = e.viviendas || [];
+      if(viviendas.length > 0){
+        doc.addPage();
+        var yT = 20;
+
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(11);
+        doc.setTextColor(11,42,74);
+        doc.text('TRABAJO DE INVESTIGACIÓN DE CAMPO:', W/2, yT, {align:'center'});
+        doc.setTextColor(0,0,0);
+        yT += 10;
+
+        var numFamGlobal = 1;
+
+        viviendas.forEach(function(v, vi){
+          var familias = v.familias || [];
+
+          familias.forEach(function(f, fi){
+            // Si no cabe, nueva página
+            if(yT > H - 100){
+              doc.addPage();
+              yT = 20;
+            }
+
+            // Título de la vivienda/familia
+            doc.setFont('helvetica','bold');
+            doc.setFontSize(10);
+            doc.setTextColor(11,42,74);
+            doc.text('Vivienda ' + (vi+1) + ' — Familia ' + (fi+1), M, yT);
+            doc.setTextColor(0,0,0);
+            yT += 5;
+
+            // Riesgo
+            doc.setFont('helvetica','bold');
+            doc.setFontSize(9);
+            doc.text('CLASIFICACIÓN DE RIESGO:', M, yT);
+            doc.setFont('helvetica','normal');
+            doc.text((v.riesgo || '—').toUpperCase(), M + 55, yT);
+            yT += 7;
+
+            // Tabla de integrantes (simplificada, vertical)
+            doc.setFillColor(11,42,74);
+            doc.rect(M, yT, W - M*2, 6, 'F');
+            doc.setTextColor(255,255,255);
+            doc.setFont('helvetica','bold');
+            doc.setFontSize(7);
+            doc.text('RESPONSABLE: ' + (f.responsable || '—') + '   |   C.I: ' + (f.tipo_cedula || '') + (f.cedula || '—') + '   |   Tlf: ' + (f.telefono || '—'), M + 2, yT + 4);
+            doc.setTextColor(0,0,0);
+            yT += 7;
+
+            // Integrantes como línea de texto
+            doc.setFont('helvetica','normal');
+            doc.setFontSize(7.5);
+            var integrantes = 'INTEGRANTES:   Adultos mayores M/F: ' + (f.am_M||0) + '/' + (f.am_F||0)
+              + '   |   Adultos M/F: ' + (f.a_M||0) + '/' + (f.a_F||0)
+              + '   |   Adolescentes M/F: ' + (f.ad_M||0) + '/' + (f.ad_F||0)
+              + '   |   Niños M/F: ' + (f.n_M||0) + '/' + (f.n_F||0)
+              + '   |   Lactantes M/F: ' + (f.l_M||0) + '/' + (f.l_F||0);
+            var lInt = doc.splitTextToSize(integrantes, W - M*2);
+            doc.text(lInt, M, yT);
+            yT += lInt.length * 4 + 3;
+
+            // Estado de la vivienda
+            doc.setFont('helvetica','bold');
+            doc.setFontSize(8);
+            doc.text('ESTADO DE LA VIVIENDA:', M, yT);
+            doc.setFont('helvetica','normal');
+            doc.text('Tipo ' + (v.tipo || '—') + '   |   Habitable: ' + (v.habitable || '—') + '   |   Destruida: ' + (v.destruida || '—'), M + 45, yT);
+            yT += 5;
+
+            // Material
+            doc.setFont('helvetica','bold');
+            doc.text('MATERIAL DE CONSTRUCCIÓN:', M, yT);
+            yT += 4;
+            doc.setFont('helvetica','normal');
+            var mat = v.material || '—';
+            var lMat = doc.splitTextToSize(mat, W - M*2);
+            doc.text(lMat, M, yT, {align:'justify', maxWidth: W - M*2});
+            yT += lMat.length * 4 + 2;
+
+            // Condición
+            doc.setFont('helvetica','bold');
+            doc.text('CONDICIÓN DE LA VIVIENDA:', M, yT);
+            yT += 4;
+            doc.setFont('helvetica','normal');
+            var con = v.condicion || '—';
+            var lCon = doc.splitTextToSize(con, W - M*2);
+            doc.text(lCon, M, yT, {align:'justify', maxWidth: W - M*2});
+            yT += lCon.length * 4 + 4;
+
+            // PÉRDIDAS
+            doc.setFont('helvetica','bold');
+            doc.setFontSize(9);
+            doc.setTextColor(11,42,74);
+            doc.text('PÉRDIDAS:', M, yT);
+            doc.setTextColor(0,0,0);
+            yT += 5;
+
+            doc.setFillColor(245,247,250);
+            doc.rect(M, yT, W - M*2, 6, 'F');
+            doc.setFont('helvetica','normal');
+            doc.setFontSize(8);
+            doc.text('Alimentos: ' + (f.alimentos||0) + '   |   Colchón: ' + (f.colchon||0) + '   |   Otros: ' + (f.otros || '—'), M + 2, yT + 4);
+            yT += 9;
+
+            // NECESIDADES
+            doc.setFont('helvetica','bold');
+            doc.setTextColor(11,42,74);
+            doc.text('NECESIDADES:', M, yT);
+            doc.setTextColor(0,0,0);
+            yT += 5;
+
+            doc.setFillColor(245,247,250);
+            doc.rect(M, yT, W - M*2, 6, 'F');
+            doc.setFont('helvetica','normal');
+            doc.setFontSize(8);
+            doc.text('Alimentos: ' + (f.alimentos||0) + '   |   Colchón: ' + (f.colchon||0) + '   |   Otros: ' + (f.otros || '—'), M + 2, yT + 4);
+            yT += 9;
+
+            // Foto de la vivienda
+            if(v.foto){
+              if(yT > H - 70){
+                doc.addPage();
+                yT = 20;
+              }
+              try{
+                var fotoAncho = W - M*2;
+                var fotoAlto = fotoAncho * 0.55;
+                doc.addImage(v.foto, 'JPEG', M, yT, fotoAncho, fotoAlto);
+                doc.setDrawColor(180,180,180);
+                doc.setLineWidth(0.2);
+                doc.rect(M, yT, fotoAncho, fotoAlto);
+                yT += fotoAlto + 4;
+                if(v.pie_foto){
+                  doc.setFont('helvetica','normal');
+                  doc.setFontSize(8);
+                  doc.text(v.pie_foto, W/2, yT, {align:'center'});
+                  yT += 5;
+                }
+              }catch(err){
+                console.warn('No se pudo dibujar foto:', err);
+              }
+            }
+
+            yT += 8;
+            numFamGlobal++;
+          });
+        });
+      }
+
+      // ---- PIE DE PÁGINA ----
+      return pieDePaginaPDF(doc).then(function(){
+        doc.save('Informe_EDAN_' + folio + '.pdf');
+      });
+    });
+  }).catch(function(err){
+    console.error('Error generando Informe EDAN:', err);
+    if(err && err.message === 'SIN_RED'){
+      alert('Este EDAN se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.');
+    }else{
+      alert('Error al generar el PDF: ' + (err.message || 'ver consola'));
+    }
+  }).finally(function(){
+    if(btn){ btn.disabled = false; btn.textContent = 'Generar Informe PDF'; }
+  });
+}
+window.generarPDFInformeEDANInterno = generarPDFInformeEDANInterno;
+    
+/* ============================================================
    [M3] EDAN — PDF PLANILLA
    ============================================================ */
 
