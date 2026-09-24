@@ -4464,7 +4464,6 @@ function generarPDFInformeEDANInterno(e, btn){
 
       var COL = M + 25;
 
-      // PARA
       doc.text('PARA:', M, y);
       doc.setFont('helvetica','normal');
       for(var i = 0; i < para.length; i++){
@@ -4472,7 +4471,6 @@ function generarPDFInformeEDANInterno(e, btn){
       }
       y += Math.max(para.length, 1) * 4 + 2;
 
-      // DE
       doc.setFont('helvetica','bold');
       doc.text('DE:', M, y);
       doc.setFont('helvetica','normal');
@@ -4481,7 +4479,6 @@ function generarPDFInformeEDANInterno(e, btn){
       }
       y += Math.max(de.length, 1) * 4 + 2;
 
-      // ASUNTO
       doc.setFont('helvetica','bold');
       doc.text('ASUNTO:', M, y);
       doc.setFont('helvetica','normal');
@@ -4644,7 +4641,8 @@ function generarPDFInformeEDANInterno(e, btn){
             yT += 7;
 
             // Tabla de integrantes (simplificada, vertical)
-            rellenarRectInforme(doc, M, yT, W - M*2, 6, [11,42,74]);
+            doc.setFillColor(11,42,74);
+            doc.rect(M, yT, W - M*2, 6, 'F');
             doc.setTextColor(255,255,255);
             doc.setFont('helvetica','bold');
             doc.setFontSize(7);
@@ -4700,7 +4698,9 @@ function generarPDFInformeEDANInterno(e, btn){
             doc.setTextColor(0,0,0);
             yT += 5;
 
-            rellenarRectInforme(doc, M, yT, W - M*2, 6, [245,247,250]);
+            doc.setDrawColor(200,205,212);
+            doc.setLineWidth(0.2);
+            doc.rect(M, yT, W - M*2, 6, 'S');
             doc.setFont('helvetica','normal');
             doc.setFontSize(8);
             doc.setTextColor(0,0,0);
@@ -4714,7 +4714,9 @@ function generarPDFInformeEDANInterno(e, btn){
             doc.setTextColor(0,0,0);
             yT += 5;
 
-            rellenarRectInforme(doc, M, yT, W - M*2, 6, [245,247,250]);
+            doc.setDrawColor(200,205,212);
+            doc.setLineWidth(0.2);
+            doc.rect(M, yT, W - M*2, 6, 'S');
             doc.setFont('helvetica','normal');
             doc.setFontSize(8);
             doc.setTextColor(0,0,0);
