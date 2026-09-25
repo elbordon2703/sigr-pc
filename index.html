@@ -4641,14 +4641,14 @@ function generarPDFInformeEDANInterno(e, btn){
             yT += 7;
 
             // Tabla de integrantes (simplificada, vertical)
-            doc.setFillColor(255,0,0);
+            doc.setFillColor(11,42,74);
             doc.rect(M, yT, W - M*2, 6, 'F');
             doc.setTextColor(255,255,255);
             doc.setFont('helvetica','bold');
             doc.setFontSize(7);
             doc.text('RESPONSABLE: ' + (f.responsable || '—') + '   |   C.I: ' + (f.tipo_cedula || '') + (f.cedula || '—') + '   |   Tlf: ' + (f.telefono || '—'), M + 2, yT + 4);
             doc.setTextColor(0,0,0);
-            yT += 7;
+            yT += 10;
 
             // Integrantes como línea de texto
             doc.setFont('helvetica','normal');
