@@ -4723,20 +4723,23 @@ function generarPDFInformeEDANInterno(e, btn){
             doc.text('Alimentos: ' + (f.alimentos||0) + '   |   Colchón: ' + (f.colchon||0) + '   |   Otros: ' + (f.otros || '—'), M + 2, yT + 4);
             yT += 9;
 
-            // Foto de la vivienda
+            // Foto de la vivienda (reducida, centrada)
             if(v.foto){
-              if(yT > H - 70){
+              if(yT > H - 90){
                 doc.addPage();
                 yT = 20;
               }
               try{
-                var fotoAncho = W - M*2;
-                var fotoAlto = fotoAncho * 0.55;
-                doc.addImage(v.foto, 'JPEG', M, yT, fotoAncho, fotoAlto);
+                var fotoAncho = 110;
+                var fotoAlto  = 83;
+                var fotoX = (W - fotoAncho) / 2;
+
+                doc.addImage(v.foto, 'JPEG', fotoX, yT, fotoAncho, fotoAlto);
                 doc.setDrawColor(180,180,180);
                 doc.setLineWidth(0.2);
-                doc.rect(M, yT, fotoAncho, fotoAlto);
+                doc.rect(fotoX, yT, fotoAncho, fotoAlto);
                 yT += fotoAlto + 4;
+
                 if(v.pie_foto){
                   doc.setFont('helvetica','normal');
                   doc.setFontSize(8);
