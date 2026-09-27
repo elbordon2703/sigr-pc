@@ -3223,15 +3223,14 @@ window.cargarInspectoresSelectViv = cargarInspectoresSelectViv;
 
 // ---- Abrir modal de Vivienda ----
 function abrirModalVivienda(){
-  cargarInspectoresSelectViv();
+  // Fecha y hora actuales
+  var hoy = new Date();
+  var elFecha = document.getElementById('vivFecha');
+  if(elFecha) elFecha.valueAsDate = hoy;
+  var elHora = document.getElementById('vivHora');
+  if(elHora) elHora.value = String(hoy.getHours()).padStart(2,'0') + ':' + String(hoy.getMinutes()).padStart(2,'0');
 
-  var sel = document.getElementById('vivInspector');
-  if(sel && (!sel.options || sel.options.length <= 1)){
-    // Select vacío → leer personal de IndexedDB
-    DBLocal.leer('personal_cache', '__lista__').then(function(c){
-      if(c && c.items && c.items.length > 0){
-        window.SIGR.personal = c.items;
-        cargarInspectoresSelectViv();
+  cargarInspectoresSelectViv();
       }
       abrirModal('modalVivienda');
     }).catch(function(){
