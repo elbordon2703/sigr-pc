@@ -862,18 +862,8 @@ tbody tr:last-child td{border-bottom:none;}
               <label>Inclinación (grados) *</label>
               <input type="number" id="certInclinacion" step="1" placeholder="Ej: 40">
             </div>
-            <div class="form-group">
-              <label>Dirección de inclinación *</label>
-              <input type="text" id="certDirInclinacion" placeholder="Ej: hacia la vivienda">
             </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Amenaza que representa *</label>
-             <textarea id="certAmenaza" placeholder="Ej: por sus extensas ramificaciones"></textarea>
-            </div>
-          </div>
-
+          
           <div class="form-section-title">Beneficiarios</div>
           <div class="form-row">
             <div class="form-group">
@@ -2456,7 +2446,7 @@ window.cargarInspectoresSelect = cargarInspectoresSelect;
 function abrirModalCertificacion(){
   // Limpiar campos de texto
   ['certResponsable','certCedula','certTelefono','certDireccion','certEspecie',
-   'certAltura','certAncho','certInclinacion','certDirInclinacion',
+   'certAltura','certAncho','certInclinacion',
    'certFamilias','certPersonas','certLatLong','certUtm',
    'certObservaciones','certRecomendaciones','certPie1','certPie2'].forEach(function(id){
     var el = document.getElementById(id);
@@ -2467,7 +2457,6 @@ function abrirModalCertificacion(){
   var elMuni = document.getElementById('certMunicipio'); if(elMuni) elMuni.value = 'Papelón';
   var elPara = document.getElementById('certParroquia'); if(elPara) elPara.value = '';
   var elEst  = document.getElementById('certEstado');    if(elEst)  elEst.value = 'Portuguesa';
-  var elAmen = document.getElementById('certAmenaza');   if(elAmen) elAmen.value = '';
   var elRies = document.getElementById('certRiesgo');    if(elRies) elRies.value = '';
   var elFuen = document.getElementById('certFuenteSatelital'); if(elFuen) elFuen.value = 'Google Earth APP';
 
@@ -2569,8 +2558,6 @@ function guardarCertificacion(){
       altura: document.getElementById('certAltura').value,
       ancho: document.getElementById('certAncho').value,
       inclinacion: document.getElementById('certInclinacion').value,
-      direccion_inclinacion: (document.getElementById('certDirInclinacion').value || '').trim(),
-      amenaza: (document.getElementById('certAmenaza').value || '').trim(),
       familias: document.getElementById('certFamilias').value,
       personas: document.getElementById('certPersonas').value,
       riesgo: riesgo,
@@ -2936,11 +2923,10 @@ function generarPDFCertificacionInterno(id){
 
       doc.setFont('helvetica','normal');
       doc.setFontSize(9);
-      var desc = (c.especie || '—') + ', posee una altura aproximada de ' +
+       var desc = (c.especie || '—') + ', posee una altura aproximada de ' +
                  (c.altura || '—') + ' metros, ancho ' + (c.ancho || '—') +
                  ' metros, con inclinación de ' + (c.inclinacion || '—') +
-                 '° grados ' + (c.direccion_inclinacion || '') +
-                 ', representa una amenaza ' + (c.amenaza || '—') + '.';
+                 '° grados.';
       var lDesc = doc.splitTextToSize(desc, W - M*2);
       doc.text(lDesc, M, y, {align:'justify', maxWidth: W - M*2});
       y += lDesc.length * 4.2 + 4;
