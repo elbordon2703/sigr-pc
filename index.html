@@ -4611,36 +4611,7 @@ function generarPDFInformeEDANInterno(e, btn){
         doc.text('TRABAJO DE INVESTIGACIÓN DE CAMPO:', W/2, yT, {align:'center'});
         doc.setTextColor(0,0,0);
         yT += 10;
-                // ---- IMAGEN SATELITAL DEL EVENTO (una sola vez, antes de las viviendas) ----
-        if(e.img_satelital){
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(10);
-          doc.setTextColor(11,42,74);
-          doc.text('IMAGEN SATELITAL DEL SECTOR:', M, yT);
-          doc.setTextColor(0,0,0);
-          yT += 5;
-
-          var satAncho = 100;
-          var satAlto  = 75;
-          var satX = (W - satAncho) / 2;
-
-          try{
-            doc.addImage(e.img_satelital, 'JPEG', satX, yT, satAncho, satAlto);
-            doc.setDrawColor(180,180,180);
-            doc.setLineWidth(0.2);
-            doc.rect(satX, yT, satAncho, satAlto);
-          }catch(err){
-            console.warn('No se pudo dibujar imagen satelital:', err);
-          }
-
-          yT += satAlto + 4;
-
-          doc.setFont('helvetica','normal');
-          doc.setFontSize(8);
-          doc.text('Fuente: ' + (e.fuente_satelital || 'Google Earth'), W/2, yT, {align:'center'});
-          yT += 10;
-        }
-
+        
         var numFamGlobal = 1;
 
         viviendas.forEach(function(v, vi){
@@ -4781,6 +4752,99 @@ function generarPDFInformeEDANInterno(e, btn){
             numFamGlobal++;
           });
         });
+      }
+      
+      // ---- RESUMEN FOTOGRÁFICO (al final del informe, después de las tablas) ----
+      if(e.img_satelital){
+        doc.addPage();
+        var yRF = 22;
+
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(11);
+        doc.setTextColor(11,42,74);
+        doc.text('RESUMEN FOTOGRÁFICO', W/2, yRF, {align:'center'});
+        doc.setTextColor(0,0,0);
+        yRF += 10;
+
+        // 1) Imagen satelital del sector (una sola vez)
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(9);
+        doc.text('IMAGEN SATELITAL DEL SECTOR:', M, yRF);
+        yRF += 5;
+
+        var satAncho = 100;
+        var satAlto  = 75;
+        var satX = (W - satAncho) / 2;
+
+        try{
+          doc.addImage(e.img_satelital, 'JPEG', satX, yRF, satAncho, satAlto);
+          doc.setDrawColor(180,180,180);
+          doc.setLineWidth(0.2);
+          doc.rect(satX, yRF, satAncho, satAlto);
+        }catch(err){
+          console.warn('No se pudo dibujar imagen satelital:', err);
+        }
+
+        yRF += satAlto + 4;
+
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(8);
+        doc.text('Fuente: ' + (e.fuente_satelital || 'Google Earth'), W/2, yRF, {align:'center'});
+        yRF += 12;
+
+        // 2) Fotos de viviendas en filas de 2
+        var viviendasRF = e.viviendas || [];
+        var conFoto = [];
+        for(var vv = 0; vv < viviendasRF.length; vv++){
+          if(viviendasRF[vv].foto){ conFoto.push({v: viviendasRF[vv], idx: vv}); }
+        }
+
+        var fotoAncho = 85;
+        var fotoAlto  = 64;
+        var espacio   = 6;
+        var totalAncho = fotoAncho * 2 + espacio;
+        var xIni = (W - totalAncho) / 2;
+
+        for(var fi = 0; fi < conFoto.length; fi++){
+          var col = fi % 2;
+
+          if(col === 0){
+            if(yRF + fotoAlto + 12 > H - 20){
+              doc.addPage();
+              yRF = 22;
+            }
+          }
+
+          var x = xIni + col * (fotoAncho + espacio);
+          var v = conFoto[fi].v;
+          var idx = conFoto[fi].idx;
+
+          try{
+            doc.addImage(v.foto, 'JPEG', x, yRF, fotoAncho, fotoAlto);
+            doc.setDrawColor(180,180,180);
+            doc.setLineWidth(0.2);
+            doc.rect(x, yRF, fotoAncho, fotoAlto);
+          }catch(err){
+            console.warn('No se pudo dibujar foto de vivienda:', err);
+          }
+
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(8);
+          doc.setTextColor(11,42,74);
+          doc.text('Vivienda ' + (idx+1), x + fotoAncho/2, yRF + fotoAlto + 4, {align:'center'});
+          doc.setTextColor(0,0,0);
+
+          if(v.pie_foto){
+            doc.setFont('helvetica','normal');
+            doc.setFontSize(7);
+            var lPie = doc.splitTextToSize(v.pie_foto, fotoAncho);
+            doc.text(lPie.slice(0,1), x + fotoAncho/2, yRF + fotoAlto + 8, {align:'center'});
+          }
+
+          if(col === 1 || fi === conFoto.length - 1){
+            yRF += fotoAlto + 14;
+          }
+        }
       }
 
       // ---- PIE DE PÁGINA ----
