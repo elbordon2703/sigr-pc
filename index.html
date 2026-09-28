@@ -5548,11 +5548,26 @@ function generarPDFViviendaInterno(v, btn){
         doc.setTextColor(0,0,0);
         yF += 10;
 
-        // Satelital (arriba, centrada, ancho completo)
+        // Satelital (arriba, centrada, proporción respetada)
         if(v.img_satelital){
-          var satAncho = W - M*2;
-          var satAlto  = 75;
-          var satX = M;
+          var satAnchoMax = W - M*2;   // 192 mm máximo
+          var satAltoMax  = 75;         // 75 mm máximo
+          var satAncho = satAnchoMax;
+          var satAlto  = satAltoMax;
+          try{
+            var props = doc.getImageProperties(v.img_satelital);
+            var ratio = props.width / props.height;
+            satAncho = satAnchoMax;
+            satAlto  = satAnchoMax / ratio;
+            if(satAlto > satAltoMax){
+              satAlto  = satAltoMax;
+              satAncho = satAltoMax * ratio;
+            }
+          }catch(e){
+            satAncho = satAnchoMax;
+            satAlto  = satAltoMax;
+          }
+          var satX = (W - satAncho) / 2;   // Centrada
           try{
             doc.addImage(v.img_satelital, 'JPEG', satX, yF, satAncho, satAlto);
             doc.setDrawColor(180,180,180);
@@ -5561,7 +5576,7 @@ function generarPDFViviendaInterno(v, btn){
           }catch(e){ console.warn('No se pudo dibujar imagen satelital:', e); }
           doc.setFont('helvetica','normal');
           doc.setFontSize(8);
-          doc.text('Fuente: ' + (v.fuente_satelital || 'Google Earth'), satX + satAncho/2, yF + satAlto + 4, {align:'center'});
+          doc.text('Fuente: ' + (v.fuente_satelital || 'Google Earth'), W/2, yF + satAlto + 4, {align:'center'});
           yF += satAlto + 10;
         }
 
