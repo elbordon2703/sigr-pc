@@ -2995,7 +2995,7 @@ function generarPDFCertificacionInterno(id){
 
       // ---- RECOMENDACIONES FIJAS (MINEC) ----
       doc.setFont('helvetica','normal');
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       var recFijas = [
         '• Dirigirse al Ministerio de Eco socialismo (MINEC) para la solicitud de permiso de poda o tala de los árboles inspeccionados.',
         '• Podar o talar el árbol una vez adquirido el permiso.',
@@ -3004,13 +3004,12 @@ function generarPDFCertificacionInterno(id){
       recFijas.forEach(function(r){
         var lR = doc.splitTextToSize(r, W - M*2);
         doc.text(lR, M, y);
-        y += lR.length * 4.2 + 1;
+        y += lR.length * 3.5 + 0.5;
       });
-      y += 6;
+      y += 3;
 
       // ---- FIRMA Y SELLO ----
       
-
       // ---- FIRMA Y SELLO ----
       if(y > H - 80){
         doc.addPage();
@@ -5499,7 +5498,7 @@ function generarPDFViviendaInterno(v, btn){
       var rec = v.recomendaciones || 'Sin recomendaciones.';
       doc.text(lRec, M, y);
       doc.text(lRec, M, y, {align:'justify', maxWidth: W - M*2});
-      y += lRec.length * 4.2 + 4;
+      y += lRec.length * 3.8 + 3;
       // ---- FIRMA Y SELLO ----
 
       // ---- FIRMA Y SELLO ----
