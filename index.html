@@ -2991,7 +2991,25 @@ function generarPDFCertificacionInterno(id){
       var rec = c.recomendaciones || 'Sin recomendaciones.';
       var lRec = doc.splitTextToSize(rec, W - M*2);
       doc.text(lRec, M, y, {align:'justify', maxWidth: W - M*2});
-      y += lRec.length * 4.2 + 8;
+      y += lRec.length * 4.2 + 4;
+
+      // ---- RECOMENDACIONES FIJAS (MINEC) ----
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      var recFijas = [
+        'Dirigirse al Ministerio de Eco socialismo (MINEC) para la solicitud de permiso de poda o tala de los árboles inspeccionados.',
+        'Podar o talar el árbol una vez adquirido el permiso.',
+        'Aprovechamiento sustentable: Proceso orientado a la utilización de los recursos naturales y demás elementos de los ecosistemas, de manera eficiente y socialmente útil, según el Art. #3 De la Ley Orgánica del Ambiente No. 5.833 Extraordinario.'
+      ];
+      recFijas.forEach(function(r){
+        var lR = doc.splitTextToSize('• ' + r, W - M*2);
+        doc.text(lR, M, y, {align:'justify', maxWidth: W - M*2});
+        y += lR.length * 4.2 + 1;
+      });
+      y += 6;
+
+      // ---- FIRMA Y SELLO ----
+      
 
       // ---- FIRMA Y SELLO ----
       if(y > H - 80){
@@ -5481,24 +5499,7 @@ function generarPDFViviendaInterno(v, btn){
       var rec = v.recomendaciones || 'Sin recomendaciones.';
       var lRec = doc.splitTextToSize(rec, W - M*2);
       doc.text(lRec, M, y, {align:'justify', maxWidth: W - M*2});
-      y += lRec.length * 4.2 + 8;
-            y += lRec.length * 4.2 + 4;
-
-      // ---- RECOMENDACIONES FIJAS (MINEC) ----
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(9);
-      var recFijas = [
-        'Dirigirse al Ministerio de Eco socialismo (MINEC) para la solicitud de permiso de poda o tala de los árboles inspeccionados.',
-        'Podar o talar el árbol una vez adquirido el permiso.',
-        'Aprovechamiento sustentable: Proceso orientado a la utilización de los recursos naturales y demás elementos de los ecosistemas, de manera eficiente y socialmente útil, según el Art. #3 De la Ley Orgánica del Ambiente No. 5.833 Extraordinario.'
-      ];
-      recFijas.forEach(function(r){
-        var lR = doc.splitTextToSize('• ' + r, W - M*2);
-        doc.text(lR, M, y, {align:'justify', maxWidth: W - M*2});
-        y += lR.length * 4.2 + 1;
-      });
-      y += 6;
-
+      y += lRec.length * 4.2 + 4;
       // ---- FIRMA Y SELLO ----
 
       // ---- FIRMA Y SELLO ----
