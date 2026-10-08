@@ -688,6 +688,7 @@ tbody tr:last-child td{border-bottom:none;}
           </div>
         </div>
       </div>
+      
       <!-- ╔══════════════════════════════════════════════════════════╗
            ║  [M3] MODAL EDAN                                          ║
            ║  FIN                                                       ║
@@ -1212,14 +1213,234 @@ tbody tr:last-child td{border-bottom:none;}
           <button class="btn btn-ghost" onclick="cerrarModal('modalVivienda')">Cancelar</button>
           <button class="btn btn-primary" id="btnGuardarViv" onclick="guardarVivienda()">Guardar</button>
         </div>
+         </div>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  [M5] MODAL PERSONAL                                      ║
+         ╚══════════════════════════════════════════════════════════╝ -->
+    <div class="modal" id="modalPersonal">
+      <div class="modal-content" style="max-width:640px;">
+
+        <div class="modal-header">
+          <h3 id="modalPersonalTitulo">Nuevo oficial</h3>
+          <button class="modal-close" onclick="cerrarModal('modalPersonal')">×</button>
+        </div>
+
+        <div class="modal-body">
+
+          <!-- DATOS PERSONALES -->
+          <div class="form-section-title">Datos personales</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre *</label>
+              <input type="text" id="perNombre" placeholder="Ej: Juan">
+            </div>
+            <div class="form-group">
+              <label>Apellido *</label>
+              <input type="text" id="perApellido" placeholder="Ej: Pérez">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cédula *</label>
+              <input type="text" id="perCedula" placeholder="Ej: V-12345678">
+            </div>
+            <div class="form-group">
+              <label>Fecha de nacimiento</label>
+              <input type="date" id="perFechaNac">
+            </div>
+            <div class="form-group">
+              <label>Sexo</label>
+              <select id="perSexo">
+                <option value="">—</option>
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Teléfono *</label>
+              <input type="text" id="perTelefono" placeholder="Ej: 0414-0000000">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="perEmail" placeholder="oficial@ejemplo.com">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Dirección</label>
+              <input type="text" id="perDireccion" placeholder="Ej: Sector Centro, calle 5">
+            </div>
+          </div>
+
+          <!-- DATOS INSTITUCIONALES -->
+          <div class="form-section-title">Datos institucionales</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Jerarquía *</label>
+              <select id="perJerarquia">
+                <option value="">Seleccione...</option>
+                <option value="OPC I">OPC I — Oficial de Protección Civil I</option>
+                <option value="OPC II">OPC II — Oficial de Protección Civil II</option>
+                <option value="OPC III">OPC III — Oficial de Protección Civil III</option>
+                <option value="OSPC I">OSPC I — Oficial Supervisor I</option>
+                <option value="OSPC II">OSPC II — Oficial Supervisor II</option>
+                <option value="OSPC III">OSPC III — Oficial Supervisor III</option>
+                <option value="OCPC I">OCPC I — Oficial Coordinador I</option>
+                <option value="OCPC II">OCPC II — Oficial Coordinador II</option>
+                <option value="OCPC GENERAL">OCPC GENERAL — Oficial Coordinador General</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Grupo</label>
+              <select id="perGrupo">
+                <option value="Ninguno">Ninguno (nivel estratégico)</option>
+                <option value="A">Grupo A</option>
+                <option value="B">Grupo B</option>
+                <option value="C">Grupo C</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Estado *</label>
+              <select id="perEstado">
+                <option value="">Seleccione...</option>
+                <option value="disponible">Disponible</option>
+                <option value="en_servicio">En servicio</option>
+                <option value="reposo">Reposo</option>
+                <option value="permiso">Permiso</option>
+                <option value="vacaciones">Vacaciones</option>
+                <option value="comision_municipio">Comisión municipio</option>
+                <option value="comision_nacional">Comisión nacional</option>
+                <option value="comision_internacional">Comisión internacional</option>
+                <option value="apoyo_instituciones">Apoyo a instituciones</option>
+                <option value="apoyo_zoedan">Apoyo ZOEDAN</option>
+                <option value="apoyo_pc_municipio">Apoyo PC municipio</option>
+                <option value="baja">BAJA</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Motivo de baja</label>
+              <select id="perMotivoBaja">
+                <option value="">—</option>
+                <option value="traslado">Traslado a otro comando</option>
+                <option value="renuncia">Renuncia</option>
+                <option value="jubilacion">Jubilación</option>
+                <option value="fallecimiento">Fallecimiento</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha de ingreso</label>
+              <input type="date" id="perFechaIngreso">
+            </div>
+            <div class="form-group">
+              <label>Número de credencial</label>
+              <input type="text" id="perCredencial" placeholder="Ej: PC-001">
+            </div>
+          </div>
+
+          <!-- RESPONSABILIDADES -->
+          <div class="form-section-title">Responsabilidades (perfil base)</div>
+          <p class="text-muted" style="font-size:11px; margin:4px 0 8px 0;">
+            Marque todas las que apliquen. El jefe de servicio asignará las del día en cada servicio.
+          </p>
+          <div id="perResponsabilidades" style="display:grid; grid-template-columns:repeat(2,1fr); gap:4px; font-size:12px;">
+            <label><input type="checkbox" value="inspector"> Inspector</label>
+            <label><input type="checkbox" value="rescate_vehicular"> Rescate vehicular</label>
+            <label><input type="checkbox" value="edanista"> EDANista</label>
+            <label><input type="checkbox" value="logistico"> Logístico</label>
+            <label><input type="checkbox" value="conductor"> Conductor</label>
+            <label><input type="checkbox" value="escribiente"> Escribiente</label>
+            <label><input type="checkbox" value="auxiliar"> Auxiliar</label>
+            <label><input type="checkbox" value="aph"> APH (Auxilio Prehospitalario)</label>
+            <label><input type="checkbox" value="rescate"> Rescate</label>
+            <label><input type="checkbox" value="bombero"> Bombero</label>
+            <label><input type="checkbox" value="operador_comunicaciones"> Operador de comunicaciones</label>
+            <label><input type="checkbox" value="seguridad"> Seguridad</label>
+            <label><input type="checkbox" value="coordinacion"> Coordinación</label>
+            <label><input type="checkbox" value="monitoreo"> Monitoreo</label>
+            <label><input type="checkbox" value="apoyo"> Apoyo</label>
+            <label><input type="checkbox" value="otro"> Otro</label>
+          </div>
+
+          <!-- FIRMA -->
+          <div class="form-section-title">Firma</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto de la firma (opcional)</label>
+              <input type="file" id="perFirma" accept="image/*" capture="environment">
+              <div id="perFirmaPreview" style="margin-top:6px;"></div>
+            </div>
+          </div>
+
+          <!-- OBSERVACIONES -->
+          <div class="form-section-title">Observaciones</div>
+          <div class="form-row">
+            <div class="form-group">
+              <textarea id="perObservaciones" placeholder="Notas adicionales..." rows="3"></textarea>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="cerrarModal('modalPersonal')">Cancelar</button>
+          <button class="btn btn-primary" id="btnGuardarPersonal" onclick="guardarPersonal()">Guardar oficial</button>
+        </div>
+
       </div>
     </div>
+
     <!-- ╔══════════════════════════════════════════════════════════╗
          ║  [M3] MODAL VIVIENDA                                      ║
          ║  FIN                                                       ║
          ╚══════════════════════════════════════════════════════════╝ -->
     <!-- === MODULO 4 === -->
     <!-- === MODULO 5 === -->
+    <div id="sec-personal" class="section" style="display:none;">
+      <h2>Personal</h2>
+      <p class="text-muted">Gestión de oficiales: ficha, responsabilidades, grupo, estado y bajas.</p>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div>
+          <label style="font-size:12px; margin-right:6px;">
+            <input type="checkbox" id="personalVerBajas" onchange="cargarPersonal();"> Ver dados de baja
+          </label>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalPersonal()">+ Nuevo oficial</button>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Jerarquía</th>
+            <th>Nombre y Apellido</th>
+            <th>Cédula</th>
+            <th>Grupo</th>
+            <th>Estado</th>
+            <th>Responsabilidades</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaPersonalBody">
+          <tr><td colspan="7" style="text-align:center; padding:20px;">Cargando personal...</td></tr>
+        </tbody>
+      </table>
+    </div>
 
   </main>
 </div>
