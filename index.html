@@ -5098,7 +5098,7 @@ function generarPDFInformeEDANInterno(e, btn){
 
       // ---- PIE DE PÁGINA ----
       return pieDePaginaPDF(doc).then(function(){
-        doc.save('Informe_EDAN_' + folio + '.pdf');
+        doc.save('Certificacion_' + folio + '.pdf');
       });
     });
   }).catch(function(err){
