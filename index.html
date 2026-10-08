@@ -3365,8 +3365,7 @@ function generarPDFCertificacionInterno(id){
       return pieDePaginaPDF(doc).then(function(){
         doc.save('Certificacion_' + folio + '.pdf');
       });
-    });
-}).catch(function(e){
+        }).catch(function(e){                       
     console.error('Error generando PDF certificación:', e);
     if(e && e.message === 'SIN_RED'){
       alert('Esta certificación se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.\n\nPor favor, espere a tener señal y vuelva a intentar.');
