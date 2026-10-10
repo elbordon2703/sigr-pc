@@ -288,6 +288,22 @@ tbody tr:last-child td{border-bottom:none;}
   padding-bottom:4px;
   border-bottom:1px solid var(--border);
 }
+  /* Badges para Personal */
+.badge{
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:10px;
+  font-size:10px;
+  font-weight:bold;
+  color:#fff;
+  text-transform:uppercase;
+}
+.badge-success{ background:#19864b; }
+.badge-warning{ background:#ffc107; color:#333; }
+.badge-info{ background:#1677c8; }
+.badge-secondary{ background:#666; }
+.badge-light{ background:#ccc; color:#333; }
+.btn-sm{ padding:4px 8px; font-size:11px; }
 </style>
 </head>
 <body>
@@ -1783,6 +1799,219 @@ function cerrarModalPersonal(){
   document.getElementById('modalPersonal').classList.remove('active');
 }
 window.cerrarModalPersonal = cerrarModalPersonal;
+  /* ============================================================
+   [M5] MÓDULO PERSONAL — JS
+   Bloque 2B — Listar oficiales (offline-first)
+   ============================================================ */
+
+/* ---------- 2B.1 — CARGAR LISTA ---------- */
+function cargarPersonal(){
+  var tbody = document.getElementById('tablaPersonalBody');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">Cargando personal...</td></tr>';
+
+  var chk = document.getElementById('personalVerBajas');
+  var verBajas = chk ? chk.checked : false;
+
+  // 1. Intentar desde window.SIGR.personal (ya cargado en INIT)
+  if(window.SIGR && window.SIGR.personal && window.SIGR.personal.length > 0){
+    pintarPersonal(filtrarPersonal(window.SIGR.personal, verBajas));
+  }
+
+  // 2. Leer de IndexedDB
+  DBLocal.leer('personal_cache', '__lista__').then(function(c){
+    if(c && c.items && c.items.length > 0){
+      window.SIGR.personal = c.items;
+      pintarPersonal(filtrarPersonal(c.items, verBajas));
+    } else if(!window.SIGR.personal || window.SIGR.personal.length === 0){
+      // Si no hay nada en cache, mostrar aviso
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#888;">No hay oficiales registrados.</td></tr>';
+    }
+  }).catch(function(e){
+    console.warn('[PERS] Error leyendo IndexedDB:', e);
+  });
+}
+window.cargarPersonal = cargarPersonal;
+
+/* ---------- 2B.2 — FILTRAR (bajas / activos) ---------- */
+function filtrarPersonal(lista, verBajas){
+  if(!lista || lista.length === 0) return [];
+
+  var out = [];
+  for(var i=0; i<lista.length; i++){
+    var o = lista[i];
+    var est = (o.estado || '').toLowerCase();
+    var esBaja = (est === 'baja');
+
+    if(verBajas && esBaja){
+      out.push(o);
+    } else if(!verBajas && !esBaja){
+      out.push(o);
+    }
+  }
+
+  // Ordenar por jerarquía y luego por apellido
+  out.sort(function(a, b){
+    var ja = (a.jerarquia || '').toUpperCase();
+    var jb = (b.jerarquia || '').toUpperCase();
+    if(ja < jb) return -1;
+    if(ja > jb) return 1;
+    var aa = (a.apellido || '').toUpperCase();
+    var ab = (b.apellido || '').toUpperCase();
+    if(aa < ab) return -1;
+    if(aa > ab) return 1;
+    return 0;
+  });
+
+  return out;
+}
+window.filtrarPersonal = filtrarPersonal;
+
+/* ---------- 2B.3 — MIGRACIÓN AUTOMÁTICA ---------- */
+function normalizarOficial(o){
+  if(!o) return o;
+  var copia = {};
+
+  // Copiar todos los campos
+  for(var k in o){
+    if(o.hasOwnProperty(k)) copia[k] = o[k];
+  }
+
+  // Migrar responsabilidad (string) → responsabilidades (array)
+  if(copia.responsabilidad && (!copia.responsabilidades || copia.responsabilidades.length === 0)){
+    copia.responsabilidades = [copia.responsabilidad];
+  }
+  if(!copia.responsabilidades){ copia.responsabilidades = []; }
+
+  // Migrar grupos (array) → grupo (string)
+  if(copia.grupos && copia.grupos.length > 0 && !copia.grupo){
+    copia.grupo = copia.grupos[0];
+  }
+  if(!copia.grupo){ copia.grupo = 'Ninguno'; }
+
+  // Asegurar campos por defecto
+  if(!copia.estado){ copia.estado = 'disponible'; }
+  if(!copia.sexo){ copia.sexo = ''; }
+  if(!copia.fechaNac){ copia.fechaNac = ''; }
+  if(!copia.direccion){ copia.direccion = ''; }
+  if(!copia.fechaIngreso){ copia.fechaIngreso = ''; }
+  if(!copia.credencial){ copia.credencial = ''; }
+  if(!copia.firma){ copia.firma = ''; }
+  if(!copia.observaciones){ copia.observaciones = ''; }
+  if(!copia.motivoBaja){ copia.motivoBaja = ''; }
+
+  return copia;
+}
+window.normalizarOficial = normalizarOficial;
+
+/* ---------- 2B.4 — PINTAR TABLA ---------- */
+function pintarPersonal(lista){
+  var tbody = document.getElementById('tablaPersonalBody');
+  if(!tbody) return;
+
+  if(!lista || lista.length === 0){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#888;">No hay oficiales para mostrar.</td></tr>';
+    return;
+  }
+
+  var html = '';
+  for(var i=0; i<lista.length; i++){
+    var o = normalizarOficial(lista[i]);
+    var estado = (o.estado || '').toLowerCase();
+    var badgeClass = estadoBadgePersonal(estado);
+    var estadoLabel = etiquetaEstadoPersonal(estado);
+    var respLabel = (o.responsabilidades || []).map(function(r){ return etiquetaResponsabilidad(r); }).join(', ') || '—';
+    var grupoLabel = o.grupo || 'Ninguno';
+    var cedula = o.cedula || '—';
+    var nombreCompleto = ((o.nombre || '') + ' ' + (o.apellido || '')).trim() || '—';
+    var jerarquia = o.jerarquia || '—';
+    var id = o.id || o.firebase_id || o.cedula || i;
+
+    html += '<tr>';
+    html += '<td>' + escaparHTML(jerarquia) + '</td>';
+    html += '<td>' + escaparHTML(nombreCompleto) + '</td>';
+    html += '<td>' + escaparHTML(cedula) + '</td>';
+    html += '<td>' + escaparHTML(grupoLabel) + '</td>';
+    html += '<td><span class="badge ' + badgeClass + '">' + escaparHTML(estadoLabel) + '</span></td>';
+    html += '<td style="font-size:11px;">' + escaparHTML(respLabel) + '</td>';
+    html += '<td>';
+    html += '<button class="btn btn-sm btn-secondary" onclick="editarPersonal(\'' + id + '\')" title="Editar">✏️</button> ';
+    html += '<button class="btn btn-sm btn-secondary" onclick="generarPDFFichaPersonal(\'' + id + '\')" title="PDF">📄</button> ';
+    if(estado !== 'baja'){
+      html += '<button class="btn btn-sm btn-danger" onclick="darDeBajaPersonal(\'' + id + '\')" title="Baja">🗑️</button>';
+    }
+    html += '</td>';
+    html += '</tr>';
+  }
+
+  tbody.innerHTML = html;
+}
+window.pintarPersonal = pintarPersonal;
+
+/* ---------- 2B.5 — HELPERS DE ESTADO ---------- */
+function estadoBadgePersonal(estado){
+  if(estado === 'disponible' || estado === 'activo'){ return 'badge-success'; }
+  if(estado === 'reposo' || estado === 'permiso' || estado === 'vacaciones'){ return 'badge-warning'; }
+  if(estado === 'en_servicio' || estado.indexOf('comision_') === 0 || estado.indexOf('apoyo_') === 0){ return 'badge-info'; }
+  if(estado === 'baja'){ return 'badge-secondary'; }
+  return 'badge-light';
+}
+window.estadoBadgePersonal = estadoBadgePersonal;
+
+function etiquetaEstadoPersonal(estado){
+  var map = {
+    'activo': 'Activo',
+    'disponible': 'Disponible',
+    'en_servicio': 'En servicio',
+    'reposo': 'Reposo',
+    'permiso': 'Permiso',
+    'vacaciones': 'Vacaciones',
+    'comision_municipio': 'Comisión municipio',
+    'comision_nacional': 'Comisión nacional',
+    'comision_internacional': 'Comisión internacional',
+    'apoyo_instituciones': 'Apoyo a instituciones',
+    'apoyo_zoedan': 'Apoyo ZOEDAN',
+    'apoyo_pc_municipio': 'Apoyo PC municipio',
+    'baja': 'BAJA'
+  };
+  return map[estado] || estado || '—';
+}
+window.etiquetaEstadoPersonal = etiquetaEstadoPersonal;
+
+function etiquetaResponsabilidad(r){
+  var map = {
+    'inspector': 'Inspector',
+    'rescate_vehicular': 'Rescate vehicular',
+    'edanista': 'EDANista',
+    'logistico': 'Logístico',
+    'conductor': 'Conductor',
+    'escribiente': 'Escribiente',
+    'auxiliar': 'Auxiliar',
+    'aph': 'APH',
+    'rescate': 'Rescate',
+    'bombero': 'Bombero',
+    'operador_comunicaciones': 'Operador comunicaciones',
+    'seguridad': 'Seguridad',
+    'coordinacion': 'Coordinación',
+    'monitoreo': 'Monitoreo',
+    'apoyo': 'Apoyo',
+    'otro': 'Otro'
+  };
+  return map[r] || r;
+}
+window.etiquetaResponsabilidad = etiquetaResponsabilidad;
+
+/* ---------- 2B.6 — ESCAPAR HTML ---------- */
+function escaparHTML(s){
+  if(s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+window.escaparHTML = escaparHTML;
 
 /* ---------- Preview de firma ---------- */
 document.addEventListener('DOMContentLoaded', function(){
