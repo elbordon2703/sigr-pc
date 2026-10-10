@@ -1740,6 +1740,65 @@ function mostrarSeccion(target){
   
 }
 window.mostrarSeccion = mostrarSeccion;
+  /* ============================================================
+   [M5] MÓDULO PERSONAL — JS
+   Bloque 2A — Abrir / Cerrar modal
+   ============================================================ */
+
+function abrirModalPersonal(){
+  // Limpiar todos los campos
+  document.getElementById('perNombre').value = '';
+  document.getElementById('perApellido').value = '';
+  document.getElementById('perCedula').value = '';
+  document.getElementById('perFechaNac').value = '';
+  document.getElementById('perSexo').value = '';
+  document.getElementById('perTelefono').value = '';
+  document.getElementById('perEmail').value = '';
+  document.getElementById('perDireccion').value = '';
+  document.getElementById('perJerarquia').value = '';
+  document.getElementById('perGrupo').value = 'Ninguno';
+  document.getElementById('perEstado').value = '';
+  document.getElementById('perMotivoBaja').value = '';
+  document.getElementById('perFechaIngreso').value = '';
+  document.getElementById('perCredencial').value = '';
+  document.getElementById('perObservaciones').value = '';
+  document.getElementById('perFirma').value = '';
+  document.getElementById('perFirmaPreview').innerHTML = '';
+
+  // Desmarcar todos los checkboxes de responsabilidades
+  var checks = document.querySelectorAll('#perResponsabilidades input[type="checkbox"]');
+  for(var i=0; i<checks.length; i++){ checks[i].checked = false; }
+
+  // Título + modo "nuevo"
+  document.getElementById('modalPersonalTitulo').textContent = 'Nuevo oficial';
+  document.getElementById('modalPersonal').setAttribute('data-modo', 'nuevo');
+  document.getElementById('modalPersonal').setAttribute('data-id', '');
+
+  // Mostrar modal (agrega la clase .active)
+  document.getElementById('modalPersonal').classList.add('active');
+}
+window.abrirModalPersonal = abrirModalPersonal;
+
+function cerrarModalPersonal(){
+  document.getElementById('modalPersonal').classList.remove('active');
+}
+window.cerrarModalPersonal = cerrarModalPersonal;
+
+/* ---------- Preview de firma ---------- */
+document.addEventListener('DOMContentLoaded', function(){
+  var inputFirma = document.getElementById('perFirma');
+  if(!inputFirma) return;
+  inputFirma.addEventListener('change', function(){
+    var file = this.files && this.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      document.getElementById('perFirmaPreview').innerHTML =
+        '<img src="' + e.target.result + '" style="max-width:180px; max-height:80px; border:1px solid #ccc; border-radius:4px; padding:4px; background:#fff;">';
+    };
+    reader.readAsDataURL(file);
+  });
+});
 
 function mostrarTab(modulo, tab){
   var sec = document.getElementById('sec-' + modulo);
