@@ -1402,6 +1402,22 @@ tbody tr:last-child td{border-bottom:none;}
               <div id="perFirmaPreview" style="margin-top:6px;"></div>
             </div>
           </div>
+          <!-- CONTACTO DE EMERGENCIA -->
+<div class="form-section-title">Contacto de emergencia</div>
+<div class="form-row">
+  <div class="form-group">
+    <label>Nombre del familiar</label>
+    <input type="text" id="perContactoNombre" placeholder="Ej: María Pérez">
+  </div>
+  <div class="form-group">
+    <label>Parentesco</label>
+    <input type="text" id="perContactoParentesco" placeholder="Ej: Madre, esposa, hermano">
+  </div>
+  <div class="form-group">
+    <label>Teléfono del familiar</label>
+    <input type="text" id="perContactoTelefono" placeholder="Ej: 0414-0000000">
+  </div>
+</div>
 
           <!-- OBSERVACIONES -->
           <div class="form-section-title">Observaciones</div>
@@ -1777,6 +1793,9 @@ function abrirModalPersonal(){
   document.getElementById('perMotivoBaja').value = '';
   document.getElementById('perFechaIngreso').value = '';
   document.getElementById('perCredencial').value = '';
+  document.getElementById('perContactoNombre').value = '';
+  document.getElementById('perContactoParentesco').value = '';
+  document.getElementById('perContactoTelefono').value = '';
   document.getElementById('perObservaciones').value = '';
   document.getElementById('perFirma').value = '';
   document.getElementById('perFirmaPreview').innerHTML = '';
@@ -2012,6 +2031,225 @@ function escaparHTML(s){
     .replace(/'/g, '&#39;');
 }
 window.escaparHTML = escaparHTML;
+  /* ============================================================
+   [M5] MÓDULO PERSONAL — JS
+   Bloque 2C — Guardar oficial (offline-first)
+   ============================================================ */
+
+function guardarPersonal(){
+  // 1. Leer campos del modal
+  var nombre      = document.getElementById('perNombre').value.trim();
+  var apellido    = document.getElementById('perApellido').value.trim();
+  var cedula      = document.getElementById('perCedula').value.trim();
+  var fechaNac    = document.getElementById('perFechaNac').value.trim();
+  var sexo        = document.getElementById('perSexo').value;
+  var telefono    = document.getElementById('perTelefono').value.trim();
+  var email       = document.getElementById('perEmail').value.trim();
+  var direccion   = document.getElementById('perDireccion').value.trim();
+  var jerarquia   = document.getElementById('perJerarquia').value;
+  var grupo       = document.getElementById('perGrupo').value;
+  var estado      = document.getElementById('perEstado').value;
+  var motivoBaja  = document.getElementById('perMotivoBaja').value;
+  var fechaIngreso= document.getElementById('perFechaIngreso').value.trim();
+  var credencial  = document.getElementById('perCredencial').value.trim();
+  var observaciones = document.getElementById('perObservaciones').value.trim();
+
+  // Contacto de emergencia
+  var contactoNombre     = document.getElementById('perContactoNombre').value.trim();
+  var contactoParentesco = document.getElementById('perContactoParentesco').value.trim();
+  var contactoTelefono   = document.getElementById('perContactoTelefono').value.trim();
+
+  // 2. Validaciones
+  if(!nombre){ alert('El nombre es obligatorio.'); return; }
+  if(!apellido){ alert('El apellido es obligatorio.'); return; }
+  if(!cedula){ alert('La cédula es obligatoria.'); return; }
+  if(!telefono){ alert('El teléfono es obligatorio.'); return; }
+  if(!jerarquia){ alert('La jerarquía es obligatoria.'); return; }
+  if(!estado){ alert('El estado es obligatorio.'); return; }
+  if(estado === 'baja' && !motivoBaja){ alert('Debe indicar el motivo de baja.'); return; }
+
+  // 3. Responsabilidades (checkboxes)
+  var responsabilidades = [];
+  var checks = document.querySelectorAll('#perResponsabilidades input[type="checkbox"]:checked');
+  for(var i=0; i<checks.length; i++){ responsabilidades.push(checks[i].value); }
+
+  // 4. Modo: nuevo o editar
+  var modal = document.getElementById('modalPersonal');
+  var modo = modal.getAttribute('data-modo') || 'nuevo';
+  var idEditar = modal.getAttribute('data-id') || '';
+
+  // 5. Comprimir firma (si hay)
+  var inputFirma = document.getElementById('perFirma');
+  var firmaBase64 = '';
+
+  var promesaFirma;
+  if(inputFirma && inputFirma.files && inputFirma.files[0]){
+    promesaFirma = comprimirImagen(inputFirma.files[0], 400, 0.6);
+  } else {
+    // Si está editando y no cambió la firma, conservar la anterior
+    promesaFirma = Promise.resolve('');
+  }
+
+  promesaFirma.then(function(firmaNueva){
+    // Si editando y no hay firma nueva, recuperar la vieja
+    if(!firmaNueva && modo === 'editar' && idEditar){
+      var listaActual = (window.SIGR && window.SIGR.personal) ? window.SIGR.personal : [];
+      for(var j=0; j<listaActual.length; j++){
+        var idCmp = listaActual[j].id || listaActual[j].firebase_id || listaActual[j].cedula;
+        if(String(idCmp) === String(idEditar)){
+          firmaBase64 = listaActual[j].firma || '';
+          break;
+        }
+      }
+    } else {
+      firmaBase64 = firmaNueva || '';
+    }
+
+    // 6. Armar objeto del oficial
+    var registro = {
+      nombre: nombre,
+      apellido: apellido,
+      cedula: cedula,
+      fechaNac: fechaNac,
+      sexo: sexo,
+      telefono: telefono,
+      email: email,
+      direccion: direccion,
+      jerarquia: jerarquia,
+      grupo: grupo,
+      grupos: (grupo && grupo !== 'Ninguno') ? [grupo] : [],
+      estado: estado,
+      motivoBaja: motivoBaja,
+      fechaIngreso: fechaIngreso,
+      credencial: credencial,
+      responsabilidades: responsabilidades,
+      responsabilidad: responsabilidades[0] || '',
+      firma: firmaBase64,
+      observaciones: observaciones,
+      contactoNombre: contactoNombre,
+      contactoParentesco: contactoParentesco,
+      contactoTelefono: contactoTelefono,
+      fechaRegistro: new Date().toISOString()
+    };
+
+    // 7. Guardar en IndexedDB (offline-first)
+    var lista = (window.SIGR && window.SIGR.personal) ? window.SIGR.personal.slice() : [];
+
+    if(modo === 'editar' && idEditar){
+      // Reemplazar el existente
+      for(var k=0; k<lista.length; k++){
+        var idK = lista[k].id || lista[k].firebase_id || lista[k].cedula;
+        if(String(idK) === String(idEditar)){
+          // Conservar id/firebase_id
+          registro.id = lista[k].id || idEditar;
+          registro.firebase_id = lista[k].firebase_id || '';
+          registro.fechaRegistro = lista[k].fechaRegistro || registro.fechaRegistro;
+          // Historial de grupos
+          registro.cambios_grupo = lista[k].cambios_grupo || [];
+          if(lista[k].grupo !== grupo){
+            registro.cambios_grupo.push({
+              fecha: new Date().toISOString(),
+              de: lista[k].grupo || 'Ninguno',
+              a: grupo || 'Ninguno'
+            });
+          }
+          lista[k] = registro;
+          break;
+        }
+      }
+    } else {
+      // Nuevo: generar id local
+      registro.id = 'per_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+      lista.push(registro);
+    }
+
+    // 8. Guardar en IndexedDB
+    var promesaLocal = DBLocal.guardar('personal_cache', '__lista__', { items: lista });
+
+    promesaLocal.then(function(){
+      window.SIGR.personal = lista;
+
+      // 9. Intentar subir a Firebase
+      if(hayRedReal()){
+        subirPersonalAFirebase(registro, modo).then(function(){
+          console.log('[PERS] Guardado en Firebase OK');
+          cerrarModalPersonal();
+          cargarPersonal();
+        }).catch(function(e){
+          console.warn('[PERS] Error subiendo a Firebase, encolando:', e);
+          // Encolar como pendiente
+          SYNC_QUEUE.agregar({
+            tipo: (modo === 'editar') ? 'actualizar_personal' : 'crear_personal',
+            datos: registro
+          });
+          cerrarModalPersonal();
+          cargarPersonal();
+        });
+      } else {
+        // Sin red: encolar
+        SYNC_QUEUE.agregar({
+          tipo: (modo === 'editar') ? 'actualizar_personal' : 'crear_personal',
+          datos: registro
+        });
+        cerrarModalPersonal();
+        cargarPersonal();
+      }
+    }).catch(function(e){
+      console.error('[PERS] Error guardando local:', e);
+      alert('Error guardando localmente: ' + e.message);
+    });
+  }).catch(function(e){
+    console.error('[PERS] Error comprimiendo firma:', e);
+    alert('Error procesando la firma: ' + e.message);
+  });
+}
+window.guardarPersonal = guardarPersonal;
+
+/* ---------- 2C.1 — SUBIR A FIREBASE ---------- */
+function subirPersonalAFirebase(registro, modo){
+  return new Promise(function(resolve, reject){
+    // Limpiar campos que no van a Firestore
+    var data = {};
+    for(var k in registro){
+      if(registro.hasOwnProperty(k)){
+        // No subir el id local ni firebase_id al documento
+        if(k === 'id' || k === 'firebase_id') continue;
+        data[k] = registro[k];
+      }
+    }
+
+    // Si viene de una edición con firebase_id, usar ese ID
+    var fbId = registro.firebase_id || '';
+
+    if(modo === 'editar' && fbId){
+      // UPDATE
+      db.collection('personal').doc(fbId).set(data, { merge: true })
+        .then(function(){ resolve(fbId); })
+        .catch(function(e){ reject(e); });
+    } else {
+      // CREATE: usar cédula como ID del documento (para no duplicar)
+      var docId = registro.cedula.replace(/[^\d]/g, '') || ('per_' + Date.now());
+      db.collection('personal').doc(docId).set(data, { merge: true })
+        .then(function(){
+          // Actualizar el registro local con firebase_id
+          registro.firebase_id = docId;
+          var lista = window.SIGR.personal || [];
+          for(var i=0; i<lista.length; i++){
+            var idL = lista[i].id || lista[i].firebase_id || lista[i].cedula;
+            var idR = registro.id || registro.firebase_id || registro.cedula;
+            if(String(idL) === String(idR)){
+              lista[i].firebase_id = docId;
+              break;
+            }
+          }
+          DBLocal.guardar('personal_cache', '__lista__', { items: lista });
+          resolve(docId);
+        })
+        .catch(function(e){ reject(e); });
+    }
+  });
+}
+window.subirPersonalAFirebase = subirPersonalAFirebase;
 
 /* ---------- Preview de firma ---------- */
 document.addEventListener('DOMContentLoaded', function(){
