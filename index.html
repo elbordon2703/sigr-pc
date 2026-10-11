@@ -2250,6 +2250,175 @@ function subirPersonalAFirebase(registro, modo){
   });
 }
 window.subirPersonalAFirebase = subirPersonalAFirebase;
+  /* ============================================================
+   [M5] MÓDULO PERSONAL — JS
+   Bloque 2D — Editar + Dar de baja
+   ============================================================ */
+
+/* ---------- 2D.1 — EDITAR OFICIAL ---------- */
+function editarPersonal(id){
+  // 1. Buscar el oficial en la lista
+  var lista = window.SIGR.personal || [];
+  var oficial = null;
+  for(var i=0; i<lista.length; i++){
+    var idL = lista[i].id || lista[i].firebase_id || lista[i].cedula;
+    if(String(idL) === String(id)){
+      oficial = lista[i];
+      break;
+    }
+  }
+  if(!oficial){
+    alert('No se encontró el oficial.');
+    return;
+  }
+
+  // 2. Normalizar (migrar campos viejos)
+  oficial = normalizarOficial(oficial);
+
+  // 3. Abrir modal (queda limpio)
+  abrirModalPersonal();
+
+  // 4. Llenar los campos con los datos del oficial
+  document.getElementById('perNombre').value = oficial.nombre || '';
+  document.getElementById('perApellido').value = oficial.apellido || '';
+  document.getElementById('perCedula').value = oficial.cedula || '';
+  document.getElementById('perFechaNac').value = oficial.fechaNac || '';
+  document.getElementById('perSexo').value = oficial.sexo || '';
+  document.getElementById('perTelefono').value = oficial.telefono || '';
+  document.getElementById('perEmail').value = oficial.email || '';
+  document.getElementById('perDireccion').value = oficial.direccion || '';
+  document.getElementById('perJerarquia').value = oficial.jerarquia || '';
+  document.getElementById('perGrupo').value = oficial.grupo || 'Ninguno';
+  document.getElementById('perEstado').value = oficial.estado || '';
+  document.getElementById('perMotivoBaja').value = oficial.motivoBaja || '';
+  document.getElementById('perFechaIngreso').value = oficial.fechaIngreso || '';
+  document.getElementById('perCredencial').value = oficial.credencial || '';
+  document.getElementById('perContactoNombre').value = oficial.contactoNombre || '';
+  document.getElementById('perContactoParentesco').value = oficial.contactoParentesco || '';
+  document.getElementById('perContactoTelefono').value = oficial.contactoTelefono || '';
+  document.getElementById('perObservaciones').value = oficial.observaciones || '';
+
+  // 5. Marcar checkboxes de responsabilidades
+  var resps = oficial.responsabilidades || [];
+  var checks = document.querySelectorAll('#perResponsabilidades input[type="checkbox"]');
+  for(var k=0; k<checks.length; k++){
+    checks[k].checked = (resps.indexOf(checks[k].value) !== -1);
+  }
+
+  // 6. Mostrar vista previa de la firma (si tiene)
+  var prev = document.getElementById('perFirmaPreview');
+  if(oficial.firma){
+    prev.innerHTML = '<img src="' + oficial.firma + '" style="max-width:180px; max-height:80px; border:1px solid #ccc; border-radius:4px; padding:4px; background:#fff;">';
+  } else {
+    prev.innerHTML = '';
+  }
+
+  // 7. Cambiar título y modo
+  document.getElementById('modalPersonalTitulo').textContent = 'Editar oficial';
+  document.getElementById('modalPersonal').setAttribute('data-modo', 'editar');
+  document.getElementById('modalPersonal').setAttribute('data-id', id);
+}
+window.editarPersonal = editarPersonal;
+
+/* ---------- 2D.2 — DAR DE BAJA ---------- */
+function darDeBajaPersonal(id){
+  // 1. Buscar el oficial
+  var lista = window.SIGR.personal || [];
+  var oficial = null;
+  for(var i=0; i<lista.length; i++){
+    var idL = lista[i].id || lista[i].firebase_id || lista[i].cedula;
+    if(String(idL) === String(id)){
+      oficial = lista[i];
+      break;
+    }
+  }
+  if(!oficial){
+    alert('No se encontró el oficial.');
+    return;
+  }
+
+  var nombreCompleto = ((oficial.nombre || '') + ' ' + (oficial.apellido || '')).trim() || 'este oficial';
+
+  // 2. Confirmar
+  if(!confirm('¿Dar de baja a ' + nombreCompleto + '?\n\nEl oficial NO se elimina. Queda con estado BAJA y se puede consultar marcando "Ver dados de baja".')) {
+    return;
+  }
+
+  // 3. Pedir motivo
+  var motivo = prompt(
+    'Motivo de la baja:\n\n' +
+    '1 = Traslado a otro comando\n' +
+    '2 = Renuncia\n' +
+    '3 = Jubilación\n' +
+    '4 = Fallecimiento\n' +
+    '5 = Otro\n\n' +
+    'Escriba el número (1-5):'
+  );
+
+  if(motivo === null){ return; } // Canceló
+
+  var motivos = {
+    '1': 'traslado',
+    '2': 'renuncia',
+    '3': 'jubilacion',
+    '4': 'fallecimiento',
+    '5': 'otro'
+  };
+
+  var motivoFinal = motivos[motivo.trim()];
+  if(!motivoFinal){
+    alert('Opción no válida. Intente de nuevo.');
+    return;
+  }
+
+  // 4. Notas adicionales si es "otro"
+  var notaExtra = '';
+  if(motivoFinal === 'otro'){
+    notaExtra = prompt('Especifique el motivo:') || '';
+    if(!notaExtra){ return; }
+  }
+
+  // 5. Modificar el oficial
+  oficial.estado = 'baja';
+  oficial.motivoBaja = motivoFinal;
+  oficial.fechaBaja = new Date().toISOString();
+  if(notaExtra){
+    oficial.observaciones = (oficial.observaciones || '') + '\n[BAJA] ' + notaExtra;
+  }
+
+  // 6. Guardar en IndexedDB
+  var listaNueva = lista.slice();
+  for(var j=0; j<listaNueva.length; j++){
+    var idJ = listaNueva[j].id || listaNueva[j].firebase_id || listaNueva[j].cedula;
+    if(String(idJ) === String(id)){
+      listaNueva[j] = oficial;
+      break;
+    }
+  }
+
+  DBLocal.guardar('personal_cache', { id: '__lista__', items: listaNueva }).then(function(){
+    window.SIGR.personal = listaNueva;
+
+    // 7. Subir a Firebase
+    if(hayRedReal()){
+      subirPersonalAFirebase(oficial, 'editar').then(function(){
+        console.log('[PERS] Baja guardada en Firebase OK');
+        cargarPersonal();
+      }).catch(function(e){
+        console.warn('[PERS] Error subiendo baja a Firebase, encolando:', e);
+        SYNC_QUEUE.agregar({ tipo: 'actualizar_personal', datos: oficial });
+        cargarPersonal();
+      });
+    } else {
+      SYNC_QUEUE.agregar({ tipo: 'actualizar_personal', datos: oficial });
+      cargarPersonal();
+    }
+  }).catch(function(e){
+    console.error('[PERS] Error guardando baja:', e);
+    alert('Error guardando la baja: ' + e.message);
+  });
+}
+window.darDeBajaPersonal = darDeBajaPersonal;
 
 /* ---------- Preview de firma ---------- */
 document.addEventListener('DOMContentLoaded', function(){
