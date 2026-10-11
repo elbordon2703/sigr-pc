@@ -1768,14 +1768,11 @@ function mostrarSeccion(target){
     item.classList.remove('disabled');
     item.classList.add('active');
   }
-  window.scrollTo({top:0,behavior:'smooth'});
-  
-}
-  
-  // Hook: cargar datos al abrir un módulo
+    // Hook: cargar datos al abrir un módulo
   if(target === 'personal'){ cargarPersonal(); }
-  
-window.mostrarSeccion = mostrarSeccion;
+  window.scrollTo({top:0,behavior:'smooth'});
+  } 
+  window.mostrarSeccion = mostrarSeccion;
   /* ============================================================
    [M5] MÓDULO PERSONAL — JS
    Bloque 2A — Abrir / Cerrar modal
