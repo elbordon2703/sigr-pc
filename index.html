@@ -1771,6 +1771,10 @@ function mostrarSeccion(target){
   window.scrollTo({top:0,behavior:'smooth'});
   
 }
+  
+  // Hook: cargar datos al abrir un módulo
+  if(target === 'personal'){ cargarPersonal(); }
+  
 window.mostrarSeccion = mostrarSeccion;
   /* ============================================================
    [M5] MÓDULO PERSONAL — JS
