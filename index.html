@@ -2164,7 +2164,7 @@ function guardarPersonal(){
     }
 
     // 8. Guardar en IndexedDB
-    var promesaLocal = DBLocal.guardar('personal_cache', '__lista__', { items: lista });
+    var promesaLocal = DBLocal.guardar('personal_cache', { id: '__lista__', items: lista });
 
     promesaLocal.then(function(){
       window.SIGR.personal = lista;
@@ -2242,7 +2242,7 @@ function subirPersonalAFirebase(registro, modo){
               break;
             }
           }
-          DBLocal.guardar('personal_cache', '__lista__', { items: lista });
+          DBLocal.guardar('personal_cache', { id: '__lista__', items: lista })
           resolve(docId);
         })
         .catch(function(e){ reject(e); });
