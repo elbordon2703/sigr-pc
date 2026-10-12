@@ -2420,6 +2420,211 @@ function darDeBajaPersonal(id){
   });
 }
 window.darDeBajaPersonal = darDeBajaPersonal;
+/* ============================================================
+   [M5] MÓDULO PERSONAL — JS
+   Bloque 2F — PDF Ficha Individual
+   ============================================================ */
+
+function generarPDFFichaPersonal(id){
+  // 1. Buscar el oficial
+  var lista = window.SIGR.personal || [];
+  var oficial = null;
+  for(var i=0; i<lista.length; i++){
+    var idL = lista[i].id || lista[i].firebase_id || lista[i].cedula;
+    if(String(idL) === String(id)){
+      oficial = lista[i];
+      break;
+    }
+  }
+  if(!oficial){
+    alert('No se encontró el oficial.');
+    return;
+  }
+
+  oficial = normalizarOficial(oficial);
+  generarPDFFichaPersonalInterno(oficial);
+}
+window.generarPDFFichaPersonal = generarPDFFichaPersonal;
+
+/* ---------- 2F.1 — GENERAR PDF ---------- */
+function generarPDFFichaPersonalInterno(o){
+  try{
+    var doc = new jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+    var W = doc.internal.pageSize.getWidth();
+    var M = 15; // margen izquierdo/derecho
+    var y = 50;
+
+    // 2. Encabezado
+    encabezadoPDF(doc, 'FICHA INDIVIDUAL DEL OFICIAL', null).then(function(yIni){
+      y = yIni;
+
+      // 3. DATOS PERSONALES
+      y = seccionPDF(doc, 'DATOS PERSONALES', y, M, W);
+
+      var nombreCompleto = ((o.nombre || '') + ' ' + (o.apellido || '')).trim() || '—';
+      y = campoPDF(doc, 'Nombre y apellido:', nombreCompleto, y, M, W);
+      y = campoPDF(doc, 'Cédula:', o.cedula || '—', y, M, W);
+      y = campoPDF(doc, 'Fecha de nacimiento:', formatFechaPDF(o.fechaNac), y, M, W);
+      y = campoPDF(doc, 'Sexo:', o.sexo === 'M' ? 'Masculino' : (o.sexo === 'F' ? 'Femenino' : '—'), y, M, W);
+      y = campoPDF(doc, 'Teléfono:', o.telefono || '—', y, M, W);
+      y = campoPDF(doc, 'Email:', o.email || '—', y, M, W);
+      y = campoPDF(doc, 'Dirección:', o.direccion || '—', y, M, W, true);
+
+      y += 4;
+
+      // 4. DATOS INSTITUCIONALES
+      y = seccionPDF(doc, 'DATOS INSTITUCIONALES', y, M, W);
+      y = campoPDF(doc, 'Jerarquía:', o.jerarquia || '—', y, M, W);
+      y = campoPDF(doc, 'Grupo:', o.grupo || 'Ninguno', y, M, W);
+      y = campoPDF(doc, 'Estado:', etiquetaEstadoPersonal((o.estado || '').toLowerCase()), y, M, W);
+      y = campoPDF(doc, 'Fecha de ingreso:', formatFechaPDF(o.fechaIngreso), y, M, W);
+      y = campoPDF(doc, 'N° de credencial:', o.credencial || '—', y, M, W);
+
+      y += 4;
+
+      // 5. RESPONSABILIDADES
+      y = seccionPDF(doc, 'RESPONSABILIDADES', y, M, W);
+      var resps = o.responsabilidades || [];
+      if(resps.length === 0){
+        y = campoPDF(doc, '', 'Sin responsabilidades asignadas.', y, M, W);
+      } else {
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(10);
+        for(var i=0; i<resps.length; i++){
+          doc.text('• ' + etiquetaResponsabilidad(resps[i]), M+5, y);
+          y += 5;
+        }
+        y += 2;
+      }
+
+      y += 4;
+
+      // 6. CONTACTO DE EMERGENCIA
+      y = seccionPDF(doc, 'CONTACTO DE EMERGENCIA', y, M, W);
+      y = campoPDF(doc, 'Nombre:', o.contactoNombre || '—', y, M, W);
+      y = campoPDF(doc, 'Parentesco:', o.contactoParentesco || '—', y, M, W);
+      y = campoPDF(doc, 'Teléfono:', o.contactoTelefono || '—', y, M, W);
+
+      // 7. OBSERVACIONES (si hay)
+      if(o.observaciones){
+        y += 4;
+        y = seccionPDF(doc, 'OBSERVACIONES', y, M, W);
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(9);
+        var lineas = doc.splitTextToSize(o.observaciones, W - M*2 - 5);
+        for(var k=0; k<lineas.length; k++){
+          doc.text(lineas[k], M+5, y);
+          y += 5;
+        }
+      }
+
+      // 8. FIRMA Y SELLO
+      // Si el oficial tiene firma, mostrarla. Si no, mostrar una línea para firmar.
+      var yFirma = Math.max(y + 25, 200);
+
+      // Verificar si hay espacio. Si no, ir a nueva página.
+      var H = doc.internal.pageSize.getHeight();
+      if(yFirma > H - 60){
+        doc.addPage();
+        yFirma = 60;
+      }
+
+      doc.setDrawColor(0,0,0);
+      doc.setLineWidth(0.3);
+      doc.line(M, yFirma, M+70, yFirma);
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.text('FIRMA DEL OFICIAL', M, yFirma + 4);
+
+      doc.text(nombreCompleto, M, yFirma + 9);
+      doc.text((o.jerarquia || '') + ' — C.I. ' + (o.cedula || ''), M, yFirma + 14);
+
+      // Firma como imagen (si existe)
+      if(o.firma){
+        try{
+          doc.addImage(o.firma, 'PNG', M, yFirma - 18, 50, 16);
+        }catch(e){}
+      }
+
+      // Sello (derecha)
+      var xSello = W - M - 45;
+      return cargarImagenBase64('SELLO.png', null).then(function(selloB64){
+        if(selloB64){
+          try{
+            doc.addImage(selloB64, 'PNG', xSello, yFirma - 18, 45, 45);
+          }catch(e){}
+        }
+
+        // 9. Pie de página
+        return pieDePaginaPDF(doc).then(function(){
+          var nombreArchivo = 'Ficha_' + (o.cedula || 'oficial').replace(/[^\d]/g,'') + '.pdf';
+          doc.save(nombreArchivo);
+        });
+      });
+    }).catch(function(e){
+      console.error('Error generando PDF ficha:', e);
+      alert('Error generando PDF: ' + (e.message || e));
+    });
+
+  }catch(e){
+    console.error('Error generando PDF ficha (fuera):', e);
+    alert('Error generando PDF: ' + (e.message || e));
+  }
+}
+window.generarPDFFichaPersonalInterno = generarPDFFichaPersonalInterno;
+
+/* ---------- 2F.2 — HELPERS DE DISEÑO ---------- */
+
+// Dibuja el título de una sección con línea debajo
+function seccionPDF(doc, titulo, y, M, W){
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  doc.setTextColor(11,42,74);
+  doc.text(titulo, M, y);
+
+  doc.setDrawColor(180,180,180);
+  doc.setLineWidth(0.2);
+  doc.line(M, y+1.5, W-M, y+1.5);
+  doc.setTextColor(0,0,0);
+
+  return y + 6;
+}
+window.seccionPDF = seccionPDF;
+
+// Dibuja un campo "Etiqueta: Valor"
+function campoPDF(doc, etiqueta, valor, y, M, W, multilinea){
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  doc.text(etiqueta, M, y);
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+
+  if(multilinea){
+    var lineas = doc.splitTextToSize(String(valor), W - M*2 - 55);
+    for(var i=0; i<lineas.length; i++){
+      doc.text(lineas[i], M+55, y);
+      y += 5;
+    }
+    return y + 1;
+  } else {
+    doc.text(String(valor), M+55, y);
+    return y + 5.5;
+  }
+}
+window.campoPDF = campoPDF;
+
+// Formatea una fecha "YYYY-MM-DD" → "DD/MM/YYYY"
+function formatFechaPDF(fecha){
+  if(!fecha) return '—';
+  var f = String(fecha).trim();
+  if(f.indexOf('-') === -1) return f;
+  var partes = f.split('-');
+  if(partes.length !== 3) return f;
+  return partes[2] + '/' + partes[1] + '/' + partes[0];
+}
+window.formatFechaPDF = formatFechaPDF;  
 
 /* ---------- Preview de firma ---------- */
 document.addEventListener('DOMContentLoaded', function(){
