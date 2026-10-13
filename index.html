@@ -3444,8 +3444,107 @@ var SYNC_QUEUE = {
         });
       });
     }
-    if(op.tipo === 'actualizar_folio_edan'){
+        if(op.tipo === 'actualizar_folio_edan'){
       return db.collection('edan').doc(op.firebaseId).update({ folio: op.folio });
+    }
+
+    /* ----- [M5] PERSONAL ----- */
+    if(op.tipo === 'crear_personal'){
+      var docPer = Object.assign({}, op.datos);
+      delete docPer.id;
+      delete docPer._localModificado;
+      delete docPer._sincronizado;
+      delete docPer._origen;
+      delete docPer.firebase_id;
+      docPer.creado = firebase.firestore.FieldValue.serverTimestamp();
+
+      // Usar la cédula como ID del documento (sin puntos ni letras)
+      var docId = (docPer.cedula || '').replace(/[^\d]/g, '') || ('per_' + Date.now());
+      return db.collection('personal').doc(docId).set(docPer, { merge: true }).then(function(){
+        return DBLocal.leer('personal_cache', '__lista__').then(function(cache){
+          if(cache && cache.items){
+            for(var i=0; i<cache.items.length; i++){
+              var idL = cache.items[i].id || cache.items[i].cedula;
+              var idR = op.datos.id || op.datos.cedula;
+              if(String(idL) === String(idR)){
+                cache.items[i].firebase_id = docId;
+                cache.items[i]._sincronizado = true;
+                break;
+              }
+            }
+            return DBLocal.guardar('personal_cache', { id: '__lista__', items: cache.items });
+          }
+        });
+      });
+    }
+
+    if(op.tipo === 'actualizar_personal'){
+      var docPer2 = Object.assign({}, op.datos);
+      delete docPer2.id;
+      delete docPer2._localModificado;
+      delete docPer2._sincronizado;
+      delete docPer2._origen;
+      delete docPer2.firebase_id;
+      delete docPer2.creado;
+
+      var docId2 = op.datos.firebase_id || (docPer2.cedula || '').replace(/[^\d]/g, '');
+      if(!docId2){
+        return Promise.reject(new Error('No se pudo determinar el ID del oficial'));
+      }
+      return db.collection('personal').doc(docId2).set(docPer2, { merge: true });
+    }
+
+    return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
+    }
+
+    /* ----- [M5] PERSONAL ----- */
+    if(op.tipo === 'crear_personal'){
+      var docPer = Object.assign({}, op.datos);
+      delete docPer.id;
+      delete docPer._localModificado;
+      delete docPer._sincronizado;
+      delete docPer._origen;
+      delete docPer.firebase_id;
+      docPer.creado = firebase.firestore.FieldValue.serverTimestamp();
+
+      // Usar la cédula como ID del documento (sin puntos ni letras)
+      var docId = (docPer.cedula || '').replace(/[^\d]/g, '') || ('per_' + Date.now());
+      return db.collection('personal').doc(docId).set(docPer, { merge: true }).then(function(){
+        return DBLocal.leer('personal_cache', '__lista__').then(function(cache){
+          if(cache && cache.items){
+            for(var i=0; i<cache.items.length; i++){
+              var idL = cache.items[i].id || cache.items[i].cedula;
+              var idR = op.datos.id || op.datos.cedula;
+              if(String(idL) === String(idR)){
+                cache.items[i].firebase_id = docId;
+                cache.items[i]._sincronizado = true;
+                break;
+              }
+            }
+            return DBLocal.guardar('personal_cache', { id: '__lista__', items: cache.items });
+          }
+        });
+      });
+    }
+
+    if(op.tipo === 'actualizar_personal'){
+      var docPer2 = Object.assign({}, op.datos);
+      delete docPer2.id;
+      delete docPer2._localModificado;
+      delete docPer2._sincronizado;
+      delete docPer2._origen;
+      delete docPer2.firebase_id;
+      delete docPer2.creado;
+
+      // ID del documento: firebase_id o cédula
+      var docId2 = docPer2.firebase_id_original || op.datos.firebase_id || (docPer2.cedula || '').replace(/[^\d]/g, '');
+      if(!docId2){
+        return Promise.reject(new Error('No se pudo determinar el ID del oficial'));
+      }
+      return db.collection('personal').doc(docId2).set(docPer2, { merge: true });
+    }
+
+    return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
     }
 
     return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
