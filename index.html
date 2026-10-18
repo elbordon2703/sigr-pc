@@ -3496,8 +3496,7 @@ var SYNC_QUEUE = {
     }
 
     return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
-    }
-
+  
     /* ----- [M5] PERSONAL ----- */
     if(op.tipo === 'crear_personal'){
       var docPer = Object.assign({}, op.datos);
