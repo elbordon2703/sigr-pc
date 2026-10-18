@@ -3495,9 +3495,7 @@ var SYNC_QUEUE = {
       return db.collection('personal').doc(docId2).set(docPer2, { merge: true });
     }
 
-    return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
-  
-    /* ----- [M5] PERSONAL ----- */
+        /* ----- [M5] PERSONAL ----- */
     if(op.tipo === 'crear_personal'){
       var docPer = Object.assign({}, op.datos);
       delete docPer.id;
@@ -3507,7 +3505,6 @@ var SYNC_QUEUE = {
       delete docPer.firebase_id;
       docPer.creado = firebase.firestore.FieldValue.serverTimestamp();
 
-      // Usar la cédula como ID del documento (sin puntos ni letras)
       var docId = (docPer.cedula || '').replace(/[^\d]/g, '') || ('per_' + Date.now());
       return db.collection('personal').doc(docId).set(docPer, { merge: true }).then(function(){
         return DBLocal.leer('personal_cache', '__lista__').then(function(cache){
@@ -3536,8 +3533,7 @@ var SYNC_QUEUE = {
       delete docPer2.firebase_id;
       delete docPer2.creado;
 
-      // ID del documento: firebase_id o cédula
-      var docId2 = docPer2.firebase_id_original || op.datos.firebase_id || (docPer2.cedula || '').replace(/[^\d]/g, '');
+      var docId2 = op.datos.firebase_id || (docPer2.cedula || '').replace(/[^\d]/g, '');
       if(!docId2){
         return Promise.reject(new Error('No se pudo determinar el ID del oficial'));
       }
@@ -3545,10 +3541,9 @@ var SYNC_QUEUE = {
     }
 
     return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
-    }
-
-    return Promise.reject(new Error('Tipo desconocido: ' + op.tipo));
   }
+};
+window.SYNC_QUEUE = SYNC_QUEUE;
 };
 window.SYNC_QUEUE = SYNC_QUEUE;
 
