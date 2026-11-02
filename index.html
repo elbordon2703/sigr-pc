@@ -1443,7 +1443,7 @@ tbody tr:last-child td{border-bottom:none;}
          ╚══════════════════════════════════════════════════════════╝ -->
     <!-- === MODULO 4 === -->
         <!-- === MODULO 4 === -->
-    <div id="sec-operaciones" class="section" style="display:none;">
+    <div id="sec-operaciones" class="section">
       <h2>Operaciones</h2>
       <p class="text-muted">Apertura de servicio diario, control de personal y vehículos.</p>
 
@@ -1898,6 +1898,7 @@ function mostrarSeccion(target){
   }
     // Hook: cargar datos al abrir un módulo
   if(target === 'personal'){ cargarPersonal(); }
+  if(target === 'operaciones'){ cargarOperaciones(); }
   window.scrollTo({top:0,behavior:'smooth'});
   } 
   window.mostrarSeccion = mostrarSeccion;
