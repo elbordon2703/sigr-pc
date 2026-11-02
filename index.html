@@ -1979,34 +1979,57 @@ function cargarOperaciones(){
   });
 }
 window.cargarOperaciones = cargarOperaciones;
-  /* ---------- CARGAR PERSONAL DEL GRUPO EN EL MODAL ---------- */
+/* ---------- CARGAR PERSONAL DEL GRUPO EN EL MODAL ---------- */
 function cargarPersonalGrupoOperaciones(){
-  var grupo = document.getElementById('opGrupoEntrante').value;
+  var grupoSeleccionado = document.getElementById('opGrupoEntrante').value;
   var contenedor = document.getElementById('opPersonalContainer');
   
-  if(!grupo){
+  if(!grupoSeleccionado){
     contenedor.innerHTML = '<p class="text-muted">Seleccione primero el Grupo Entrante para cargar el personal.</p>';
     return;
   }
 
-  contenedor.innerHTML = '<p class="text-muted">Cargando personal del ' + grupo + '...</p>';
+  contenedor.innerHTML = '<p class="text-muted">Cargando personal del ' + grupoSeleccionado + '...</p>';
 
-  // Buscar en Firestore los oficiales de ese grupo (usando el campo 'grupo' que es texto)
-  db.collection('personal').where('grupo', '==', grupo).get().then(function(snap){
-    if(snap.empty){
-      contenedor.innerHTML = '<p style="color:red;">No hay oficiales registrados en el ' + grupo + '.</p>';
+  // Extraer solo la letra (A, B o C) para que coincida con Firestore
+  var letraGrupo = grupoSeleccionado.replace('Grupo ', '').trim();
+
+  // Buscar en Firestore
+  db.collection('personal').get().then(function(snap){
+    var oficialesEncontrados = [];
+    
+    snap.forEach(function(doc){
+      var d = doc.data();
+      d.id = doc.id; // guardar el ID
+
+      // Lógica para saber si pertenece al grupo
+      var pertenece = false;
+      
+      // 1. Por campo 'grupo' (texto)
+      if(d.grupo === letraGrupo) pertenece = true;
+      // 2. Por campo 'grupos' (array)
+      if(d.grupos && Array.isArray(d.grupos) && d.grupos.indexOf(letraGrupo) !== -1) pertenece = true;
+      
+      // 3. Verificar que no esté de baja
+      if(d.estado === 'baja') pertenece = false;
+
+      if(pertenece) {
+        oficialesEncontrados.push(d);
+      }
+    });
+
+    if(oficialesEncontrados.length === 0){
+      contenedor.innerHTML = '<p style="color:red;">No hay oficiales asignados al ' + grupoSeleccionado + ' en el sistema.</p>';
       return;
     }
 
     var html = '<table style="width:100%; font-size:12px; text-align:left; border-collapse: collapse;">';
-    html += '<tr style="background:#eee;"><th style="padding:4px;">Oficial</th><th style="padding:4px;">Asistencia</th><th style="padding:4px;">Estado</th><th style="padding:4px;">Responsabilidades (separadas por coma)</th></tr>';
+    html += '<tr style="background:#eee;"><th style="padding:4px;">Oficial</th><th style="padding:4px; text-align:center;">Asistió</th><th style="padding:4px;">Estado</th><th style="padding:4px;">Responsabilidades</th></tr>';
 
-    snap.forEach(function(doc){
-      var d = doc.data();
+    oficialesEncontrados.forEach(function(d){
       var nombreCompleto = (d.jerarquia || '') + ' ' + (d.nombre || '') + ' ' + (d.apellido || '');
-      var idSeguro = doc.id; 
+      var idSeguro = d.id; 
 
-      // Opciones del select de estados
       var estados = ['activo', 'disponible', 'en_servicio', 'reposo', 'permiso', 'vacaciones', 'comision_municipio', 'comision_nacional', 'comision_internacional', 'apoyo_instituciones', 'apoyo_zoedan', 'apoyo_pc_municipio', 'baja'];
       var opcionesEstado = '';
       estados.forEach(function(est){
@@ -2014,23 +2037,19 @@ function cargarPersonalGrupoOperaciones(){
         opcionesEstado += '<option value="' + est + '" ' + sel + '>' + est.replace(/_/g, ' ') + '</option>';
       });
 
-      // Responsabilidades (las unimos por coma para mostrarlas en un input)
       var respsString = (d.responsabilidades && Array.isArray(d.responsabilidades)) ? d.responsabilidades.join(', ') : '';
 
       html += '<tr style="border-bottom:1px solid #ddd;">';
       html += '<td style="padding:4px;">' + nombreCompleto + '<br><span style="font-size:10px; color:#666;">' + (d.cedula || '') + '</span></td>';
       
-      // Checkbox de asistencia
       html += '<td style="padding:4px; text-align:center;">';
       html += '<input type="checkbox" class="opAsistencia" data-id="' + idSeguro + '" checked style="transform:scale(1.3);">';
       html += '</td>';
       
-      // Select de estado
       html += '<td style="padding:4px;">';
       html += '<select class="opEstadoOficial" data-id="' + idSeguro + '" style="font-size:11px; padding:2px;">' + opcionesEstado + '</select>';
       html += '</td>';
       
-      // Input de responsabilidades
       html += '<td style="padding:4px;">';
       html += '<input type="text" class="opRespOficial" data-id="' + idSeguro + '" value="' + respsString + '" placeholder="Ej: inspector, conductor" style="width:100%; font-size:11px; padding:2px;">';
       html += '</td>';
@@ -2046,6 +2065,7 @@ function cargarPersonalGrupoOperaciones(){
     contenedor.innerHTML = '<p style="color:red;">Error al cargar el personal. Revise la consola.</p>';
   });
 }
+window.cargarPersonalGrupoOperaciones = cargarPersonalGrupoOperaciones;
 window.cargarPersonalGrupoOperaciones = cargarPersonalGrupoOperaciones;
   /* ============================================================
    [M5] MÓDULO PERSONAL — JS
