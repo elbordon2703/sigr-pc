@@ -357,7 +357,7 @@ tbody tr:last-child td{border-bottom:none;}
       <span class="nav-label-full">Gestión de Riesgo</span>
       <span class="nav-label-short">Ries</span>
     </a>
-    <a class="nav-item disabled" data-target="operaciones" data-modulo="3" onclick="mostrarSeccion('operaciones')">
+    <a class="nav-item" data-target="operaciones" data-modulo="3" onclick="mostrarSeccion('operaciones')">
       <span class="nav-icon">🛡️</span>
       <span class="nav-label-full">Operaciones</span>
       <span class="nav-label-short">Oper</span>
@@ -1442,6 +1442,134 @@ tbody tr:last-child td{border-bottom:none;}
          ║  FIN                                                       ║
          ╚══════════════════════════════════════════════════════════╝ -->
     <!-- === MODULO 4 === -->
+        <!-- === MODULO 4 === -->
+    <div id="sec-operaciones" class="section" style="display:none;">
+      <h2>Operaciones</h2>
+      <p class="text-muted">Apertura de servicio diario, control de personal y vehículos.</p>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3>Servicios Aperturados</h3>
+        <button class="btn btn-primary" onclick="abrirModalApertura()">+ Aperturar Servicio</button>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Grupo</th>
+            <th>Jefe de Servicio</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaServiciosBody">
+          <tr><td colspan="6" style="text-align:center; padding:20px;">Cargando servicios...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- MODAL APERTURA DE SERVICIO -->
+    <div class="modal" id="modalApertura">
+      <div class="modal-content" style="max-width:800px;">
+        <div class="modal-header">
+          <h3 id="modalAperturaTitulo">Apertura de Servicio</h3>
+          <button class="modal-close" onclick="cerrarModal('modalApertura')">×</button>
+        </div>
+
+        <div class="modal-body" style="max-height:75vh; overflow-y:auto;">
+          
+          <!-- SECCIÓN 1: DATOS GENERALES -->
+          <div class="form-section-title">Datos del Servicio</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" id="opFecha" readonly>
+            </div>
+            <div class="form-group">
+              <label>Hora (09:00)</label>
+              <input type="time" id="opHora" value="09:00" readonly>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Grupo Entrante (Recibe) *</label>
+              <select id="opGrupoEntrante" onchange="cargarPersonalGrupoOperaciones()">
+                <option value="">Seleccione...</option>
+                <option value="Grupo A">Grupo A</option>
+                <option value="Grupo B">Grupo B</option>
+                <option value="Grupo C">Grupo C</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Grupo Saliente (Entrega) *</label>
+              <select id="opGrupoSaliente">
+                <option value="">Seleccione...</option>
+                <option value="Grupo A">Grupo A</option>
+                <option value="Grupo B">Grupo B</option>
+                <option value="Grupo C">Grupo C</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 2: PERSONAL -->
+          <div class="form-section-title">Personal del Grupo Entrante</div>
+          <div id="opPersonalContainer" style="font-size:12px; border:1px solid #ccc; padding:10px; border-radius:5px; margin-bottom:15px; background:#f9f9f9;">
+            <p class="text-muted">Seleccione primero el Grupo Entrante para cargar el personal.</p>
+          </div>
+
+          <!-- SECCIÓN 3: VEHÍCULOS -->
+          <div class="form-section-title">Vehículos e Instalaciones</div>
+          <div id="opVehiculosContainer">
+             <p class="text-muted" style="font-size:12px;">No hay vehículos registrados en el sistema (la colección está vacía).</p>
+          </div>
+          <div class="form-row" style="margin-top:10px;">
+            <div class="form-group">
+              <label>Estado de las Instalaciones</label>
+              <textarea id="opEstadoInstalaciones" rows="2" placeholder="Ej: Instalaciones limpias, sin novedades."></textarea>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 4: NOVEDADES -->
+          <div class="form-section-title">Recibe el Servicio (Parte)</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Novedades Pendientes</label>
+              <textarea id="opNovedades" rows="2" placeholder="Ej: Faltan 2 colchonetas, hay un aire dañado..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Observaciones</label>
+              <textarea id="opObservaciones" rows="2" placeholder="Novedades detectadas después de recibir, o situación con algún oficial..."></textarea>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 5: FOTOS -->
+          <div class="form-section-title">Evidencia</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto del Encuadre / Formación</label>
+              <input type="file" id="opFotoEncuadre" accept="image/*" capture="environment">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Foto de la Planilla de Asistencia</label>
+              <input type="file" id="opFotoPlanilla" accept="image/*" capture="environment">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="cerrarModal('modalApertura')">Cancelar</button>
+          <button class="btn btn-primary" onclick="guardarApertura()">Guardar Apertura</button>
+        </div>
+      </div>
+    </div>
+    <!-- === FIN MODULO 4 === -->
+
     <!-- === MODULO 5 === -->
     <div id="sec-personal" class="section"> 
       <h2>Personal</h2>
