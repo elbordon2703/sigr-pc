@@ -1902,6 +1902,80 @@ function mostrarSeccion(target){
   } 
   window.mostrarSeccion = mostrarSeccion;
   /* ============================================================
+   [M4] MÓDULO OPERACIONES — JS
+   Bloque 1 — Modal y Listado
+   ============================================================ */
+
+function abrirModalApertura(){
+  // Limpiar campos
+  document.getElementById('opFecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('opHora').value = '09:00';
+  document.getElementById('opGrupoEntrante').value = '';
+  document.getElementById('opGrupoSaliente').value = '';
+  document.getElementById('opEstadoInstalaciones').value = '';
+  document.getElementById('opNovedades').value = '';
+  document.getElementById('opObservaciones').value = '';
+  document.getElementById('opFotoEncuadre').value = '';
+  document.getElementById('opFotoPlanilla').value = '';
+  
+  document.getElementById('opPersonalContainer').innerHTML = '<p class="text-muted">Seleccione primero el Grupo Entrante para cargar el personal.</p>';
+
+  // Abrir modal
+  document.getElementById('modalApertura').classList.add('active');
+}
+window.abrirModalApertura = abrirModalApertura;
+
+function cerrarModalApertura(){
+  document.getElementById('modalApertura').classList.remove('active');
+}
+window.cerrarModalApertura = cerrarModalApertura;
+
+/* ---------- CARGAR TABLA DE SERVICIOS ---------- */
+function cargarOperaciones(){
+  var tbody = document.getElementById('tablaServiciosBody');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Cargando servicios...</td></tr>';
+
+  if(!hayRedReal()){
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#888;">Se requiere conexión a internet para ver los servicios.</td></tr>';
+    return;
+  }
+
+  db.collection('servicio').orderBy('fechaRegistro', 'desc').limit(50).get().then(function(snap){
+    if(snap.empty){
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#888;">No hay servicios registrados.</td></tr>';
+      return;
+    }
+    
+    var html = '';
+    snap.forEach(function(doc){
+      var d = doc.data();
+      
+      // Formatear fecha y hora
+      var fecha = d.fechaApertura ? new Date(d.fechaApertura.toDate()).toLocaleDateString('es-VE') : '—';
+      var hora = d.fechaApertura ? new Date(d.fechaApertura.toDate()).toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'}) : '—';
+      var grupo = d.grupo || '—';
+      var jefe = d.jefe || '—';
+      
+      var badgeEstado = d.estado === 'abierto' ? '<span class="badge badge-success">Abierto</span>' : '<span class="badge badge-secondary">Cerrado</span>';
+
+      html += '<tr>';
+      html += '<td>' + fecha + '</td>';
+      html += '<td>' + hora + '</td>';
+      html += '<td>' + grupo + '</td>';
+      html += '<td>' + jefe + '</td>';
+      html += '<td>' + badgeEstado + '</td>';
+      html += '<td><button class="btn btn-sm btn-secondary" disabled>Ver PDF</button></td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+  }).catch(function(e){
+    console.error('Error cargando servicios:', e);
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:red;">Error al cargar los servicios.</td></tr>';
+  });
+}
+window.cargarOperaciones = cargarOperaciones;
+  /* ============================================================
    [M5] MÓDULO PERSONAL — JS
    Bloque 2A — Abrir / Cerrar modal
    ============================================================ */
