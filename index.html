@@ -1952,9 +1952,12 @@ function cargarOperaciones(){
     snap.forEach(function(doc){
       var d = doc.data();
       
-      // Formatear fecha y hora
-      var fecha = d.fechaApertura ? new Date(d.fechaApertura.toDate()).toLocaleDateString('es-VE') : '—';
-      var hora = d.fechaApertura ? new Date(d.fechaApertura.toDate()).toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'}) : '—';
+           // Formatear fecha y hora (soporta Timestamp o texto)
+      var fAux = d.fechaApertura;
+      if(fAux && typeof fAux.toDate === 'function') fAux = fAux.toDate(); 
+      var fDate = fAux ? new Date(fAux) : null;
+      var fecha = fDate ? fDate.toLocaleDateString('es-VE') : '—';
+      var hora = fDate ? fDate.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit', hour12: false}) : '—';
       var grupo = d.grupo || '—';
       var jefe = d.jefe || '—';
       
