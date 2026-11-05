@@ -70,6 +70,8 @@ window.cargarPersonalGrupoOperaciones = function(){
       var nombre = (d.jerarquia || '') + ' ' + (d.nombre || '') + ' ' + (d.apellido || '');
       var estados = ['activo', 'disponible', 'en_servicio', 'reposo', 'permiso', 'vacaciones', 'comision_municipio', 'comision_nacional', 'comision_internacional', 'apoyo_instituciones', 'apoyo_zoedan', 'apoyo_pc_municipio', 'baja'];
       var ops = ''; estados.forEach(function(est){ ops += '<option value="' + est + '" ' + (d.estado === est ? 'selected' : '') + '>' + est.replace(/_/g, ' ') + '</option>'; });
+      
+      // AQUI ESTA LA CORRECCION: value="" en el input de responsabilidades
       html += '<tr style="border-bottom:1px solid #ddd;"><td style="padding:4px;">' + nombre + '<br><span style="font-size:10px; color:#666;">' + (d.cedula || '') + '</span></td><td style="padding:4px; text-align:center;"><input type="checkbox" class="opAsistencia" data-id="' + d.id + '" checked style="transform:scale(1.3);"></td><td style="padding:4px;"><select class="opEstadoOficial" data-id="' + d.id + '" style="font-size:11px; padding:2px;">' + ops + '</select></td><td style="padding:4px;"><input type="text" class="opRespOficial" data-id="' + d.id + '" value="" placeholder="Asigne función(es)..." style="width:100%; font-size:11px; padding:2px;"></td></tr>';
     });
     html += '</table>';
