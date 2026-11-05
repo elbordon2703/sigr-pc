@@ -19,6 +19,43 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="js_operaciones_v2.js"></script>
+  <script>
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        var oldFn = window.cargarPersonalGrupoOperaciones;
+        window.cargarPersonalGrupoOperaciones = function() {
+            var grupoSeleccionado = document.getElementById('opGrupoEntrante').value;
+            var contenedor = document.getElementById('opPersonalContainer');
+            if(!grupoSeleccionado){ contenedor.innerHTML = '<p class="text-muted">Seleccione primero el Grupo Entrante para cargar el personal.</p>'; return; }
+            contenedor.innerHTML = '<p class="text-muted">Cargando personal del ' + grupoSeleccionado + '...</p>';
+            var letraGrupo = grupoSeleccionado.replace('Grupo ', '').trim();
+
+            db.collection('personal').get().then(function(snap){
+                var oficiales = [];
+                snap.forEach(function(doc){
+                    var d = doc.data(); d.id = doc.id;
+                    var pertenece = false;
+                    if(d.grupo === letraGrupo) pertenece = true;
+                    if(d.grupos && Array.isArray(d.grupos) && d.grupos.indexOf(letraGrupo) !== -1) pertenece = true;
+                    if(d.estado === 'baja') pertenece = false;
+                    if(pertenece) oficiales.push(d);
+                });
+                if(oficiales.length === 0){ contenedor.innerHTML = '<p style="color:red;">No hay oficiales asignados al ' + grupoSeleccionado + '.</p>'; return; }
+                var html = '<table style="width:100%; font-size:12px; text-align:left; border-collapse: collapse;"><tr style="background:#eee;"><th style="padding:4px;">Oficial</th><th style="padding:4px; text-align:center;">Asistió</th><th style="padding:4px;">Estado</th><th style="padding:4px;">Responsabilidades</th></tr>';
+                oficiales.forEach(function(d){
+                    var nombre = (d.jerarquia || '') + ' ' + (d.nombre || '') + ' ' + (d.apellido || '');
+                    var estados = ['activo', 'disponible', 'en_servicio', 'reposo', 'permiso', 'vacaciones', 'comision_municipio', 'comision_nacional', 'comision_internacional', 'apoyo_instituciones', 'apoyo_zoedan', 'apoyo_pc_municipio', 'baja'];
+                    var ops = ''; estados.forEach(function(est){ ops += '<option value="' + est + '" ' + (d.estado === est ? 'selected' : '') + '>' + est.replace(/_/g, ' ') + '</option>'; });
+                    html += '<tr style="border-bottom:1px solid #ddd;"><td style="padding:4px;">' + nombre + '<br><span style="font-size:10px; color:#666;">' + (d.cedula || '') + '</span></td><td style="padding:4px; text-align:center;"><input type="checkbox" class="opAsistencia" data-id="' + d.id + '" checked style="transform:scale(1.3);"></td><td style="padding:4px;"><select class="opEstadoOficial" data-id="' + d.id + '" style="font-size:11px; padding:2px;">' + ops + '</select></td><td style="padding:4px;"><input type="text" class="opRespOficial" data-id="' + d.id + '" value="" placeholder="Asigne función(es)..." style="width:100%; font-size:11px; padding:2px;"></td></tr>';
+                });
+                html += '</table>';
+                contenedor.innerHTML = html;
+            });
+        };
+        console.log("✅ Función de personal sobreescrita correctamente");
+    }, 2000); // Espera 2 segundos a que todo cargue
+});
+</script>
 <style>
 :root{
   --primary:#0b2a4a;
