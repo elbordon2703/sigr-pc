@@ -7471,7 +7471,11 @@ window.addEventListener('load', function() {
                     
                     docPdf.setFontSize(11); docPdf.text('PERSONAL DEL SERVICIO', M, y); docPdf.line(M, y + 2, W - M, y + 2); y += 8;
                     docPdf.setFontSize(9); docPdf.setFont('helvetica', 'bold');
-                    docPdf.text('Oficial', M, y); docPdf.text('Asistió', M + 70, y); docPdf.text('Estado', M + 90, y); docPdf.text('Responsabilidad', M + 130, y); y += 6;
+                    docPdf.text('Oficial', M, y); 
+docPdf.text('Asistió', M + 70, y); 
+docPdf.text('Estado', M + 90, y); 
+docPdf.text('Responsabilidad', M + 130, y); 
+y += 6;
                     
                     docPdf.setFont('helvetica', 'normal');
                     if(d.personal && d.personal.length > 0){
