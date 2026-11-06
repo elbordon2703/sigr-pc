@@ -1,5 +1,5 @@
 /* ============================================================
-   [M4] MÓDULO OPERACIONES — JS Bloque 3 (Guardar Apertura)
+   [M4] MÓDULO OPERACIONES — JS v3 (Guardar + Botones + Personal)
    ============================================================ */
 
 window.guardarApertura = function(){
@@ -14,10 +14,9 @@ window.guardarApertura = function(){
   var btn = document.querySelector('button[onclick="guardarApertura()"]');
   if(btn){ btn.disabled = true; btn.textContent = 'Guardando...'; }
 
-  // 1. Recolectar personal
   var personal = [];
   var filas = document.querySelectorAll('#opPersonalContainer table tr');
-  for(var i=1; i<filas.length; i++){ // i=1 para saltar el encabezado
+  for(var i=1; i<filas.length; i++){ 
     var fila = filas[i];
     var id = fila.querySelector('.opAsistencia').getAttribute('data-id');
     var asistio = fila.querySelector('.opAsistencia').checked;
@@ -34,10 +33,8 @@ window.guardarApertura = function(){
     });
   }
 
-  // 2. Recolectar fotos
   var fileEncuadre = document.getElementById('opFotoEncuadre').files[0];
   var filePlanilla = document.getElementById('opFotoPlanilla').files[0];
-
   var promesasFotos = [];
   
   if(fileEncuadre){
@@ -51,12 +48,11 @@ window.guardarApertura = function(){
     var fotosObj = {};
     fotos.forEach(function(f){ fotosObj['foto_' + f.nombre] = f.base64; });
 
-    // 3. Armar el objeto a guardar
     var data = {
       fechaApertura: firebase.firestore.FieldValue.serverTimestamp(),
       grupo: grupoEntrante,
       grupoSaliente: grupoSaliente,
-      jefe: 'Por asignar', // Aquí se puede mejorar sacando el jefe del grupo
+      jefe: 'Por asignar', 
       estado: 'abierto',
       personal: personal,
       instalaciones: document.getElementById('opEstadoInstalaciones').value.trim(),
@@ -68,12 +64,11 @@ window.guardarApertura = function(){
       fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // 4. Guardar en Firebase
     return db.collection('servicio').add(data);
   }).then(function(ref){
     alert('¡Servicio aperturado y guardado con éxito!');
     cerrarModal('modalApertura');
-    cargarOperaciones(); // Recargar la tabla
+    cargarOperaciones(); 
     if(btn){ btn.disabled = false; btn.textContent = 'Guardar Apertura'; }
   }).catch(function(e){
     console.error('Error guardando servicio:', e);
@@ -81,3 +76,80 @@ window.guardarApertura = function(){
     if(btn){ btn.disabled = false; btn.textContent = 'Guardar Apertura'; }
   });
 };
+
+window.cargarPersonalGrupoOperaciones = function() {
+    var grupoSeleccionado = document.getElementById('opGrupoEntrante').value;
+    var contenedor = document.getElementById('opPersonalContainer');
+    if(!grupoSeleccionado){ contenedor.innerHTML = '<p class="text-muted">Seleccione primero el Grupo Entrante para cargar el personal.</p>'; return; }
+    contenedor.innerHTML = '<p class="text-muted">Cargando personal del ' + grupoSeleccionado + '...</p>';
+    var letraGrupo = grupoSeleccionado.replace('Grupo ', '').trim();
+
+    db.collection('personal').get().then(function(snap){
+        var oficiales = [];
+        snap.forEach(function(doc){
+            var d = doc.data(); d.id = doc.id;
+            var pertenece = false;
+            if(d.grupo === letraGrupo) pertenece = true;
+            if(d.grupos && Array.isArray(d.grupos) && d.grupos.indexOf(letraGrupo) !== -1) pertenece = true;
+            if(d.estado === 'baja') pertenece = false;
+            if(pertenece) oficiales.push(d);
+        });
+        if(oficiales.length === 0){ contenedor.innerHTML = '<p style="color:red;">No hay oficiales asignados al ' + grupoSeleccionado + '.</p>'; return; }
+        
+        var html = '<table style="width:100%; font-size:12px; text-align:left; border-collapse: collapse;"><tr style="background:#eee;"><th style="padding:4px;">Oficial</th><th style="padding:4px; text-align:center;">Asistió</th><th style="padding:4px;">Estado</th><th style="padding:4px;">Responsabilidades</th></tr>';
+        oficiales.forEach(function(d){
+            var nombre = (d.jerarquia || '') + ' ' + (d.nombre || '') + ' ' + (d.apellido || '');
+            var estados = ['activo', 'disponible', 'en_servicio', 'reposo', 'permiso', 'vacaciones', 'comision_municipio', 'comision_nacional', 'comision_internacional', 'apoyo_instituciones', 'apoyo_zoedan', 'apoyo_pc_municipio', 'baja'];
+            var ops = ''; estados.forEach(function(est){ ops += '<option value="' + est + '" ' + (d.estado === est ? 'selected' : '') + '>' + est.replace(/_/g, ' ') + '</option>'; });
+            html += '<tr style="border-bottom:1px solid #ddd;"><td style="padding:4px;">' + nombre + '<br><span style="font-size:10px; color:#666;">' + (d.cedula || '') + '</span></td><td style="padding:4px; text-align:center;"><input type="checkbox" class="opAsistencia" data-id="' + d.id + '" checked style="transform:scale(1.3);"></td><td style="padding:4px;"><select class="opEstadoOficial" data-id="' + d.id + '" style="font-size:11px; padding:2px;">' + ops + '</select></td><td style="padding:4px;"><input type="text" class="opRespOficial" data-id="' + d.id + '" value="" placeholder="Asigne función(es)..." style="width:100%; font-size:11px; padding:2px;"></td></tr>';
+        });
+        html += '</table>';
+        contenedor.innerHTML = html;
+    });
+};
+
+window.cargarOperaciones = function(){
+  var tbody = document.getElementById('tablaServiciosBody');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Cargando servicios...</td></tr>';
+
+  db.collection('servicio').orderBy('fechaRegistro', 'desc').limit(50).get().then(function(snap){
+    if(snap.empty){
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#888;">No hay servicios registrados.</td></tr>';
+      return;
+    }
+    var html = '';
+    snap.forEach(function(doc){
+      var d = doc.data();
+      var fAux = d.fechaApertura;
+      if(fAux && typeof fAux.toDate === 'function') fAux = fAux.toDate(); 
+      var fDate = fAux ? new Date(fAux) : null;
+      var fecha = fDate ? fDate.toLocaleDateString('es-VE') : '—';
+      var hora = fDate ? fDate.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit', hour12: false}) : '—';
+      var grupo = d.grupo || '—';
+      var jefe = d.jefe || '—';
+      var badgeEstado = d.estado === 'abierto' ? '<span class="badge badge-success">Abierto</span>' : '<span class="badge badge-secondary">Cerrado</span>';
+      
+      var botones = '';
+      if(d.estado === 'abierto'){
+          botones = '<button class="btn btn-sm btn-primary" onclick="editarServicio(\'' + doc.id + '\')">Editar</button> ';
+          botones += '<button class="btn btn-sm btn-danger" onclick="cerrarServicio(\'' + doc.id + '\')">Cerrar</button>';
+      } else {
+          botones = '<button class="btn btn-sm btn-secondary" disabled>Finalizado</button>';
+      }
+
+      html += '<tr><td>' + fecha + '</td><td>' + hora + '</td><td>' + grupo + '</td><td>' + jefe + '</td><td>' + badgeEstado + '</td><td>' + botones + '</td></tr>';
+    });
+    tbody.innerHTML = html;
+  }).catch(function(e){
+    console.error('Error cargando servicios:', e);
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:red;">Error al cargar los servicios.</td></tr>';
+  });
+};
+
+// Forzar que al cargar la página, estas funciones sean las que manden
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        console.log("✅ Operaciones blindado v3 cargado correctamente");
+    }, 1000);
+});
