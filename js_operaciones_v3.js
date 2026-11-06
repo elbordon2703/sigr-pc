@@ -153,3 +153,106 @@ window.addEventListener('load', function() {
         console.log("✅ Operaciones blindado v3 cargado correctamente");
     }, 1000);
 });
+
+/* ============================================================
+   FUNCIONES DE EDICIÓN Y CIERRE
+   ============================================================ */
+
+window.editarServicio = function(id) {
+    db.collection('servicio').doc(id).get().then(function(doc) {
+        if (!doc.exists) { alert('Servicio no encontrado.'); return; }
+        var d = doc.data();
+        
+        // Cargar datos en el modal
+        document.getElementById('opGrupoEntrante').value = d.grupo || '';
+        document.getElementById('opGrupoSaliente').value = d.grupoSaliente || '';
+        document.getElementById('opEstadoInstalaciones').value = d.instalaciones || '';
+        document.getElementById('opNovedades').value = d.novedades || '';
+        document.getElementById('opObservaciones').value = d.observaciones || '';
+        
+        // Cargar el personal
+        if(d.personal && d.personal.length > 0) {
+            var contenedor = document.getElementById('opPersonalContainer');
+            var html = '<table style="width:100%; font-size:12px; text-align:left; border-collapse: collapse;"><tr style="background:#eee;"><th style="padding:4px;">Oficial</th><th style="padding:4px; text-align:center;">Asistió</th><th style="padding:4px;">Estado</th><th style="padding:4px;">Responsabilidades</th></tr>';
+            
+            d.personal.forEach(function(p) {
+                var checked = p.asistio ? 'checked' : '';
+                var resp = p.responsabilidades ? p.responsabilidades.join(', ') : '';
+                var estados = ['activo', 'disponible', 'en_servicio', 'reposo', 'permiso', 'vacaciones', 'comision_municipio', 'comision_nacional', 'comision_internacional', 'apoyo_instituciones', 'apoyo_zoedan', 'apoyo_pc_municipio', 'baja'];
+                var ops = ''; 
+                estados.forEach(function(est){ 
+                    ops += '<option value="' + est + '" ' + (p.estado === est ? 'selected' : '') + '>' + est.replace(/_/g, ' ') + '</option>'; 
+                });
+                
+                html += '<tr style="border-bottom:1px solid #ddd;"><td style="padding:4px;">' + p.nombre + '</td><td style="padding:4px; text-align:center;"><input type="checkbox" class="opAsistencia" data-id="' + p.id_oficial + '" ' + checked + ' style="transform:scale(1.3);"></td><td style="padding:4px;"><select class="opEstadoOficial" data-id="' + p.id_oficial + '" style="font-size:11px; padding:2px;">' + ops + '</select></td><td style="padding:4px;"><input type="text" class="opRespOficial" data-id="' + p.id_oficial + '" value="' + resp + '" placeholder="Asigne función(es)..." style="width:100%; font-size:11px; padding:2px;"></td></tr>';
+            });
+            html += '</table>';
+            contenedor.innerHTML = html;
+        }
+        
+        // Cambiar el botón de guardar para que actualice, no cree uno nuevo
+        var btn = document.querySelector('button[onclick="guardarApertura()"]');
+        if(btn) {
+            btn.textContent = 'Actualizar Servicio';
+            btn.setAttribute('onclick', 'actualizarApertura("' + id + '")');
+        }
+        
+        document.getElementById('modalAperturaTitulo').textContent = 'Editar Servicio';
+        document.getElementById('modalApertura').classList.add('active');
+    });
+};
+
+window.actualizarApertura = function(id) {
+    var btn = document.querySelector('button[onclick*="actualizarApertura"]');
+    if(btn){ btn.disabled = true; btn.textContent = 'Actualizando...'; }
+
+    var grupoEntrante = document.getElementById('opGrupoEntrante').value;
+    var grupoSaliente = document.getElementById('opGrupoSaliente').value;
+    
+    var personal = [];
+    var filas = document.querySelectorAll('#opPersonalContainer table tr');
+    for(var i=1; i<filas.length; i++){ 
+        var fila = filas[i];
+        personal.push({
+            id_oficial: fila.querySelector('.opAsistencia').getAttribute('data-id'),
+            nombre: fila.querySelector('td').innerHTML,
+            asistio: fila.querySelector('.opAsistencia').checked,
+            estado: fila.querySelector('.opEstadoOficial').value,
+            responsabilidades: fila.querySelector('.opRespOficial').value.trim() ? fila.querySelector('.opRespOficial').value.split(',').map(function(s){return s.trim()}) : []
+        });
+    }
+
+    var data = {
+        grupo: grupoEntrante,
+        grupoSaliente: grupoSaliente,
+        personal: personal,
+        instalaciones: document.getElementById('opEstadoInstalaciones').value.trim(),
+        novedades: document.getElementById('opNovedades').value.trim(),
+        observaciones: document.getElementById('opObservaciones').value.trim()
+    };
+
+    db.collection('servicio').doc(id).update(data).then(function(){
+        alert('¡Servicio actualizado correctamente!');
+        cerrarModal('modalApertura');
+        cargarOperaciones();
+        if(btn){ btn.disabled = false; btn.textContent = 'Guardar Apertura'; btn.setAttribute('onclick', 'guardarApertura()'); }
+        document.getElementById('modalAperturaTitulo').textContent = 'Apertura de Servicio';
+    }).catch(function(e){
+        alert('Error al actualizar: ' + e.message);
+        if(btn){ btn.disabled = false; }
+    });
+};
+
+window.cerrarServicio = function(id) {
+    if(confirm('¿Está seguro de cerrar este servicio? Una vez cerrado no se podrá editar.')) {
+        db.collection('servicio').doc(id).update({
+            estado: 'cerrado',
+            fechaCierre: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function(){
+            alert('Servicio cerrado correctamente.');
+            cargarOperaciones();
+        }).catch(function(e){
+            alert('Error al cerrar: ' + e.message);
+        });
+    }
+};
