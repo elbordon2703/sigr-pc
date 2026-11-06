@@ -132,10 +132,11 @@ window.cargarOperaciones = function(){
       
       var botones = '';
       if(d.estado === 'abierto'){
+         botones = '<button class="btn btn-sm btn-secondary" onclick="verPDFServicio(\'' + doc.id + '\')">PDF</button> ';
           botones = '<button class="btn btn-sm btn-primary" onclick="editarServicio(\'' + doc.id + '\')">Editar</button> ';
           botones += '<button class="btn btn-sm btn-danger" onclick="cerrarServicio(\'' + doc.id + '\')">Cerrar</button>';
       } else {
-          botones = '<button class="btn btn-sm btn-secondary" disabled>Finalizado</button>';
+         botones = '<button class="btn btn-sm btn-secondary" onclick="verPDFServicio(\'' + doc.id + '\')">Ver PDF</button>';
       }
 
       html += '<tr><td>' + fecha + '</td><td>' + hora + '</td><td>' + grupo + '</td><td>' + jefe + '</td><td>' + badgeEstado + '</td><td>' + botones + '</td></tr>';
