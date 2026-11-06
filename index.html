@@ -7276,10 +7276,11 @@ window.addEventListener('load', function() {
 });
 </script>
   <script>
+<script>
 window.addEventListener('load', function() {
     setTimeout(function() {
         
-        // 1. Agregar el selector de Jefe de Servicio al HTML del modal
+        // 1. Selector del Jefe de Servicio
         var divGrupos = document.getElementById('opGrupoEntrante').parentNode.parentNode;
         if(!document.getElementById('opJefeServicio')) {
             var divJefe = document.createElement('div');
@@ -7288,7 +7289,7 @@ window.addEventListener('load', function() {
             divGrupos.parentNode.insertBefore(divJefe, divGrupos.nextSibling);
         }
 
-        // 2. Sobreescribir cargarPersonalGrupoOperaciones para llenar el selector del JS y limpiar responsabilidades
+        // 2. Cargar Personal y llenar el JS
         window.cargarPersonalGrupoOperaciones = function() {
             var grupoSeleccionado = document.getElementById('opGrupoEntrante').value;
             var contenedor = document.getElementById('opPersonalContainer');
@@ -7319,7 +7320,6 @@ window.addEventListener('load', function() {
                     return; 
                 }
 
-                // Llenar el selector del Jefe de Servicio
                 if(selectJefe) {
                     var opsJefe = '<option value="">Seleccione el JS...</option>';
                     oficiales.forEach(function(d){
@@ -7329,7 +7329,6 @@ window.addEventListener('load', function() {
                     selectJefe.innerHTML = opsJefe;
                 }
 
-                // Tabla de personal con responsabilidades vacías
                 var html = '<table style="width:100%; font-size:12px; text-align:left; border-collapse: collapse;"><tr style="background:#eee;"><th style="padding:4px;">Oficial</th><th style="padding:4px; text-align:center;">Asistió</th><th style="padding:4px;">Estado</th><th style="padding:4px;">Responsabilidades</th></tr>';
                 oficiales.forEach(function(d){
                     var nombre = (d.jerarquia || '') + ' ' + (d.nombre || '') + ' ' + (d.apellido || '');
@@ -7342,7 +7341,7 @@ window.addEventListener('load', function() {
             });
         };
 
-        // 3. Sobreescribir guardarApertura para incluir el Jefe y los Vehículos (manual)
+        // 3. Guardar Apertura (con el Jefe)
         window.guardarApertura = function(){
             var grupoEntrante = document.getElementById('opGrupoEntrante').value;
             var grupoSaliente = document.getElementById('opGrupoSaliente').value;
@@ -7409,7 +7408,95 @@ window.addEventListener('load', function() {
             });
         };
 
-        console.log("✅ Módulo Operaciones Blindado (con Jefe de Servicio).");
+        // 4. FUNCIÓN PARA DIBUJAR LA TABLA CON LOS BOTONES (Editar, Cerrar, PDF)
+        window.cargarOperaciones = function(){
+            var tbody = document.getElementById('tablaServiciosBody');
+            if(!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Cargando servicios...</td></tr>';
+
+            db.collection('servicio').orderBy('fechaRegistro', 'desc').limit(50).get().then(function(snap){
+                if(snap.empty){
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#888;">No hay servicios registrados.</td></tr>';
+                    return;
+                }
+                var html = '';
+                snap.forEach(function(doc){
+                    var d = doc.data();
+                    var fAux = d.fechaApertura;
+                    if(fAux && typeof fAux.toDate === 'function') fAux = fAux.toDate(); 
+                    var fDate = fAux ? new Date(fAux) : null;
+                    var fecha = fDate ? fDate.toLocaleDateString('es-VE') : '—';
+                    var hora = fDate ? fDate.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit', hour12: false}) : '—';
+                    var badgeEstado = d.estado === 'abierto' ? '<span class="badge badge-success">Abierto</span>' : '<span class="badge badge-secondary">Cerrado</span>';
+                    
+                    var botones = '';
+                    if(d.estado === 'abierto'){
+                        botones = '<button class="btn btn-sm btn-secondary" onclick="verPDFServicio(\'' + doc.id + '\')">PDF</button> ';
+                        botones += '<button class="btn btn-sm btn-primary" onclick="editarServicio(\'' + doc.id + '\')">Editar</button> ';
+                        botones += '<button class="btn btn-sm btn-danger" onclick="cerrarServicio(\'' + doc.id + '\')">Cerrar</button>';
+                    } else {
+                        botones = '<button class="btn btn-sm btn-secondary" onclick="verPDFServicio(\'' + doc.id + '\')">Ver PDF</button>';
+                    }
+
+                    html += '<tr><td>' + fecha + '</td><td>' + hora + '</td><td>' + (d.grupo || '—') + '</td><td>' + (d.jefe || '—') + '</td><td>' + badgeEstado + '</td><td>' + botones + '</td></tr>';
+                });
+                tbody.innerHTML = html;
+            }).catch(function(e){
+                console.error('Error cargando servicios:', e);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:red;">Error al cargar los servicios.</td></tr>';
+            });
+        };
+
+        // 5. FUNCIÓN PARA EL PDF (Se pierde si no se pone aquí)
+        window.verPDFServicio = function(id){
+            db.collection('servicio').doc(id).get().then(function(doc){
+                if(!doc.exists){ alert('Servicio no encontrado'); return; }
+                var d = doc.data();
+                var docPdf = new jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+                var W = docPdf.internal.pageSize.getWidth();
+                var M = 15;
+                
+                encabezadoPDF(docPdf, 'APERTURA DE SERVICIO', null).then(function(y){
+                    var fAux = d.fechaApertura;
+                    if(fAux && typeof fAux.toDate === 'function') fAux = fAux.toDate();
+                    var fDate = fAux ? new Date(fAux) : new Date();
+                    var fechaStr = fDate.toLocaleDateString('es-VE');
+                    var horaStr = fDate.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit', hour12: false});
+                    
+                    docPdf.setFontSize(10); docPdf.setFont('helvetica', 'bold');
+                    docPdf.text('Fecha: ' + fechaStr + '  |  Hora: ' + horaStr + ' HLV', M, y); y += 8;
+                    docPdf.text('Jefe de Servicio: ' + (d.jefe || '—'), M, y); y += 6;
+                    docPdf.text('Grupo Saliente (Entrega): ' + (d.grupoSaliente || '—'), M, y);
+                    docPdf.text('Grupo Entrante (Recibe): ' + (d.grupo || '—'), M, y + 6); y += 15;
+                    
+                    docPdf.setFontSize(11); docPdf.text('PERSONAL DEL SERVICIO', M, y); docPdf.line(M, y + 2, W - M, y + 2); y += 8;
+                    docPdf.setFontSize(9); docPdf.setFont('helvetica', 'bold');
+                    docPdf.text('Oficial', M, y); docPdf.text('Asistió', M + 70, y); docPdf.text('Estado', M + 90, y); docPdf.text('Responsabilidad', M + 130, y); y += 6;
+                    
+                    docPdf.setFont('helvetica', 'normal');
+                    if(d.personal && d.personal.length > 0){
+                        d.personal.forEach(function(p){
+                            var nombreLimpio = p.nombre.replace(/<[^>]*>?/gm, '').trim();
+                            docPdf.text(nombreLimpio, M, y); docPdf.text(p.asistio ? 'SÍ' : 'NO', M + 70, y); docPdf.text(p.estado, M + 90, y); docPdf.text((p.responsabilidades || []).join(', '), M + 130, y); y += 6;
+                        });
+                    } else { docPdf.text('No hay personal registrado.', M, y); y += 6; }
+                    y += 5;
+                    
+                    docPdf.setFontSize(11); docPdf.setFont('helvetica', 'bold'); docPdf.text('NOVEDADES Y OBSERVACIONES', M, y); docPdf.line(M, y + 2, W - M, y + 2); y += 8;
+                    docPdf.setFontSize(9); docPdf.setFont('helvetica', 'normal');
+                    
+                    var textNovedades = docPdf.splitTextToSize('Instalaciones: ' + (d.instalaciones || 'Sin novedades'), W - M*2); docPdf.text(textNovedades, M, y); y += (textNovedades.length * 5) + 2;
+                    var textObs = docPdf.splitTextToSize('Observaciones: ' + (d.observaciones || 'Ninguna'), W - M*2); docPdf.text(textObs, M, y); y += (textObs.length * 5) + 10;
+                    
+                    if(y > 200){ docPdf.addPage(); y = 30; }
+                    docPdf.setLineWidth(0.5); docPdf.line(M, y + 15, M + 60, y + 15); docPdf.text('Firma del Jefe de Servicio', M, y + 20);
+                    
+                    pieDePaginaPDF(docPdf).then(function(){ docPdf.save('Apertura_Servicio_' + fechaStr.replace(/\//g, '-') + '.pdf'); });
+                });
+            });
+        };
+
+        console.log("✅ Operaciones (con Jefe, PDF y botones) listas.");
     }, 2000); 
 });
 </script>
