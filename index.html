@@ -3370,12 +3370,14 @@ function encabezadoPDF(doc, titulo, subtitulo){
   var fecha = new Date().toLocaleDateString('es-VE');
 
   return Promise.all([
-    cargarImagenBase64('LOGO%20PC.png', null),
-    cargarImagenBase64('LOGO%20GOBERNACION.png', null)
+    cargarImagenBase64('nuevo_pie.png', null) // Usamos la imagen nueva
   ]).then(function(imgs){
     try{
-      if(imgs[0]) doc.addImage(imgs[0], 'PNG', 12, 8, 22, 22);
-      if(imgs[1]) doc.addImage(imgs[1], 'PNG', W-34, 8, 22, 22);
+      if(imgs[0]){
+          // Recortamos la imagen: (imagen, 'PNG', x, y, ancho_visible, alto_visible, x_origen, y_origen, ancho_original, alto_original)
+          // Esto toma solo la parte de arriba izquierda (el logo de Venezuela Renace)
+          doc.addImage(imgs[0], 'PNG', 12, 8, 25, 25, 0, 0, 300, 300); 
+      }
     }catch(e){}
 
     doc.setFont('helvetica','bold');
@@ -3430,30 +3432,28 @@ function pieDePaginaPDF(doc){
   var W = doc.internal.pageSize.getWidth();
   var H = doc.internal.pageSize.getHeight();
 
-  // Cargar la nueva imagen del pie de página (asegúrese de que el nombre coincida)
-  var promesaImg = cargarImagenBase64('nuevo_pie.png', null);
-
-  return promesaImg.then(function(imgPie){
+  return cargarImagenBase64('nuevo_pie.png', null).then(function(imgPie){
     for(var i=1; i<=total; i++){
       doc.setPage(i);
       
       if(imgPie){
         try{
-          // Ajuste el ancho (w) y alto (h) según se vea mejor en su PDF
-          var w = 180; // Ancho de la imagen (puede ajustarlo)
-          var h = 40;  // Alto de la imagen (puede ajustarlo)
+          // Recortamos SOLO la franja de abajo (los logos institucionales)
+          // Ajustamos el 'y_origen' (650) y el alto (100) para que atrape solo los logos
+          var w = 170; 
+          var h = 30;  
+          var x_origen = 0;
+          var y_origen = 650; // Mitad inferior de la imagen
+          var w_original = 800;
+          var h_original = 150;
           
-          // Si la imagen es muy alta, esto evita que se salga de la página
-          if (h > 45) h = 45; 
-
-          // La centramos horizontalmente y la pegamos abajo (H-45 para que quede sobre el margen inferior)
-          doc.addImage(imgPie, 'PNG', (W/2) - (w/2), H - 45, w, h);
+          doc.addImage(imgPie, 'PNG', (W/2) - (w/2), H - 35, w, h, x_origen, y_origen, w_original, h_original);
         }catch(e){
           console.warn("Error al poner la imagen del pie:", e);
         }
       }
       
-      // (Opcional) Si aún quiere mantener la línea de "SIGR-PC..." debajo de la imagen
+      // Texto pequeño de control (opcional)
       doc.setFont('helvetica','normal');
       doc.setFontSize(6);
       doc.setTextColor(150,150,150);
