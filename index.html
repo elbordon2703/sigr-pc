@@ -3430,24 +3430,35 @@ function pieDePaginaPDF(doc){
   var W = doc.internal.pageSize.getWidth();
   var H = doc.internal.pageSize.getHeight();
 
-  var promesaImg = window.SIGR.pieB64
-    ? Promise.resolve(window.SIGR.pieB64)
-    : cargarImagenBase64('PIE%20DE%20PAGIAN2.png', null);
+  // Cargar la nueva imagen del pie de página (asegúrese de que el nombre coincida)
+  var promesaImg = cargarImagenBase64('nuevo_pie.png', null);
 
   return promesaImg.then(function(imgPie){
     for(var i=1; i<=total; i++){
       doc.setPage(i);
+      
       if(imgPie){
         try{
-          var w = 60, h = 10;
-          doc.addImage(imgPie, 'PNG', W/2 - w/2, H-14, w, h);
-        }catch(e){}
+          // Ajuste el ancho (w) y alto (h) según se vea mejor en su PDF
+          var w = 180; // Ancho de la imagen (puede ajustarlo)
+          var h = 40;  // Alto de la imagen (puede ajustarlo)
+          
+          // Si la imagen es muy alta, esto evita que se salga de la página
+          if (h > 45) h = 45; 
+
+          // La centramos horizontalmente y la pegamos abajo (H-45 para que quede sobre el margen inferior)
+          doc.addImage(imgPie, 'PNG', (W/2) - (w/2), H - 45, w, h);
+        }catch(e){
+          console.warn("Error al poner la imagen del pie:", e);
+        }
       }
+      
+      // (Opcional) Si aún quiere mantener la línea de "SIGR-PC..." debajo de la imagen
       doc.setFont('helvetica','normal');
-      doc.setFontSize(7);
-      doc.setTextColor(120,120,120);
-      doc.text('SIGR-PC | Protección Civil - Municipio Papelón', 10, H-4);
-      doc.text('Página '+i+' de '+total, W-10, H-4, {align:'right'});
+      doc.setFontSize(6);
+      doc.setTextColor(150,150,150);
+      doc.text('SIGR-PC | Sistema de Gestión Integral de Riesgo', 10, H-3);
+      doc.text('Página '+i+' de '+total, W-10, H-3, {align:'right'});
     }
     doc.setTextColor(0,0,0);
   });
