@@ -3369,41 +3369,41 @@ function encabezadoPDF(doc, titulo, subtitulo){
   var W = doc.internal.pageSize.getWidth();
   var fecha = new Date().toLocaleDateString('es-VE');
 
-  return Promise.all([
-    cargarImagenBase64('nuevo_pie.png', null) // Usamos la imagen nueva
-  ]).then(function(imgs){
+  // Cargar solo el logo de Venezuela Renace
+  return cargarImagenBase64('logo_renace.png', null).then(function(imgRenace){
     try{
-      if(imgs[0]){
-          // Recortamos la imagen: (imagen, 'PNG', x, y, ancho_visible, alto_visible, x_origen, y_origen, ancho_original, alto_original)
-          // Esto toma solo la parte de arriba izquierda (el logo de Venezuela Renace)
-          doc.addImage(imgs[0], 'PNG', 12, 8, 25, 25, 0, 0, 300, 300); 
-      }
+      // Logo a la izquierda
+      if(imgRenace) doc.addImage(imgRenace, 'PNG', 12, 8, 25, 20); 
     }catch(e){}
 
+    // Texto institucional alineado a la derecha
     doc.setFont('helvetica','bold');
     doc.setFontSize(11);
     doc.setTextColor(11,42,74);
-    doc.text('PROTECCIÓN CIVIL — MUNICIPIO PAPELÓN', W/2, 16, {align:'center'});
+    doc.text('PROTECCIÓN CIVIL — MUNICIPIO PAPELÓN', W-12, 16, {align:'right'});
 
     doc.setFont('helvetica','normal');
     doc.setFontSize(9);
-    doc.text('Estado Portuguesa — Venezuela', W/2, 21, {align:'center'});
+    doc.text('Estado Portuguesa — Venezuela', W-12, 21, {align:'right'});
 
+    // Título del documento (Certificación, Vivienda, EDAN)
     doc.setFont('helvetica','bold');
     doc.setFontSize(12);
-    doc.text(titulo.toUpperCase(), W/2, 30, {align:'center'});
+    doc.text(titulo.toUpperCase(), W-12, 30, {align:'right'});
 
     if(subtitulo){
       doc.setFont('helvetica','normal');
       doc.setFontSize(9);
-      doc.text(subtitulo, W/2, 35, {align:'center'});
+      doc.text(subtitulo, W-12, 35, {align:'right'});
     }
 
+    // Fecha arriba a la derecha (debajo del título)
     doc.setFont('helvetica','normal');
     doc.setFontSize(8);
     doc.setTextColor(90,90,90);
     doc.text('Fecha: '+fecha, W-12, 40, {align:'right'});
 
+    // Línea divisoria
     doc.setDrawColor(11,42,74);
     doc.setLineWidth(0.6);
     doc.line(10, 44, W-10, 44);
@@ -3432,28 +3432,26 @@ function pieDePaginaPDF(doc){
   var W = doc.internal.pageSize.getWidth();
   var H = doc.internal.pageSize.getHeight();
 
-  return cargarImagenBase64('nuevo_pie.png', null).then(function(imgPie){
+  // Cargar los 4 logos en el orden que me indicó
+  return Promise.all([
+    cargarImagenBase64('logo_venezuela.png', null),
+    cargarImagenBase64('logo_ministerio.png', null),
+    cargarImagenBase64('logopc.png', null),
+    cargarImagenBase64('LOGO%20GOBERNACION.png', null)
+  ]).then(function(imgs){
     for(var i=1; i<=total; i++){
       doc.setPage(i);
       
-      if(imgPie){
-        try{
-          // Recortamos SOLO la franja de abajo (los logos institucionales)
-          // Ajustamos el 'y_origen' (650) y el alto (100) para que atrape solo los logos
-          var w = 170; 
-          var h = 30;  
-          var x_origen = 0;
-          var y_origen = 650; // Mitad inferior de la imagen
-          var w_original = 800;
-          var h_original = 150;
-          
-          doc.addImage(imgPie, 'PNG', (W/2) - (w/2), H - 35, w, h, x_origen, y_origen, w_original, h_original);
-        }catch(e){
-          console.warn("Error al poner la imagen del pie:", e);
-        }
-      }
-      
-      // Texto pequeño de control (opcional)
+      // Dibujar los logos centrados en el pie
+      try{
+        // Coordenadas ajustadas para que queden en fila en la parte inferior
+        if(imgs[0]) doc.addImage(imgs[0], 'PNG', 30, H-18, 25, 8);  // Bandera
+        if(imgs[1]) doc.addImage(imgs[1], 'PNG', 65, H-18, 40, 8);  // Ministerio (más ancho)
+        if(imgs[2]) doc.addImage(imgs[2], 'PNG', 115, H-18, 12, 12); // PC (cuadrado)
+        if(imgs[3]) doc.addImage(imgs[3], 'PNG', 140, H-18, 20, 10); // Gobernación
+      }catch(e){}
+
+      // Texto opcional de control debajo de los logos
       doc.setFont('helvetica','normal');
       doc.setFontSize(6);
       doc.setTextColor(150,150,150);
