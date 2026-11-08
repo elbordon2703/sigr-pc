@@ -3435,31 +3435,52 @@ function pieDePaginaPDF(doc){
   var W = doc.internal.pageSize.getWidth();
   var H = doc.internal.pageSize.getHeight();
 
-  // Cargar los 4 logos en el orden que me indicó
+  // Cargar los 4 logos
   return Promise.all([
     cargarImagenBase64('logo_venezuela.png', null),
     cargarImagenBase64('logo_ministerio.png', null),
     cargarImagenBase64('logopc.png', null),
-    cargarImagenBase64('LOGO%20GOBERNACION.png', null)
+    cargarImagenBase64('LOGO GOBERNACION.png', null) // Corregido: sin el %20, GitHub usa el nombre real
   ]).then(function(imgs){
     for(var i=1; i<=total; i++){
       doc.setPage(i);
       
-      // Dibujar los logos centrados en el pie
+      // Línea superior del pie (opcional, para que se vea más limpio)
+      doc.setDrawColor(200,200,200);
+      doc.setLineWidth(0.3);
+      doc.line(15, H-22, W-15, H-22);
+
+      // Dibujar los 4 logos calculando el centro automáticamente
       try{
-        // Coordenadas ajustadas para que queden en fila en la parte inferior
-        if(imgs[0]) doc.addImage(imgs[0], 'PNG', 30, H-18, 25, 8);  // Bandera
-        if(imgs[1]) doc.addImage(imgs[1], 'PNG', 65, H-18, 40, 8);  // Ministerio (más ancho)
-        if(imgs[2]) doc.addImage(imgs[2], 'PNG', 115, H-18, 12, 12); // PC (cuadrado)
-        if(imgs[3]) doc.addImage(imgs[3], 'PNG', 140, H-18, 20, 10); // Gobernación
+        var altoLogo = 8; // Altura fija para que no se deformen
+        
+        // Anchos de cada logo (ajustados para que se vean bien)
+        var anchoVenezuela = 20;
+        var anchoMinisterio = 30;
+        var anchoPC = 8;
+        var anchoGob = 20;
+        
+        var espacioEntreLogos = 10; // Separación entre un logo y otro
+        
+        // Sumamos todo el ancho que ocuparán los logos y sus espacios
+        var anchoTotal = anchoVenezuela + anchoMinisterio + anchoPC + anchoGob + (espacioEntreLogos * 3);
+        
+        // Calculamos la X inicial para que quede centrado en la hoja
+        var xActual = (W - anchoTotal) / 2;
+        var yLogos = H - 18; // Altura donde van los logos
+
+        if(imgs[0]) { doc.addImage(imgs[0], 'PNG', xActual, yLogos, anchoVenezuela, altoLogo); xActual += anchoVenezuela + espacioEntreLogos; }
+        if(imgs[1]) { doc.addImage(imgs[1], 'PNG', xActual, yLogos, anchoMinisterio, altoLogo); xActual += anchoMinisterio + espacioEntreLogos; }
+        if(imgs[2]) { doc.addImage(imgs[2], 'PNG', xActual, yLogos, anchoPC, altoLogo); xActual += anchoPC + espacioEntreLogos; }
+        if(imgs[3]) { doc.addImage(imgs[3], 'PNG', xActual, yLogos, anchoGob, altoLogo); }
       }catch(e){}
 
-      // Texto opcional de control debajo de los logos
+      // Textos inferiores
       doc.setFont('helvetica','normal');
       doc.setFontSize(6);
       doc.setTextColor(150,150,150);
-      doc.text('SIGR-PC | Sistema de Gestión Integral de Riesgo', 10, H-3);
-      doc.text('Página '+i+' de '+total, W-10, H-3, {align:'right'});
+      doc.text('SIGR-PC | Protección Civil - Municipio Papelón', 15, H-5);
+      doc.text('Página '+i+' de '+total, W-15, H-5, {align:'right'});
     }
     doc.setTextColor(0,0,0);
   });
