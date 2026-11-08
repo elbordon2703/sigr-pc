@@ -3437,10 +3437,10 @@ function pieDePaginaPDF(doc){
 
   // Cargar los 4 logos
   return Promise.all([
-    cargarImagenBase64('logo_venezuela.png', null),
-    cargarImagenBase64('logo_ministerio.png', null),
-    cargarImagenBase64('logopc.png', null),
-    cargarImagenBase64('LOGO GOBERNACION.png', null) // Corregido: sin el %20, GitHub usa el nombre real
+cargarImagenBase64('logo_venezuela.png?v=2', null),
+cargarImagenBase64('logo_ministerio.png?v=2', null),
+cargarImagenBase64('logopc.png?v=2', null),
+cargarImagenBase64('LOGO GOBERNACION.png?v=2', null) // Corregido: sin el %20, GitHub usa el nombre real
   ]).then(function(imgs){
     for(var i=1; i<=total; i++){
       doc.setPage(i);
