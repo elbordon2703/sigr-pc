@@ -4434,6 +4434,8 @@ function generarPDFCertificacionInterno(id){
     var M = 12;
 
     return encabezadoCertificacionPDF(doc, folio).then(function(y){
+      y = y + 15; // Forzar espacio para el folio
+      
       // Fecha y hora debajo del folio
       var fechaTxt = formatearFecha(c.fecha);
       var horaTxt  = formatearHora12(c.hora);
