@@ -2,24 +2,27 @@
    SIGR-PC V3.0 — Service Worker (PWA offline-first)
    ============================================================ */
 
-const CACHE_NOMBRE = 'sigr-pc-v3';
-const CACHE_VERSION = '2026-09-16-99'
+const CACHE_NOMBRE = 'sigr-pc-v4';
+const CACHE_VERSION = '2026-11-08-01';
 
 /* Archivos que se cachean al instalar (la app completa) */
 const ARCHIVOS_APP = [
   './',
   './index.html',
   './manifest',
-   './LOGO%20GOBERNACION.png',
-   './SELLO.png',
-   'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
+  './logo_venezuela.png',
+  './logo_renace.png',
+  './logo_ministerio.png',
+  './logopc.png',
+  './LOGO GOBERNACION.png',
+  './SELLO.png',
+  'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js'
 ];
-
 /* Instalar: cachear todo */
 self.addEventListener('install', function(event){
   console.log('[SW] Instalando…');
