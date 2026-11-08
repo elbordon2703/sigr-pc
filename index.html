@@ -7299,5 +7299,42 @@ window.addEventListener('load', function() {
 });
 </script>
   <script src="js_logos.js?v=99"></script>
+  <script>
+// Forzar el pie de pagina con la imagen unica
+window.pieDePaginaPDF = function(doc){
+  var total = doc.internal.getNumberOfPages();
+  var W = doc.internal.pageSize.getWidth();
+  var H = doc.internal.pageSize.getHeight();
+
+  return cargarImagenBase64('pie_pagina.png', null).then(function(imgPie){
+    for(var i=1; i<=total; i++){
+      doc.setPage(i);
+      
+      doc.setDrawColor(200,200,200);
+      doc.setLineWidth(0.3);
+      doc.line(15, H-22, W-15, H-22);
+
+      if(imgPie) {
+        var anchoImagen = 140; 
+        var altoImagen = 12;
+        var xCentro = (W - anchoImagen) / 2;
+        
+        try {
+          doc.addImage(imgPie, 'PNG', xCentro, H-19, anchoImagen, altoImagen);
+        } catch(e) {
+          console.error('Error al dibujar el pie:', e);
+        }
+      }
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(7);
+      doc.setTextColor(150,150,150);
+      doc.text('SIGR-PC | Protección Civil - Municipio Papelón', 15, H-5);
+      doc.text('Página '+i+' de '+total, W-15, H-5, {align:'right'});
+    }
+    doc.setTextColor(0,0,0);
+  });
+};
+</script>
   </body>
 </html>
