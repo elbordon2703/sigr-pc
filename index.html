@@ -4434,20 +4434,21 @@ function generarPDFCertificacionInterno(id){
     var M = 12;
 
     return encabezadoCertificacionPDF(doc, folio).then(function(y){
-      y = y + 15; // Forzar espacio para el folio
-      
-      // Fecha y hora debajo del folio
+      // Movemos la fecha y hora arriba, junto al folio, para que no estorben
       var fechaTxt = formatearFecha(c.fecha);
       var horaTxt  = formatearHora12(c.hora);
       doc.setFont('helvetica','normal');
-      doc.setFontSize(9);
-      doc.setTextColor(60,60,60);
-      doc.text('Fecha: ' + fechaTxt + '  —  Hora: ' + horaTxt + ' HLV', W - M, 57, {align:'right'});
-      doc.setTextColor(0,0,0);
+      doc.setFontSize(8);
+      doc.setTextColor(100,100,100);
+      doc.text('Fecha: ' + fechaTxt + '  —  Hora: ' + horaTxt + ' HLV', W - M, 58, {align:'right'});
+      
+      // Aquí forzamos que el texto empiece MUCHO más abajo (Y=75)
+      y = 75; 
 
       // ---- MARCO LEGAL ----
       doc.setFont('helvetica','bold');
       doc.setFontSize(9);
+      doc.setTextColor(0,0,0);
       doc.text('MARCO LEGAL:', M, y);
       y += 5;
 
