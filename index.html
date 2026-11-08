@@ -3371,7 +3371,7 @@ function encabezadoPDF(doc, titulo, subtitulo){
   var centro = W / 2;
 
   // Cargar solo el logo de Venezuela Renace
-  return cargarImagenBase64('logo_renace.png', null).then(function(imgRenace){
+ return cargarImagenBase64('logo_renace.png?v=2', null).then(function(imgRenace){
     
     // 1. Logo Venezuela Renace (Izquierda, respetando tu margen original)
     if(imgRenace) {
