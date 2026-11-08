@@ -3365,20 +3365,14 @@ function cargarImagenBase64(nombreRepo, base64Firestore){
 }
 window.cargarImagenBase64 = cargarImagenBase64;
 
-function encabezadoPDF(doc, titulo, subtitulo){
+window.encabezadoPDF = function(doc, titulo, subtitulo){
   var W = doc.internal.pageSize.getWidth();
   var fecha = new Date().toLocaleDateString('es-VE');
   var centro = W / 2;
 
-  // Cargar solo el logo de Venezuela Renace
- return cargarImagenBase64('logo_renace.png?v=2', null).then(function(imgRenace){
-    
-    // 1. Logo Venezuela Renace (Izquierda, respetando tu margen original)
-    if(imgRenace) {
-      try { doc.addImage(imgRenace, 'PNG', 12, 8, 25, 20); } catch(e){}
-    }
+  return cargarImagenBase64('logo_renace.png', null).then(function(imgRenace){
+    if(imgRenace) { try { doc.addImage(imgRenace, 'PNG', 12, 8, 25, 20); } catch(e){} }
 
-    // 2. Texto Institucional (Centrado)
     doc.setFont('helvetica','bold');
     doc.setFontSize(11);
     doc.setTextColor(11,42,74);
@@ -3388,13 +3382,11 @@ function encabezadoPDF(doc, titulo, subtitulo){
     doc.setFontSize(9);
     doc.text('Estado Portuguesa — Venezuela', centro, 21, {align:'center'});
 
-    // 3. Título del documento (Centrado)
     doc.setFont('helvetica','bold');
     doc.setFontSize(12);
     doc.setTextColor(0,0,0);
     doc.text(titulo.toUpperCase(), centro, 30, {align:'center'});
 
-    // 4. Subtítulo y Fecha (Centrados)
     if(subtitulo){
       doc.setFont('helvetica','normal');
       doc.setFontSize(9);
@@ -3406,7 +3398,6 @@ function encabezadoPDF(doc, titulo, subtitulo){
     doc.setFontSize(8);
     doc.text('Fecha: '+fecha, centro, 40, {align:'center'});
 
-    // 5. Línea divisoria
     doc.setDrawColor(11,42,74);
     doc.setLineWidth(0.6);
     doc.line(10, 44, W-10, 44);
@@ -3414,9 +3405,47 @@ function encabezadoPDF(doc, titulo, subtitulo){
     doc.setTextColor(0,0,0);
     return 50; 
   });
-}
-window.encabezadoPDF = encabezadoPDF;
-function recuadroFolioPDF(doc, folio, y){
+};
+
+window.pieDePaginaPDF = function(doc){
+  var total = doc.internal.getNumberOfPages();
+  var W = doc.internal.pageSize.getWidth();
+  var H = doc.internal.pageSize.getHeight();
+
+  return Promise.all([
+    cargarImagenBase64('logo_venezuela.png', null),
+    cargarImagenBase64('logo_ministerio.png', null),
+    cargarImagenBase64('logopc.png', null),
+    cargarImagenBase64('LOGO GOBERNACION.png', null)
+  ]).then(function(imgs){
+    for(var i=1; i<=total; i++){
+      doc.setPage(i);
+      doc.setDrawColor(200,200,200);
+      doc.setLineWidth(0.3);
+      doc.line(15, H-22, W-15, H-22);
+
+      try{
+        var altoLogo = 8;
+        var anchoV = 20, anchoM = 30, anchoP = 8, anchoG = 20, espacio = 10;
+        var anchoTotal = anchoV + anchoM + anchoP + anchoG + (espacio * 3);
+        var xActual = (W - anchoTotal) / 2;
+        var yLogos = H - 18;
+
+        if(imgs[0]) { doc.addImage(imgs[0], 'PNG', xActual, yLogos, anchoV, altoLogo); xActual += anchoV + espacio; }
+        if(imgs[1]) { doc.addImage(imgs[1], 'PNG', xActual, yLogos, anchoM, altoLogo); xActual += anchoM + espacio; }
+        if(imgs[2]) { doc.addImage(imgs[2], 'PNG', xActual, yLogos, anchoP, altoLogo); xActual += anchoP + espacio; }
+        if(imgs[3]) { doc.addImage(imgs[3], 'PNG', xActual, yLogos, anchoG, altoLogo); }
+      }catch(e){}
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(6);
+      doc.setTextColor(150,150,150);
+      doc.text('SIGR-PC | Protección Civil - Municipio Papelón', 15, H-5);
+      doc.text('Página '+i+' de '+total, W-15, H-5, {align:'right'});
+    }
+    doc.setTextColor(0,0,0);
+  });
+};function recuadroFolioPDF(doc, folio, y){
   var W = doc.internal.pageSize.getWidth();
   doc.setDrawColor(11,42,74);
   doc.setLineWidth(0.8);
@@ -3430,52 +3459,36 @@ function recuadroFolioPDF(doc, folio, y){
 }
 window.recuadroFolioPDF = recuadroFolioPDF;
 
-function pieDePaginaPDF(doc){
+window.pieDePaginaPDF = function(doc){
   var total = doc.internal.getNumberOfPages();
   var W = doc.internal.pageSize.getWidth();
   var H = doc.internal.pageSize.getHeight();
 
-  // Cargar los 4 logos
   return Promise.all([
-cargarImagenBase64('logo_venezuela.png?v=2', null),
-cargarImagenBase64('logo_ministerio.png?v=2', null),
-cargarImagenBase64('logopc.png?v=2', null),
-cargarImagenBase64('LOGO GOBERNACION.png?v=2', null) // Corregido: sin el %20, GitHub usa el nombre real
+    cargarImagenBase64('logo_venezuela.png', null),
+    cargarImagenBase64('logo_ministerio.png', null),
+    cargarImagenBase64('logopc.png', null),
+    cargarImagenBase64('LOGO GOBERNACION.png', null)
   ]).then(function(imgs){
     for(var i=1; i<=total; i++){
       doc.setPage(i);
-      
-      // Línea superior del pie (opcional, para que se vea más limpio)
       doc.setDrawColor(200,200,200);
       doc.setLineWidth(0.3);
       doc.line(15, H-22, W-15, H-22);
 
-      // Dibujar los 4 logos calculando el centro automáticamente
       try{
-        var altoLogo = 8; // Altura fija para que no se deformen
-        
-        // Anchos de cada logo (ajustados para que se vean bien)
-        var anchoVenezuela = 20;
-        var anchoMinisterio = 30;
-        var anchoPC = 8;
-        var anchoGob = 20;
-        
-        var espacioEntreLogos = 10; // Separación entre un logo y otro
-        
-        // Sumamos todo el ancho que ocuparán los logos y sus espacios
-        var anchoTotal = anchoVenezuela + anchoMinisterio + anchoPC + anchoGob + (espacioEntreLogos * 3);
-        
-        // Calculamos la X inicial para que quede centrado en la hoja
+        var altoLogo = 8;
+        var anchoV = 20, anchoM = 30, anchoP = 8, anchoG = 20, espacio = 10;
+        var anchoTotal = anchoV + anchoM + anchoP + anchoG + (espacio * 3);
         var xActual = (W - anchoTotal) / 2;
-        var yLogos = H - 18; // Altura donde van los logos
+        var yLogos = H - 18;
 
-        if(imgs[0]) { doc.addImage(imgs[0], 'PNG', xActual, yLogos, anchoVenezuela, altoLogo); xActual += anchoVenezuela + espacioEntreLogos; }
-        if(imgs[1]) { doc.addImage(imgs[1], 'PNG', xActual, yLogos, anchoMinisterio, altoLogo); xActual += anchoMinisterio + espacioEntreLogos; }
-        if(imgs[2]) { doc.addImage(imgs[2], 'PNG', xActual, yLogos, anchoPC, altoLogo); xActual += anchoPC + espacioEntreLogos; }
-        if(imgs[3]) { doc.addImage(imgs[3], 'PNG', xActual, yLogos, anchoGob, altoLogo); }
+        if(imgs[0]) { doc.addImage(imgs[0], 'PNG', xActual, yLogos, anchoV, altoLogo); xActual += anchoV + espacio; }
+        if(imgs[1]) { doc.addImage(imgs[1], 'PNG', xActual, yLogos, anchoM, altoLogo); xActual += anchoM + espacio; }
+        if(imgs[2]) { doc.addImage(imgs[2], 'PNG', xActual, yLogos, anchoP, altoLogo); xActual += anchoP + espacio; }
+        if(imgs[3]) { doc.addImage(imgs[3], 'PNG', xActual, yLogos, anchoG, altoLogo); }
       }catch(e){}
 
-      // Textos inferiores
       doc.setFont('helvetica','normal');
       doc.setFontSize(6);
       doc.setTextColor(150,150,150);
@@ -3484,8 +3497,7 @@ cargarImagenBase64('LOGO GOBERNACION.png?v=2', null) // Corregido: sin el %20, G
     }
     doc.setTextColor(0,0,0);
   });
-}
-window.pieDePaginaPDF = pieDePaginaPDF;
+};
 
 function marcoLegalPDF(doc, texto, y){
   var W = doc.internal.pageSize.getWidth();
