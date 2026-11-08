@@ -3367,7 +3367,6 @@ window.cargarImagenBase64 = cargarImagenBase64;
 
 window.encabezadoPDF = function(doc, titulo, subtitulo){
   var W = doc.internal.pageSize.getWidth();
-  var fecha = new Date().toLocaleDateString('es-VE');
   var centro = W / 2;
 
   return cargarImagenBase64('logo_renace.png', null).then(function(imgRenace){
@@ -3394,16 +3393,14 @@ window.encabezadoPDF = function(doc, titulo, subtitulo){
       doc.text(subtitulo, centro, 35, {align:'center'});
     }
 
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(8);
-    doc.text('Fecha: '+fecha, centro, 40, {align:'center'});
-
+    // Quitamos la fecha de aquí
+    
     doc.setDrawColor(11,42,74);
     doc.setLineWidth(0.6);
-    doc.line(10, 44, W-10, 44);
+    doc.line(10, 40, W-10, 40); 
     
     doc.setTextColor(0,0,0);
-    return 50; 
+    return 45; 
   });
 };
 
@@ -3412,39 +3409,35 @@ window.pieDePaginaPDF = function(doc){
   var W = doc.internal.pageSize.getWidth();
   var H = doc.internal.pageSize.getHeight();
 
-  return Promise.all([
-    cargarImagenBase64('logo_venezuela.png', null),
-    cargarImagenBase64('logo_ministerio.png', null),
-    cargarImagenBase64('logopc.png', null),
-    cargarImagenBase64('LOGO GOBERNACION.png', null)
-  ]).then(function(imgs){
+  return cargarImagenBase64('pie_pagina.png', null).then(function(imgPie){
     for(var i=1; i<=total; i++){
       doc.setPage(i);
+      
       doc.setDrawColor(200,200,200);
       doc.setLineWidth(0.3);
       doc.line(15, H-22, W-15, H-22);
 
-      try{
-        var altoLogo = 8;
-        var anchoV = 20, anchoM = 30, anchoP = 8, anchoG = 20, espacio = 10;
-        var anchoTotal = anchoV + anchoM + anchoP + anchoG + (espacio * 3);
-        var xActual = (W - anchoTotal) / 2;
-        var yLogos = H - 18;
-
-        if(imgs[0]) { doc.addImage(imgs[0], 'PNG', xActual, yLogos, anchoV, altoLogo); xActual += anchoV + espacio; }
-        if(imgs[1]) { doc.addImage(imgs[1], 'PNG', xActual, yLogos, anchoM, altoLogo); xActual += anchoM + espacio; }
-        if(imgs[2]) { doc.addImage(imgs[2], 'PNG', xActual, yLogos, anchoP, altoLogo); xActual += anchoP + espacio; }
-        if(imgs[3]) { doc.addImage(imgs[3], 'PNG', xActual, yLogos, anchoG, altoLogo); }
-      }catch(e){}
+      if(imgPie) {
+        var anchoImagen = 140; 
+        var altoImagen = 12;
+        var xCentro = (W - anchoImagen) / 2;
+        
+        try {
+          doc.addImage(imgPie, 'PNG', xCentro, H-19, anchoImagen, altoImagen);
+        } catch(e) {
+          console.error('Error al dibujar el pie:', e);
+        }
+      }
 
       doc.setFont('helvetica','normal');
-      doc.setFontSize(6);
+      doc.setFontSize(7);
       doc.setTextColor(150,150,150);
       doc.text('SIGR-PC | Protección Civil - Municipio Papelón', 15, H-5);
       doc.text('Página '+i+' de '+total, W-15, H-5, {align:'right'});
     }
     doc.setTextColor(0,0,0);
   });
+};
 };function recuadroFolioPDF(doc, folio, y){
   var W = doc.internal.pageSize.getWidth();
   doc.setDrawColor(11,42,74);
@@ -3458,46 +3451,6 @@ window.pieDePaginaPDF = function(doc){
   return y+15;
 }
 window.recuadroFolioPDF = recuadroFolioPDF;
-
-window.pieDePaginaPDF = function(doc){
-  var total = doc.internal.getNumberOfPages();
-  var W = doc.internal.pageSize.getWidth();
-  var H = doc.internal.pageSize.getHeight();
-
-  return Promise.all([
-    cargarImagenBase64('logo_venezuela.png', null),
-    cargarImagenBase64('logo_ministerio.png', null),
-    cargarImagenBase64('logopc.png', null),
-    cargarImagenBase64('LOGO GOBERNACION.png', null)
-  ]).then(function(imgs){
-    for(var i=1; i<=total; i++){
-      doc.setPage(i);
-      doc.setDrawColor(200,200,200);
-      doc.setLineWidth(0.3);
-      doc.line(15, H-22, W-15, H-22);
-
-      try{
-        var altoLogo = 8;
-        var anchoV = 20, anchoM = 30, anchoP = 8, anchoG = 20, espacio = 10;
-        var anchoTotal = anchoV + anchoM + anchoP + anchoG + (espacio * 3);
-        var xActual = (W - anchoTotal) / 2;
-        var yLogos = H - 18;
-
-        if(imgs[0]) { doc.addImage(imgs[0], 'PNG', xActual, yLogos, anchoV, altoLogo); xActual += anchoV + espacio; }
-        if(imgs[1]) { doc.addImage(imgs[1], 'PNG', xActual, yLogos, anchoM, altoLogo); xActual += anchoM + espacio; }
-        if(imgs[2]) { doc.addImage(imgs[2], 'PNG', xActual, yLogos, anchoP, altoLogo); xActual += anchoP + espacio; }
-        if(imgs[3]) { doc.addImage(imgs[3], 'PNG', xActual, yLogos, anchoG, altoLogo); }
-      }catch(e){}
-
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(6);
-      doc.setTextColor(150,150,150);
-      doc.text('SIGR-PC | Protección Civil - Municipio Papelón', 15, H-5);
-      doc.text('Página '+i+' de '+total, W-15, H-5, {align:'right'});
-    }
-    doc.setTextColor(0,0,0);
-  });
-};
 
 function marcoLegalPDF(doc, texto, y){
   var W = doc.internal.pageSize.getWidth();
