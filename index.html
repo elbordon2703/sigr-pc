@@ -7300,6 +7300,32 @@ window.addEventListener('load', function() {
 </script>
   <script src="js_logos.js?v=99"></script>
   <script>
+    window.encabezadoCertificacionPDF = function(doc, folio) {
+  return window.encabezadoPDF(doc, 'CERTIFICACIÓN DE ÁRBOLES', null).then(function(y){
+    var W = doc.internal.pageSize.getWidth();
+    var M = 12;
+    
+    var folioAncho = 60;
+    var folioAlto = 8;
+    var folioX = W - M - folioAncho;
+    var folioY = 48; 
+    
+    doc.setDrawColor(11,42,74);
+    doc.setLineWidth(0.6);
+    doc.rect(folioX, folioY, folioAncho, folioAlto);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(0,0,0);
+    doc.text(folio, folioX + (folioAncho/2), folioY + 5.5, { align: 'center' });
+    
+    return 58; 
+  });
+};
+
+// Forzar el pie de pagina con la imagen unica
+window.pieDePaginaPDF = function(doc){
+// ... el resto de tu código del pie
 // Forzar el pie de pagina con la imagen unica
 window.pieDePaginaPDF = function(doc){
   var total = doc.internal.getNumberOfPages();
