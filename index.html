@@ -3571,7 +3571,7 @@ document.addEventListener('DOMContentLoaded', function(){
    ╚══════════════════════════════════════════════════════════╝ */
 
 /* ============================================================
-   BASE DE DATOS LOCAL (IndexedDB)
+   MÓDULO DBLOCAL CORREGIDO Y SEGURO (SIGR-PC)
    ============================================================ */
 var DBLocal = {
   db: null,
@@ -3580,15 +3580,13 @@ var DBLocal = {
   stores: ['certificaciones', 'viviendas', 'edan', 'personal_cache', 'usuarios_cache', 'sync_queue']
 };
 
-/* ============================================================
-   MÓDULO DBLOCAL BLINDADO PARA FUNCIONAMIENTO OFFLINE (SIGR-PC)
-   ============================================================ */
 DBLocal.abrir = function(){
   return new Promise(function(resolve, reject){
     if(DBLocal.db){
       try {
         var txTest = DBLocal.db.transaction(DBLocal.stores[0], 'readonly');
-        return resolve(DBLocal.db);
+        resolve(DBLocal.db);
+        return;
       } catch(err) {
         DBLocal.db = null;
       }
@@ -3678,7 +3676,8 @@ DBLocal.vaciar = function(store){
   return DBLocal.abrir().then(function(db){
     return new Promise(function(resolve, reject){
       var tx = db.transaction(store, 'readwrite');
-      tx.objectStore(store).clear();
+      var os = tx.objectStore(store);
+      os.clear();
       tx.oncomplete = function(){ resolve(true); };
       tx.onerror = function(e){ reject(e); };
     });
@@ -3686,7 +3685,6 @@ DBLocal.vaciar = function(store){
 };
 
 window.DBLocal = DBLocal;
-
 /* ============================================================
    LOGIN OFFLINE — Cache de credenciales
    ============================================================ */
