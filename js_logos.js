@@ -1,5 +1,5 @@
 // ==========================================
-// ARCHIVO DE LOGOS — SIGR-PC (OFICIAL)
+// ARCHIVO DE LOGOS — SIGR-PC (OFICIAL CON BANNER)
 // ==========================================
 
 // Encabezado limpio (SIN Gobernación, altura exacta)
@@ -41,18 +41,13 @@ window.encabezadoPDF = function(doc, titulo, subtitulo){
     });
 };
 
-// Pie de página oficial con LOGOPC.PNG y simetría profesional
+// Pie de página oficial utilizando el banner unificado pie_pagina.png
 window.pieDePaginaPDF = function(doc){
     var total = doc.internal.getNumberOfPages();
     var W = doc.internal.pageSize.getWidth();
     var H = doc.internal.pageSize.getHeight();
 
-    return Promise.all([
-        cargarImagenBase64('logo_venezuela.png', null),
-        cargarImagenBase64('logo_ministerio.png', null),
-        cargarImagenBase64('LOGOPC.PNG', null),          // Distintivo institucional oficial
-        cargarImagenBase64('LOGO GOBERNACION.png', null)
-    ]).then(function(imgs){
+    return cargarImagenBase64('pie_pagina.png', null).then(function(imgBanner){
         for(var i = 1; i <= total; i++){
             doc.setPage(i);
             
@@ -62,19 +57,13 @@ window.pieDePaginaPDF = function(doc){
             doc.line(12, H - 22, W - 12, H - 22);
 
             try {
-                // Calibración de tamaños para que tengan presencia visual real
-                var altoLogo = 11; 
-                var anchos = [22, 28, 12, 22]; // Ancho ajustado para LOGOPC.PNG
-                var espacio = 8;
-                var anchoTotal = anchos.reduce(function(a, b){ return a + b; }, 0) + (espacio * (anchos.length - 1));
-                var xActual = (W - anchoTotal) / 2;
-                var yLogos = H - 19;
-
-                for(var j = 0; j < imgs.length; j++){
-                    if(imgs[j]){
-                        doc.addImage(imgs[j], 'PNG', xActual, yLogos, anchos[j], altoLogo);
-                    }
-                    xActual += anchos[j] + espacio;
+                if(imgBanner){
+                    var anchoBanner = 125; // Ancho perfecto para centrar el bloque en la página
+                    var altoBanner = 11;   // Altura proporcional sin deformar los logos
+                    var xBanner = (W - anchoBanner) / 2;
+                    var yBanner = H - 19;
+                    
+                    doc.addImage(imgBanner, 'PNG', xBanner, yBanner, anchoBanner, altoBanner);
                 }
             } catch(e){}
 
