@@ -3571,7 +3571,7 @@ document.addEventListener('DOMContentLoaded', function(){
    ╚══════════════════════════════════════════════════════════╝ */
 
 /* ============================================================
-   MÓDULO DBLOCAL CORREGIDO Y SEGURO (SIGR-PC)
+   BASE DE DATOS LOCAL (IndexedDB) — VERSIÓN LIMPIA Y SEGURA
    ============================================================ */
 var DBLocal = {
   db: null,
@@ -3583,15 +3583,9 @@ var DBLocal = {
 DBLocal.abrir = function(){
   return new Promise(function(resolve, reject){
     if(DBLocal.db){
-      try {
-        var txTest = DBLocal.db.transaction(DBLocal.stores[0], 'readonly');
-        resolve(DBLocal.db);
-        return;
-      } catch(err) {
-        DBLocal.db = null;
-      }
+      resolve(DBLocal.db);
+      return;
     }
-
     var req = indexedDB.open(DBLocal.nombre, DBLocal.version);
     req.onupgradeneeded = function(e){
       var db = e.target.result;
@@ -3605,9 +3599,8 @@ DBLocal.abrir = function(){
       DBLocal.db = e.target.result;
       DBLocal.db.onclose = function(){
         DBLocal.db = null;
-        console.warn('[DBLocal] Conexión cerrada inesperadamente.');
       };
-      console.log('[DBLocal] Base abierta. Stores:', Array.from(DBLocal.db.objectStoreNames));
+      console.log('[DBLocal] Base abierta correctamente.');
       resolve(DBLocal.db);
     };
     req.onerror = function(e){
