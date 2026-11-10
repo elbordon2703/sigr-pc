@@ -3346,7 +3346,7 @@ function getVehiculosActivos(){
 window.getVehiculosActivos = getVehiculosActivos;
 
 /* ============================================================
-   HELPERS DE PDF — OFICIALES Y UNIFICADOS (SIGR-PC)
+   HELPERS DE PDF — OFICIALES Y CORREGIDOS (SIGR-PC)
    ============================================================ */
 function cargarImagenBase64(nombreRepo, base64Firestore){
   if(base64Firestore) return Promise.resolve(base64Firestore);
@@ -3376,6 +3376,7 @@ window.encabezadoPDF = function(doc, titulo, subtitulo) {
         var imgRenace = imgs[0];
         var imgGob = imgs[1];
 
+        // Izquierda: Venezuela Renace / Derecha: Gobernación
         if(imgRenace) { try { doc.addImage(imgRenace, 'PNG', M, 8, 22, 11); } catch(e){} }
         if(imgGob)    { try { doc.addImage(imgGob, 'PNG', W - 38, 8, 26, 11); } catch(e){} }
 
@@ -3426,16 +3427,20 @@ window.pieDePaginaPDF = function(doc) {
             doc.line(12, H - 18, W - 12, H - 18);
 
             try {
-                var altoLogo = 7;
-                var anchoV = 16, anchoM = 24, anchoP = 7, anchoG = 16, espacio = 6;
-                var anchoTotal = anchoV + anchoM + anchoP + anchoG + (espacio * 3);
+                var altoLogo = 6;
+                // Anchos equilibrados para que entren los 4 perfectamente centrados
+                var anchos = [14, 20, 10, 14]; 
+                var espacio = 5;
+                var anchoTotal = anchos.reduce(function(a, b){ return a + b; }, 0) + (espacio * (anchos.length - 1));
                 var xActual = (W - anchoTotal) / 2;
-                var yLogos = H - 15;
+                var yLogos = H - 14;
 
-                if(imgs[0]) { doc.addImage(imgs[0], 'PNG', xActual, yLogos, anchoV, altoLogo); xActual += anchoV + espacio; }
-                if(imgs[1]) { doc.addImage(imgs[1], 'PNG', xActual, yLogos, anchoM, altoLogo); xActual += anchoM + espacio; }
-                if(imgs[2]) { doc.addImage(imgs[2], 'PNG', xActual, yLogos, anchoP, altoLogo); xActual += anchoP + espacio; }
-                if(imgs[3]) { doc.addImage(imgs[3], 'PNG', xActual, yLogos, anchoG, altoLogo); }
+                for(var j = 0; j < imgs.length; j++){
+                    if(imgs[j]){
+                        doc.addImage(imgs[j], 'PNG', xActual, yLogos, anchos[j], altoLogo);
+                    }
+                    xActual += anchos[j] + espacio;
+                }
             } catch(e){}
 
             doc.setFont('helvetica', 'normal');
@@ -3446,7 +3451,8 @@ window.pieDePaginaPDF = function(doc) {
         }
         doc.setTextColor(0, 0, 0);
     });
-};  var total = doc.internal.getNumberOfPages();
+};
+  var total = doc.internal.getNumberOfPages();
   var W = doc.internal.pageSize.getWidth();
   var H = doc.internal.pageSize.getHeight();
 
