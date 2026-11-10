@@ -3580,9 +3580,20 @@ var DBLocal = {
   stores: ['certificaciones', 'viviendas', 'edan', 'personal_cache', 'usuarios_cache', 'sync_queue']
 };
 
+/* ============================================================
+   MÓDULO DBLOCAL BLINDADO PARA FUNCIONAMIENTO OFFLINE (SIGR-PC)
+   ============================================================ */
 DBLocal.abrir = function(){
   return new Promise(function(resolve, reject){
-    if(DBLocal.db) return resolve(DBLocal.db);
+    if(DBLocal.db){
+      try {
+        var txTest = DBLocal.db.transaction(DBLocal.stores[0], 'readonly');
+        return resolve(DBLocal.db);
+      } catch(err) {
+        DBLocal.db = null;
+      }
+    }
+
     var req = indexedDB.open(DBLocal.nombre, DBLocal.version);
     req.onupgradeneeded = function(e){
       var db = e.target.result;
@@ -3594,6 +3605,10 @@ DBLocal.abrir = function(){
     };
     req.onsuccess = function(e){
       DBLocal.db = e.target.result;
+      DBLocal.db.onclose = function(){
+        DBLocal.db = null;
+        console.warn('[DBLocal] Conexión cerrada inesperadamente.');
+      };
       console.log('[DBLocal] Base abierta. Stores:', Array.from(DBLocal.db.objectStoreNames));
       resolve(DBLocal.db);
     };
