@@ -7039,7 +7039,7 @@ function generarPDFViviendaInterno(v, btn){
       doc.setFont('helvetica', 'normal');
 doc.setFontSize(9);
 var rec = v.recomendaciones || 'Sin recomendaciones.';
-var lRec = doc.splitTextToSize(rec, W - M*2); // <-- ¡Aquí faltaba declarar la variable!
+var lRec = doc.splitTextToSize(rec, W - M*2); // Declaración correcta de la variable
 doc.text(lRec, M, y, {align: 'justify', maxWidth: W - M*2});
 y += lRec.length * 3.8 + 3;
       // ---- FIRMA Y SELLO ----
