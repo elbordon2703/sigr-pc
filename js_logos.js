@@ -1,8 +1,8 @@
 // ==========================================
-// ARCHIVO NUEVO PARA FORZAR LOS LOGOS NUEVOS
+// ARCHIVO DE LOGOS — SIGR-PC (OFICIAL)
 // ==========================================
 
-// Sobreescribimos el encabezado con el diseño correcto (SIN Gobernación)
+// Encabezado limpio (SIN Gobernación, altura exacta)
 window.encabezadoPDF = function(doc, titulo, subtitulo){
     var W = doc.internal.pageSize.getWidth();
     var centro = W / 2;
@@ -41,7 +41,7 @@ window.encabezadoPDF = function(doc, titulo, subtitulo){
     });
 };
 
-// Sobreescribimos el pie de página con los 4 logos usando los nombres EXACTOS de GitHub
+// Pie de página oficial con LOGOPC.PNG y simetría profesional
 window.pieDePaginaPDF = function(doc){
     var total = doc.internal.getNumberOfPages();
     var W = doc.internal.pageSize.getWidth();
@@ -50,22 +50,25 @@ window.pieDePaginaPDF = function(doc){
     return Promise.all([
         cargarImagenBase64('logo_venezuela.png', null),
         cargarImagenBase64('logo_ministerio.png', null),
-        cargarImagenBase64('LOGOPC.PNG', null),          // Nombres exactos de la captura
-        cargarImagenBase64('LOGO GOBERNACION.png', null) // Nombres exactos de la captura
+        cargarImagenBase64('LOGOPC.PNG', null),          // Distintivo institucional oficial
+        cargarImagenBase64('LOGO GOBERNACION.png', null)
     ]).then(function(imgs){
         for(var i = 1; i <= total; i++){
             doc.setPage(i);
+            
+            // Línea divisoria del pie de página
             doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.3);
-            doc.line(12, H - 20, W - 12, H - 20);
+            doc.line(12, H - 22, W - 12, H - 22);
 
             try {
-                var altoLogo = 7;
-                var anchos = [16, 22, 10, 16]; 
-                var espacio = 6;
+                // Calibración de tamaños para que tengan presencia visual real
+                var altoLogo = 11; 
+                var anchos = [22, 28, 12, 22]; // Ancho ajustado para LOGOPC.PNG
+                var espacio = 8;
                 var anchoTotal = anchos.reduce(function(a, b){ return a + b; }, 0) + (espacio * (anchos.length - 1));
                 var xActual = (W - anchoTotal) / 2;
-                var yLogos = H - 17;
+                var yLogos = H - 19;
 
                 for(var j = 0; j < imgs.length; j++){
                     if(imgs[j]){
