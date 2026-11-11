@@ -5938,16 +5938,15 @@ window.generarInformeEDAN = generarInformeEDAN;
    [M3] EDAN — PDF INFORME
    ============================================================ */
 
-// ---- Encabezado del PDF de Informe EDAN ----
+// ---- Encabezado del PDF de Informe EDAN (Estandarizado) ----
 async function encabezadoInformeEDANPDF(doc, folio){
   var W = doc.internal.pageSize.getWidth();
   var M = 12;
 
   try{
-    var logoPC  = await cargarImagenBase64('LOGO%20PC.png', null);
-    var logoGob = await cargarImagenBase64('LOGO%20GOBERNACION.png', null);
-    if(logoPC)  doc.addImage(logoPC,  'PNG', M, 8, 20, 20);
-    if(logoGob) doc.addImage(logoGob, 'PNG', W-42, 8, 30, 20);
+    // Usamos el logo unificado de Venezuela Renace a la izquierda
+    var logoRenace = await cargarImagenBase64('logo_renace.png', null);
+    if(logoRenace) doc.addImage(logoRenace, 'PNG', M, 8, 30, 18);
   }catch(e){}
 
   doc.setFont('helvetica','bold');
