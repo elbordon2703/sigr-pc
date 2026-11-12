@@ -3474,9 +3474,9 @@ function marcoLegalPDF(doc, texto, y){
   return y + lineas.length * 4;
 }
 window.marcoLegalPDF = marcoLegalPDF;
-/* ============================================================
-   SERVICE WORKER — Registro PWA (Día 1)
-   ============================================================ */
+// ============================================================
+// SERVICE WORKER — Registro PWA (Día 1)
+// ============================================================
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
     navigator.serviceWorker.register('./service-worker.js')
