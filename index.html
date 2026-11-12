@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIGR-PC V3.0 — Protección Civil Municipio Papelón</title>
-<link rel="icon" type="image/png" href="LOGO%20PC.png">
+<link rel="icon" type="image/png" href="LOGOPC.PNG">
 <link rel="manifest" href="manifest">
 <meta name="theme-color" content="#0b2a4a">
 <meta name="mobile-web-app-capable" content="yes">
@@ -3122,7 +3122,7 @@ function cargarDatosBase(){
           window.SIGR.pieB64 = snap.data().imagen;
           return null;
         }
-        return fetch('PIE%20DE%20PAGIAN2.png')
+        return fetch('pie_pagina.png')
           .then(function(r){ return r.ok ? r.blob() : null; })
           .then(function(b){
             if(!b) return;
