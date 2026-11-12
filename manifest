@@ -11,13 +11,13 @@
   "lang": "es-VE",
   "icons": [
     {
-      "src": "logopc.png",
+      "src": "LOGOPC.PNG",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "logopc.png",
+      "src": "LOGOPC.PNG",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
