@@ -3524,8 +3524,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   console.log('%c SIGR-PC V3.0 — Módulo 1 cargado ','background:#0b2a4a;color:#fff;padding:4px 8px;border-radius:3px;');
 });
-  }
-</script>
+  </script>
   <script>
 /* ╔══════════════════════════════════════════════════════════╗
    ║  [BLOQUE 3] INDEXEDDB + LOGIN OFFLINE + SYNC QUEUE        ║
@@ -6776,8 +6775,7 @@ doc.setDrawColor(0,0,0);
           doc.save('Planilla_EDAN_' + folio + '.pdf');
         });
       });
-    });
-  }).catch(function(err){
+      }).catch(function(err){
     console.error('Error generando Planilla EDAN:', err);
     if(err && err.message === 'SIN_RED'){
       alert('Este EDAN se guardó sin conexión.\n\nEl PDF estará disponible cuando el sistema se sincronice con el servidor.');
